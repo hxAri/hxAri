@@ -14,7 +14,7 @@ var mySelf = function() {
 console.log( mySelf().name );
 console.log( mySelf().about );
 
-for( let skill in mySelf.skill ) {
+for( let skill in mySelf().skill ) {
     console.log( skill );
 }
 ```
