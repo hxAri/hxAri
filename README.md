@@ -15,6 +15,6 @@ console.log( mySelf().name );
 console.log( mySelf().about );
 
 for( let skill in mySelf().skill ) {
-    console.log( skill );
+    console.log( mySelf().skill[skill] );
 }
 ```
