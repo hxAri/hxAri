@@ -3,11 +3,7 @@ var mySelf = function() {
     return Object.create({
         name: "hxAri",
         about: "Just a Programmer from Indonesian.",
-        skill: [
-            "PHP Developer",
-            "Python Developer",
-            "Javascript Developer"
-        ]
+        skill: [ "PHP", "Python", "Javascript" ]
     });
 };
 
@@ -15,6 +11,6 @@ console.log( mySelf().name );
 console.log( mySelf().about );
 
 for( let skill in mySelf().skill ) {
-    console.log( mySelf().skill[skill] );
+    console.log( `Coding ${mySelf().skill[skill]}` );
 }
 ```
