@@ -2,6 +2,7 @@
 var mySelf = function() {
     return Object.create({
         name: "hxAri",
+        motto: "Everybody Needs A Programmer.",
         about: "Just a Programmer from Indonesian.",
         skill: [ "PHP", "Python", "Javascript" ]
     });
