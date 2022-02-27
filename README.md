@@ -4,7 +4,7 @@ var mySelf = function() {
         name: "hxAri",
         motto: "Everybody Needs A Programmer.",
         about: "Just a Programmer from Indonesian.",
-        skill: [ "PHP", "Python", "Javascript" ]
+        skill: [ "PHP", "Python", "JavaScript" ]
     });
 };
 
