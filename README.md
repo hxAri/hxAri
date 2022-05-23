@@ -1,5 +1,5 @@
-A Junior Backend Developer
-Everybody Needs A Programmer 😉
+A Junior Backend Developer<br/>
+Everybody Needs A Programmer 😉<br/>
 JS, PHP, Java, R̶u̶b̶y̶, G̶o̶l̶a̶n̶g̶, & Python
 
 Also follow **[@octancle](https://github.com/octancle)**
