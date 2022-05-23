@@ -4,8 +4,6 @@ JS, PHP, Java, R̶u̶b̶y̶, G̶o̶l̶a̶n̶g̶, & Python
 
 Also follow **[@octancle](https://github.com/octancle)**
 
-Hello, I'm Ari Setiawan, I'm a Programmer from Indonesian. I'm currently undergoing a Software Engineering vocational high school. I usually work on my own projects but I can also work with a team. And I'm also a quiet person 😐
-
 | <a href="https://github.com/hxari"><img align="center" src="https://github-readme-stats.vercel.app/api?username=hxari&show_icons=true&include_all_commits=true&hide_border=true&bg_color=0D1017&title_color=8490ff&text_color=ffffff&icon_color=007bff" alt="hxAri's github stats" /></a> | <a href="https://github.com/hxari"><img align="center" src="https://github-readme-stats.vercel.app/api/top-langs/?username=hxari&layout=compact&&hide_border=true&bg_color=0D1017&title_color=8490ff&text_color=ffffff" /></a> |
 | ------------- | ------------- |
 
