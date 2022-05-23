@@ -1,6 +1,8 @@
+A Junior Backend Developer
+Everybody Needs A Programmer 😉
+JS, PHP, Java, R̶u̶b̶y̶, G̶o̶l̶a̶n̶g̶, & Python
 
-**JUNIOR BACKEND WEB DEVELEOPER**<br/>
-Just a Programmer from Indonesian 😉
+Also follow **[@octancle](https://github.com/octancle)**
 
 Hello, I'm Ari Setiawan, I'm a Programmer from Indonesian. I'm currently undergoing a Software Engineering vocational high school. I usually work on my own projects but I can also work with a team. And I'm also a quiet person 😐
 
