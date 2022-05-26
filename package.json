@@ -1,0 +1,25 @@
+{
+    "name": "hxari",
+    "version": "4.0.2",
+    "description": "A Junior Backend Developer<br/> Everybody Needs A Programmer 😉<br/> JS, PHP, Java, R̶u̶b̶y̶, G̶o̶l̶a̶n̶g̶, & Python",
+    "main": "assets/script/hxari.js",
+    "unpkg": "assets/script/hxari.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/hxAri/hxAri.git"
+    },
+    "keywords": [
+        "hxAri",
+        "Self",
+        "Js"
+    ],
+    "author": "hxAri",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/hxAri/hxAri/issues"
+    },
+    "homepage": "https://github.com/hxAri/hxAri#readme"
+}
