@@ -7,7 +7,7 @@
  * @update 08.06-2022
  * @github https://github.com/hxAri
  *
- * @version 4.0.4
+ * @version 4.0.5
  *
  * All source code license under MIT.
  * Please see the MIT documentation for details.
@@ -1225,7 +1225,7 @@ try {
                 "\\e[09m * \\e[08m@update \\e[00m19.05-2022",
                 "\\e[09m * \\e[08m@github \\e[00mhttps://github.com/\\e[05mhxAri",
                 "\\e[09m *",
-                "\\e[09m * \\e[08m@version \\e[02mv4.0.2",
+                "\\e[09m * \\e[08m@version \\e[02mv4.0.5",
                 "\\e[09m *",
                 "\\e[09m * All source code license under \\e[00mMIT\\e[08m.",
                 "\\e[09m * Please see the MIT documentation for details\\e[08m.",
