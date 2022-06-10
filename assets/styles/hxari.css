@@ -2,7 +2,7 @@
 /*
  * @author hxAri
  * @create 16.03-2022
- * @update 08.06-2022
+ * @update 10.06-2022
  * @github https://github.com/hxAri
  *
  * All source code license under MIT.
@@ -21,13 +21,20 @@
     
     --bg-00m: #FFFFFF;
     --bg-01m: #F8F8FF;
-    --bg-02m: #D6D6D6;
+    --bg-02m: #F2F3F5;
+    --bg-03m: #D6D6D6;
     
-    --ic-00m: #677377;
+    --ac-00m: #007BFF;
+    --ac-01m: #043A6B;
+    
+    --ic-00m: #5F6267;
     
     --fc-00m: #000000;
     --fc-01m: #5F5F5F;
-    --fc-02m: #DDDDDD;
+    --fc-02m: #606267;
+    --fc-03m: #DDDDDD;
+    
+    --ln-00m: #DBDCDE;
     
     --sh-00m: #000000;
     --sh-01m: #A2040D;
@@ -44,18 +51,25 @@
 
 [data-theme="dark"] {
     
-    --bg-00img: url('/dist/images/1653507326;74GVGUB1E..png');
-    --bg-01img: url('/dist/images/1644890644;abFVZSCJpK.jpg');
+    --bg-00img: url('https://raw.githubusercontent.com/hxAri/hxAri/main/assets/images/1653507326;74GVGUB1E..png');
+    --bg-01img: url('https://raw.githubusercontent.com/hxAri/hxAri/main/assets/images/1644890644;abFVZSCJpK.jpg');
     
     --bg-00m: #242526;
-    --bg-01m: #18191A;
+    --bg-01m: #0D1017;/** 18191A; */
     --bg-02m: #3A3B3C;
+    --bg-03m: #21262C;
     
-    --ic-00m: #7B7D80;
+    --ac-00m: #8BC5EC;
+    --ac-01m: #0195F7;
+    
+    --ic-00m: #8B939E;
     
     --fc-00m: #FFFFFF;
-    --fc-01m: #B0B3B8;
-    --fc-02m: #8A8A8A;
+    --fc-01m: #C9D2D9;
+    --fc-02m: #B0B3B8;
+    --fc-03m: #8A8A8A;
+    
+    --ln-00m: #2D3137;
     
     --sh-00m: #FFFFFF;
     --sh-01m: #DE5151;
@@ -93,16 +107,16 @@ a:hover {
     color: var(--ac-01m);
 }
 a:not([href]):not([class]) {
-    color: var(--fc-01m);
+    color: var(--fc-02m);
 }
 a:not([href]):not([class]):hover {
-    color: var(--fc-01m);
+    color: var(--fc-02m);
 }
 
 body {
     text-size-adjust: none;
     background: var(--bg-01m);
-    font-family: "Poppins", monospace;
+    font-family: "Poppins", sans-serif;
     font-size: 14px;
     color: var(--fc-01m);
 }
@@ -122,7 +136,10 @@ h4,
 h5,
 h6 {
     color: var(--fc-00m);
-    line-height: 1.8;
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    line-height: 1.2;
 }
 
 h1 { font-size: 40px; }
@@ -146,8 +163,8 @@ h6 { font-size: 16px; }
 
 hr {
     border: 0;
-    border-top: 1px solid;
     margin: 0;
+    border-top: 1px solid var(--ln-00m);
 }
 
 i {
@@ -299,6 +316,16 @@ pre {
 }
 .fc-sh-09m {
     color: var(--sh-09m);
+}
+
+.ff-inconsolata {
+    font-family: "Inconsolata", monospace;
+}
+.ff-latto {
+    font-familiy: "Latto", sans-serif;
+}
+.ff-poppins {
+    font-family: "Poppins", sans-serif;
 }
 
 .flex {
@@ -520,7 +547,6 @@ pre {
         height: 40px;
         overflow: hidden;
         position: relative;
-        background: var(--bg-02m);
     }
         .avatar-background
         {
@@ -588,12 +614,52 @@ pre {
         transform: translateY(-9px) rotate(90deg);
     }
 
-.dropdown
+.card
 {
+    width: 200px;
+    height: auto;
+    border: 1px solid var(--ln-00m);
+    border-radius: 3px;
+    background: var(--bg-01m);
+    transition: box-shadow .3s;
 }
-    .dropdown-display
+    .card-wrapper {}
+        .card-body
+        {
+            padding: 20px;
+            background: var(--bg-00m);
+        }
+            .card-body .avatar .avatar-wrapper
+            {
+                width: 100%;
+                height: 160px;
+            }
+        .card-footer
+        {
+            padding: 14px;
+            border-top: 1px solid var(--ln-00m);
+        }
+.card:hover
+{
+    box-shadow: 3px 3px 3px var(--bg-03m);
+}
+
+@media (max-width: 700px)
+{
+    .card
     {
+        width: auto;
     }
+        .card-wrapper {}
+            .card-body {}
+                .card-body .avatar .avatar-wrapper
+                {
+                    height: 320px;
+                }
+}
+
+.dropdown {}
+    .dropdown-display {}
     .dropdown-content
     {
         height: 0;
@@ -696,16 +762,16 @@ pre {
     .template .parent 
     {
         display: flex;
+        flex-wrap: wrap;
     }
         .template .sidebr 
         {
             top: 0;
-            width: 250px;
+            width: 300px;
             height: fit-content;
             z-index: 99999;
             position: -webkit-sticky;
             position: sticky;
-            margin-right: 20px;
             background: var(--bg-01m);
         }
             .sidebr .wrapper
@@ -729,8 +795,8 @@ pre {
                     }
                         .sidebr .wrapper .picture .border .spaces .avatar .avatar-wrapper
                         {
-                            width: 210px;
-                            height: 210px;
+                            width: 245px;
+                            height: 245px;
                         }
                             .sidebr .wrapper .picture .border .spaces .avatar .avatar-wrapper .avatar-background
                             {
@@ -752,14 +818,15 @@ pre {
                 .sidebr .abouts .button.resume
                 {
                     width: 100%;
-                    color: #FFFFFF;
-                    background: #007BFF;
+                    color: var(--sh-00m);
+                    background: var(--bg-03m);
+                    border: 1px solid var(--ln-00m);
                 }
         .template .viewer 
         {
-            width: 710px;
+            width: 680px;
             height: auto;
-            background: var(--bg-01m);
+            background: var(--bg-00m);
         }
             .viewer .tabs
             {
@@ -776,27 +843,58 @@ pre {
                     width: 120px;
                     height: 68px;
                     background: var(--bg-00m);
-                    border-bottom: 3px solid ;
+                    border-bottom: 3px solid var(--ln-00m);
+                }
+                .viewer .tabs a .tab
+                {
+                    color: var(--fc-01m);
+                    border-color: inherit;
                 }
                 .viewer .tabs .router-link-active .tab
                 {
+                    color: var(--fc-00m);
                     border-color: orange;
                 }
             .viewer .section
             {
-                padding: 14px;
-                margin-bottom: 14px;
+                padding: 32px;
+                padding-bottom: 0;
                 background: var(--bg-00m);
-                border-bottom: 1px solid rgba(0,0,0,.1);
-            }
-            .viewer .section:last-child
-            {
-                margin: 0;
             }
                 .viewer .section .content
                 {
-                    
+                    margin-top: 20px;
                 }
+                .viewer .section .content.deep
+                {
+                    width: 100%;
+                    gap: 14px 14px;
+                    grid-template-columns: repeat( 2, auto );
+                }
+                    .viewer .section .content.deep .project
+                    {
+                        width: 300px;
+                        padding: 14px;
+                        border: 1px solid var(--ln-00m);
+                    }
+                        .viewer .section .content.deep .project .avatar 
+                        {
+                            margin-left: -40px;
+                        }
+                        .viewer .section .content.deep .project p.flex .project-lang
+                        {
+                            width: 12px;
+                            margin-left: 6px;
+                        }
+                        .viewer .section .content.deep .project .avatar .avatar-wrapper
+                        {
+                            width: 150px;
+                            height: 150px;
+                        }
+            .viewer .section:last-child
+            {
+                padding-bottom: 32px;
+            }
     .template .footer
     {
         color: #CCCCCC;
@@ -933,14 +1031,34 @@ pre {
         }
             .template .viewer .tabs
             {
-                border-top: 1px solid rgba(0,0,0,.1);
+                border-top: 1px solid var(--ln-00m);
             }
                 .template .viewer .tabs .tab
                 {
                     width: 100px;
                     height: 68px;
                 }
-            
+            .viewer .section
+            {
+                padding: 18px;
+            }
+                .viewer .section .content
+                {
+                    padding: 0;
+                }
+                .viewer .section .content.deep
+                {
+                    gap: 20px;
+                    grid-template-columns: repeat( 1, auto );
+                }
+                    .viewer .section .content.deep .project
+                    {
+                        width: auto;
+                    }
+            .viewer .section:last-child
+            {
+                padding-bottom: 32px;
+            }
     .template .footer
     {
         flex-direction: column;
