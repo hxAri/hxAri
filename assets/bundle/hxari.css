@@ -860,6 +860,7 @@ pre {
                 {
                     margin-top: 20px;
                 }
+            
                 .viewer .section .content.deep
                 {
                     width: 100%;
@@ -1075,3 +1076,46 @@ pre {
                 }
 }
 
+.viewer .terminal {}
+
+.viewer .project {}
+
+.viewer .contact {}
+    .viewer .contact .wrapper
+    {
+        padding-top: 32px;
+        padding-bottom: 32px;
+        flex-wrap: wrap;
+    }
+        .viewer .contact .wrapper .content
+        {
+            width: 340px;
+            height: 450px;
+            background: red;
+        }
+        .viewer .contact .wrapper .content:first-child
+        {
+            width: 275px;
+            height: 520px;
+            color: #fff;
+            background: var(--ac-00m);
+        }
+
+@media (max-width: 700px)
+{
+    .viewer .contact .wrapper
+    {
+        display: block;
+        padding: 0;
+    }
+        .viewer .contact .wrapper .content
+        {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+}
+
+.viewer .abouts {}
+
+.viewer .home {}
