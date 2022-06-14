@@ -7,57 +7,60 @@
 .bg-02m {
     background-color: var(--bg-02m);
 }
+.bg-03m {
+    background-color: var(--bg-03m);
+}
 
-.border-dashed { border-style: dashed; }
-.border-dashed-top { border-top-style: dashed; }
-.border-dashed-left { border-left-style: dashed; }
-.border-dashed-right { border-right-style: dashed; }
-.border-dashed-bottom { border-bottom-style: dashed; }
-.border-dotted { border-style: dotted; }
-.border-dotted-top { border-top-style: dotted; }
-.border-dotted-left { border-left-style: dotted; }
-.border-dotted-right { border-right-style: dotted; }
-.border-dotted-bottom { border-bottom-style: dotted; }
-.border-double { border-style: double; }
-.border-double-top { border-top-style: double; }
-.border-double-left { border-left-style: double; }
-.border-double-right { border-right-style: double; }
-.border-double-bottom { border-bottom-style: double; }
-.border-inset { border-style: inset; }
-.border-inset-top { border-top-style: inset; }
-.border-inset-left { border-left-style: inset; }
-.border-inset-right { border-right-style: inset; }
-.border-inset-bottom { border-bottom-style: inset; }
-.border-groove { border-style: groove; }
-.border-groove-top { border-top-style: groove; }
-.border-groove-left { border-left-style: groove; }
-.border-groove-right { border-right-style: groove; }
-.border-groove-bottom { border-bottom-style: groove; }
-.border-hidden { border-style: hidden; }
-.border-hidden-top { border-top-style: hidden; }
-.border-hidden-left { border-left-style: hidden; }
-.border-hidden-right { border-right-style: hidden; }
-.border-hidden-bottom { border-bottom-style: hidden; }
-.border-none { border-style: none; }
-.border-none-top { border-top-style: none; }
-.border-none-left { border-left-style: none; }
-.border-none-right { border-right-style: none; }
-.border-none-bottom { border-bottom-style: none; }
-.border-outset { border-style: outset; }
-.border-outset-top { border-top-style: outset; }
-.border-outset-left { border-left-style: outset; }
-.border-outset-right { border-right-style: outset; }
-.border-outset-bottom { border-bottom-style: outset; }
-.border-ridge { border-style: ridge; }
-.border-ridge-top { border-top-style: ridge; }
-.border-ridge-left { border-left-style: ridge; }
-.border-ridge-right { border-right-style: ridge; }
-.border-ridge-bottom { border-bottom-style: ridge; }
-.border-solid { border-style: solid; }
-.border-solid-top { border-top-style: solid; }
-.border-solid-left { border-left-style: solid; }
-.border-solid-right { border-right-style: solid; }
-.border-solid-bottom { border-bottom-style: solid; }
+.br-dashed { border-style: dashed; }
+.br-dashed-top { border-top-style: dashed; }
+.br-dashed-left { border-left-style: dashed; }
+.br-dashed-right { border-right-style: dashed; }
+.br-dashed-bottom { border-bottom-style: dashed; }
+.br-dotted { border-style: dotted; }
+.br-dotted-top { border-top-style: dotted; }
+.br-dotted-left { border-left-style: dotted; }
+.br-dotted-right { border-right-style: dotted; }
+.br-dotted-bottom { border-bottom-style: dotted; }
+.br-double { border-style: double; }
+.br-double-top { border-top-style: double; }
+.br-double-left { border-left-style: double; }
+.br-double-right { border-right-style: double; }
+.br-double-bottom { border-bottom-style: double; }
+.br-inset { border-style: inset; }
+.br-inset-top { border-top-style: inset; }
+.br-inset-left { border-left-style: inset; }
+.br-inset-right { border-right-style: inset; }
+.br-inset-bottom { border-bottom-style: inset; }
+.br-groove { border-style: groove; }
+.br-groove-top { border-top-style: groove; }
+.br-groove-left { border-left-style: groove; }
+.br-groove-right { border-right-style: groove; }
+.br-groove-bottom { border-bottom-style: groove; }
+.br-hidden { border-style: hidden; }
+.br-hidden-top { border-top-style: hidden; }
+.br-hidden-left { border-left-style: hidden; }
+.br-hidden-right { border-right-style: hidden; }
+.br-hidden-bottom { border-bottom-style: hidden; }
+.br-none { border-style: none; }
+.br-none-top { border-top-style: none; }
+.br-none-left { border-left-style: none; }
+.br-none-right { border-right-style: none; }
+.br-none-bottom { border-bottom-style: none; }
+.br-outset { border-style: outset; }
+.br-outset-top { border-top-style: outset; }
+.br-outset-left { border-left-style: outset; }
+.br-outset-right { border-right-style: outset; }
+.br-outset-bottom { border-bottom-style: outset; }
+.br-ridge { border-style: ridge; }
+.br-ridge-top { border-top-style: ridge; }
+.br-ridge-left { border-left-style: ridge; }
+.br-ridge-right { border-right-style: ridge; }
+.br-ridge-bottom { border-bottom-style: ridge; }
+.br-solid { border-style: solid; }
+.br-solid-top { border-top-style: solid; }
+.br-solid-left { border-left-style: solid; }
+.br-solid-right { border-right-style: solid; }
+.br-solid-bottom { border-bottom-style: solid; }
 
 .dp-inline { display: inline; }
 .dp-block { display: block; }
@@ -132,11 +135,14 @@
 .ff-inconsolata {
     font-family: "Inconsolata", monospace;
 }
-.ff-latto {
-    font-familiy: "Latto", sans-serif;
+.ff-fredoka {
+    font-family: "Fredoka", sans-serif;
 }
 .ff-poppins {
     font-family: "Poppins", sans-serif;
+}
+.ff-lato {
+    font-family: "Lato", sans-serif;
 }
 
 .flex {
@@ -159,18 +165,52 @@
     flex-wrap: nowrap;
 }
 
-.fm-inconsolata {
-    font-family: "Inconsolata", monospace;
-}
-.fm-fredoka {
-    font-family: "Fredoka", sans-serif;
-}
-.fm-poppins {
-    font-family: "Poppins", sans-serif;
-}
-.fm-lato {
-    font-family: "Lato", sans-serif;
-}
+.form {}
+    .form-group {
+        padding-top: 10px;
+        position: relative;
+    }
+        .form-group .form-label {
+            top: .5px;
+            left: 10.8px;
+            color: var(--fc-00m);
+            position: absolute;
+            background: var(--bg-00m);
+            font-size: 14px;
+            font-family: "Poppins", sans-serif;
+        }
+        .form-group .form-input {
+            width: 100%;
+            padding: 10px;
+            outline: none;
+            border-radius: 3px;
+            border: 1px solid var(--ln-00m);
+            background: var(--bg-00m);
+            color: var(--fc-01m);
+            font-size: 14px;
+            font-family: "Poppins", sans-serif;
+            transition: all .3s;
+        }
+        .form-group .form-input:focus
+        {
+            border-color: var(--sh-06m);
+            color: var(--fc-00m);
+        }
+        .form-group .form-texta {
+            height: 150px;
+        }
+        .form-group .form-submit
+        {
+            color: #FFFFFF;
+            background: #67A9ED;
+            border-color: #67A9ED;
+        }
+        .form-group .form-submit:focus,
+        .form-group .form-submit:hover
+        {
+            background: #007BFF;
+            border-color: #007BFF;
+        }
 
 .fs-32 { font-size: 32px; }
 .fs-30 { font-size: 30px; }
