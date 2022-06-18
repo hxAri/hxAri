@@ -135,52 +135,52 @@
 }
 
 .form {}
-	.form-group {
-		padding-top: 10px;
-		position: relative;
-	}
-		.form-group .form-label {
-			top: .5px;
-			left: 10.8px;
-			color: var(--fc-00);
-			position: absolute;
-			background: var(--bg-00);
-			font-size: 14px;
-			font-family: "Poppins", sans-serif;
-		}
-		.form-group .form-input {
-			width: 100%;
-			padding: 10px;
-			outline: none;
-			border-radius: 3px;
-			border: 1px solid var(--ln-00);
-			background: var(--bg-00);
-			color: var(--fc-01);
-			font-size: 14px;
-			font-family: "Poppins", sans-serif;
-			transition: all .3s;
-		}
-		.form-group .form-input:focus
-		{
-			border-color: var(--sh-06);
-			color: var(--fc-00);
-		}
-		.form-group .form-texta {
-			height: 150px;
-		}
-		.form-group .form-submit
-		{
-			color: #FFFFFF;
-			background: #67A9ED;
-			border-color: #67A9ED;
-		}
-		.form-group .form-submit:focus,
-		.form-group .form-submit:hover
-		{
-			color: #FFFFFF;
-			background: #007BFF;
-			border-color: #007BFF;
-		}
+    .form-group {
+        padding-top: 10px;
+        position: relative;
+    }
+        .form-group .form-label {
+            top: .5px;
+            left: 10.8px;
+            color: var(--fc-00);
+            position: absolute;
+            background: var(--bg-00);
+            font-size: 14px;
+            font-family: "Poppins", sans-serif;
+        }
+        .form-group .form-input {
+            width: 100%;
+            padding: 10px;
+            outline: none;
+            border-radius: 3px;
+            border: 1px solid var(--ln-00);
+            background: var(--bg-00);
+            color: var(--fc-01);
+            font-size: 14px;
+            font-family: "Poppins", sans-serif;
+            transition: all .3s;
+        }
+        .form-group .form-input:focus
+        {
+            border-color: var(--sh-06);
+            color: var(--fc-00);
+        }
+        .form-group .form-texta {
+            height: 150px;
+        }
+        .form-group .form-submit
+        {
+            color: #FFFFFF;
+            background: #67A9ED;
+            border-color: #67A9ED;
+        }
+        .form-group .form-submit:focus,
+        .form-group .form-submit:hover
+        {
+            color: #FFFFFF;
+            background: #007BFF;
+            border-color: #007BFF;
+        }
 
 .fs-32 { font-size: 32px; }
 .fs-30 { font-size: 30px; }
