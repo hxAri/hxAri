@@ -91,7 +91,7 @@ $T.create = {
             </div>
             <div class="viewer">
                 <Tabs />
-                <router-view :style="{ marginTop: '-2px' }" />
+                <router-view :style="{ marginTop: '-4px' }" />
             </div>
         </div>
     `

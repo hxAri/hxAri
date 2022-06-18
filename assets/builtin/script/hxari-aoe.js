@@ -44,14 +44,12 @@ const $Is = function( params, object, handler, catcher )
 };
 
 /*
- * String Formater utility
+ * String Formater
  *
  * @params String $string
  * @params String ...
  * 
  * @return String
- * 
- * @version 1.0.0
  */
 const $f = function()
 {

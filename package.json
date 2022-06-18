@@ -23,10 +23,12 @@
                         "component": [
                             "hxari-avatar.js",
                             "hxari-sidebr.js",
+                            "hxari-alert.js",
                             "hxari-abouts.js",
                             "hxari-contact.js",
                             "hxari-project.js",
                             "hxari-home.js",
+                            "hxari-terminal.js",
                             "hxari-create.js"
                         ]
                     }
@@ -84,7 +86,7 @@
                 "styles": "hxari-module.css"
             }
         },
-        "environment": "development"
+        "environment": "production"
     },
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1"

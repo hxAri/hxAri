@@ -1,6 +1,19 @@
+/*
+ * https://hxAri.github.io/
+ *
+ * @author hxAri
+ * @create 15.02-2022
+ * @update -
+ * @github https://github.com/hxAri/{hxAri}
+ *
+ * All source code license under MIT.
+ * Please see the MIT documentation for details.
+ *
+ * Copyright (c) 2022 hxAri <ari160824@gmail.com>
+ *
+ * I -py ? Basically you don't think of me at all, I hate that.
+ */
 
-
-;
 (() =>
 {    
         
@@ -48,14 +61,12 @@
     };    
         
     /*    
-     * String Formater utility    
+     * String Formater    
      *    
      * @params String $string    
      * @params String ...    
      *     
      * @return String    
-     *     
-     * @version 1.0.0    
      */    
     const $f = function()    
     {    
@@ -160,9 +171,7 @@
     const $JSON = {    
         encode: JSON.stringify,    
         decode: JSON.parse    
-    };    
-        
-    /*    
+    };/*    
      * Cookie utility.    
      *    
      * @author hxAri    
@@ -402,9 +411,7 @@
             }    
             return( output );    
         }    
-    };    
-        
-    /*    
+    };/*    
      * Theme utility    
      *    
      * Preference themes that support    
@@ -416,25 +423,23 @@
     {    
         if( $Is( set, Undefined ) )    
         {    
-            if( window.matchMedia )    
-            {    
-                if( window.matchMedia( "(prefers-color-scheme: dark)" ).matches )    
-                {    
-                    set = "dark";    
-                } else {    
-                    set = this.get();    
-                }    
-            } else {    
-                set = this.get();    
-            }    
+            set = this.get();    
         }    
         this.set( set );    
     };    
         
-    /* Theme alias name. */    
+    /*    
+     * Theme alias name.    
+     *    
+     * @values String    
+     */    
     $Theme.prototype.name = "dGhlbWU";    
         
-    /* Theme colors. */    
+    /*    
+     * Theme colors.    
+     *    
+     * @values Object    
+     */    
     $Theme.prototype.theme = {    
         dark: {    
             color: "#202521",    
@@ -446,10 +451,18 @@
         }    
     };    
         
-    /* Theme contructor results. */    
+    /*    
+     * Theme contructor results.    
+     *    
+     * @value Mixed    
+     */    
     $Theme.prototype.result = null;    
         
-    /* Theme default color. */    
+    /*    
+     * Theme default color.    
+     *    
+     * @values String    
+     */    
     $Theme.prototype.default = "light";    
         
     /*    
@@ -467,7 +480,16 @@
             {    
                 return( "dark" );    
             }    
+        } else {    
+            if( window.matchMedia )    
+            {    
+                if( window.matchMedia( "(prefers-color-scheme: dark)" ).matches )    
+                {    
+                    return( "dark" );    
+                }    
+            }    
         }    
+            
         return( "light" );    
     };    
         
@@ -503,6 +525,7 @@
         
     /*    
      * Set theme color to HTMLHeadElement.    
+     *    
      * @params String $color    
      *    
      * @return Void    
@@ -574,11 +597,7 @@
             }    
             return( this.usage );    
         }    
-    };    
-        
-    const $Scroll = { left: 0 };    
-        
-    const $Github = async function( url )    
+    };const $Scroll = { left: 0 };const $Github = async function( url )    
     {    
         return( new Promise( async function( resolve, reject )    
         {    
@@ -597,9 +616,7 @@
                 // Fired when the request encountered an error.    
                 xhr.onerror = evt => reject( evt, xhr );    
         }));    
-    };    
-        
-    /*    
+    };/*    
      * Date utility.    
      *    
      *    
@@ -871,71 +888,31 @@
             }    
             return( String( this.instance.date ) ).replace( /\(|\)/g, "" );    
         }    
-    };    
-        
-    /*    
+    };/*    
      * Bash utility.    
      *    
-     * Instance virtual command line interface.    
-     *    
-     * @version 1.0.9    
+     * The Instance virtual command line interface.    
      */    
     const $Bash = function( input )    
     {    
         if( $Is( input, String ) && this.spaces( input ) !== "" )    
         {    
+            self = this;    
             input = this.spaces( input );    
                 
-            if( input === "*" )    
+            self.history.push({    
+                prompt: self.prompt,    
+                command: input    
+            });    
+                
+            input.split( "&&" ).forEach( input =>    
             {    
-                var commands = [];    
-                    
-                this.commands.forEach( command => commands.push( $f( "\\e[02m{}", command.name === "liana" ? "リアナリー" : ( command.name === "chintya" ? "チンティア" : command.name ) ) ) );    
-                    
-                this.result.push({    
-                    input: input,    
-                    output: $f( "\n{}\n\n", commands.join( "\\e[08m,\n" ) )    
-                });     
-            } else {    
-                input.split( "&&" ).forEach( input => this.result.push({ input: this.spaces( input ), output: this.execute( this.spaces( input ) ) }) );    
-            }    
+                self.history.push({    
+                    outputs: self.execute( self.spaces( input ) )    
+                });    
+            });    
         }    
     };    
-        
-    /* Bash Command line prompt. */    
-    $Bash.prototype.prompt = "\\e[05mhxari\\e[04m@github.io\\e[01m:\\e[08m~\\e[00m$";    
-        
-    /* Bash Command line results. */    
-    $Bash.prototype.result = [    
-        {    
-            input: false,    
-            output: [    
-                "\\e[00m             ::                                \\e[00m",    
-                "\\e[00m            ~JJ^... :~^                        \\e[00m",    
-                "\\e[00m      .^::~7JJJJJJ??JJJ^                       \\e[00m",    
-                "\\e[00m      7JJJYYJ?77??JJJJJJ?!!??:                 \\e[00m",    
-                "\\e[00m      :JJJ?^.     .^!?JJJJJJ?.                 \\e[00m",    
-                "\\e[00m    :^?JJJ.    ~7^   .~?JJJJJ?: ..             \\e[00m",    
-                "\\e[00m   .?JJJJJ^  .!JY7     .?JJJJ~::^::.           \\e[00m",    
-                "\\e[00m    ..^?JJJ??JJJJ:      :JJJ7.:~!~::.          \\e[00m",    
-                "\\e[00m       :JJJ?J?7JJ~       7JJ?^:::::.           \\e[00m",    
-                "\\e[00m       .!7^..  :^.       ?JJ?!!~~^             \\e[00m",    
-                "\\e[00m                        :JJJ7!!!!!             \\e[00m",    
-                "\\e[00m                       .?JJ?!!!~~~.            \\e[00m",    
-                "\\e[00m                      ^?JJ?!!^:::::.           \\e[00m",    
-                "\\e[00m                    :7JJJ7!!~.:~!~::.          \\e[00m",    
-                "\\e[00m                  .!JJJJ7!!!!^::^::.           \\e[00m",    
-                "\\e[00m                .~JJJJJ7!!!!!!!^ .             \\e[00m",    
-                "\\e[00m               ^?JJJJ?!!!!!!!!^                \\e[00m",    
-                "\\e[00m             :7JJJJJ?!!!~^^:^^                 \\e[00m",    
-                "\\e[00m           .!JJJJJJ7!!!^::~~::.                \\e[00m",    
-                "\\e[00m          ~?JJJJJJ7!!!!^.^!!^:.                \\e[00m",    
-                "\\e[00m        ^?JJJJJJJ7!!!!!!^:::..                 \\e[00m",    
-                "\\e[00m      :7JJJJJJJ?!!!!!!!!^                      \\e[00m",    
-                "\\e[00m      7JJJJJJJ?!!!!!!!~:                       \\e[00m",    
-            ]    
-        }    
-    ];    
         
     /*    
      * Remove all whitespace at the beginning or end of the string.    
@@ -944,12 +921,74 @@
      *    
      * @return String    
      */    
-    $Bash.prototype.spaces = function( input )    
-    {    
-        return( ( input = ( input[0] === " " ? input = input.slice( 1 ) : ( input[( input.length -1 )] === " " ? input = input.slice( 0, -1 ) : input ) ) )[0] === " " || input[( input.length -1 )] === " " ? this.spaces( input ) : input );    
-    };    
+    $Bash.prototype.spaces = input => ( input = ( input[0] === " " ? input = input.slice( 1 ) : ( input[( input.length -1 )] === " " ? input = input.slice( 0, -1 ) : input ) ) )[0] === " " || input[( input.length -1 )] === " " ? $Bash.prototype.spaces( input ) : input;    
         
     /*    
+     * Bash Command line prompt.    
+     *    
+     * @values String    
+     */    
+    $Bash.prototype.prompt = "$";    
+        
+    /*    
+     * List of all aliases.    
+     *    
+     * @values Array    
+     */    
+    $Bash.prototype.aliases = [];    
+        
+    /*    
+     * List of all environment variables.    
+     *    
+     * @values Array    
+     */    
+    $Bash.prototype.exports = [];    
+        
+    /*    
+     * Bash History Command and output program.    
+     *    
+     * @values Array    
+     */    
+    $Bash.prototype.history = [{    
+        command: false,    
+        outputs: [    
+            "\x1b[0;00m                                           ",    
+            "\x1b[0;00m             ::                            ",    
+            "\x1b[0;00m            ~JJ^... :~^                    ",    
+            "\x1b[0;00m      .^::~7JJJJJJ??JJJ^                   ",    
+            "\x1b[0;00m      7JJJYYJ?77??JJJJJJ?!!??:             ",    
+            "\x1b[0;00m      :JJJ?^.     .^!?JJJJJJ?.             ",    
+            "\x1b[0;00m    :^?JJJ.    ~7^   .~?JJJJJ?: ..         ",    
+            "\x1b[0;00m   .?JJJJJ^  .!JY7     .?JJJJ~::^::.       ",    
+            "\x1b[0;00m    ..^?JJJ??JJJJ:      :JJJ7.:~!~::.      ",    
+            "\x1b[0;00m       :JJJ?J?7JJ~       7JJ?^:::::.       ",    
+            "\x1b[0;00m       .!7^..  :^.       ?JJ?!!~~^         ",    
+            "\x1b[0;00m                        :JJJ7!!!!!         ",    
+            "\x1b[0;00m                       .?JJ?!!!~~~.        ",    
+            "\x1b[0;00m                      ^?JJ?!!^:::::.       ",    
+            "\x1b[0;00m                    :7JJJ7!!~.:~!~::.      ",    
+            "\x1b[0;00m                  .!JJJJ7!!!!^::^::.       ",    
+            "\x1b[0;00m                .~JJJJJ7!!!!!!!^ .         ",    
+            "\x1b[0;00m               ^?JJJJ?!!!!!!!!^            ",    
+            "\x1b[0;00m             :7JJJJJ?!!!~^^:^^             ",    
+            "\x1b[0;00m           .!JJJJJJ7!!!^::~~::.            ",    
+            "\x1b[0;00m          ~?JJJJJJ7!!!!^.^!!^:.            ",    
+            "\x1b[0;00m        ^?JJJJJJJ7!!!!!!^:::..             ",    
+            "\x1b[0;00m      :7JJJJJJJ?!!!!!!!!^                  ",    
+            "\x1b[0;00m      7JJJJJJJ?!!!!!!!~:                   ",    
+            "\x1b[0;00m                                           "    
+        ]    
+    }];    
+        
+    /*    
+     * Bash string argument pattern.    
+     *    
+     * @values RegExp    
+     */    
+    $Bash.prototype.pattern = /([^\s'"]([^\s'"]*(['"])([^\3]*?)\3)+[^\s'"]*)|[^\s'"]+|(['"])([^\5]*?)\5/gi;    
+        
+    /*    
+     * Bash command executor.    
      * Execute the given command.    
      *    
      * @params String $input    
@@ -958,186 +997,472 @@
      */    
     $Bash.prototype.execute = function( input )    
     {    
-        var name; name = $Is( name = input.split( " " ), Array ) ? name[0] : name;    
+        // Parse string into argv.    
+        var argv = this.argument( input );    
             
-        for( let command of this.commands )    
+        // Searching for command name matching with alias.    
+        for( let i in this.aliases )    
         {    
-            if( command.name === name )    
+            var alias = this.aliases[i];    
+                
+            // If alias is available or found.    
+            if( alias.alias === argv[0] )    
             {    
-                var parameter = {};    
-                    
-                if( $Is( parameter = this.parameter( input, command ), Object ) )    
-                {    
-                    return( command.callback( parameter ) );    
-                }    
-                return( parameter );    
+                return( this.execute( $f( "{} {}", alias.inalias, input.replace( /^([\S]+)\s*/g, "" ) ) ) );    
             }    
         }    
-        return( this.message( "sh", name, "Command error not found." ) );    
-    };    
-        
-    /*    
-     * Output template.    
-     *    
-     * @params String $command    
-     * @params String $value    
-     * @params String $message    
-     *    
-     */    
-    $Bash.prototype.message = ( command, value, message ) => $f( "\\e[08m{}\\e[01m: \\e[00m{}\\e[01m: \\e[09m{}", command, value, message );    
-        
-    /*    
-     * Replace the icon code on the string.    
-     *    
-     * @params String $string    
-     *    
-     * @return String    
-     */    
-    $Bash.prototype.boxicons = function( string )    
-    {    
-        var regexp = new RegExp( /\\i\[([a-z0-9-]+)\;/g );    
-        var result = null;    
             
-        while( result = regexp.exec( string ) )    
+        // Search command name.    
+        for( let command of this.commands )    
         {    
-            string = string.replace( result[0], `<i class="bx ${result[1]}"></i>` );    
-        }    
-        return( string );    
-    };    
-        
-    /*    
-     * Replace the color code on the string.    
-     *    
-     * @params String $string    
-     *    
-     * @return String    
-     */    
-    $Bash.prototype.colorable = function( string )    
-    {    
-            
-        var regexp = new RegExp( /\\e\[([0-9]+)m/g );    
-        var result;    
-            
-        while( result = regexp.exec( string ) )    
-        {    
-            string = string.replace( result[0], `<span class="fc-sh-${result[1]}m">` );    
-            string += "</span>";    
-        }    
-        return( this.boxicons( string ) );    
-    };    
-        
-    /*    
-     * Build parameters for callback function.    
-     *    
-     * @params String $input    
-     * @params Object $command    
-     *    
-     * @return Object    
-     */    
-    $Bash.prototype.parameter = function( input, command )    
-    {    
-        var results = {};    
-        var println = this.println;    
-            
-        if( $Is( command.argument, Array ) )    
-        {    
-            try {    
-                    
-                for( let argument of command.argument )    
-                {    
-                    if( $Is( argument.type, Function ) )    
-                    {    
-                        argument.type = argument.type.name;    
-                    }    
-                    if( $Is( this.arguments[argument.type], Object ) )    
-                    {    
-                        var regexp = new RegExp( this.arguments[argument.type].pattern.replace( /\:\$/g, argument.name ) );    
-                        var result = null;    
+            // If the command is available or found.    
+            if( command.name === argv[0] )    
+            {    
+                try {    
+                        
+                    // The argument structure for the function.    
+                    var args = [{}];    
+                        
+                    // Command self.    
+                    var self = {    
                             
-                        if( result = input.match( regexp ) )    
+                        // Bash instance.    
+                        $bash: this,    
+                            
+                        // Command raw arguments.    
+                        $args: this.spaces( input.replace( /^([\S]+)\s*/g, "" ) ),    
+                        $argv: argv,    
+                            
+                        // If the command has methods.    
+                        ...$Is( command.methods, Object ) ? command.methods : {}    
+                            
+                    };    
+                        
+                    // If the command has options.    
+                    if( $Is( command.opts, Object ) )    
+                    {    
+                        // Parse arguments.    
+                        var parse = this.argparser( argv, command.opts );    
+                            
+                        for( let i in parse )    
                         {    
-                            input = input.replace( result[0], m =>    
+                            if( i !== "argv" )    
                             {    
-                                results[( argument.name.replace( /\-/g, "$" ) )] = this.arguments[argument.type].transform( result[1] ? result[1] : result[2] ); return "";    
-                            });    
-                        } else {    
-                            if( argument.require )    
-                            {    
-                                return( this.message( command.name, argument.name, "Argument required." ) );    
+                                args[0][i.replace( /^([-]*)/, "" )] = ( match = parse[i].match( /^\"(.*)\"$|^\'(.*)\'$/ ) ) ? ( match[1] ? match[1] : match[2] ) : parse[i];    
                             }    
                         }    
                     } else {    
-                        return( this.message( command.name, argument.name, "Invalid argument type." ) );    
-                    }    
-                }    
-                    
-                /*    
-                 * Unamed argument.    
-                 *    
-                 * Note that this argument will take the entire    
-                 * Contents of the rest of the replaced input arguments.    
-                 */    
-                var $ = this.spaces( input.replace( new RegExp( "^" + command.name ), "" ) );    
-                    
-                for( let argument of command.argument )    
-                {    
-                    if( argument.name === "$" )    
-                    {    
-                        if( $ !== "" )    
+                            
+                        // If the command has no arguments.    
+                        // But there are arguments given.    
+                        if( argv.length > 1 && command.allowed !== true )    
                         {    
-                            if( $Is( argument.type, Function ) )    
-                            {    
-                                argument.type = argument.type.name;    
-                            }    
-                            if( $Is( this.arguments[argument.type], Object ) )    
-                            {    
-                                results.$ = this.arguments[argument.type].transform( $ );    
-                            } else {    
-                                return( this.message( command.name, argument.name, "Invalid argument type." ) );    
-                            }    
-                        } else {    
-                            if( argument.require )    
-                            {    
-                                return( this.message( command.name, argument.name, "Argument required." ) );    
-                            }    
+                            throw new Error( "To many arguments." );    
                         }    
+                            
                     }    
-                    continue;    
+                        
+                    return( command.mounted.apply( self, args ) );    
+                        
+                } catch( e ) {    
+                    return( $f( "sh: {}: {}", argv[0], e ) );    
                 }    
-                    
-            } catch( e ) {    
-                return( this.message( command.name, "argument", e.message ) );    
             }    
         }    
-        return( results );    
+            
+        return( $f( "sh: {}: Command not found.", argv[0] ) );    
+            
     };    
         
     /*    
-     * Various argument types supported.    
+     * Parse string to argv array.    
      *    
-     * @values Object    
+     * @params String $argument    
+     *    
+     * @return Array    
      */    
-    $Bash.prototype.arguments = {    
-        Boolean: {    
-            pattern: ":$ (false|true)",    
-            transform: argument => argument === "true" ? true : false    
-        },    
-        Object: {    
-            pattern: ":$ (.*)",    
-            transform: argument => $JSON.decode( argument )    
-        },    
-        String: {    
-            pattern: ":$ ([a-zA-Z0-9-_]+)|:$ \"(.*)\"",    
-            transform: argument => argument    
-        },    
-        Number: {    
-            pattern: ":$ ([0-9]+)",    
-            transform: argument => parseInt( argument )    
-        },    
-        Array: {    
-            pattern: ":$ (.*)",    
-            transform: argumeny => $JSON.decode( argument )    
+    $Bash.prototype.argument = function( argument )    
+    {    
+        var match = null;    
+        var result = [];    
+            
+        while( match = this.pattern.exec( argument ) )    
+        {    
+            result.push((( argv = [] ) =>    
+            {    
+                for( let i in match )    
+                {    
+                    argv.push( match[i] );    
+                }    
+                for( let i in argv )    
+                {    
+                    if( $Is( argv[i], String ) )    
+                    {    
+                        return( argv[i] );    
+                    }    
+                }    
+                return( argv );    
+            })());    
         }    
+            
+        return( result );    
+    };    
+        
+    /*    
+     * Argument parser    
+     *    
+     * @params Object $argv    
+     * @params Object $opts    
+     * @params Object ...    
+     *    
+     * @return Object    
+     *    
+     * This is the source code of vercel which was    
+     * later remade please see the original source    
+     * code for official documentation.    
+     *    
+     * @source https://github.com/vercel/arg    
+     */    
+    $Bash.prototype.argparser = function( argv, opts, { permissive = false, stopAtPositional = false } = {} )    
+    {    
+        var alias = {};    
+        var handle = {};    
+        var result = { argv: [] };    
+        var symbol = Symbol( "arg flag" );    
+            
+        for( let key of Object.keys( opts ) )    
+        {    
+                
+            // If key is empty.    
+            if( key === false || key === "" || key === null || key === "undefined" )    
+            {    
+                throw new Error( "Argument key cannot be an empty string." );    
+            }    
+                
+            // If the argument key is not prefixed with (-).    
+            if( key[0] !== "-" )    
+            {    
+                throw new Error( $f( "Argument key must start with \"-\" but found: \"{}\"", key ) );    
+            }    
+                
+            // If the argument key length is only one.    
+            if( key.length === 1 )    
+            {    
+                throw new Error( $f( "Argument key must have a name; singular \"-\" keys are not allowed: \"{}\"", key ) );    
+            }    
+                
+            // If the argument key is a string.    
+            // Skiped.    
+            if( $Is( opts[key], String ) )    
+            {    
+                alias[key] = opt[key]; continue;    
+            }    
+                
+            let type = opts[key];    
+            let flag = false;    
+                
+            // If the argument value is Array.    
+            // If the value of the Array argument is only one.    
+            // If the value of the first Array of type arguments is a Function.    
+            if( $Is( type, Array ) && type.length === 1 && $Is( type[0], Function ) )    
+            {    
+                    
+                var [fn] = type;    
+                    
+                // Type function.    
+                type = ( value, name, prev = [] ) =>    
+                {    
+                        
+                    // Push prefix.    
+                    prev.push( fn( value, name, prev[( prev.length -1 )] ) );    
+                        
+                    // Return all prefixes.    
+                    return prev;    
+                };    
+                    
+                flag = fn === Boolean || fn[symbol] === true;    
+                    
+            } else {    
+                    
+                // If type is a Function.    
+                if( $Is( type, Function ) )    
+                {    
+                    flag = type === Boolean || type[symbol] === true;    
+                } else {    
+                    throw new Error( `Type missing or not a function or valid array type: \"${key}\"` );    
+                }    
+            }    
+                
+            // If the short argument is invalid.    
+            if( key[0] !== "-" && key.length > 2 )    
+            {    
+                throw new Error( `Short argument keys (with a single hyphen) must have only one character: \"${key}\"` );    
+            }    
+                
+            handle[key] = [ type, flag ];    
+                
+        }    
+            
+        for( let i = 0, len = argv.length; i < len; i++ )    
+        {    
+                
+            const wholeArg = argv[i];    
+                
+            if( stopAtPositional && result.argv.length > 0 )    
+            {    
+                result.argv = result.argv.concat( argv.slice( i ) );    
+                break;    
+            }    
+                
+            if( wholeArg === "--" )    
+            {    
+                result.argv = result.argv.concat( argv.slice( i +1 ) );    
+                break;    
+            }    
+                
+            if( wholeArg.length > 1 && wholeArg[0] === "-" )    
+            {    
+                var separatedArguments =     
+                    wholeArg[1] === "-" || wholeArg.length === 2 ?     
+                        [wholeArg] :     
+                        wholeArg    
+                            .slice( 1 )    
+                            .split( "" )    
+                            .map( a => $f( "{}", a ) );    
+                    
+                for( let j = 0; j < separatedArguments.length; j++ )    
+                {    
+                    var arg = separatedArguments[j];    
+                    var [    
+                        originalArgName,    
+                        argStr    
+                    ] = arg[1] === "-" ? arg.split( /=(.*)/, 2 ) : [ arg, undefined ];    
+                        
+                    var argName = originalArgName;    
+                        
+                    // Looping for all aliases.    
+                    while( argName in alias )    
+                    {    
+                        // Take value from alias.    
+                        argName = alias[argName];    
+                    }    
+                        
+                    if( ( argName in handle ) === false )    
+                    {    
+                        if( permissive )    
+                        {    
+                            result.argv.push( arg ); continue;    
+                        } else {    
+                            throw new Error( $f( "Unknown or unexpected option: \"{}\"", originalArgName ) );    
+                        }    
+                    }    
+                        
+                    const [ type, flag ] = handle[argName];    
+                        
+                    if( flag === false && j +1 < separatedArguments.length )    
+                    {    
+                        throw new Error( $f( "Option requires argument ( but was followed by another short argument ) : \"{}\"", originalArgName ) );    
+                    }    
+                        
+                    // If flag is true.    
+                    if( flag )    
+                    {    
+                        result[argName] = type( true, argName, result[argName] );    
+                    } else {    
+                            
+                        // If argument string is undefined.    
+                        if( argStr === undefined )    
+                        {    
+                            var xxx = argv.length < i + 2 ||    
+                            (    
+                                argv[( i +1 )].length > 1 &&    
+                                argv[( i +1 )][0] === "-" &&    
+                                (    
+                                    argv[( i +1 )].match( /^-?\d*(\.(?=\d))?\d*$/ ) &&    
+                                    (    
+                                        type === Number ||    
+                                        (    
+                                            $Is( BigInt, Defined ) && type === BigInt     
+                                        )    
+                                    )    
+                                ) === false    
+                            );    
+                                
+                            if( xxx )    
+                            {    
+                                throw new Error( $f( "Option requires argument: \"{}\" {}", originalArgName, originalArgName === argName ? "" : $f( "( alias for {})", argName ) ) );    
+                            }    
+                                
+                            result[argName] = type( argv[( i +1 )], argName, result[argName] );    
+                                
+                            ++i;    
+                        } else {    
+                            result[argName] = type( argStr, argName, result[argName] );    
+                        }    
+                    }    
+                }    
+            } else {    
+                result.argv.push( wholeArg );    
+            }    
+        }    
+            
+        return( result );    
+            
+    };    
+        
+    $Bash.prototype.replable = {    
+            
+        color: null,    
+            
+        /*    
+         * Give color to the input text that matches.    
+         *    
+         * @params String $string    
+         *    
+         * @return String    
+         */    
+        inputs: function( string )    
+        {    
+            return( string );    
+        },    
+            
+        /*    
+         * Give color to the highlighted text output.    
+         *    
+         * @params String $string    
+         *    
+         * @return String    
+         */    
+        output: function( string )    
+        {    
+            if( $Is( this.regexp, Array ) )    
+            {    
+                this.regexp.forEach( r =>    
+                {    
+                    while( match = r.regexp.exec( string ) )    
+                    {    
+                        string = r.handle.apply( $Bash.prototype.replable, [{ string, match }] );    
+                    }    
+                });    
+                return( string );    
+            }    
+            throw new Error( "Failed to construct $Colorize, please don't use the \"new\" operator." );    
+        },    
+            
+        /*    
+         * Prefix for the string to be colored.    
+         *    
+         * @params String $color    
+         *    
+         * @return String    
+         */    
+        prefix: function( color )    
+        {    
+            return( "<span style=\"color:" + color + ";\">" );    
+        },    
+            
+        /*    
+         * Color patterns and handler.    
+         *    
+         * @values Array    
+         */    
+        regexp: [    
+            {    
+                /*    
+                 * Terminal Font Styles.    
+                 *    
+                 *  0 | \x1b[0;31m | =Regular    
+                 * ---+------------+-------------    
+                 *  1 | \x1b[1;31m | =Bold    
+                 * ---+------------+-------------    
+                 *  2 | \x1b[2;31m | =Low Intensity    
+                 * ---+------------+-------------    
+                 *  3 | \x1b[3;31m | =Italic    
+                 * ---+------------+-------------    
+                 *  4 | \x1b[4;31m | =Underline    
+                 * ---+------------+-------------    
+                 *  5 | \x1b[5;31m | =Blinking    
+                 * ---+------------+-------------    
+                 *  6 | \x1b[6;31m.| =Reverse    
+                 * ---+------------+-------------    
+                 *  7 | \x1b[7;31m | =Background    
+                 * ---+------------+-------------    
+                 *  8 | \x1b[8;31m | =Invisible    
+                 */    
+                    
+                /*    
+                 * Terminal Font Bg & Colors.    
+                 *    
+                 *  fc=30 | fb=40 | fc=90 | fb=100 | =Black       
+                 * -------+-------+-------+--------+----------    
+                 *  fc=31 | fb=41 | fc=91 | fb=101 | =Red     
+                 * -------+-------+-------+--------+----------    
+                 *  fc=32 | fb=42 | fc=92 | fb=102 | =Green     
+                 * -------+-------+-------+--------+----------    
+                 *  fc=33 | fb=43 | fc=93 | fb=103 | =Yello     
+                 * -------+-------+-------+--------+----------    
+                 *  fc=34 | fb=44 | fc=94 | fb=104 | =Blue     
+                 * -------+-------+-------+--------+----------    
+                 *  fc=35 | fb=35 | fc=95 | fb=105 | =Magenta     
+                 * -------+-------+-------+--------+----------    
+                 *  fc=36 | fb=36 | fc=96 | fb=106 | =Cyan     
+                 * -------+-------+-------+--------+----------    
+                 *  fc=37 | fb=36 | fc=97 | fb=107 | =White     
+                 */    
+                    
+                regexp: /(?:\x1b\[((?<solo>([0-9]+))|(?<duo>([0-9]+)\;([0-9]+))|(?<trio>([0-9]+)\;([0-9]+)\;([0-9]+)))\m)/gi,    
+                handle: ({ string, match }) =>    
+                {    
+                    // Syntax \x1b[0m    
+                    if( match[3] )    
+                    {    
+                        //return( $f( "\"sh-fc-{}\"" ) );    
+                    }    
+                        
+                    // Syntax \x1b[0;32m    
+                    if( match[5] && match[6] )    
+                    {    
+                        if( match[5] === "7" )    
+                        {    
+                            alert()    
+                        }    
+                        //return( $f( "\"sh-fs-{} sh-fc-{}\"", match[5], match[6] ) );    
+                    }    
+                        
+                    // Syntax \x1b[0;32;47m    
+                    if( match[8] && match[9] && match[10] )    
+                    {    
+                        //return( $f( "\"sh-fs-{} sh-fc-{} sh-fb-{}\"", match[8], match[9], match[10] ) );    
+                    }    
+                    return( string.replace( match[0], "" ) );    
+                }    
+            },    
+            {    
+                // Example usage rgba[0,45,67;    
+                regexp: /(?:rgb[a]*\[([0-9]{1,3})\,([0-9]{1,3})\,([0-9]{1,3})\;)/gi,    
+                handle: function({ string, match })    
+                {    
+                    return( $f( "{}</span>", string.replace( match[0], this.prefix( $f( "rgba( {}, {}, {} )", match[1], match[2], match[3] ) ) ) ) );    
+                }    
+            },    
+            {    
+                // Example usage hsla[1,45,67;    
+                regexp: /(?:hsl[a]*\[([0-9]{1,3})\,([0-9]{1,3})\%*\,([0-9]{1,3})\%*\;)/gi,    
+                handle: function({ string, match })    
+                {    
+                    return( string.replace( match[0], this.prefix( "hsla(" + match[1] + ", " + match[2] + "%, " + match[3] + "%)" ) ) + "</span>" );    
+                }    
+            },    
+            {    
+                // Example usage hex[8490FFFF;    
+                regexp: /(?:hex[a]*\[([0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})\;)/gi,    
+                handle: function({ string, match })    
+                {    
+                    return( string.replace( match[0], this.prefix( "#" + match[1] ) ) + "</span>" );    
+                }    
+            }    
+        ]    
+            
     };    
         
     /*    
@@ -1145,285 +1470,459 @@
      *    
      * @values Array    
      */    
-    $Bash.prototype.commands = [    
+    $Bash.prototype.commands = [{    
+        name: "*",    
+        allowed: true,    
+        mounted: function()    
         {    
-            name: "cd",    
-            argument: [    
+            var commands = [];    
+                
+            for( let command of this.$bash.commands )    
+            {    
+                if( command.name !== "*" )    
                 {    
-                    name: "$",    
-                    type: String,    
-                    require: false    
+                    commands.push( command.name );    
                 }    
-            ],    
-            callback: function({ $ })    
+            }    
+                
+            return( commands );    
+        }    
+    }];    
+        
+    /*    
+     * CD    
+     *    
+     * Change the current working directory     
+     */    
+    $Bash.prototype.commands.push({    
+        name: "cd",    
+        mounted: function()    
+        {    
+            if( $Is( $Bash.prototype.router, Defined ) )    
             {    
-                if( $Is( $Bash.prototype.router, Defined ) )    
+                var matched = $Bash.prototype.router.resolve({ path: ( $ = $Is( $, Undefined ) ? "/" : ( $[0] !== "/" ? `/${$}` : $ ) ) }).matched;    
+                    
+                if( matched.length > 0 && matched[0].name !== "error" )    
                 {    
-                    var matched = $Bash.prototype.router.resolve({ path: ( $ = $Is( $, Undefined ) ? "/" : ( $[0] !== "/" ? `/${$}` : $ ) ) }).matched;    
-                        
-                    if( matched.length > 0 && matched[0].name !== "error" )    
-                    {    
-                        $Bash.prototype.router.push( $ ); return;    
-                    }    
-                    return( $Bash.prototype.message( "cd", $, "No such file or directory." ) );    
-                } else {    
-                    return( $Bash.prototype.message( "cd", "router", "" ) );    
+                    $Bash.prototype.router.push( $ ); return;    
                 }    
-            }    
-        },    
-        {    
-            name: "pwd",    
-            argument: [],    
-            callback: function()    
-            {    
-                return( location.pathname.replace( /\/(index\.html)/g, "" ) );    
-            }    
-        },    
-        {    
-            name: "tree",    
-            data: {    
-                root: {    
-                    about: {},    
-                    contact: {},    
-                    projects: {    
-                        yume: {    
-                            start: {},    
-                            install: {}    
-                        }    
-                    },    
-                    privacy: {},    
-                    sitemap: {}    
-                }    
-            },    
-            argument: [{    
-                name: "$",    
-                type: Object    
-            }],    
-            callback: function({ $ })    
-            {    
-                return( $JSON.encode( $, null, 4 ) );    
-            }    
-        },    
-        {    
-            name: "echo",    
-            argument: [{    
-                name: "$",    
-                type: String    
-            }],    
-            callback: function({ $ })    
-            {    
-                return( $ );    
-            }    
-        },    
-        $Theme.prototype.command,    
-        $Date.prototype.command,    
-        $Cookie.prototype.command,    
-        {    
-            name: "comment",    
-            argument: [],    
-            callback: () => ([    
-                "\\e[09m ",    
-                "\\e[09m/*",    
-                "\\e[09m * \\e[00mhttps://\\e[05mhxAri\\e[00m.github.io/",    
-                "\\e[09m *",    
-                "\\e[09m * \\e[08m@author \\e[00mhxAri",    
-                "\\e[09m * \\e[08m@create \\e[00m15.02-2022",    
-                "\\e[09m * \\e[08m@update \\e[00m19.05-2022",    
-                "\\e[09m * \\e[08m@github \\e[00mhttps://github.com/\\e[05mhxAri",    
-                "\\e[09m *",    
-                "\\e[09m * \\e[08m@version \\e[02mv4.0.2",    
-                "\\e[09m *",    
-                "\\e[09m * All source code license under \\e[00mMIT\\e[08m.",    
-                "\\e[09m * Please see the MIT documentation for details\\e[08m.",    
-                "\\e[09m *",    
-                $f( "\\e[09m * Copyright &copy \\e[01m{} \\e[00mhxAri \\e[04m&lt\\e[00mari160824@gmail.com\\e[04m&gt", new Date().getFullYear() ),    
-                "\\e[09m */",    
-                "\\e[09m "    
-            ])    
-        },    
-        {    
-            name: "clear",    
-            argument: [],    
-            callback: function()    
-            {    
-                $Bash.prototype.result = [];    
-            }    
-        },    
-        {    
-            name: "liana",    
-            argument: [],    
-            callback: function()    
-            {    
-                return( $Bash.prototype.message( "sh", "liana", "The command has confused the system." ) );    
-            }    
-        },    
-        {    
-            name: "chintya",    
-            argument: [],    
-            callback: function()    
-            {    
-                return( $Bash.prototype.message( "sh", "chintya", "The command has angered the system." ) );    
+                return( $Bash.prototype.message( "cd", $, "No such file or directory." ) );    
+            } else {    
+                return( $Bash.prototype.message( "cd", "router", "" ) );    
             }    
         }    
-    ];    
+    });    
         
-    $Bash.prototype.template = {    
+    /*    
+     * PWD    
+     *    
+     * Print Working Directory.    
+     */    
+    $Bash.prototype.commands.push({    
+        name: "pwd",    
+        mounted: function()    
+        {    
+            return( location.pathname.replace( /\/(index\.html)/g, "" ) );    
+        }    
+    });    
+        
+    /*    
+     * Alias    
+     *    
+     * Alias is a shortcut that references a command.    
+     */    
+    $Bash.prototype.commands.push({    
+        name: "alias",    
+        allowed: true,    
+        mounted: function()    
+        {    
+                
+            // Clone self.    
+            var self = this;    
+                
+            if( self.$args !== "" )    
+            {    
+                self.$bash.argument( self.$args ).forEach( argv =>    
+                {    
+                    // If the arguments match.    
+                    if(( split = argv.split( "=" )).length === 2 )    
+                    {    
+                        // If the alias name is invalid.    
+                        if( split[0].match( /^(?:([a-z0-9])([\S]*))$/i ) === null )    
+                        {    
+                            throw new Error( "Invalid alias name." );    
+                        }    
+                            
+                        // If the alias value is not empty.    
+                        if( split[1] !== "" )    
+                        {    
+                            for( let i in self.$bash.aliases )    
+                            {    
+                                if( self.$bash.aliases[i].alias === split[0] )    
+                                {    
+                                    // Delete old alias.    
+                                    delete self.$bash.aliases[i];    
+                                }    
+                            }    
+                                
+                            // Add alias to alias list.    
+                            self.$bash.aliases.push({    
+                                alias: split[0],    
+                                inalias: ( match = split[1].match( /^\"(.*)\"$|^\'(.*)\'$/ ) ) ? ( match[1] ? match[1] : match[2] ) : split[1]    
+                            });    
+                        }    
+                    }    
+                });    
+            }    
+        }    
+    });    
+        
+    /*    
+     * Unalias    
+     *    
+     * Remove the alias from the alias list.    
+     */    
+    $Bash.prototype.commands.push({    
+        name: "unalias",    
+        allowed: true,    
+        mounted: function()    
+        {    
+            for( let i in this.$bash.aliases )    
+            {    
+                if( this.$bash.aliases[i].alias === this.$args )    
+                {    
+                    // Delete alias.    
+                    delete this.$bash.aliases[i];    
+                }    
+            }    
+        }    
+    });    
+        
+    /*    
+     * Clear    
+     *    
+     * Clear the terminal screen.    
+     */    
+    $Bash.prototype.commands.push({    
+        name: "clear",    
+        mounted: function()    
+        {    
+            $Bash.prototype.history = [];    
+        }    
+    });    
+        
+    /*    
+     * Tree    
+     *    
+     * Displays the directory structure.    
+     */    
+    $Bash.prototype.commands.push({    
+        name: "tree",    
+        mounted: function()    
+        {    
+            // ....    
+        }    
+    });    
+        
+    /*    
+     * Echo    
+     *    
+     * Used to display line of text/string    
+     * that are passed as an argument.    
+     *    
+     * @option -e String    
+     * @option -n String    
+     */    
+    $Bash.prototype.commands.push({    
+        name: "echo",    
+        opts: {    
+            "-e": String,    
+            "-n": String    
+        },    
+        methods: {    
+            unescape: function( string )    
+            {    
+                var regexp = [    
+                    {    
+                        pattern: /\\a/g,    
+                        replace: "\a"    
+                    },    
+                    {    
+                        pattern: /\\b/g,    
+                        replace: "\b"    
+                    },    
+                    {    
+                        pattern: /\\c/g,    
+                        replace: "\c"    
+                    },    
+                    {    
+                        pattern: /\\e/g,    
+                        replace: "\e"    
+                    },    
+                    {    
+                        pattern: /\\f/g,    
+                        replace: "\f"    
+                    },    
+                    {    
+                        pattern: /\\n/g,    
+                        replace: "\n"    
+                    },    
+                    {    
+                        pattern: /\\r/g,    
+                        replace: "\r"    
+                    },    
+                    {    
+                        pattern: /\\t/g,    
+                        replace: "\t"    
+                    },    
+                    {    
+                        pattern: /\\v/g,    
+                        replace: "\v"    
+                    },    
+                    {    
+                        pattern: /\\x1b/g,    
+                        replace: "\x1b"    
+                    }    
+                ];    
+                    
+                regexp.forEach( re => string = string.replace( re.pattern, re.replace ) );    
+                    
+                return( string );    
+            }    
+        },    
+        mounted: function({ e, n } = {} )    
+        {    
+            if( $Is( e, String ) && $Is( n, String ) )    
+            {    
+                return( "\n" );    
+            } else {    
+                if( $Is( e, String ) )    
+                {    
+                    return( this.unescape( e ) );    
+                }    
+                return( n ? n : this.$args );    
+            }    
+        }    
+    });    
+        
+    $Bash.prototype.commands.push({    
+        name: "liana",    
+        mounted: function()    
+        {    
+            return( "sh: liana: The command has confused the system." );    
+        }    
+    });    
+        
+    $Bash.prototype.commands.push({    
+        name: "chintya",    
+        mounted: function()    
+        {    
+            return( "sh: chintya: The command has angered the system." );    
+        }    
+    });    
+        
+    /*    
+     * Terminal Command Prompt Component.    
+     *    
+     * @values Object    
+     */    
+    const $Terminal = {    
         data: () => ({    
-            model: null,    
-            prompt: $Bash.prototype.prompt,    
-            display: $Bash.prototype.result,    
-            welcome: [{    
-                output: [    
-                    "",    
-                    "Please type \\e[09m*\\e[00m to see the entire",    
-                    "list of existing commands.",    
-                    /*    
-                    "Welcome to \\e[09mhxAri\\e[01m!",    
-                    "",    
-                    "A Junior Backend Web Developer\\e[08m.",    
-                    "Just a Programmer from Indonesian 😉",    
-                    "",    
-                    "Hello\\e[08m,\\e[00m I\\e[03m'\\e[00mm \\e[05mAri Setiawan\\e[08m, \\e[00mI\\e[03m'\\e[00mm a Programmer from Indonesian\\e[08m.",    
-                    "I\\e[03m'\\e[00mm currently undergoing a Software Engineering vocational",    
-                    "High school\\e[08m.\\e[00m I usually work on my own projects but I can",    
-                    "Also work with a team\\e[08m.\\e[00m And I\\e[03m'\\e[00mm also a quiet person 😐",    
-                    "",    
-                    "\\i[bx-calendar; 16st August 2004",    
-                    "\\i[bxl-whatsapp; +62 8583 9211 030",    
-                    "\\i[bx-send; ari160824@gmail.com",    
-                    "\\i[bxs-map; Indonesian\\e[08m, \\e[00mLampung\\e[08m, \\e[00mPringsewu",    
-                    */""    
-                ]    
-            }]    
+            bash: null,    
+            model: "",    
+            prompt: "",    
+            history: []    
         }),    
         props: {    
             command: Array    
         },    
         mounted: function()    
         {    
-            var self = this;    
-                
-            if( $Is( $Bash.prototype.router, Undefined ) )    
-            {    
-                $Bash.prototype.router = self.$router;    
-            }    
-            if( $Is( self.command, Array ) )    
-            {    
-                self.command.forEach( io =>    
-                    self.display.push({    
-                        input: io.input,    
-                        output: io.output    
-                    })    
-                );    
-            } else {    
-                if( self.$route.path === "/terminal" )    
-                {    
-                    self.welcome.forEach( io => self.display.push( io ) );    
-                }    
-            }    
+            this.executor();    
         },    
         methods: {    
-            submit: function( e )    
+                
+            /*    
+             * Execute input command.    
+             *    
+             * @params InputEvent $e    
+             *    
+             * @return Void    
+             */    
+            executor: function( e )    
             {    
-                e.preventDefault();    
                     
-                this.display = new $Bash( this.model ).result;    
-                this.model = null;    
-            },    
-            replace: function( input )    
-            {    
-                const syntax = [    
-                    {    
-                        pattern: /(\\"|\\')/g,    
-                        replace: m => m === "\"" ? "\\&#34" : "\\&#39"    
-                    },    
-                    {    
-                        pattern: /\"(.*?)\"|\'(.*?)\'/g,    
-                        replace: "<span class=\"fc-sh-03m\">$</span>"    
-                    },    
-                    {    
-                        pattern: /(\:|\;)/g,    
-                        replace: "<span class=\"fc-sh-04m\">$</span>"    
-                    },    
-                    {    
-                        pattern: /(\,|\.)/g,    
-                        replace: "<span class=\"fc-sh-01m\">$</span>"    
-                    },    
-                    {    
-                        pattern: /(\{|\}|\[|\]|\(|\)|\\[r|t|n|e])/g,    
-                        replace: "<span class=\"fc-sh-08m\">$</span>"    
-                    },    
-                    {    
-                        pattern: /^([a-zA-Z0-9\-]+)/,    
-                        replace: "<span class=\"fc-sh-02m\">$</span>"    
-                    },    
-                    {    
-                        pattern: /\s([\-]+)([a-zA-Z0-9]+)/g,    
-                        replace: "<span class=\"fc-sh-05m\">$</span>"    
-                    }    
-                ];    
-                    
-                syntax.forEach( self =>    
+                // If input key is enter.    
+                if( $Is( e, Undefined ) || e.key === "Enter" )    
                 {    
-                    if( $Is( self.replace, Function ) )    
-                    {    
-                        input = input.replace( self.pattern, self.replace );    
-                    } else {    
-                        input = input.replace( self.pattern, m => self.replace.replace( /\$/, m ) );    
-                    }    
-                });    
-                    
-                return( input );    
+                    // Create new Bash instance.    
+                    this.bash = new $Bash( this.model );    
+                        
+                    // Get Bash command history.    
+                    this.history = this.bash.history;    
+                        
+                    // Get Bash prompt.    
+                    this.prompt = this.bash.prompt;    
+                        
+                    // Reset Input.    
+                    this.model = "";    
+                }    
             },    
-            compile: function()    
+                
+            /*    
+             * Terminal ONInput    
+             *    
+             * @return String    
+             */    
+            oninputs: function()    
             {    
-                var compile = "";    
+                return( $f( "{} {}", this.prompt, this.model ) );    
+            },    
+                
+            /*    
+             * Render Terminal command input and output.    
+             *    
+             * @params String $c    
+             *    
+             * @return String    
+             */    
+            onrender: function( c = "" )    
+            {    
                     
-                for( let command of this.display )    
+                // Line iterator start.    
+                var i = 0;    
+                    
+                for( let history of this.history )    
                 {    
-                    compile += "<div class=\"terminal-group\">";    
-                        if( $Is( command.input, String ) )    
+                    c += "<div class=\"terminal-screen-group\">";    
+                        if( $Is( history.command, String ) )    
                         {    
-                            compile += "<label class=\"terminal-prompt mg-right-8\">";    
-                                compile += $Bash.prototype.colorable( this.prompt.replace( /\<|\>/, m => m === "<" ? "&lt" : "&gt" ) );    
-                            compile += "</label>";    
-                            compile += "<label class=\"terminal-output\">";    
-                                compile += this.replace( command.input.replace( /\<|\>/, m => m === "<" ? "&lt" : "&gt" ) );    
-                            compile += "</label>";    
+                            c += "<div class=\"terminal-inputs\">";    
+                                c += "<span class=\"terminal-prompt\">";    
+                                    c += history.prompt;    
+                                c += "</span> ";    
+                                c += "<span class=\"terminal-command\">";    
+                                    c += this.bash.replable.inputs( history.command );    
+                                c += "</span>";    
+                            c += "</div>";    
                         }    
-                        if( $Is( command.output, Array ) )    
+                        if( $Is( history.outputs, String ) )    
                         {    
-                            command.output.forEach( output =>    
-                            {    
-                                if( output !== "" )    
-                                {    
-                                    compile += "<div class=\"terminal-output\">";    
-                                        compile += $Bash.prototype.colorable( output.replace( /\<|\>/, m => m === "<" ? "&lt" : "&gt" ) );    
-                                    compile += "</div>";    
-                                } else {    
-                                    compile += "</br>";    
-                                }    
-                            });    
+                            c += "<div class=\"terminal-outputs\">";    
+                                c += this.bash.replable.output( history.outputs );    
+                            c += "</div>";    
                         } else {    
-                            compile += "<div class=\"terminal-output\">";    
-                                compile += command.output ? $Bash.prototype.colorable( command.output.replace( /\<|\>/, m => m === "<" ? "&lt" : "&gt" ) ) : "";    
-                            compile += "</div>";    
+                            if( $Is( history.outputs, Array ) )    
+                            {    
+                                history.outputs.forEach( output =>    
+                                {    
+                                    if( output !== "" )    
+                                    {    
+                                        c += "<div class=\"terminal-outputs\">";    
+                                            c += this.bash.replable.output( output );    
+                                        c += "</div>";    
+                                    } else {    
+                                        c += "<br/>";    
+                                    }    
+                                });    
+                            }    
                         }    
-                    compile += "</div>";    
+                    c += "</div>";    
                 }    
                     
-                return( compile );    
+                return( c );    
             },    
-            cprompt: function()    
+                
+            /*    
+             * Set input text selection to end.    
+             *    
+             * @params InputEvent $e    
+             *    
+             * @return Void    
+             */    
+            endrange: function( e )    
             {    
-                return( $Bash.prototype.colorable( this.prompt.replace( /\<|\>/, m => m === "<" ? "&lt" : "&gt" ) ) );    
+                e.target.setSelectionRange( -1, -1 );    
             }    
         },    
-        template: `    
-            <div class="bg-01m pd-14 fm-inconsolata">    
-                <pre class="terminal" ref="terminal"><div class="terminal-display" v-html="compile()"></div><form class="form" @submit="submit" ref="submit"><div class="terminal-form"><label class="terminal-prompt mg-0 fs-16" v-html="cprompt()"></label><input class="terminal-input mg-left-8 fm-inconsolata fs-16" type="text" v-model="model" placeholder="..." autocapitalize="none" /></div></form></pre>    
-            </div>    
-        `    
+        template: ([    
+            `<div class="terminal">`,    
+                `<pre class="terminal-screen" ref="pre">`,    
+                    `<div class="terminal-output fs-14" v-html="onrender()"></div>`,    
+                    `<div class="terminal-form">`,    
+                        `<label class="terminal-prompt">`,    
+                            `{{ oninputs() }}`,    
+                        `</label>`,    
+                        `<input class="terminal-input" type="text" v-model="model" autocapitalize="off" @click="endrange" @keyup="endrange" @focus="endrange" @input="endrange" @change="endrange" @keypress="endrange" @keydown="executor" />`,    
+                    `</div>`,    
+                `</pre>`,    
+            `</div>`    
+        ]).join( "" )    
+    };const $Request = async function( method, url, options = {} )    
+    {    
+        return( new Promise( await function( resolve, reject )    
+        {    
+            // The constructor initializes.    
+            var xhr = new XMLHttpRequest();    
+                
+            // Initializes a request.    
+            xhr.open( method, url );    
+                
+            if( $Is( options.headers, Object ) )    
+            {    
+                for( let header in options.headers )    
+                {    
+                    // Sets the value of an HTTP request header.    
+                    xhr.setRequestHeader( header, options.headers[header] );    
+                }    
+            }    
+                
+            if( $Is( options.data, Object ) )    
+            {    
+                // Data pairs.    
+                var data = [];    
+                    
+                for( let key in options.data )    
+                {    
+                    // Encode URI Commponent.    
+                    data.push( encodeURIComponent( key ) + "=" + encodeURIComponent( options.data[key] ) );    
+                }    
+                    
+                // Sends the request with data.    
+                xhr.send( data.join( "&" ) );    
+            } else {    
+                    
+                // Sends the request without data.    
+                xhr.send();    
+            }    
+                
+            if( $Is( options.events, Object ) )    
+            {    
+                for( let i in options.events )    
+                {    
+                    // Allow set events except loaded & error.    
+                    if( i !== "loaded" && i !== "error" )    
+                    {    
+                        // Sets up a function that will be called whenever    
+                        // The specified event is delivered to the target.    
+                        xhr.addEventListener( i, ( e ) =>     
+                        {    
+                            var handler = options.events[i];    
+                                    
+                                // Call handler function.    
+                                handler( e, xhr );    
+                        });    
+                    }    
+                }    
+            }    
+                
+            // Fired when an XMLHttpRequest transaction completes successfully.    
+            xhr.onload = evt => resolve( xhr );    
+                
+            // Fired when the request encountered an error.    
+            xhr.onerror = evt => reject( xhr );    
+                
+        }));    
     };    
     $T.create = {    
         index: `    
@@ -1518,13 +2017,11 @@
                 </div>    
                 <div class="viewer">    
                     <Tabs />    
-                    <router-view :style="{ marginTop: '-2px' }" />    
+                    <router-view :style="{ marginTop: '-4px' }" />    
                 </div>    
             </div>    
         `    
-    };    
-        
-    $T.widget = {    
+    };$T.widget = {    
         avatar: `    
             <div class="avatar">    
                 <div :class="className" v-if="route">    
@@ -1586,9 +2083,7 @@
                 </div>    
             </div>    
         `    
-    };    
-        
-    const $Sidebr = {    
+    };const $Sidebr = {    
         name: "Sidebr",    
         props: {    
             pages: {    
@@ -1645,9 +2140,62 @@
             }    
         },    
         template: `<component v-bind:is="loop"></component>`    
+    };const $Alerts = function( i )    
+    {    
+        if( $Is( i, Boolean ) )    
+        {    
+            this.data = [];    
+        } else {    
+            this.data = i;    
+        }    
+        return( this );    
     };    
         
-    const $Abouts = {    
+    $Alerts.prototype.data = [    
+        {    
+            type: "info",    
+            message: "Alert info type."    
+        },    
+        {    
+            type: "error",    
+            message: "Alert error type."    
+        },    
+        {    
+            type: "success",    
+            message: "Alert success type."    
+        },    
+        {    
+            type: "warning",    
+            message: "Alert warning type."    
+        }    
+    ];    
+        
+    const $Alert = {    
+        data: () => ({    
+            alerts: []    
+        }),    
+        props: {    
+            errors: {    
+                type: Array,    
+                require: true    
+            }    
+        },    
+        mounted: function()    
+        {    
+            this.alerts = $Alerts( this.errors ).data;    
+        },    
+        methods: {    
+            close: function( i )    
+            {    
+                    
+            }    
+        },    
+        template: `    
+            <div class="alerts">    
+                {{ alerts }}    
+            </div>    
+        `    
+    };const $Abouts = {    
         data: () => ({    
         }),    
         mounted: function()    
@@ -1657,11 +2205,13 @@
         methods: {},    
         template: `    
             <div class="about">    
+                <div class="bantle flex flex-center">    
+                    <h1 class="title">About</h1>    
+                </div>    
                 <div class="section">    
-                    <h2 class="title">Abouts</h2>    
                     <div class="content">    
                         <p class="paragraph">    
-                            Hello, introduce my name is Ari Setiawan.    
+                            Hello, introduce my name is <h2 class="title mg-top-14 mg-bottom-14">Ari Setiawan</h2>    
                             I am a Junior Backend Programmer from Indonesia who happened to pass by.    
                             I am currently undergoing a Software Engineering Vocational High School.    
                             I prefer to work alone but I can also work in a team.    
@@ -1688,58 +2238,121 @@
                     info: "ari160824@gmail.com"    
                 }    
             ],    
+            target: "https://formspree.io/f/xoqrezbv",    
             ivalid: "dp-block form-label",    
-            models: [    
-                {    
-                    type: "text",    
-                    name: "sender",    
-                    label: "Email Sender",    
-                    valid: "dp-block form-label",    
-                    value: null    
-                },    
-                {    
-                    type: "text",    
+            alerts: [],    
+            models: {    
+                subject: {    
                     name: "subject",    
                     label: "Email Subject",    
-                    valid: "dp-block form-label",    
-                    value: null    
+                    value: ""    
                 },    
-                {    
-                    type: "email",    
+                email: {    
                     name: "email",    
                     label: "Email Address",    
-                    valid: "dp-block form-label",    
-                    value: null    
+                    regex: /^((([^<>('")[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,})))$/g,    
+                    value: ""    
                 },    
-                {    
+                message: {    
                     type: "textarea",    
                     name: "sender",    
                     label: "Email Message",    
-                    valid: "dp-block form-label",    
-                    value: null    
+                    value: ""    
                 }    
-            ]    
+            }    
         }),    
         methods: {    
             icon: function( i )    
             {    
                 return( $f( "{} fs-20", i ) );    
             },    
-            click: function( i )    
+            freset: function()    
             {    
-                this.models[i].valid = "dp-block form-label form-label-valid";    
-            },    
-            change: function( i )    
-            {    
-                this.models[i].valid = this.models[i].value !== null ? ( this.models[i].value !== "" ? "dp-block form-label form-label-valid" : this.ivalid ) : this.ivalid;    
+                for( let i in this.models )    
+                {    
+                    this.models[i].value = "";    
+                }    
             },    
             submit: function( e )    
             {    
+                    
+                // Reset alerts    
+                this.alerts = [];    
+                    
+                // Disable or cancel event.    
                 e.preventDefault();    
+                    
+                for( let i in this.models )    
+                {    
+                    // Check whether the input value is empty or not.    
+                    if( this.models[i].value.replace( /\s/g, "" ) === "" )    
+                    {    
+                        this.alerts.push({    
+                            type: "warning",    
+                            message: $f( "The {} form cannot be empty.", this.models[i].label )    
+                        });    
+                        return;    
+                    }    
+                }    
+                    
+                // If email have pattern.    
+                if( $Is( this.models.email.regex, RegExp ) )    
+                {    
+                    // Use regular expressions to check if the email address is valid.    
+                    if( this.models.email.value.match( this.models.email.regex ) === null )    
+                    {    
+                        this.alerts.push({    
+                            type: "warning",    
+                            message: $f( "Invalid {}!", this.models.email.label )    
+                        });    
+                        return;    
+                    }    
+                }    
+                    
+                // Send request handler.    
+                this.onpost();    
+                    
+            },    
+            onpost: async function()    
+            {    
+                let self = this;    
+                let options = {    
+                    data: {    
+                        email: self.models.email.value,    
+                        subject: self.models.subject.value,    
+                        message: self.models.message.value    
+                    },    
+                    events: {},    
+                    headers: {    
+                        "Accept": "application/json",    
+                        "Content-Type": "application/x-www-form-urlencoded"    
+                    }    
+                };    
+                let request = await $Request( "POST", self.target, options )    
+                    .then( e =>    
+                    {    
+                        if( e.status === 200 )    
+                        {    
+                            self.alerts.push({ type: "success", message: "The request has been sent successfully." });    
+                        } else {    
+                            self.alerts.push({ type: "warning", message: $f( "Warning status code {}: {}", e.status, e.statusText ) });    
+                        }    
+                        self.freset();    
+                    })    
+                    .catch( e =>    
+                    {    
+                        self.alerts.push({ type: "error", message: "Failed to send request." });    
+                    });    
             }    
         },    
+        components: {    
+            Alert: $Alert    
+        },    
         template: `    
-            <div class="contact bg-01m">    
+            <div class="contact bg-02m">    
+                <div class="bantle flex flex-center">    
+                    <h1 class="title">Contact</h1>    
+                </div>    
                 <div class="wrapper flex flex-center">    
                     <div class="content flex flex-center">    
                         <div class="section">    
@@ -1762,25 +2375,30 @@
                                     </div>    
                                 </div>    
                             </div>    
-                            <div class="form pd-top-22">    
-                                <div class="form-group mg-bottom-20 mg-lc-bottom" v-for="( model, i ) in models">    
-                                    <label :class="model.valid">{{ model.label }}</label>    
-                                    <input class="dp-block form-input" :type="model.type" v-model="models[i].value" v-if="( model.type !== 'textarea' )" required />    
-                                    <textarea class="dp-block form-input form-texta" v-model="models[i].value" v-else required>    
-                                    </textarea>    
+                            <form class="form pd-top-22" @submit="submit">    
+                                <div class="form-group mg-bottom-20 mg-lc-bottom">    
+                                    <label class="dp-block form-label">Email Subject</label>    
+                                    <input class="dp-block form-input" type="text" v-model="this.models.subject.value">    
                                 </div>    
                                 <div class="form-group mg-bottom-20 mg-lc-bottom">    
-                                    <button class="form-input form-submit" @submit="submit">Send Mail</button>    
+                                    <label class="dp-block form-label">Email Address</label>    
+                                    <input class="dp-block form-input" type="email" v-model="this.models.email.value">    
                                 </div>    
-                            </div>    
+                                <div class="form-group mg-bottom-20 mg-lc-bottom">    
+                                    <label class="dp-block form-label">Email Message</label>    
+                                    <textarea class="dp-block form-input form-texta" v-model="this.models.message.value"></textarea>    
+                                </div>    
+                                <div class="form-group mg-bottom-20 mg-lc-bottom">    
+                                    <button class="form-input form-submit" disable="">Send Mail</button>    
+                                </div>    
+                            </form>    
+                            <Alert :errors="alerts" v-if="( alerts.length > 0 )" />    
                         </div>    
                     </div>    
                 </div>    
             </div>    
         `    
-    };    
-        
-    const $Projects = [    
+    };const $Projects = [    
         {    
             name: "Yume",    
             repo: "https://github.com/hxAri/Yume",    
@@ -1851,8 +2469,10 @@
         },    
         template: `    
             <div class="projects">    
+                <div class="bantle flex flex-center">    
+                    <h1 class="title">Projects</h1>    
+                </div>    
                 <div class="section">    
-                    <h2 class="title">Projects</h2>    
                     <div class="content">    
                         <p class="paragraph">    
                             I've been studying programming for over 2 years, and here are some of the projects I've created and are still developing.    
@@ -1880,9 +2500,7 @@
                 </div>    
             </div>    
         `    
-    };    
-        
-    const $Home = {    
+    };const $Home = {    
         data: () => ({    
         }),    
         mounted: function()    
@@ -1901,9 +2519,7 @@
                 <Contact />    
             </div>    
         `    
-    };    
-        
-    // Define some routes.    
+    };// Define some routes.    
     // Each route should map to a component.    
     const $Routes = [    
         {    
@@ -1957,7 +2573,7 @@
                 "bx bxs-terminal"    
             ],    
             slot: "Terminal",    
-            component: $Bash.prototype.template    
+            component: $Terminal    
         },    
         {    
             path: "/privacy",    
@@ -1965,7 +2581,6 @@
                 "bx bx-lock-open",    
                 "bx bxs-lock-open"    
             ],    
-            slot: "Privacy",    
             component: {}    
         },    
         {    

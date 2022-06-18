@@ -8,33 +8,33 @@
     --bg-01img: url('https://raw.githubusercontent.com/hxAri/hxAri/main/assets/images/1644890644;6errNcC6Uw.jpg');
     --bg-02img: url('https://raw.githubusercontent.com/hxAri/hxAri/main/assets/images/1654575068;fcTEqRsuqp.jpg');
     
-    --bg-00m: #FFFFFF;
-    --bg-01m: #F8F8FF;
-    --bg-02m: #F2F3F5;
-    --bg-03m: #D6D6D6;
+    --bg-00: #FFFFFF;
+    --bg-01: #F8F8FF;
+    --bg-02: #F2F3F5;
+    --bg-03: #D6D6D6;
     
-    --ac-00m: #007BFF;
-    --ac-01m: #043A6B;
+    --ac-00: #007BFF;
+    --ac-01: #043A6B;
     
-    --ic-00m: #5F6267;
+    --ic-00: #5F6267;
     
-    --fc-00m: #000000;
-    --fc-01m: #5F5F5F;
-    --fc-02m: #606267;
-    --fc-03m: #DDDDDD;
+    --fc-00: #000000;
+    --fc-01: #5F5F5F;
+    --fc-02: #606267;
+    --fc-03: #DDDDDD;
     
-    --ln-00m: #DBDCDE;
+    --ln-00: #DBDCDE;
     
-    --sh-00m: #000000;
-    --sh-01m: #A2040D;
-    --sh-02m: #21A339;
-    --sh-03m: #DBDB0E;
-    --sh-04m: #1E63B8;
-    --sh-05m: #727BCD;
-    --sh-06m: #11D5D8;
-    --sh-07m: #FFFFFF;
-    --sh-08m: #FB902D;
-    --sh-09m: #5F5F5F;
+    --sh-00: #000000;
+    --sh-01: #A2040D;
+    --sh-02: #21A339;
+    --sh-03: #DBDB0E;
+    --sh-04: #1E63B8;
+    --sh-05: #727BCD;
+    --sh-06: #11D5D8;
+    --sh-07: #FFFFFF;
+    --sh-08: #FB902D;
+    --sh-09: #5F5F5F;
     
 }
 
@@ -43,33 +43,33 @@
     --bg-00img: url('https://raw.githubusercontent.com/hxAri/hxAri/main/assets/images/1653507326;74GVGUB1E..png');
     --bg-01img: url('https://raw.githubusercontent.com/hxAri/hxAri/main/assets/images/1644890644;abFVZSCJpK.jpg');
     
-    --bg-00m: #242526;
-    --bg-01m: #0D1017;/** 18191A; */
-    --bg-02m: #3A3B3C;
-    --bg-03m: #21262C;
+    --bg-00: #242526;
+    --bg-01: #0D1017;/** 18191A; */
+    --bg-02: #3A3B3C;
+    --bg-03: #21262C;
     
-    --ac-00m: #8BC5EC;
-    --ac-01m: #0195F7;
+    --ac-00: #8BC5EC;
+    --ac-01: #0195F7;
     
-    --ic-00m: #8B939E;
+    --ic-00: #8B939E;
     
-    --fc-00m: #FFFFFF;
-    --fc-01m: #C9D2D9;
-    --fc-02m: #B0B3B8;
-    --fc-03m: #8A8A8A;
+    --fc-00: #FFFFFF;
+    --fc-01: #C9D2D9;
+    --fc-02: #B0B3B8;
+    --fc-03: #8A8A8A;
     
-    --ln-00m: #2D3137;
+    --ln-00: #2D3137;
     
-    --sh-00m: #FFFFFF;
-    --sh-01m: #DE5151;
-    --sh-02m: #86DF92;
-    --sh-03m: #E9E36C;
-    --sh-04m: #67A9ED;
-    --sh-05m: #8490FF;
-    --sh-06m: #18DCDC;
-    --sh-07m: #000000;
-    --sh-08m: #FFBA5F;
-    --sh-09m: #B0B3B8;
+    --sh-00: #FFFFFF;
+    --sh-01: #DE5151;
+    --sh-02: #86DF92;
+    --sh-03: #E9E36C;
+    --sh-04: #67A9ED;
+    --sh-05: #8490FF;
+    --sh-06: #18DCDC;
+    --sh-07: #000000;
+    --sh-08: #FFBA5F;
+    --sh-09: #B0B3B8;
     
 }
 
@@ -89,31 +89,31 @@
 }
 
 a {
-    color: var(--ac-00m);
+    color: var(--ac-00);
     text-decoration: none;
 }
 a:hover {
-    color: var(--ac-01m);
+    color: var(--ac-01);
 }
 a:not([href]):not([class]) {
-    color: var(--fc-02m);
+    color: var(--fc-02);
 }
 a:not([href]):not([class]):hover {
-    color: var(--fc-02m);
+    color: var(--fc-02);
 }
 
 body {
     text-size-adjust: none;
-    background: var(--bg-01m);
+    background: var(--bg-01);
     font-family: "Poppins", sans-serif;
     font-size: 14px;
-    color: var(--fc-01m);
+    color: var(--fc-01);
 }
 
 button {
     font-size: 14px;
     outline: none;
-    color: var(--fc-01m);
+    color: var(--fc-01);
     background: transparent;
     border: 1px solid transparent;
 }
@@ -124,7 +124,7 @@ h3,
 h4,
 h5,
 h6 {
-    color: var(--fc-00m);
+    color: var(--fc-00);
     margin-top: 0;
     margin-bottom: 0.5rem;
     font-weight: 500;
@@ -153,11 +153,11 @@ h6 { font-size: 16px; }
 hr {
     border: 0;
     margin: 0;
-    border-top: 1px solid var(--ln-00m);
+    border-top: 1px solid var(--ln-00);
 }
 
 i {
-    color: var(--ic-00m);
+    color: var(--ic-00);
 }
 
 img {
