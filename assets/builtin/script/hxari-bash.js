@@ -52,7 +52,7 @@ $Bash.prototype.aliases = [];
  *
  * @values Array
  */
-$Bash.prototype.exports = [];
+$Bash.prototype.declare = [];
 
 /*
  * Bash History Command and output program.
@@ -62,7 +62,7 @@ $Bash.prototype.exports = [];
 $Bash.prototype.history = [{
     command: false,
     outputs: [
-        "\x1b[0;00m                                           ",
+        "",
         "\x1b[0;00m             ::                            ",
         "\x1b[0;00m            ~JJ^... :~^                    ",
         "\x1b[0;00m      .^::~7JJJJJJ??JJJ^                   ",
@@ -86,7 +86,7 @@ $Bash.prototype.history = [{
         "\x1b[0;00m        ^?JJJJJJJ7!!!!!!^:::..             ",
         "\x1b[0;00m      :7JJJJJJJ?!!!!!!!!^                  ",
         "\x1b[0;00m      7JJJJJJJ?!!!!!!!~:                   ",
-        "\x1b[0;00m                                           "
+        ""
     ]
 }];
 
@@ -107,6 +107,38 @@ $Bash.prototype.pattern = /([^\s'"]([^\s'"]*(['"])([^\3]*?)\3)+[^\s'"]*)|[^\s'"]
  */
 $Bash.prototype.execute = function( input )
 {
+    // Regular expression to capture variable name.
+    var regex = /(?:\$([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*))/g;
+    var match = null;
+    
+    // Find variables using pattern.
+    while( match = regex.exec( input ) )
+    {
+        if( this.declare.length > 0 )
+        {
+            for( let i in this.declare )
+            {
+                // If the environment variable is found.
+                if( match[1] === this.declare[i].env )
+                {
+                    // Rename variable with variable value.
+                    input = input.replace( match[0], this.declare[i].val );
+                } else {
+                    if( parseInt( i +1 ) === this.declare.length )
+                    {
+                        // Rename variable with blank.
+                        // Because the variable is undefined or not set.
+                        input = input.replace( match[0], "" );
+                    }
+                }
+            }
+        } else {
+                
+            // Rename variable with blank.
+            input = input.replace( match[0], "" );
+        }
+    }
+    
     // Parse string into argv.
     var argv = this.argument( input );
     
@@ -143,6 +175,9 @@ $Bash.prototype.execute = function( input )
                     $args: this.spaces( input.replace( /^([\S]+)\s*/g, "" ) ),
                     $argv: argv,
                     
+                    // Command reference.
+                    $refs: $Is( command.defined, Object ) ? command.defined : {},
+                    
                     // If the command has methods.
                     ...$Is( command.methods, Object ) ? command.methods : {}
                     
@@ -152,13 +187,13 @@ $Bash.prototype.execute = function( input )
                 if( $Is( command.opts, Object ) )
                 {
                     // Parse arguments.
-                    var parse = this.argparser( argv, command.opts );
+                    var parse = this.argument.parser( argv, command.opts );
                     
                     for( let i in parse )
                     {
                         if( i !== "argv" )
                         {
-                            args[0][i.replace( /^([-]*)/, "" )] = ( match = parse[i].match( /^\"(.*)\"$|^\'(.*)\'$/ ) ) ? ( match[1] ? match[1] : match[2] ) : parse[i];
+                            args[0][i.replace( /^([-]*)/, "" )] = $Is( parse[i], String ) ? ( ( match = parse[i].match( /^\"(.*)\"$|^\'(.*)\'$/ ) ) ? ( match[1] ? match[1] : match[2] ) : parse[i] ) : parse[i];
                         }
                     }
                 } else {
@@ -233,7 +268,7 @@ $Bash.prototype.argument = function( argument )
  *
  * @source https://github.com/vercel/arg
  */
-$Bash.prototype.argparser = function( argv, opts, { permissive = false, stopAtPositional = false } = {} )
+$Bash.prototype.argument.parser = function( argv, opts, { permissive = false, stopAtPositional = false } = {} )
 {
     var alias = {};
     var handle = {};
@@ -265,7 +300,7 @@ $Bash.prototype.argparser = function( argv, opts, { permissive = false, stopAtPo
         // Skiped.
         if( $Is( opts[key], String ) )
         {
-            alias[key] = opt[key]; continue;
+            alias[key] = opts[key]; continue;
         }
         
         let type = opts[key];
@@ -338,7 +373,7 @@ $Bash.prototype.argparser = function( argv, opts, { permissive = false, stopAtPo
                     wholeArg
                         .slice( 1 )
                         .split( "" )
-                        .map( a => $f( "{}", a ) );
+                        .map( a => $f( "-{}", a ) );
             
             for( let j = 0; j < separatedArguments.length; j++ )
             {
@@ -433,7 +468,7 @@ $Bash.prototype.replable = {
      */
     inputs: function( string )
     {
-        return( string );
+        return( string.replace( /\&|\"|\<|\>/g, m => m === "&" ? "&amp" : ( m === "\"" ? "&quot" : ( m === "\<" ? "&lt" : "&gt" ) ) ) );
     },
     
     /*
@@ -600,6 +635,27 @@ $Bash.prototype.commands = [{
 }];
 
 /*
+ * Help
+ *
+ * Displays help text for usage.
+ */
+$Bash.prototype.commands.push({
+    name: "help",
+    mounted: function()
+    {
+        return([
+            "",
+            "Type a star * to display all available commands. If you are not familiar with the Linux command line please add the --help or -h option to display help using the command.",
+            "",
+            "If you are visiting this page using an Android device please use the Hacker's Keyboard app for a better experience.",
+            "",
+            "Double click the terminal screen to paste the text from the clipboard.",
+            ""
+        ]);
+    }
+});
+
+/*
  * CD
  *
  * Change the current working directory 
@@ -658,7 +714,7 @@ $Bash.prototype.commands.push({
                 if(( split = argv.split( "=" )).length === 2 )
                 {
                     // If the alias name is invalid.
-                    if( split[0].match( /^(?:([a-z0-9])([\S]*))$/i ) === null )
+                    if( split[0].match( /^(?:([a-zA-Z0-9\-\_]+))$/ ) === null )
                     {
                         throw new Error( "Invalid alias name." );
                     }
@@ -709,6 +765,65 @@ $Bash.prototype.commands.push({
 });
 
 /*
+ * Export
+ *
+ * Ensure the environment variables and functions to be passed to child processes.
+ */
+$Bash.prototype.commands.push({
+    name: "export",
+    allowed: true,
+    mounted: function()
+    {
+        // Clone self.
+        var self = this;
+        
+        // Declared variables.
+        var declares = [];
+        
+        if( this.$args !== "" )
+        {
+            self.$bash.argument( self.$args ).forEach( argv =>
+            {
+                // If the arguments match.
+                if(( split = argv.split( "=" )).length === 2 )
+                {
+                    // If the variable name is invalid.
+                    if( split[0].match( /^(?:([a-zA-Z0-9\_]+))$/ ) === null )
+                    {
+                        throw new Error( "Invalid variable name." );
+                    }
+                    
+                    // If the variable value is not empty.
+                    if( split[1] !== "" )
+                    {
+                        for( let i in self.$bash.declare )
+                        {
+                            if( self.$bash.declare[i].env === split[0] )
+                            {
+                                // Delete old declare.
+                                delete self.$bash.declare[i];
+                            }
+                        }
+                        
+                        // Add variable to environment variable list.
+                        self.$bash.declare.push({
+                            env: split[0],
+                            val: split[1]
+                        });
+                    }
+                }
+            });
+        } else {
+            this.$bash.declare.forEach( dec =>
+            {
+                declares.push( $f( "declare -X {}={}", dec.env, dec.val ) );
+            });
+        }
+        return( declares );
+    }
+});
+
+/*
  * Clear
  *
  * Clear the terminal screen.
@@ -718,6 +833,57 @@ $Bash.prototype.commands.push({
     mounted: function()
     {
         $Bash.prototype.history = [];
+    }
+});
+
+/*
+ * Cookie
+ *
+ * Set, Get, and Delete cookie.
+ */
+$Bash.prototype.commands.push({
+    name: "cookie",
+    opts: {
+        
+        // Cookie execute options.
+        "--del": Boolean,
+        "--get": Boolean,
+        "--set": Boolean,
+        
+        // Cookie execute value options.
+        "--name": String,
+        "--value": String,
+        "--comment": String,
+        "--domain": String,
+        "--path": String,
+        "--samesite": String,
+        "--version": String,
+        "--expires": Number,
+        "--maxage": Number,
+        "--httponly": Boolean,
+        "--secure": Boolean
+        
+    },
+    allowed: true,
+    defined: {
+        instance: new $Cookie()
+    },
+    mounted: function({ del, get, set, name, value, comment, domain, expires, maxage, httponly, path, samesite, secure, version } = {})
+    {
+        // Cookie loaded raws.
+        var loaded = [];
+        
+        if( $Is( set, Boolean ) && set )
+        {
+            return( $f( "Set-Cookie: {}", this.$refs.instance.set( name, value, { comment: comment, domain: domain, expires: expires, maxage: maxage, httponly: httponly, path: path, samesite: samesite, secure: secure, version: version } ) ) );
+        }
+        
+        for( let name in this.$refs.instance.loaded )
+        {
+            loaded.push( $f( "Set-Cookie: {}={}", name, this.$refs.instance.loaded[name] ) );
+        }
+        
+        return( loaded );
     }
 });
 
@@ -735,13 +901,41 @@ $Bash.prototype.commands.push({
 });
 
 /*
+ * Date
+ *
+ * Displays and sets the system date and time.
+ */
+$Bash.prototype.commands.push({
+    name: "date",
+    opts: {
+        
+        // Longhand options.
+        "--time": Number,
+        "--format": String,
+        
+        // Shorthand options.
+        "-t": "--time",
+        "-f": "--format"
+        
+    },
+    allowed: true,
+    mounted: function({ time, t, format, f } = {})
+    {
+        var date = new $Date( time ? time : ( t ? t : Math.round( Date.now() /1000 ) ) );
+        
+        if( $Is( format, String ) || $Is( f, String ) )
+        {
+            return( date.format( format ? format : f ) );
+        }
+        return( String( date.date ) ).replace( /\(|\)/g, "" );
+    }
+});
+
+/*
  * Echo
  *
  * Used to display line of text/string
  * that are passed as an argument.
- *
- * @option -e String
- * @option -n String
  */
 $Bash.prototype.commands.push({
     name: "echo",
@@ -819,7 +1013,13 @@ $Bash.prototype.commands.push({
     name: "liana",
     mounted: function()
     {
-        return( "sh: liana: The command has confused the system." );
+        return([
+            "",
+            "Remember, falling in love because of",
+            "faith is much more beautiful than",
+            "falling in love because of lust.",
+            ""
+        ]);
     }
 });
 
@@ -828,6 +1028,31 @@ $Bash.prototype.commands.push({
     mounted: function()
     {
         return( "sh: chintya: The command has angered the system." );
+    }
+});
+
+/*
+ * Theme
+ *
+ * Set theme color.
+ */
+$Bash.prototype.commands.push({
+    name: "theme",
+    allowed: true,
+    defined: {
+        instance: new $Theme()
+    },
+    mounted: function()
+    {
+        if( this.$args !== "" )
+        {
+            if( this.$args === "dark" || this.$args === "light" )
+            {
+                this.$refs.instance.set( this.$args );
+            } else {
+                throw new Error( "Invalid theme color" );
+            }
+        }
     }
 });
 
@@ -848,9 +1073,60 @@ const $Terminal = {
     },
     mounted: function()
     {
-        this.executor();
+        // Clone self.
+        self = this;
+        
+        // Execute the command.
+        self.executor();
     },
     methods: {
+        
+        /*
+         * Trigger android soft keyboard.
+         *
+         * @params InputEvent $e
+         *
+         * @return Void
+         */
+        trigger: function( e )
+        {
+            this.$refs.input.focus();
+        },
+        
+        /*
+         * Paste text from cliboard.
+         *
+         * @params InputEvent $e
+         *
+         * @return Void
+         */
+        pasting: function( e )
+        {
+            // Clone self.
+            var self = this;
+            
+            navigator.clipboard.readText()
+                
+                // Paste text into input model.
+                .then( clipText => 
+                {
+                    if( self.model === clipText )
+                    {
+                        self.model = "";
+                    } else {
+                        self.model = clipText;
+                    }
+                })
+                
+                // If error.
+                .catch( e => 
+                {
+                    self.bash.history.push({
+                        outputs: $f( "sh: paste: {}: {}", e.name, e.message )
+                    });
+                });
+            
+        },
         
         /*
          * Execute input command.
@@ -877,14 +1153,17 @@ const $Terminal = {
                 // Reset Input.
                 this.model = "";
             }
+            
         },
         
         /*
          * Terminal ONInput
          *
+         * @params InputEvent $e
+         *
          * @return String
          */
-        oninputs: function()
+        oninputs: function( e )
         {
             return( $f( "{} {}", this.prompt, this.model ) );
         },
@@ -952,18 +1231,19 @@ const $Terminal = {
          */
         endrange: function( e )
         {
+            e.target.focus();
             e.target.setSelectionRange( -1, -1 );
         }
     },
     template: ([
         `<div class="terminal">`,
-            `<pre class="terminal-screen" ref="pre">`,
+            `<pre class="terminal-screen" @click="trigger" @dblclick="pasting">`,
                 `<div class="terminal-output fs-14" v-html="onrender()"></div>`,
                 `<div class="terminal-form">`,
                     `<label class="terminal-prompt">`,
                         `{{ oninputs() }}`,
                     `</label>`,
-                    `<input class="terminal-input" type="text" v-model="model" autocapitalize="off" @click="endrange" @keyup="endrange" @focus="endrange" @input="endrange" @change="endrange" @keypress="endrange" @keydown="executor" />`,
+                    `<input class="terminal-input" type="text" v-model="model" autocapitalize="off" ref="input" @click="endrange" @keyup="endrange" @focus="endrange" @input="endrange" @change="endrange" @keypress="endrange" @keydown="executor" />`,
                 `</div>`,
             `</pre>`,
         `</div>`

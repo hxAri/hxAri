@@ -16,6 +16,10 @@
 
 (() =>
 {    
+    class $Trouble    
+    {    
+            
+    }    
         
     const Null = x => typeof x === "null";    
     const Defined = x => typeof x !== "undefined";    
@@ -172,244 +176,226 @@
         encode: JSON.stringify,    
         decode: JSON.parse    
     };/*    
-     * Cookie utility.    
-     *    
-     * @author hxAri    
-     * @create -    
-     * @update -    
-     * @source https://github.com/hxAri/{hxAri}    
+     * Cookie utility    
      *    
      * A utility that provides various APIs for managing cookies.    
      *    
-     * All source code is under the MIT license, please see the original for more details.    
-     *    
+     * @params Array $set    
+     * @params String $del    
      */    
-    const $Cookie = function( $args )    
+    const $Cookie = function( set, del )    
     {    
-        if( $Is( $args, Object ) )    
-        {    
-            if( $Is( $args.del, Defined ) )    
-            {    
-                return( this.result = this.del( $args.del ) );    
-            }    
-            if( $Is( $args.get, Defined ) )    
-            {    
-                return( this.result = this.get( $args.get ) );    
-            }    
-            if( $Is( $args.set, Defined ) )    
-            {    
-                return( this.result = this.set( $args.set ) );    
-            }    
-        }    
-    };    
-        
-    // Cookie default option.    
-    $Cookie.prototype.option = {    
-        path: true,    
-        domain: true,    
-        expires: true,    
-        samesite: true    
-    };    
-        
-    /*    
-     * Delete one or even more than one cookies.    
-     *    
-     * @params Array, Object    
-     *    
-     * @return Object, String    
-     */    
-    $Cookie.prototype.del = function( params )    
-    {    
-        if( $Is( params, Array ) )    
-        {    
-            for( let i in params )    
-            {    
-                params[i] = this.set( params[i] );    
-            }    
-            return( params );    
-        }    
-        if( $Is( params, Object ) )    
-        {    
-            if( $Is( params.opt, Undefined ) )    
-            {    
-                params.opt = {};    
-            }    
-            params.opt.expires = -1;    
-                
-            return( this.set( params ) );    
-        }    
-    };    
-        
-    /*    
-     * Take cookies based on the name of the cookie, or take all cookies.    
-     *    
-     * @params Array, String $params    
-     *    
-     * @return Object, String    
-     */    
-    $Cookie.prototype.get = function( params )    
-    {    
-        var result = {};    
+        // Clone self.    
+        var self = this;    
             
-        if( $Is( params, Array ) )    
+        if( $Is( document, Undefined ) )    
         {    
-            for( let i in params )    
-            {    
-                result[i] = this.set( params[i] );    
-            }    
-            return( result );    
+            throw new TypeError( "Object Document is not defined." );    
         }    
-        if( $Is( params, String ) )    
+            
+        // Set cookies.    
+        if( $Is( set, Array ) )    
         {    
-            if( $Is( result = document.cookie.split( ";" ).find( r => ( r[0] === " " ? r.slice( 1 ) : r ).startsWith( encodeURIComponent( params ) + "=" ) ), Defined ) )    
-            {    
-                result = decodeURIComponent( result.split( "=" )[1] );    
-            }    
-            return( result );    
+            self.set.apply( self, set );    
         }    
+            
+        // Delete cookies.    
+        if( $Is( del, Array ) )    
+        {    
+            del.forEach( cookie =>    
+            {    
+                self.del( cookie );    
+            });    
+        }    
+            
+        // Load all available cookies.    
+        this.load();    
+    };    
+        
+    /*    
+     * Get cookie value.    
+     *    
+     * @params String $name    
+     *    
+     * @return String|False    
+     */    
+    $Cookie.prototype.get = function( name )    
+    {    
+        if( $Is( name, String ) )    
+        {    
+            if( $Is( result = document.cookie.split( ";" ).find( r => r.replace( /\s/g, "" ).startsWith( encodeURIComponent( name ) + "=" ) ), Defined ) )    
+            {    
+                return( decodeURIComponent( result.split( "=" )[1] ) );    
+            }    
+            return( False );    
+        }    
+        throw new TypeError( "Invalid cookie name." );    
+    };    
+        
+    /*    
+     * Load all the cookies that have been set.    
+     *    
+     * @return Object    
+     */    
+    $Cookie.prototype.load = function()    
+    {    
+        // Clone self.    
+        var self = this;    
+            self.loaded = {};    
+            
+        // Explode all cookies.    
         document.cookie.split( ";" ).map( part =>    
         {    
-            result[decodeURIComponent( part.split( "=" )[0] )] = decodeURIComponent( part.split( "=" )[1] );    
+            // Set cookie orders.    
+            self.loaded[decodeURIComponent( part.split( "=" )[0].replace( /\s/g, "" ) )] = decodeURIComponent( part.split( "=" )[1] );    
         });    
-        return( result );    
+            
+        return( self.loaded );    
     };    
         
     /*    
-     * Set one or more than one kuuki.    
-     *    
-     * @params Array, Object    
-     *    
-     * @return Object, String    
-     */    
-    $Cookie.prototype.set = function( params )    
-    {    
-            
-        var string = "";    
-        var result = {};    
-            
-        if( $Is( params, Array ) )    
-        {    
-            for( let i in params )    
-            {    
-                result[i] = this.set( params[i] );    
-            }    
-            return( result );    
-        }    
-        if( $Is( params, Object ) )    
-        {    
-            if( $Is( params.key, String ) )    
-            {    
-                params.key = encodeURIComponent( params.key );//.replace( /%(23|24|26|2B|5E|60|7C)/g, decodeURIComponent ).replace( /[\(\)]/g, escape );    
-            } else {    
-                return( $E.TypeError.value( "$Cookie::set", ".key", String, params.key ) );    
-            }    
-            if( $Is( params.val, String ) )    
-            {    
-                params.val = encodeURIComponent( params.val );//.replace( /%(23|24|26|2B|3A|3C|3E|3D|2F|3F|40|5B|5D|5E|60|7B|7D|7C)/g, decodeURIComponent );    
-            } else {    
-                params.val = "None";    
-                params.opt.expires = -1;    
-            }    
-            if( $Is( params.opt, Object ) )    
-            {    
-                if( $Is( params.opt.path, String ) )    
-                {    
-                    if( params.opt.path === "" )    
-                    {    
-                        delete params.opt.path;    
-                    }    
-                }    
-                if( $Is( params.opt.domain, String ) )    
-                {    
-                    if( params.opt.domain === "" )    
-                    {    
-                        delete params.opt.domain;    
-                    }    
-                }    
-                if( $Is( params.opt.expires, Number ) )    
-                {    
-                    var dateTime = new Date();    
-                        dateTime.setMilliseconds( dateTime.getMilliseconds() + params.opt.expires * 864e+5 );    
-                        
-                    params.opt.expires = dateTime.toUTCString();    
-                } else {    
-                    delete params.opt.expires;    
-                }    
-                if( $Is( params.opt.samesite, String ) )    
-                {    
-                    if( params.opt.samesite === "" )    
-                    {    
-                        delete params.opt.samesite;    
-                    }    
-                }    
-                for( let i in params.opt )    
-                {    
-                    if( $Is( this.option[i], Boolean ) )    
-                    {    
-                        string += "; " + i + "=" + params.opt[i];    
-                    }    
-                }    
-            }    
-            return( document.cookie = params.key + "=" + params.val + string );    
-        }    
-    };    
-        
-    /*    
-     * Command line for cookie.    
+     * List of cookies that have been set.    
      *    
      * @values Object    
      */    
-    $Cookie.prototype.command = {    
-        name: "cookie",    
-        argument: [    
-            {    
-                name: "--del",    
-                type: String    
-            },    
-            {    
-                name: "--get",    
-                type: String    
-            },    
-            {    
-                name: "--set",    
-                type: Object    
-            }    
-        ],    
-        usage: [    
-            "",    
-            "",    
-            "Cookie \\e[09mutility",    
-            "",    
-            "A utility that provides various",    
-            "APIs for managing cookies.",    
-            "",    
-            "Usage\\e[01m:",    
-            "",    
-            "\\e[05m--del \\e[08m[\\e[03mString\\e[08m] \\e[00mDelete cookie.",    
-            "\\e[05m--get \\e[08m[\\e[03mString\\e[08m] \\e[00mGet cookie.",    
-            "\\e[05m--set \\e[08m[\\e[03mObject\\e[08m] \\e[00mSet cookie.",    
-            ""    
-        ],    
-        instance: new $Cookie(),    
-        callback: function({ $$del, $$get, $$set }, output = [] )    
+    $Cookie.prototype.loaded = {};    
+        
+    /*    
+     * Set one or more than one cookie.    
+     *    
+     * @params String $name    
+     * @params String $value    
+     * @params Object $options    
+     *    
+     * @return String    
+     */    
+    $Cookie.prototype.set = function( name, value, { comment, domain, expires, maxage, httponly, path = "/", samesite, secure, version = "4.1.6" } = {} )    
+    {    
+        // Clone self.    
+        var self = this;    
+            
+        // If cookies are multiple, all    
+        // arguments will be ignored except name.    
+        if( $Is( name, Array ) )    
         {    
-            if( $Is( $$del, String ) )    
+                
+            // Set cookies by order.    
+            name.forEach( group =>    
             {    
-                output.push( $Bash.prototype.message( "--del", $$del, this.instance.del({ key: $$del }) ) );    
-            }    
-            if( $Is( $$set, Object ) )    
+                    
+                // If the group values   do not match.    
+                if( $Is( group ) !== "Array" )    
+                {    
+                    throw new TypeError( $f( "Multiple cookie group value must be type Object, \"{}\" given.", $Is( group ) ) );    
+                }    
+                    
+                // Recall the cookie set function.    
+                self.set.apply( self, group );    
+            });    
+                
+        } else {    
+            if( $Is( name, String ) )    
             {    
-                output.push( $Bash.prototype.message( "--set", $$set.key, this.instance.set( $$set ) ) );    
+                // Raw Cookie Header.    
+                var header = "";    
+                    
+                // Check if the cookie name is valid.    
+                if( /^(?:([a-z\_])([a-z0-9\_]*))$/i.test( name ) )    
+                {    
+                    if( $Is( value, String ) )    
+                    {    
+                        header = $f( "{}={}", encodeURIComponent( name ), encodeURIComponent( value ) );    
+                    } else {    
+                        header = $f( "{}=None", encodeURIComponent( name ) );    
+                        expires = -1;    
+                    }    
+                } else {    
+                    throw new TypeError( "Invalid cookie name." );    
+                }    
+                    
+                // If the cookie has a comment.    
+                if( $Is( comment, String ) )    
+                {    
+                    header += $f( "; Comment=\"{}\"", comment );    
+                }    
+                    
+                // If the cookie has a domain name.    
+                if( $Is( domain, String ) )    
+                {    
+                    header += $f( "; Domain={}", domain );    
+                }    
+                    
+                // If the cookie has an expiration date.    
+                if( $Is( expires, Number ) )    
+                {    
+                    // Parse date to UTCString.    
+                    header += $f( "; expires={}", new Date( Date.now() + expires * 864e5 ).toUTCString() );    
+                }    
+                    
+                // If the cookie is read only the server.    
+                if( $Is( httponly, Boolean ) )    
+                {    
+                    header += httponly ? "; HttpOnly" : "";    
+                }    
+                    
+                // ....    
+                if( $Is( maxage, Number ) )    
+                {    
+                    header += $f( "; Max-Age={}", maxage );    
+                }    
+                    
+                // If cookies are only set in certain locations.    
+                if( $Is( path, String ) )    
+                {    
+                    // If the location path name is valid.    
+                    if( /(?:^(\/\w+){0,}\/?)$/g.test( path ) )    
+                    {    
+                        header += $f( "; Path={}", path );;    
+                    } else {    
+                        throw new TypeError( "Invalid path name." );    
+                    }    
+                }    
+                    
+                if( $Is( samesite, String ) )    
+                {    
+                    switch( samesite )    
+                    {    
+                        case "Lax":    
+                            header += "; SameSite=Lax"; break;    
+                        case "None":    
+                            header += "; SameSite=None"; break;    
+                        case "Strict":    
+                            header += "; SameSite=Strict"; break;    
+                        default:    
+                            throw new TypeError( "Invalid cookie SameSite." );    
+                    }    
+                }    
+                    
+                // Otherwise the cookie is only sent    
+                // to the server when a request is made.    
+                if( $Is( secure, Boolean ) )    
+                {    
+                    header += secure ? "; Secure" : "";    
+                }    
+                    
+                // If cookie has a version.    
+                if( $Is( version, String ) )    
+                {    
+                    header += $f( "; Version={}", version );    
+                }    
+                    
+                // Set cookie header.    
+                document.cookie = header;    
+                    
+                // Load all available cookies.    
+                this.load();    
+                    
+                // Returns the cookie's raw header value.    
+                return( header );    
+                    
+            } else {    
+                throw new TypeError( "Cookie name cannot be empty or null." );    
             }    
-            if( $Is( $$get, String ) )    
-            {    
-                output.push( $Bash.prototype.message( "--get", $$get, this.instance.get( $$get ) ) );    
-            }    
-            if( output.length === 0 )    
-            {    
-                output = this.usage;    
-            }    
-            return( output );    
         }    
     };/*    
      * Theme utility    
@@ -419,7 +405,7 @@
      *    
      * @version 1.0.8    
      */    
-    const $Theme = function({ set })    
+    const $Theme = function({ set } = {})    
     {    
         if( $Is( set, Undefined ) )    
         {    
@@ -510,14 +496,14 @@
         }    
         if( cookie !== this.theme[color].token )    
         {    
-            $Cookie.prototype.set({    
-                key: this.name,    
-                val: this.theme[color].token,    
-                opt: {    
+            $Cookie.prototype.set(    
+                this.name,    
+                this.theme[color].token,    
+                {    
                     path: "/",    
                     expires: 30    
                 }    
-            });    
+            );    
         }    
         this.set.prototype.html( color );    
         this.set.prototype.meta( color );    
@@ -560,43 +546,6 @@
         // Set meta attribute content value.    
         meta.setAttribute( "content", $Theme.prototype.theme[color].color );    
             
-    };    
-        
-    /*    
-     * Command line for theme    
-     *    
-     * @values Object    
-     */    
-    $Theme.prototype.command = {    
-        name: "theme",    
-        argument: [{    
-            name: "$",    
-            type: String    
-        }],    
-        usage: [    
-            "",    
-            "",    
-            "Theme \\e[09mutility",    
-            "",    
-            "\\e[02mtheme \\e[03mString\\e[08m[\\e[05mdark\\e[04m|\\e[05mlight\\e[08m]",    
-            ""    
-        ],    
-        instance: new $Theme({}),    
-        callback: function({ $ })    
-        {    
-            if( $Is( $, String ) )    
-            {    
-                switch( $ )    
-                {    
-                    case "dark":    
-                    case "light":    
-                        this.instance.set( $ ); return( $Bash.prototype.message( "theme", $, "Theme was changed\\e[01m!" ) );    
-                    default:    
-                        return( "Invalid theme or unsupported theme." );    
-                }    
-            }    
-            return( this.usage );    
-        }    
     };const $Scroll = { left: 0 };const $Github = async function( url )    
     {    
         return( new Promise( async function( resolve, reject )    
@@ -618,7 +567,6 @@
         }));    
     };/*    
      * Date utility.    
-     *    
      *    
      */    
     const $Date = function( timestamp )    
@@ -793,102 +741,73 @@
             
         // Get format prototypes.    
         var format = this.format.prototype;    
-                
-            // Replace format.    
-            string = string.replace( /\%([a-zA-Z])/g, matched =>    
-            {    
-                switch( matched.slice( 1 ) )    
-                {    
-                    case "D": return( self.day( "D" ) );    
-                    case "Y": return( self.years( "Y" ) );    
-                    case "y": return( self.years( "y" ) );    
-                    case "m": return( self.month( "m" ) );    
-                    case "B": return( self.month( "B" ) );    
-                    case "b": return( self.month( "b" ) );    
-                    case "d": return( self.day( "d" ) );    
-                    case "j": return( self.day( "j" ) );    
-                    case "u": return( self.day( "u" ) );    
-                    case "A": return( self.day( "A" ) );    
-                    case "a": return( self.day( "a" ) );    
-                    case "H": return( self.hours( "H" ) );    
-                    case "I": return( self.hours( "I" ) );    
-                    case "M": return( self.minute() );    
-                    case "S": return( self.second() );    
-                }    
-                return( $f( "Invalid format date \\e[04m{}", matched ) );    
-            });    
             
-        return( string );    
+        // Return string replaced.    
+        return( string.replace( /\%([a-zA-Z])/g, matched =>    
+        {    
+            // String sliced.    
+            var sliced = matched.slice( 1 );    
+                
+            // Check if.format is supported.    
+            if( $Is( self.format.formats[sliced], Function ) )    
+            {    
+                return( this.format.formats[sliced]( self ) );    
+            }    
+            return( $f( "Invalid format date \"{}\"", matched ) );    
+        }));    
     };    
         
     /*    
-     * Command line for Date.    
+     * Datetime format supported.    
      *    
-     * @values Object    
      */    
-    $Date.prototype.command = {    
-        name: "date",    
-        usage: [    
-            "",    
-            "",    
-            "JavaScript \\e[09mDate",    
-            "",    
-            "\\e[02mdate \\e[04m-t \\e[08m[\\e[03mNumber\\e[08m] \\e[04m-f \\e[08m[\\e[03mString\\e[08m]",    
-            "",    
-            "\\e[04m-t \\e[00mTimestamp.",    
-            "\\e[04m-f \\e[00mFormat String.",    
-            "",    
-            "   \\e[04m%D \\e[00m- Display date as \\e[09mmm/dd/yy",    
-            "   \\e[04m%Y \\e[00m- Year \\e[09me.g., 2020",    
-            "   \\e[04m%y \\e[00m- Year \\e[09me.g., 20",    
-            "   \\e[04m%m \\e[00m- Month \\e[09m01-12",    
-            "   \\e[04m%B \\e[00m- Long month name \\e[09me.g., November",    
-            "   \\e[04m%b \\e[00m- Short month name \\e[09me.g., Nov",    
-            "   \\e[04m%d \\e[00m- Day of month \\e[09me.g., 01",    
-            "   \\e[04m%j \\e[00m- Day of year \\e[09m001-366",    
-            "   \\e[04m%u \\e[00m- Day of week \\e[09m1-7",    
-            "   \\e[04m%A \\e[00m- Full weekday name \\e[09me.g., Friday",    
-            "   \\e[04m%a \\e[00m- Short weekday name \\e[09me.g., Fri",    
-            "   \\e[04m%H \\e[00m- Hour \\e[09m00-23",    
-            "   \\e[04m%I \\e[00m- Hour \\e[09m01-12",    
-            "   \\e[04m%M \\e[00m- Minute \\e[09m00-59",    
-            "   \\e[04m%S \\e[00m- Second \\e[09m00-60",    
-            ""    
-        ],    
-        argument: [    
-            {    
-                name: "-t",    
-                type: Number    
-            },    
-            {    
-                name: "-f",    
-                type: String    
-            },    
-            {    
-                name: "-h",    
-                type: Boolean    
-            }    
-        ],    
-        instance: new $Date(),    
-        callback: function({ $t, $f, $h })    
-        {    
-            if( $Is( $t, Number ) )    
-            {    
-                this.instance = new $Date( $t );    
-            } else {    
-                this.instance = new $Date();    
-            }    
-            if( $Is( $f, String ) )    
-            {    
-                return( this.instance.format( $f ) );    
-            }    
-            if( $Is( $h, Boolean ) && $h )    
-            {    
-                return( this.usage );    
-            }    
-            return( String( this.instance.date ) ).replace( /\(|\)/g, "" );    
-        }    
-    };/*    
+    $Date.prototype.format.formats = {    
+            
+        // Locale's abbreviated weekday name (e.g., Sun)    
+        a: self => self.day( "a" ),    
+            
+        // Locale's full weekday name (e.g., Sunday)    
+        A: self => self.day( "A" ),    
+            
+        // Locale's abbreviated month name (e.g., Jan)    
+        b: self => self.month( "b" ),    
+            
+        // Locale's full month name (e.g., January)    
+        B: self => self.month( "B" ),    
+            
+        // Day of month (e.g., 01)    
+        d: self => self.day( "d" ),    
+            
+        // Display date as mm/dd/yy.    
+        D: self => self.day( "D" ),    
+            
+        // Day of year (001..366)    
+        j: self => self.day( "j" ),    
+            
+        // Day of week (1..7)    
+        u: self => self.day( "u" ),    
+            
+        // Year (2022)    
+        Y: self => self.years( "Y" ),    
+            
+        // Last two digits of year (22)    
+        y: self => self.years( "y" ),    
+            
+        // Month (01..12)    
+        m: self => self.month( "m" ),    
+            
+        // Hour (00..23)    
+        H: self => self.hours( "H" ),    
+        I: self => self.hours( "I" ),    
+            
+        // Minute (00..59)    
+        M: self => self.minute(),    
+            
+        /// Second (00..60)    
+        S: self => self.second()    
+            
+    };    
+    /*    
      * Bash utility.    
      *    
      * The Instance virtual command line interface.    
@@ -942,7 +861,7 @@
      *    
      * @values Array    
      */    
-    $Bash.prototype.exports = [];    
+    $Bash.prototype.declare = [];    
         
     /*    
      * Bash History Command and output program.    
@@ -952,7 +871,7 @@
     $Bash.prototype.history = [{    
         command: false,    
         outputs: [    
-            "\x1b[0;00m                                           ",    
+            "",    
             "\x1b[0;00m             ::                            ",    
             "\x1b[0;00m            ~JJ^... :~^                    ",    
             "\x1b[0;00m      .^::~7JJJJJJ??JJJ^                   ",    
@@ -976,7 +895,7 @@
             "\x1b[0;00m        ^?JJJJJJJ7!!!!!!^:::..             ",    
             "\x1b[0;00m      :7JJJJJJJ?!!!!!!!!^                  ",    
             "\x1b[0;00m      7JJJJJJJ?!!!!!!!~:                   ",    
-            "\x1b[0;00m                                           "    
+            ""    
         ]    
     }];    
         
@@ -997,6 +916,38 @@
      */    
     $Bash.prototype.execute = function( input )    
     {    
+        // Regular expression to capture variable name.    
+        var regex = /(?:\$([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*))/g;    
+        var match = null;    
+            
+        // Find variables using pattern.    
+        while( match = regex.exec( input ) )    
+        {    
+            if( this.declare.length > 0 )    
+            {    
+                for( let i in this.declare )    
+                {    
+                    // If the environment variable is found.    
+                    if( match[1] === this.declare[i].env )    
+                    {    
+                        // Rename variable with variable value.    
+                        input = input.replace( match[0], this.declare[i].val );    
+                    } else {    
+                        if( parseInt( i +1 ) === this.declare.length )    
+                        {    
+                            // Rename variable with blank.    
+                            // Because the variable is undefined or not set.    
+                            input = input.replace( match[0], "" );    
+                        }    
+                    }    
+                }    
+            } else {    
+                        
+                // Rename variable with blank.    
+                input = input.replace( match[0], "" );    
+            }    
+        }    
+            
         // Parse string into argv.    
         var argv = this.argument( input );    
             
@@ -1033,6 +984,9 @@
                         $args: this.spaces( input.replace( /^([\S]+)\s*/g, "" ) ),    
                         $argv: argv,    
                             
+                        // Command reference.    
+                        $refs: $Is( command.defined, Object ) ? command.defined : {},    
+                            
                         // If the command has methods.    
                         ...$Is( command.methods, Object ) ? command.methods : {}    
                             
@@ -1042,13 +996,13 @@
                     if( $Is( command.opts, Object ) )    
                     {    
                         // Parse arguments.    
-                        var parse = this.argparser( argv, command.opts );    
+                        var parse = this.argument.parser( argv, command.opts );    
                             
                         for( let i in parse )    
                         {    
                             if( i !== "argv" )    
                             {    
-                                args[0][i.replace( /^([-]*)/, "" )] = ( match = parse[i].match( /^\"(.*)\"$|^\'(.*)\'$/ ) ) ? ( match[1] ? match[1] : match[2] ) : parse[i];    
+                                args[0][i.replace( /^([-]*)/, "" )] = $Is( parse[i], String ) ? ( ( match = parse[i].match( /^\"(.*)\"$|^\'(.*)\'$/ ) ) ? ( match[1] ? match[1] : match[2] ) : parse[i] ) : parse[i];    
                             }    
                         }    
                     } else {    
@@ -1123,7 +1077,7 @@
      *    
      * @source https://github.com/vercel/arg    
      */    
-    $Bash.prototype.argparser = function( argv, opts, { permissive = false, stopAtPositional = false } = {} )    
+    $Bash.prototype.argument.parser = function( argv, opts, { permissive = false, stopAtPositional = false } = {} )    
     {    
         var alias = {};    
         var handle = {};    
@@ -1155,7 +1109,7 @@
             // Skiped.    
             if( $Is( opts[key], String ) )    
             {    
-                alias[key] = opt[key]; continue;    
+                alias[key] = opts[key]; continue;    
             }    
                 
             let type = opts[key];    
@@ -1228,7 +1182,7 @@
                         wholeArg    
                             .slice( 1 )    
                             .split( "" )    
-                            .map( a => $f( "{}", a ) );    
+                            .map( a => $f( "-{}", a ) );    
                     
                 for( let j = 0; j < separatedArguments.length; j++ )    
                 {    
@@ -1323,7 +1277,7 @@
          */    
         inputs: function( string )    
         {    
-            return( string );    
+            return( string.replace( /\&|\"|\<|\>/g, m => m === "&" ? "&amp" : ( m === "\"" ? "&quot" : ( m === "\<" ? "&lt" : "&gt" ) ) ) );    
         },    
             
         /*    
@@ -1490,6 +1444,27 @@
     }];    
         
     /*    
+     * Help    
+     *    
+     * Displays help text for usage.    
+     */    
+    $Bash.prototype.commands.push({    
+        name: "help",    
+        mounted: function()    
+        {    
+            return([    
+                "",    
+                "Type a star * to display all available commands. If you are not familiar with the Linux command line please add the --help or -h option to display help using the command.",    
+                "",    
+                "If you are visiting this page using an Android device please use the Hacker's Keyboard app for a better experience.",    
+                "",    
+                "Double click the terminal screen to paste the text from the clipboard.",    
+                ""    
+            ]);    
+        }    
+    });    
+        
+    /*    
      * CD    
      *    
      * Change the current working directory     
@@ -1548,7 +1523,7 @@
                     if(( split = argv.split( "=" )).length === 2 )    
                     {    
                         // If the alias name is invalid.    
-                        if( split[0].match( /^(?:([a-z0-9])([\S]*))$/i ) === null )    
+                        if( split[0].match( /^(?:([a-zA-Z0-9\-\_]+))$/ ) === null )    
                         {    
                             throw new Error( "Invalid alias name." );    
                         }    
@@ -1599,6 +1574,65 @@
     });    
         
     /*    
+     * Export    
+     *    
+     * Ensure the environment variables and functions to be passed to child processes.    
+     */    
+    $Bash.prototype.commands.push({    
+        name: "export",    
+        allowed: true,    
+        mounted: function()    
+        {    
+            // Clone self.    
+            var self = this;    
+                
+            // Declared variables.    
+            var declares = [];    
+                
+            if( this.$args !== "" )    
+            {    
+                self.$bash.argument( self.$args ).forEach( argv =>    
+                {    
+                    // If the arguments match.    
+                    if(( split = argv.split( "=" )).length === 2 )    
+                    {    
+                        // If the variable name is invalid.    
+                        if( split[0].match( /^(?:([a-zA-Z0-9\_]+))$/ ) === null )    
+                        {    
+                            throw new Error( "Invalid variable name." );    
+                        }    
+                            
+                        // If the variable value is not empty.    
+                        if( split[1] !== "" )    
+                        {    
+                            for( let i in self.$bash.declare )    
+                            {    
+                                if( self.$bash.declare[i].env === split[0] )    
+                                {    
+                                    // Delete old declare.    
+                                    delete self.$bash.declare[i];    
+                                }    
+                            }    
+                                
+                            // Add variable to environment variable list.    
+                            self.$bash.declare.push({    
+                                env: split[0],    
+                                val: split[1]    
+                            });    
+                        }    
+                    }    
+                });    
+            } else {    
+                this.$bash.declare.forEach( dec =>    
+                {    
+                    declares.push( $f( "declare -X {}={}", dec.env, dec.val ) );    
+                });    
+            }    
+            return( declares );    
+        }    
+    });    
+        
+    /*    
      * Clear    
      *    
      * Clear the terminal screen.    
@@ -1608,6 +1642,57 @@
         mounted: function()    
         {    
             $Bash.prototype.history = [];    
+        }    
+    });    
+        
+    /*    
+     * Cookie    
+     *    
+     * Set, Get, and Delete cookie.    
+     */    
+    $Bash.prototype.commands.push({    
+        name: "cookie",    
+        opts: {    
+                
+            // Cookie execute options.    
+            "--del": Boolean,    
+            "--get": Boolean,    
+            "--set": Boolean,    
+                
+            // Cookie execute value options.    
+            "--name": String,    
+            "--value": String,    
+            "--comment": String,    
+            "--domain": String,    
+            "--path": String,    
+            "--samesite": String,    
+            "--version": String,    
+            "--expires": Number,    
+            "--maxage": Number,    
+            "--httponly": Boolean,    
+            "--secure": Boolean    
+                
+        },    
+        allowed: true,    
+        defined: {    
+            instance: new $Cookie()    
+        },    
+        mounted: function({ del, get, set, name, value, comment, domain, expires, maxage, httponly, path, samesite, secure, version } = {})    
+        {    
+            // Cookie loaded raws.    
+            var loaded = [];    
+                
+            if( $Is( set, Boolean ) && set )    
+            {    
+                return( $f( "Set-Cookie: {}", this.$refs.instance.set( name, value, { comment: comment, domain: domain, expires: expires, maxage: maxage, httponly: httponly, path: path, samesite: samesite, secure: secure, version: version } ) ) );    
+            }    
+                
+            for( let name in this.$refs.instance.loaded )    
+            {    
+                loaded.push( $f( "Set-Cookie: {}={}", name, this.$refs.instance.loaded[name] ) );    
+            }    
+                
+            return( loaded );    
         }    
     });    
         
@@ -1625,13 +1710,41 @@
     });    
         
     /*    
+     * Date    
+     *    
+     * Displays and sets the system date and time.    
+     */    
+    $Bash.prototype.commands.push({    
+        name: "date",    
+        opts: {    
+                
+            // Longhand options.    
+            "--time": Number,    
+            "--format": String,    
+                
+            // Shorthand options.    
+            "-t": "--time",    
+            "-f": "--format"    
+                
+        },    
+        allowed: true,    
+        mounted: function({ time, t, format, f } = {})    
+        {    
+            var date = new $Date( time ? time : ( t ? t : Math.round( Date.now() /1000 ) ) );    
+                
+            if( $Is( format, String ) || $Is( f, String ) )    
+            {    
+                return( date.format( format ? format : f ) );    
+            }    
+            return( String( date.date ) ).replace( /\(|\)/g, "" );    
+        }    
+    });    
+        
+    /*    
      * Echo    
      *    
      * Used to display line of text/string    
      * that are passed as an argument.    
-     *    
-     * @option -e String    
-     * @option -n String    
      */    
     $Bash.prototype.commands.push({    
         name: "echo",    
@@ -1709,7 +1822,13 @@
         name: "liana",    
         mounted: function()    
         {    
-            return( "sh: liana: The command has confused the system." );    
+            return([    
+                "",    
+                "Remember, falling in love because of",    
+                "faith is much more beautiful than",    
+                "falling in love because of lust.",    
+                ""    
+            ]);    
         }    
     });    
         
@@ -1718,6 +1837,31 @@
         mounted: function()    
         {    
             return( "sh: chintya: The command has angered the system." );    
+        }    
+    });    
+        
+    /*    
+     * Theme    
+     *    
+     * Set theme color.    
+     */    
+    $Bash.prototype.commands.push({    
+        name: "theme",    
+        allowed: true,    
+        defined: {    
+            instance: new $Theme()    
+        },    
+        mounted: function()    
+        {    
+            if( this.$args !== "" )    
+            {    
+                if( this.$args === "dark" || this.$args === "light" )    
+                {    
+                    this.$refs.instance.set( this.$args );    
+                } else {    
+                    throw new Error( "Invalid theme color" );    
+                }    
+            }    
         }    
     });    
         
@@ -1738,9 +1882,60 @@
         },    
         mounted: function()    
         {    
-            this.executor();    
+            // Clone self.    
+            self = this;    
+                
+            // Execute the command.    
+            self.executor();    
         },    
         methods: {    
+                
+            /*    
+             * Trigger android soft keyboard.    
+             *    
+             * @params InputEvent $e    
+             *    
+             * @return Void    
+             */    
+            trigger: function( e )    
+            {    
+                this.$refs.input.focus();    
+            },    
+                
+            /*    
+             * Paste text from cliboard.    
+             *    
+             * @params InputEvent $e    
+             *    
+             * @return Void    
+             */    
+            pasting: function( e )    
+            {    
+                // Clone self.    
+                var self = this;    
+                    
+                navigator.clipboard.readText()    
+                        
+                    // Paste text into input model.    
+                    .then( clipText =>     
+                    {    
+                        if( self.model === clipText )    
+                        {    
+                            self.model = "";    
+                        } else {    
+                            self.model = clipText;    
+                        }    
+                    })    
+                        
+                    // If error.    
+                    .catch( e =>     
+                    {    
+                        self.bash.history.push({    
+                            outputs: $f( "sh: paste: {}: {}", e.name, e.message )    
+                        });    
+                    });    
+                    
+            },    
                 
             /*    
              * Execute input command.    
@@ -1767,14 +1962,17 @@
                     // Reset Input.    
                     this.model = "";    
                 }    
+                    
             },    
                 
             /*    
              * Terminal ONInput    
              *    
+             * @params InputEvent $e    
+             *    
              * @return String    
              */    
-            oninputs: function()    
+            oninputs: function( e )    
             {    
                 return( $f( "{} {}", this.prompt, this.model ) );    
             },    
@@ -1842,23 +2040,35 @@
              */    
             endrange: function( e )    
             {    
+                e.target.focus();    
                 e.target.setSelectionRange( -1, -1 );    
             }    
         },    
         template: ([    
             `<div class="terminal">`,    
-                `<pre class="terminal-screen" ref="pre">`,    
+                `<pre class="terminal-screen" @click="trigger" @dblclick="pasting">`,    
                     `<div class="terminal-output fs-14" v-html="onrender()"></div>`,    
                     `<div class="terminal-form">`,    
                         `<label class="terminal-prompt">`,    
                             `{{ oninputs() }}`,    
                         `</label>`,    
-                        `<input class="terminal-input" type="text" v-model="model" autocapitalize="off" @click="endrange" @keyup="endrange" @focus="endrange" @input="endrange" @change="endrange" @keypress="endrange" @keydown="executor" />`,    
+                        `<input class="terminal-input" type="text" v-model="model" autocapitalize="off" ref="input" @click="endrange" @keyup="endrange" @focus="endrange" @input="endrange" @change="endrange" @keypress="endrange" @keydown="executor" />`,    
                     `</div>`,    
                 `</pre>`,    
             `</div>`    
         ]).join( "" )    
-    };const $Request = async function( method, url, options = {} )    
+    };/*    
+     * Request    
+     *    
+     * Send asynchronous requests using XMLHttpRequest.    
+     *    
+     * @params String $method    
+     * @params String $url    
+     * @params Object $options    
+     *    
+     * @return Promise    
+     */    
+    const $Request = async function( method, url, options = {} )    
     {    
         return( new Promise( await function( resolve, reject )    
         {    
@@ -1994,8 +2204,8 @@
                             </div>    
                         </div>    
                         <div class="github">    
-                            <p class="fullname fc-sh-00m ff-latto fs-24 fb-50 fc-1m mg-0">Ari | Backdev</p>    
-                            <p class="username fc-sh-00m ff-latto fs-20 fb-35">hxAri</p>    
+                            <p class="fullname fc-sh-00m fs-14 fb-55 mg-0">闩尺讠 |ㅤ乃闩⼕长ᗪ🝗ᐯ</p>    
+                            <p class="username fc-sh-00m fs-14 fb-55">闩 - Ⲍ +</p>    
                         </div>    
                     </div>    
                     <div class="abouts">    
@@ -2195,13 +2405,40 @@
                 {{ alerts }}    
             </div>    
         `    
-    };const $Abouts = {    
+    };/*    
+     * About    
+     *    
+     * Explain about the web that was built.    
+     */    
+    const $About = {    
+            
+    };    
+        
+    /*    
+     * Abouts    
+     *    
+     * Explain who I am.    
+     */    
+    const $Abouts = {    
         data: () => ({    
+                
+            // My fullname.    
+            name: "Ari Setiawan",    
+                
+            // Greetings visitors.    
+            greetings: "Hello, introduce my name is ",    
+                
+            // Explain about myself.    
+            descriptions: [    
+                [    
+                    "I am a Junior Backend Programmer from Indonesia who happened to pass by.",    
+                    "I am currently undergoing a Software Engineering Vocational High School.",    
+                    "I prefer to work alone but I can also work in a team."    
+                ],    
+                // "And I'm not a lucky person in the world of love."    
+            ]    
+                
         }),    
-        mounted: function()    
-        {    
-            // ....    
-        },    
         methods: {},    
         template: `    
             <div class="about">    
@@ -2211,10 +2448,13 @@
                 <div class="section">    
                     <div class="content">    
                         <p class="paragraph">    
-                            Hello, introduce my name is <h2 class="title mg-top-14 mg-bottom-14">Ari Setiawan</h2>    
-                            I am a Junior Backend Programmer from Indonesia who happened to pass by.    
-                            I am currently undergoing a Software Engineering Vocational High School.    
-                            I prefer to work alone but I can also work in a team.    
+                            {{ greetings }}    
+                        </p>    
+                        <h2 class="title mg-top-14 mg-bottom-14">    
+                            {{ name }}    
+                        </h2>    
+                        <p class="paragraph    mg-bottom-14 mg-lc-bottom" v-for="( group, i ) in descriptions">    
+                            {{ group.join( ' ' ) }}    
                         </p>    
                     </div>    
                 </div>    

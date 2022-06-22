@@ -1,3 +1,14 @@
+/*
+ * Request
+ *
+ * Send asynchronous requests using XMLHttpRequest.
+ *
+ * @params String $method
+ * @params String $url
+ * @params Object $options
+ *
+ * @return Promise
+ */
 const $Request = async function( method, url, options = {} )
 {
     return( new Promise( await function( resolve, reject )

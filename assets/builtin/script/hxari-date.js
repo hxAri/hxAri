@@ -1,7 +1,6 @@
 /*
  * Date utility.
  *
- *
  */
 const $Date = function( timestamp )
 {
@@ -175,99 +174,69 @@ $Date.prototype.format = function( string )
     
     // Get format prototypes.
     var format = this.format.prototype;
-        
-        // Replace format.
-        string = string.replace( /\%([a-zA-Z])/g, matched =>
-        {
-            switch( matched.slice( 1 ) )
-            {
-                case "D": return( self.day( "D" ) );
-                case "Y": return( self.years( "Y" ) );
-                case "y": return( self.years( "y" ) );
-                case "m": return( self.month( "m" ) );
-                case "B": return( self.month( "B" ) );
-                case "b": return( self.month( "b" ) );
-                case "d": return( self.day( "d" ) );
-                case "j": return( self.day( "j" ) );
-                case "u": return( self.day( "u" ) );
-                case "A": return( self.day( "A" ) );
-                case "a": return( self.day( "a" ) );
-                case "H": return( self.hours( "H" ) );
-                case "I": return( self.hours( "I" ) );
-                case "M": return( self.minute() );
-                case "S": return( self.second() );
-            }
-            return( $f( "Invalid format date \\e[04m{}", matched ) );
-        });
     
-    return( string );
+    // Return string replaced.
+    return( string.replace( /\%([a-zA-Z])/g, matched =>
+    {
+        // String sliced.
+        var sliced = matched.slice( 1 );
+        
+        // Check if.format is supported.
+        if( $Is( self.format.formats[sliced], Function ) )
+        {
+            return( this.format.formats[sliced]( self ) );
+        }
+        return( $f( "Invalid format date \"{}\"", matched ) );
+    }));
 };
 
 /*
- * Command line for Date.
+ * Datetime format supported.
  *
- * @values Object
  */
-$Date.prototype.command = {
-    name: "date",
-    usage: [
-        "",
-        "",
-        "JavaScript \\e[09mDate",
-        "",
-        "\\e[02mdate \\e[04m-t \\e[08m[\\e[03mNumber\\e[08m] \\e[04m-f \\e[08m[\\e[03mString\\e[08m]",
-        "",
-        "\\e[04m-t \\e[00mTimestamp.",
-        "\\e[04m-f \\e[00mFormat String.",
-        "",
-        "   \\e[04m%D \\e[00m- Display date as \\e[09mmm/dd/yy",
-        "   \\e[04m%Y \\e[00m- Year \\e[09me.g., 2020",
-        "   \\e[04m%y \\e[00m- Year \\e[09me.g., 20",
-        "   \\e[04m%m \\e[00m- Month \\e[09m01-12",
-        "   \\e[04m%B \\e[00m- Long month name \\e[09me.g., November",
-        "   \\e[04m%b \\e[00m- Short month name \\e[09me.g., Nov",
-        "   \\e[04m%d \\e[00m- Day of month \\e[09me.g., 01",
-        "   \\e[04m%j \\e[00m- Day of year \\e[09m001-366",
-        "   \\e[04m%u \\e[00m- Day of week \\e[09m1-7",
-        "   \\e[04m%A \\e[00m- Full weekday name \\e[09me.g., Friday",
-        "   \\e[04m%a \\e[00m- Short weekday name \\e[09me.g., Fri",
-        "   \\e[04m%H \\e[00m- Hour \\e[09m00-23",
-        "   \\e[04m%I \\e[00m- Hour \\e[09m01-12",
-        "   \\e[04m%M \\e[00m- Minute \\e[09m00-59",
-        "   \\e[04m%S \\e[00m- Second \\e[09m00-60",
-        ""
-    ],
-    argument: [
-        {
-            name: "-t",
-            type: Number
-        },
-        {
-            name: "-f",
-            type: String
-        },
-        {
-            name: "-h",
-            type: Boolean
-        }
-    ],
-    instance: new $Date(),
-    callback: function({ $t, $f, $h })
-    {
-        if( $Is( $t, Number ) )
-        {
-            this.instance = new $Date( $t );
-        } else {
-            this.instance = new $Date();
-        }
-        if( $Is( $f, String ) )
-        {
-            return( this.instance.format( $f ) );
-        }
-        if( $Is( $h, Boolean ) && $h )
-        {
-            return( this.usage );
-        }
-        return( String( this.instance.date ) ).replace( /\(|\)/g, "" );
-    }
+$Date.prototype.format.formats = {
+    
+    // Locale's abbreviated weekday name (e.g., Sun)
+    a: self => self.day( "a" ),
+    
+    // Locale's full weekday name (e.g., Sunday)
+    A: self => self.day( "A" ),
+    
+    // Locale's abbreviated month name (e.g., Jan)
+    b: self => self.month( "b" ),
+    
+    // Locale's full month name (e.g., January)
+    B: self => self.month( "B" ),
+    
+    // Day of month (e.g., 01)
+    d: self => self.day( "d" ),
+    
+    // Display date as mm/dd/yy.
+    D: self => self.day( "D" ),
+    
+    // Day of year (001..366)
+    j: self => self.day( "j" ),
+    
+    // Day of week (1..7)
+    u: self => self.day( "u" ),
+    
+    // Year (2022)
+    Y: self => self.years( "Y" ),
+    
+    // Last two digits of year (22)
+    y: self => self.years( "y" ),
+    
+    // Month (01..12)
+    m: self => self.month( "m" ),
+    
+    // Hour (00..23)
+    H: self => self.hours( "H" ),
+    I: self => self.hours( "I" ),
+    
+    // Minute (00..59)
+    M: self => self.minute(),
+    
+    /// Second (00..60)
+    S: self => self.second()
+    
 };

@@ -6,7 +6,7 @@
  *
  * @version 1.0.8
  */
-const $Theme = function({ set })
+const $Theme = function({ set } = {})
 {
     if( $Is( set, Undefined ) )
     {
@@ -97,14 +97,14 @@ $Theme.prototype.set = function( color )
     }
     if( cookie !== this.theme[color].token )
     {
-        $Cookie.prototype.set({
-            key: this.name,
-            val: this.theme[color].token,
-            opt: {
+        $Cookie.prototype.set(
+            this.name,
+            this.theme[color].token,
+            {
                 path: "/",
                 expires: 30
             }
-        });
+        );
     }
     this.set.prototype.html( color );
     this.set.prototype.meta( color );
@@ -147,41 +147,4 @@ $Theme.prototype.set.prototype.meta = color =>
     // Set meta attribute content value.
     meta.setAttribute( "content", $Theme.prototype.theme[color].color );
     
-};
-
-/*
- * Command line for theme
- *
- * @values Object
- */
-$Theme.prototype.command = {
-    name: "theme",
-    argument: [{
-        name: "$",
-        type: String
-    }],
-    usage: [
-        "",
-        "",
-        "Theme \\e[09mutility",
-        "",
-        "\\e[02mtheme \\e[03mString\\e[08m[\\e[05mdark\\e[04m|\\e[05mlight\\e[08m]",
-        ""
-    ],
-    instance: new $Theme({}),
-    callback: function({ $ })
-    {
-        if( $Is( $, String ) )
-        {
-            switch( $ )
-            {
-                case "dark":
-                case "light":
-                    this.instance.set( $ ); return( $Bash.prototype.message( "theme", $, "Theme was changed\\e[01m!" ) );
-                default:
-                    return( "Invalid theme or unsupported theme." );
-            }
-        }
-        return( this.usage );
-    }
 };

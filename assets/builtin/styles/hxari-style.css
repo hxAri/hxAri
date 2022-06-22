@@ -194,11 +194,13 @@
                                 background-image: var(--bg-02img);
                             }
                 .sidebr .wrapper .github {
-                    padding-top: 14px;
+                    padding-top: 22px;
+                    text-align: center;
                 }
-                    .sidebr .wrapper .github .fullname {}
+                    .sidebr .wrapper .github .fullname {
+                        color: var(--fc-00);
+                    }
                     .sidebr .wrapper .github .username {
-                        margin-top: -10px;
                     }
             .sidebr .abouts {
                 padding: 20px;
@@ -373,7 +375,8 @@
                                 height: 75px;
                             }
                 .sidebr .wrapper .github {
-                    padding-top: 14px;
+                    padding-top: 0px;
+                    text-align: left;
                 }
                     .sidebr .wrapper .github .fullname {}
                     .sidebr .wrapper .github .username {
@@ -433,6 +436,7 @@
 
 .terminal {
     padding: 14px;
+    color: var(--sh-97);
     background: var(--sh-90);
 }
     .terminal-screen,
@@ -442,6 +446,8 @@
         font-weight: 500;
         overflow: auto;
         overflow-x: auto;
+    }
+    .terminal-screen {
         white-space: -moz-pre-wrap !important;
         white-space: pre-wrap;
         word-wrap: break-word;
@@ -462,7 +468,8 @@
 
 .project {}
 
-.contact {}
+.contact {
+}
     .contact .wrapper {
         padding-top: 32px;
         padding-bottom: 32px;

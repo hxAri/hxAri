@@ -1,4 +1,8 @@
 
+class $Trouble
+{
+    
+}
 
 const Null = x => typeof x === "null";
 const Defined = x => typeof x !== "undefined";

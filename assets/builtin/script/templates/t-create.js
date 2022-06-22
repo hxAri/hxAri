@@ -68,8 +68,8 @@ $T.create = {
                         </div>
                     </div>
                     <div class="github">
-                        <p class="fullname fc-sh-00m ff-latto fs-24 fb-50 fc-1m mg-0">Ari | Backdev</p>
-                        <p class="username fc-sh-00m ff-latto fs-20 fb-35">hxAri</p>
+                        <p class="fullname fc-sh-00m fs-14 fb-55 mg-0">闩尺讠 |ㅤ乃闩⼕长ᗪ🝗ᐯ</p>
+                        <p class="username fc-sh-00m fs-14 fb-55">闩 - Ⲍ +</p>
                     </div>
                 </div>
                 <div class="abouts">

@@ -1,241 +1,223 @@
 /*
- * Cookie utility.
- *
- * @author hxAri
- * @create -
- * @update -
- * @source https://github.com/hxAri/{hxAri}
+ * Cookie utility
  *
  * A utility that provides various APIs for managing cookies.
  *
- * All source code is under the MIT license, please see the original for more details.
- *
+ * @params Array $set
+ * @params String $del
  */
-const $Cookie = function( $args )
+const $Cookie = function( set, del )
 {
-    if( $Is( $args, Object ) )
-    {
-        if( $Is( $args.del, Defined ) )
-        {
-            return( this.result = this.del( $args.del ) );
-        }
-        if( $Is( $args.get, Defined ) )
-        {
-            return( this.result = this.get( $args.get ) );
-        }
-        if( $Is( $args.set, Defined ) )
-        {
-            return( this.result = this.set( $args.set ) );
-        }
-    }
-};
-
-// Cookie default option.
-$Cookie.prototype.option = {
-    path: true,
-    domain: true,
-    expires: true,
-    samesite: true
-};
-
-/*
- * Delete one or even more than one cookies.
- *
- * @params Array, Object
- *
- * @return Object, String
- */
-$Cookie.prototype.del = function( params )
-{
-    if( $Is( params, Array ) )
-    {
-        for( let i in params )
-        {
-            params[i] = this.set( params[i] );
-        }
-        return( params );
-    }
-    if( $Is( params, Object ) )
-    {
-        if( $Is( params.opt, Undefined ) )
-        {
-            params.opt = {};
-        }
-        params.opt.expires = -1;
-        
-        return( this.set( params ) );
-    }
-};
-
-/*
- * Take cookies based on the name of the cookie, or take all cookies.
- *
- * @params Array, String $params
- *
- * @return Object, String
- */
-$Cookie.prototype.get = function( params )
-{
-    var result = {};
+    // Clone self.
+    var self = this;
     
-    if( $Is( params, Array ) )
+    if( $Is( document, Undefined ) )
     {
-        for( let i in params )
-        {
-            result[i] = this.set( params[i] );
-        }
-        return( result );
+        throw new TypeError( "Object Document is not defined." );
     }
-    if( $Is( params, String ) )
+    
+    // Set cookies.
+    if( $Is( set, Array ) )
     {
-        if( $Is( result = document.cookie.split( ";" ).find( r => ( r[0] === " " ? r.slice( 1 ) : r ).startsWith( encodeURIComponent( params ) + "=" ) ), Defined ) )
-        {
-            result = decodeURIComponent( result.split( "=" )[1] );
-        }
-        return( result );
+        self.set.apply( self, set );
     }
+    
+    // Delete cookies.
+    if( $Is( del, Array ) )
+    {
+        del.forEach( cookie =>
+        {
+            self.del( cookie );
+        });
+    }
+    
+    // Load all available cookies.
+    this.load();
+};
+
+/*
+ * Get cookie value.
+ *
+ * @params String $name
+ *
+ * @return String|False
+ */
+$Cookie.prototype.get = function( name )
+{
+    if( $Is( name, String ) )
+    {
+        if( $Is( result = document.cookie.split( ";" ).find( r => r.replace( /\s/g, "" ).startsWith( encodeURIComponent( name ) + "=" ) ), Defined ) )
+        {
+            return( decodeURIComponent( result.split( "=" )[1] ) );
+        }
+        return( False );
+    }
+    throw new TypeError( "Invalid cookie name." );
+};
+
+/*
+ * Load all the cookies that have been set.
+ *
+ * @return Object
+ */
+$Cookie.prototype.load = function()
+{
+    // Clone self.
+    var self = this;
+        self.loaded = {};
+    
+    // Explode all cookies.
     document.cookie.split( ";" ).map( part =>
     {
-        result[decodeURIComponent( part.split( "=" )[0] )] = decodeURIComponent( part.split( "=" )[1] );
+        // Set cookie orders.
+        self.loaded[decodeURIComponent( part.split( "=" )[0].replace( /\s/g, "" ) )] = decodeURIComponent( part.split( "=" )[1] );
     });
-    return( result );
+    
+    return( self.loaded );
 };
 
 /*
- * Set one or more than one kuuki.
- *
- * @params Array, Object
- *
- * @return Object, String
- */
-$Cookie.prototype.set = function( params )
-{
-    
-    var string = "";
-    var result = {};
-    
-    if( $Is( params, Array ) )
-    {
-        for( let i in params )
-        {
-            result[i] = this.set( params[i] );
-        }
-        return( result );
-    }
-    if( $Is( params, Object ) )
-    {
-        if( $Is( params.key, String ) )
-        {
-            params.key = encodeURIComponent( params.key );//.replace( /%(23|24|26|2B|5E|60|7C)/g, decodeURIComponent ).replace( /[\(\)]/g, escape );
-        } else {
-            return( $E.TypeError.value( "$Cookie::set", ".key", String, params.key ) );
-        }
-        if( $Is( params.val, String ) )
-        {
-            params.val = encodeURIComponent( params.val );//.replace( /%(23|24|26|2B|3A|3C|3E|3D|2F|3F|40|5B|5D|5E|60|7B|7D|7C)/g, decodeURIComponent );
-        } else {
-            params.val = "None";
-            params.opt.expires = -1;
-        }
-        if( $Is( params.opt, Object ) )
-        {
-            if( $Is( params.opt.path, String ) )
-            {
-                if( params.opt.path === "" )
-                {
-                    delete params.opt.path;
-                }
-            }
-            if( $Is( params.opt.domain, String ) )
-            {
-                if( params.opt.domain === "" )
-                {
-                    delete params.opt.domain;
-                }
-            }
-            if( $Is( params.opt.expires, Number ) )
-            {
-                var dateTime = new Date();
-                    dateTime.setMilliseconds( dateTime.getMilliseconds() + params.opt.expires * 864e+5 );
-                
-                params.opt.expires = dateTime.toUTCString();
-            } else {
-                delete params.opt.expires;
-            }
-            if( $Is( params.opt.samesite, String ) )
-            {
-                if( params.opt.samesite === "" )
-                {
-                    delete params.opt.samesite;
-                }
-            }
-            for( let i in params.opt )
-            {
-                if( $Is( this.option[i], Boolean ) )
-                {
-                    string += "; " + i + "=" + params.opt[i];
-                }
-            }
-        }
-        return( document.cookie = params.key + "=" + params.val + string );
-    }
-};
-
-/*
- * Command line for cookie.
+ * List of cookies that have been set.
  *
  * @values Object
  */
-$Cookie.prototype.command = {
-    name: "cookie",
-    argument: [
-        {
-            name: "--del",
-            type: String
-        },
-        {
-            name: "--get",
-            type: String
-        },
-        {
-            name: "--set",
-            type: Object
-        }
-    ],
-    usage: [
-        "",
-        "",
-        "Cookie \\e[09mutility",
-        "",
-        "A utility that provides various",
-        "APIs for managing cookies.",
-        "",
-        "Usage\\e[01m:",
-        "",
-        "\\e[05m--del \\e[08m[\\e[03mString\\e[08m] \\e[00mDelete cookie.",
-        "\\e[05m--get \\e[08m[\\e[03mString\\e[08m] \\e[00mGet cookie.",
-        "\\e[05m--set \\e[08m[\\e[03mObject\\e[08m] \\e[00mSet cookie.",
-        ""
-    ],
-    instance: new $Cookie(),
-    callback: function({ $$del, $$get, $$set }, output = [] )
+$Cookie.prototype.loaded = {};
+
+/*
+ * Set one or more than one cookie.
+ *
+ * @params String $name
+ * @params String $value
+ * @params Object $options
+ *
+ * @return String
+ */
+$Cookie.prototype.set = function( name, value, { comment, domain, expires, maxage, httponly, path = "/", samesite, secure, version = "4.1.6" } = {} )
+{
+    // Clone self.
+    var self = this;
+    
+    // If cookies are multiple, all
+    // arguments will be ignored except name.
+    if( $Is( name, Array ) )
     {
-        if( $Is( $$del, String ) )
+        
+        // Set cookies by order.
+        name.forEach( group =>
         {
-            output.push( $Bash.prototype.message( "--del", $$del, this.instance.del({ key: $$del }) ) );
-        }
-        if( $Is( $$set, Object ) )
+            
+            // If the group values   do not match.
+            if( $Is( group ) !== "Array" )
+            {
+                throw new TypeError( $f( "Multiple cookie group value must be type Object, \"{}\" given.", $Is( group ) ) );
+            }
+            
+            // Recall the cookie set function.
+            self.set.apply( self, group );
+        });
+        
+    } else {
+        if( $Is( name, String ) )
         {
-            output.push( $Bash.prototype.message( "--set", $$set.key, this.instance.set( $$set ) ) );
+            // Raw Cookie Header.
+            var header = "";
+            
+            // Check if the cookie name is valid.
+            if( /^(?:([a-z\_])([a-z0-9\_]*))$/i.test( name ) )
+            {
+                if( $Is( value, String ) )
+                {
+                    header = $f( "{}={}", encodeURIComponent( name ), encodeURIComponent( value ) );
+                } else {
+                    header = $f( "{}=None", encodeURIComponent( name ) );
+                    expires = -1;
+                }
+            } else {
+                throw new TypeError( "Invalid cookie name." );
+            }
+            
+            // If the cookie has a comment.
+            if( $Is( comment, String ) )
+            {
+                header += $f( "; Comment=\"{}\"", comment );
+            }
+            
+            // If the cookie has a domain name.
+            if( $Is( domain, String ) )
+            {
+                header += $f( "; Domain={}", domain );
+            }
+            
+            // If the cookie has an expiration date.
+            if( $Is( expires, Number ) )
+            {
+                // Parse date to UTCString.
+                header += $f( "; expires={}", new Date( Date.now() + expires * 864e5 ).toUTCString() );
+            }
+            
+            // If the cookie is read only the server.
+            if( $Is( httponly, Boolean ) )
+            {
+                header += httponly ? "; HttpOnly" : "";
+            }
+            
+            // ....
+            if( $Is( maxage, Number ) )
+            {
+                header += $f( "; Max-Age={}", maxage );
+            }
+            
+            // If cookies are only set in certain locations.
+            if( $Is( path, String ) )
+            {
+                // If the location path name is valid.
+                if( /(?:^(\/\w+){0,}\/?)$/g.test( path ) )
+                {
+                    header += $f( "; Path={}", path );;
+                } else {
+                    throw new TypeError( "Invalid path name." );
+                }
+            }
+            
+            if( $Is( samesite, String ) )
+            {
+                switch( samesite )
+                {
+                    case "Lax":
+                        header += "; SameSite=Lax"; break;
+                    case "None":
+                        header += "; SameSite=None"; break;
+                    case "Strict":
+                        header += "; SameSite=Strict"; break;
+                    default:
+                        throw new TypeError( "Invalid cookie SameSite." );
+                }
+            }
+            
+            // Otherwise the cookie is only sent
+            // to the server when a request is made.
+            if( $Is( secure, Boolean ) )
+            {
+                header += secure ? "; Secure" : "";
+            }
+            
+            // If cookie has a version.
+            if( $Is( version, String ) )
+            {
+                header += $f( "; Version={}", version );
+            }
+            
+            // Set cookie header.
+            document.cookie = header;
+            
+            // Load all available cookies.
+            this.load();
+            
+            // Returns the cookie's raw header value.
+            return( header );
+            
+        } else {
+            throw new TypeError( "Cookie name cannot be empty or null." );
         }
-        if( $Is( $$get, String ) )
-        {
-            output.push( $Bash.prototype.message( "--get", $$get, this.instance.get( $$get ) ) );
-        }
-        if( output.length === 0 )
-        {
-            output = this.usage;
-        }
-        return( output );
     }
 };

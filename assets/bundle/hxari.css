@@ -39,16 +39,27 @@
     
     --ln-00: #DBDCDE;
     
-    --sh-00: #000000;
-    --sh-01: #A2040D;
-    --sh-02: #21A339;
-    --sh-03: #DBDB0E;
-    --sh-04: #1E63B8;
-    --sh-05: #727BCD;
-    --sh-06: #11D5D8;
-    --sh-07: #FFFFFF;
-    --sh-08: #FB902D;
-    --sh-09: #5F5F5F;
+    --sh-30: #000000;
+    --sh-31: #FF0000;
+    --sh-32: #008900;
+    --sh-33: #E3D600;
+    --sh-34: #0062CC;
+    --sh-35: #FF00FF;
+    --sh-36: #00CCCC;
+    --sh-37: #E5E5E5;
+    --sh-38: #;
+    --sh-39: #;
+    
+    --sh-90: #191919;
+    --sh-91: #FF3232;
+    --sh-92: #00BB84;
+    --sh-93: #FDEE00;
+    --sh-94: #3295FF;
+    --sh-95: #FF4CFF;
+    --sh-96: #00FFFF;
+    --sh-97: #FFFFFF;
+    --sh-98: #;
+    --sh-99: #;
     
 }
 
@@ -73,18 +84,29 @@
     --fc-03: #8A8A8A;
     
     --ln-00: #2D3137;
+    /*
+    --sh-30: #;
+    --sh-31: #;
+    --sh-32: #;
+    --sh-33: #;
+    --sh-34: #;
+    --sh-35: #;
+    --sh-36: #;
+    --sh-37: #;
+    --sh-38: #;
+    --sh-39: #;
     
-    --sh-00: #FFFFFF;
-    --sh-01: #DE5151;
-    --sh-02: #86DF92;
-    --sh-03: #E9E36C;
-    --sh-04: #67A9ED;
-    --sh-05: #8490FF;
-    --sh-06: #18DCDC;
-    --sh-07: #000000;
-    --sh-08: #FFBA5F;
-    --sh-09: #B0B3B8;
-    
+    --sh-90: #;
+    --sh-91: #;
+    --sh-92: #;
+    --sh-93: #;
+    --sh-94: #;
+    --sh-95: #;
+    --sh-96: #;
+    --sh-97: #;
+    --sh-98: #;
+    --sh-99: #;
+    */
 }
 
 *,
@@ -741,11 +763,13 @@ pre {
                                 background-image: var(--bg-02img);
                             }
                 .sidebr .wrapper .github {
-                    padding-top: 14px;
+                    padding-top: 22px;
+                    text-align: center;
                 }
-                    .sidebr .wrapper .github .fullname {}
+                    .sidebr .wrapper .github .fullname {
+                        color: var(--fc-00);
+                    }
                     .sidebr .wrapper .github .username {
-                        margin-top: -10px;
                     }
             .sidebr .abouts {
                 padding: 20px;
@@ -920,7 +944,8 @@ pre {
                                 height: 75px;
                             }
                 .sidebr .wrapper .github {
-                    padding-top: 14px;
+                    padding-top: 0px;
+                    text-align: left;
                 }
                     .sidebr .wrapper .github .fullname {}
                     .sidebr .wrapper .github .username {
@@ -980,6 +1005,7 @@ pre {
 
 .terminal {
     padding: 14px;
+    color: var(--sh-97);
     background: var(--sh-90);
 }
     .terminal-screen,
@@ -989,6 +1015,8 @@ pre {
         font-weight: 500;
         overflow: auto;
         overflow-x: auto;
+    }
+    .terminal-screen {
         white-space: -moz-pre-wrap !important;
         white-space: pre-wrap;
         word-wrap: break-word;
@@ -1009,7 +1037,8 @@ pre {
 
 .project {}
 
-.contact {}
+.contact {
+}
     .contact .wrapper {
         padding-top: 32px;
         padding-bottom: 32px;
