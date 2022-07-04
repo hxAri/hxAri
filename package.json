@@ -1,6 +1,6 @@
 {
     "name": "hxari",
-    "version": "4.0.9",
+    "version": "4.1.0",
     "main": "assets/bundle/hxari.js",
     "unpkg": "assets/bundle/hxari.js",
     "onloads": {

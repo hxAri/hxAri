@@ -50,7 +50,7 @@ $Cookie.prototype.get = function( name )
         {
             return( decodeURIComponent( result.split( "=" )[1] ) );
         }
-        return( False );
+        return( false );
     }
     throw new TypeError( "Invalid cookie name." );
 };
