@@ -1,6 +1,6 @@
 {
     "name": "hxari",
-    "version": "4.1.0",
+    "version": "4.1.1",
     "main": "assets/bundle/hxari.js",
     "unpkg": "assets/bundle/hxari.js",
     "onloads": {
@@ -10,26 +10,18 @@
                 "module": {
                     "main": "hxari.js",
                     "import": {
-                        ".": [
-                            "hxari-aoe.js",
-                            "hxari-cookie.js",
-                            "hxari-theme.js",
-                            "hxari-scroll.js",
-                            "hxari-github.js",
-                            "hxari-date.js",
-                            "hxari-bash.js"
-                        ],
+                        ".": [],
                         "templates": [],
                         "component": [
-                            "hxari-avatar.js",
-                            "hxari-sidebr.js",
                             "hxari-alert.js",
-                            "hxari-abouts.js",
+                            "hxari-avatar.js",
+                            "hxari-iterator.js",
+                            "hxari-loaderr.js",
+                            "hxari-about.js",
                             "hxari-contact.js",
+                            "hxari-portofolio.js",
                             "hxari-project.js",
-                            "hxari-home.js",
-                            "hxari-terminal.js",
-                            "hxari-create.js"
+                            "hxari-home.js"
                         ]
                     }
                 }
@@ -42,6 +34,7 @@
                         ".": [
                             "hxari-el.css",
                             "hxari-class.css",
+                            "hxari-ecore.css",
                             "hxari-style.css"
                         ]
                     }

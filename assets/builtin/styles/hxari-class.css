@@ -1,3 +1,58 @@
+.animate {
+}
+    .animate .sekeleton {
+        width: 315px;
+        height: 250px; 
+        cursor: progress; 
+        background: 
+            linear-gradient(
+                0.25turn, 
+                transparent, 
+                var(--bg-01), 
+                transparent
+            ),
+            linear-gradient( var(--bg-00), var(--bg-00) ),
+            radial-gradient(
+                38px circle at 19px 19px, 
+                var(--bg-00) 50%, 
+                transparent 51%
+            ),
+            linear-gradient( var(--bg-00), var(--bg-00) );
+        background-repeat: no-repeat;
+        background-size: 315px 250px, 315px 180px, 100px 100px, 225px 30px; 
+        background-position: -315px 0, 0 0, 0px 190px, 50px 195px; 
+        animation: sekeleton 1.5s infinite;
+    }
+    @keyframes sekeleton {
+        to {
+            background-position: 315px 0, 0 0, 0 190px, 50px 195px;
+        }
+    }
+    .animate .spinner {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: conic-gradient(
+            #0000 10%,
+            #8490ff
+        );
+        -webkit-mask: radial-gradient(
+            farthest-side,
+            #0000 calc( 100% - 6px ),
+            #000
+            0
+        );
+        animation: spinner 0.8s infinite linear;
+    }
+    @keyframes spinner {
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
 .bg-00m {
     background-color: var(--bg-00);
 }
@@ -61,6 +116,8 @@
 .br-solid-left { border-left-style: solid; }
 .br-solid-right { border-right-style: solid; }
 .br-solid-bottom { border-bottom-style: solid; }
+
+/** ---- */
 
 .dp-inline { display: inline; }
 .dp-block { display: block; }
@@ -171,15 +228,15 @@
         .form-group .form-submit
         {
             color: #FFFFFF;
-            background: #67A9ED;
-            border-color: #67A9ED;
+            background: #007BFF;
+            border-color: #007BFF;
         }
         .form-group .form-submit:focus,
         .form-group .form-submit:hover
         {
             color: #FFFFFF;
-            background: #007BFF;
-            border-color: #007BFF;
+            background: #67A9ED;
+            border-color: #67A9ED;
         }
 
 .fs-32 { font-size: 32px; }

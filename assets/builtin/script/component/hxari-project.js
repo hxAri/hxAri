@@ -1,103 +1,184 @@
-const $Projects = [
-    {
-        name: "Yume",
-        repo: "https://github.com/hxAri/Yume",
-        lang: {
-            name: "PHP",
-            icon: "https://raw.githubusercontent.com/hxAri/hxAri/main/assets/images/1644890644;75R1GnLOIZ.png"
-        },
-        path: "/projects/yume",
-        logo: "https://raw.githubusercontent.com/hxAri/hxAri/main/assets/images/1653507383;6bi9u6QnWb.png",
-        info: "Yume is a simple framework for building Websites built using the PHP Programming Language."
-    },
-    {
-        name: "Kanashi",
-        repo: "https://github.com/hxAri/Kanashi",
-        lang: {
-            name: "Python",
-            icon: "https://raw.githubusercontent.com/hxAri/hxAri/main/assets/images/1644890644;c3nT0xbpbV.png"
-        },
-        path: "/projects/kanashi",
-        logo: "https://raw.githubusercontent.com/hxAri/hxAri/main/assets/images/1654820424;51ydWrxRcv.png",
-        info: "Kanashi is an open source project that can be used to login to real Instagram accounts via Linux Terminal and Android Termux."
-    },
-    {
-        name: "Sheru",
-        repo: "https://github.com/hxAri/Sheru",
-        lang: {
-            name: "Bash/ Shell",
-            icon: "https://raw.githubusercontent.com/hxAri/hxAri/main/assets/images/1654842477;a3DPZwX2qo.png"
-        },
-        path: "/projects/sheru",
-        logo: "https://raw.githubusercontent.com/hxAri/hxAri/main/assets/images/",
-        info: "Undefined"
-    },
-    {
-        name: "Tree",
-        repo: "https://github.com/hxAri/Tree",
-        lang: {
-            name: "PHP",
-            icon: "https://raw.githubusercontent.com/hxAri/hxAri/main/assets/images/1644890644;75R1GnLOIZ.png"
-        },
-        path: "/projects/tree",
-        logo: "https://raw.githubusercontent.com/hxAri/hxAri/main/assets/images/1653507345;50XUUPql.z.png",
-        info: "Create a Tree structure using an Array."
-    },
-    {
-        name: "Faiba",
-        repo: "https://github.com/hxAri/Faiba",
-        lang: {
-            name: "JavaScript",
-            icon: "https://raw.githubusercontent.com/hxAri/hxAri/main/assets/images/1644890644;f403IB5ECP.png"
-        },
-        path: "/projects/faiba",
-        logo: "https://raw.githubusercontent.com/hxAri/hxAri/main/assets/images/1654840678;6cht26BtwN.png",
-        info: "Create a Tree structure using an Array or Object. This is an implementation of the Tree project built using JavaScript with almost the same functionality."
-    }
-];
 
+/*
+ * Projects configurations.
+ *
+ * @values Object
+ */
+const $Projects = {
+    
+    request: {
+        response: null,
+        headers: {}
+    },
+    
+    /*
+     * Check if project is exists.
+     *
+     * @params String $name
+     *
+     * @return Boolean
+     */
+    exists: function( name )
+    {
+        // Check if variable $Routes is defined.
+        if( $Is( $Routes, Array ) )
+        {
+            for( let route in $Routes )
+            {
+                // Check if route path is project.
+                if( $Routes[route].path === "/projects" )
+                {
+                    for( let child in $Routes[route].children )
+                    {
+                        // If project name is same.
+                        if( $Routes[route].children[child].name === name )
+                        {
+                            return( true );
+                        }
+                    }
+                }
+            }
+        }
+        return( false );
+    },
+    
+    /*
+     * Select all route project.
+     *
+     * @return Array
+     */
+    select: function()
+    {
+        // Check if variable $Routes is defined.
+        if( $Is( $Routes, Array ) )
+        {
+            for( let route in $Routes )
+            {
+                // Check if route path is project.
+                if( $Routes[route].path === "/projects" )
+                {
+                    return( $Routes[route].children );
+                }
+            }
+        }
+    },
+    
+    /*
+     * Update route project.
+     *
+     * @params String $name
+     * @params Object $repos
+     *
+     * @return Void
+     */
+    update: function( name, repos )
+    {
+        // Check if variable $Routes is defined.
+        if( $Is( $Routes, Array ) )
+        {
+            // Parent route iteration.
+            var i = 0;
+            
+            // Mapping routes.
+            $Routes.forEach( route =>
+            {
+                // Check if route path is project.
+                if( route.path === "/projects" )
+                {
+                    // Children route iteration.
+                    var u = 0;
+                    
+                    // Mapping children projects.
+                    route.children.forEach( child =>
+                    {
+                        // If project name is same.
+                        if( child.name === name )
+                        {
+                            $Routes[i].children[u].include.icon = {
+                                icon: $Image.projects[name],
+                                type: "image"
+                            };
+                            $Routes[i].children[u].include.configs = repos;
+                        }
+                        u++;
+                    });
+                }
+                i++;
+            });
+        }
+    }
+};
+
+/*
+ * Project component.
+ *
+ */
 const $Project = {
     data: () => ({
-        projects: $Projects
+        language: {},
+        projects: []
     }),
     mounted: function()
     {
-    },
-    methods: {},
-    components: {
-        Avatar: $Avatar
+        // Copy all programming language images.
+        this.language = $Image.language;
+        
+        // Copy all project page routes.
+        this.projects = $Projects.select();
+        
+        // Mapping all project page routes.
+        for( let i in this.projects )
+        {
+            this.projects[i].path = $f( "/projects/{}", this.projects[i].path );
+        }
     },
     template: `
-        <div class="projects">
-            <div class="bantle flex flex-center">
-                <h1 class="title">Projects</h1>
+        <div class="project">
+            <div class="portof-bantle flex flex-center">
+                <h1 class="portof-title">Projects</h1>
             </div>
-            <div class="section">
-                <div class="content">
-                    <p class="paragraph">
-                        I've been studying programming for over 2 years, and here are some of the projects I've created and are still developing.
-                    </p>
+            <div class="project-wrapper">
+                <div class="project-about">
+                    I've been studying programming for over 2 years, and here are some of the projects I've created and are still developing.
+                    Every project is open source anyone can use it or contribute.
                 </div>
-                <div class="content deep dp-grid">
-                    <div class="project rd-square" v-for="( project, i ) in projects">
-                        <Avatar :alt="project.info" :src="project.logo" :route="project.path" inject="project-logo" />
-                        <h5 class="title">
-                            {{ project.name }}
-                        </h5>
-                        <p class="paragraph flex flex-left">
-                            {{ project.lang.name }} Language <img class="project-lang" :alt="project.logo.name" :src="project.lang.icon" />
-                        </p>
-                        <p class="paragraph">
-                            <a :href="project.repo" target="_blank" rel="noopener noreferrer">
-                                {{ project.repo }}
-                            </a>
-                        </p>
-                        <p class="paragraph">
-                            {{ project.info }}
-                        </p>
+                <div class="project-super dp-grid">
+                    <div class="project-single rd-square" v-for="project in projects">
+                        <Avatar :options="{ 
+                            src: project.include.icon.icon, 
+                            alt: project.name, 
+                            title: project.name, 
+                            route: project.path,
+                            inject: 'project-avatar' }" />
+                        <div class="project-deeper">
+                            <p class="project-title flex flex-left">
+                                <Avatar :options="{
+                                    src: language[project.include.configs.language].Banner,
+                                    alt: project.include.configs.language,
+                                    title: project.include.configs.language,
+                                    inject: 'project-language' }" />
+                                <router-link :to="{ path: project.path }">
+                                    {{ project.include.configs.name }}
+                                </router-link>
+                            </p>
+                            <p class="project-title flex flex-left">
+                                <i class="bx bxs-star"></i>
+                                {{ project.include.configs.stargazers_count }} Stars
+                            </p>
+                            <p class="project-title flex flex-left">
+                                <i class="bx bx-code-alt"></i>
+                                {{ project.include.configs.language }} Language
+                            </p>
+                            <p class="project-parap description">
+                                {{ project.include.configs.description }}
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    `
+    `,
+    components: {
+        Avatar: $Avatar
+    }
 };

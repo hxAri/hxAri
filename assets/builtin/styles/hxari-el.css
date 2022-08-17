@@ -5,7 +5,7 @@
 :root {
     
     --bg-00img: url('https://raw.githubusercontent.com/hxAri/hxAri/main/assets/images/1653507238;c0LQ8rTUcU.png');
-    --bg-01img: url('https://raw.githubusercontent.com/hxAri/hxAri/main/assets/images/1644890644;6errNcC6Uw.jpg');
+    --bg-01img: url('https://raw.githubusercontent.com/hxAri/hxAri/main/assets/images/1644890644;6errNcC6Uw.png');
     --bg-02img: url('https://raw.githubusercontent.com/hxAri/hxAri/main/assets/images/1654575068;fcTEqRsuqp.jpg');
     
     --bg-00: #FFFFFF;
@@ -52,10 +52,10 @@
 [data-theme="dark"] {
     
     --bg-00img: url('https://raw.githubusercontent.com/hxAri/hxAri/main/assets/images/1653507326;74GVGUB1E..png');
-    --bg-01img: url('https://raw.githubusercontent.com/hxAri/hxAri/main/assets/images/1644890644;abFVZSCJpK.jpg');
+    --bg-01img: url('https://raw.githubusercontent.com/hxAri/hxAri/main/assets/images/1644890644;abFVZSCJpK.png');
     
     --bg-00: #242526;
-    --bg-01: #0D1017;/** 18191A; */
+    --bg-01: #0D1017;
     --bg-02: #3A3B3C;
     --bg-03: #21262C;
     
@@ -70,29 +70,7 @@
     --fc-03: #8A8A8A;
     
     --ln-00: #2D3137;
-    /*
-    --sh-30: #;
-    --sh-31: #;
-    --sh-32: #;
-    --sh-33: #;
-    --sh-34: #;
-    --sh-35: #;
-    --sh-36: #;
-    --sh-37: #;
-    --sh-38: #;
-    --sh-39: #;
     
-    --sh-90: #;
-    --sh-91: #;
-    --sh-92: #;
-    --sh-93: #;
-    --sh-94: #;
-    --sh-95: #;
-    --sh-96: #;
-    --sh-97: #;
-    --sh-98: #;
-    --sh-99: #;
-    */
 }
 
 *,
