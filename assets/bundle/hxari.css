@@ -185,7 +185,9 @@ p {
 
 pre {
     overflow: scroll;
-}.animate {
+}
+
+.animate {
 }
     .animate .sekeleton {
         width: 315px;
@@ -602,7 +604,9 @@ pre {
 
 .scroll-hidden::-webkit-scrollbar {
     width: 0;
-}/*
+}
+
+/*
  * Alert display styling.
  *
  */
@@ -1068,6 +1072,8 @@ pre {
         width: 100%;
         height: 100vh;
     }
+
+
 /*
  * Home/ Dashboard component styling.
  *

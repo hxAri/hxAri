@@ -2214,7 +2214,9 @@
                 </div>    
             </div>    
         `    
-    };/*    
+    };    
+        
+    /*    
      * Avatar component.    
      *    
      * @options Object $inject, $link|$route, $title, $alt, $src    
@@ -2311,7 +2313,9 @@
             }    
         },    
         template: `<component v-bind:is="binding"></component>`    
-    };/*    
+    };    
+        
+    /*    
      * Iterator list component.    
      *    
      * @options Array $lists    
@@ -2408,7 +2412,9 @@
             }    
         },    
         template: `<component v-bind:is="binding"></component>`    
-    };// Loader Error component.    
+    };    
+        
+    // Loader Error component.    
     const $Loaderr = {    
         template: `    
             <div class="loaderr flex flex-center">    
@@ -2422,7 +2428,9 @@
                 </div>    
             </div>    
         `    
-    };/*    
+    };    
+        
+    /*    
      * About    
      *    
      * Explain about the web that was built.    
@@ -2450,7 +2458,9 @@
                 </p>    
             </div>    
         `    
-    };/*    
+    };    
+        
+    /*    
      * Contact component.    
      *    
      */    
@@ -2730,14 +2740,16 @@
         components: {    
             Avatar: $Avatar    
         }    
-    };/*    
+    };    
+        
+    /*    
      * Portofolio component.    
      *    
      */    
     const $Portofolio = {    
         data: () => ({    
             language: {},    
-            projects: []    
+            projects: false    
         }),    
         mounted: function()    
         {    
@@ -2746,12 +2758,6 @@
                 
             // Copy all project page routes.    
             this.projects = $Projects.select();    
-                
-            // Mapping all project page routes.    
-            for( let i in this.projects )    
-            {    
-                this.projects[i].path = $f( "/projects/{}", this.projects[i].path );    
-            }    
         },    
         methods: {    
             test: function( e )    
@@ -2960,6 +2966,8 @@
             }    
         }    
     };    
+        
+        
     /*    
      * Projects configurations.    
      *    
@@ -3013,16 +3021,25 @@
             // Check if variable $Routes is defined.    
             if( $Is( $Routes, Array ) )    
             {    
-                for( let route in $Routes )    
+                for( let i in $Routes )    
                 {    
                     // Check if route path is project.    
-                    if( $Routes[route].path === "/projects" )    
+                    if( $Routes[i].path === "/projects" )    
                     {    
-                        return( $Routes[route].children );    
+                        // Mapping all project page routes.    
+                        return( $Routes[i].children.map( route =>    
+                        {    
+                            // ...    
+                            route.path = $f( "/projects/{}", route.path.replace( /^\/projects\//i, "" ) );    
+                                
+                            return( route );    
+                        }));    
                     }    
                 }    
             }    
         },    
+            
+        updated: false,    
             
         /*    
          * Update route project.    
@@ -3077,7 +3094,7 @@
     const $Project = {    
         data: () => ({    
             language: {},    
-            projects: []    
+            projects: false    
         }),    
         mounted: function()    
         {    
@@ -3087,62 +3104,66 @@
             // Copy all project page routes.    
             this.projects = $Projects.select();    
                 
-            // Mapping all project page routes.    
-            for( let i in this.projects )    
-            {    
-                this.projects[i].path = $f( "/projects/{}", this.projects[i].path );    
-            }    
+            console.clear();    
+            console.info( $JSON.encode( this.projects, null, 4 ) );    
         },    
         template: `    
             <div class="project">    
-                <div class="portof-bantle flex flex-center">    
-                    <h1 class="portof-title">Projects</h1>    
-                </div>    
-                <div class="project-wrapper">    
-                    <div class="project-about">    
-                        I've been studying programming for over 2 years, and here are some of the projects I've created and are still developing.    
-                        Every project is open source anyone can use it or contribute.    
+                <div class="project-display" v-if="( $route.path === '/projects' )">    
+                    <div class="portof-bantle flex flex-center">    
+                        <h1 class="portof-title">Projects</h1>    
                     </div>    
-                    <div class="project-super dp-grid">    
-                        <div class="project-single rd-square" v-for="project in projects">    
-                            <Avatar :options="{     
-                                src: project.include.icon.icon,     
-                                alt: project.name,     
-                                title: project.name,     
-                                route: project.path,    
-                                inject: 'project-avatar' }" />    
-                            <div class="project-deeper">    
-                                <p class="project-title flex flex-left">    
-                                    <Avatar :options="{    
-                                        src: language[project.include.configs.language].Banner,    
-                                        alt: project.include.configs.language,    
-                                        title: project.include.configs.language,    
-                                        inject: 'project-language' }" />    
-                                    <router-link :to="{ path: project.path }">    
-                                        {{ project.include.configs.name }}    
-                                    </router-link>    
-                                </p>    
-                                <p class="project-title flex flex-left">    
-                                    <i class="bx bxs-star"></i>    
-                                    {{ project.include.configs.stargazers_count }} Stars    
-                                </p>    
-                                <p class="project-title flex flex-left">    
-                                    <i class="bx bx-code-alt"></i>    
-                                    {{ project.include.configs.language }} Language    
-                                </p>    
-                                <p class="project-parap description">    
-                                    {{ project.include.configs.description }}    
-                                </p>    
+                    <div class="project-wrapper">    
+                        <div class="project-about">    
+                            I've been studying programming for over 2 years, and here are some of the projects I've created and are still developing.    
+                            Every project is open source anyone can use it or contribute.    
+                        </div>    
+                        <div class="project-super dp-grid">    
+                            <div class="project-single rd-square" v-for="project in projects">    
+                                <Avatar :options="{     
+                                    src: project.include.icon.icon,     
+                                    alt: project.name,     
+                                    title: project.name,     
+                                    route: project.path,    
+                                    inject: 'project-avatar' }" />    
+                                <div class="project-deeper">    
+                                    <p class="project-title flex flex-left">    
+                                        <Avatar :options="{    
+                                            src: language[project.include.configs.language].Banner,    
+                                            alt: project.include.configs.language,    
+                                            title: project.include.configs.language,    
+                                            inject: 'project-language' }" />    
+                                        <router-link :to="{ path: project.path }">    
+                                            {{ project.include.configs.name }}    
+                                        </router-link>    
+                                    </p>    
+                                    <p class="project-title flex flex-left">    
+                                        <i class="bx bxs-star"></i>    
+                                        {{ project.include.configs.stargazers_count }} Stars    
+                                    </p>    
+                                    <p class="project-title flex flex-left">    
+                                        <i class="bx bx-code-alt"></i>    
+                                        {{ project.include.configs.language }} Language    
+                                    </p>    
+                                    <p class="project-parap description">    
+                                        {{ project.include.configs.description }}    
+                                    </p>    
+                                </div>    
                             </div>    
                         </div>    
                     </div>    
+                </div>    
+                <div class="project-view" v-else>    
+                    <router-view />    
                 </div>    
             </div>    
         `,    
         components: {    
             Avatar: $Avatar    
         }    
-    };const $Home = {    
+    };    
+        
+    const $Home = {    
         data: () => ({    
             banner: {    
                 src: $Image.home.Banner,    
@@ -3405,7 +3426,7 @@
             
             // Iteration start.
             var i = 0;
-                
+            
             // Map all parent routes.
             self.routes.forEach( route =>
             {

@@ -1,102 +1,102 @@
 {
-    "name": "hxari",
-    "version": "4.1.1",
-    "main": "assets/bundle/hxari.js",
-    "unpkg": "assets/bundle/hxari.js",
-    "onloads": {
-        "builtin": {
-            "script": {
-                "source": "\/sdcard\/project\/personal\/coding\/JS\/hxAri\/assets\/builtin\/script",
-                "module": {
-                    "main": "hxari.js",
-                    "import": {
-                        ".": [],
-                        "templates": [],
-                        "component": [
-                            "hxari-alert.js",
-                            "hxari-avatar.js",
-                            "hxari-iterator.js",
-                            "hxari-loaderr.js",
-                            "hxari-about.js",
-                            "hxari-contact.js",
-                            "hxari-portofolio.js",
-                            "hxari-project.js",
-                            "hxari-home.js"
-                        ]
-                    }
-                }
-            },
-            "styles": {
-                "source": "\/sdcard\/project\/personal\/coding\/JS\/hxAri\/assets\/builtin\/styles",
-                "module": {
-                    "main": "hxari.css",
-                    "import": {
-                        ".": [
-                            "hxari-el.css",
-                            "hxari-class.css",
-                            "hxari-ecore.css",
-                            "hxari-style.css"
-                        ]
-                    }
-                }
-            }
-        },
-        "require": {
-            "script": {
-                "source": "\/sdcard\/project\/personal\/module",
-                "module": [
-                    {
-                        "name": "Vue",
-                        "devl": "vue\/dist\/vue.global.js",
-                        "prod": "vue\/dist\/vue.global.prod.js"
-                    },
-                    {
-                        "name": "Vue Router",
-                        "devl": "vue-router\/dist\/vue-router.global.js",
-                        "prod": "vue-router\/dist\/vue-router.global.prod.js"
-                    }
-                ]
-            },
-            "styles": {
-                "source": "\/sdcard\/project\/personal\/module",
-                "module": [
-                    {
-                        "name": "Swiper",
-                        "devl": null,
-                        "prod": "swiper\/swiper-bundle.min.js"
-                    }
-                ]
-            }
-        },
-        "onsaved": {
-            "source": "\/sdcard\/project\/personal\/coding\/JS\/hxAri\/assets\/bundle",
-            "builtin": {
-                "script": "hxari.js",
-                "styles": "hxari.css"
-            },
-            "require": {
-                "script": "hxari-module.js",
-                "styles": "hxari-module.css"
-            }
-        },
-        "environment": "production"
-    },
-    "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/hxAri/hxAri.git"
-    },
-    "keywords": [
-        "hxAri",
-        "Self",
-        "Js"
-    ],
-    "author": "hxAri",
-    "license": "MIT",
-    "bugs": {
-        "url": "https://github.com/hxAri/hxAri/issues"
-    },
-    "homepage": "https://github.com/hxAri/hxAri#readme"
+	"name": "hxari",
+	"version": "4.1.2",
+	"main": "assets/bundle/hxari.js",
+	"unpkg": "assets/bundle/hxari.js",
+	"onloads": {
+		"builtin": {
+			"script": {
+				"source": "\/sdcard\/project\/personal\/coding\/JS\/hxAri\/assets\/builtin\/script",
+				"module": {
+					"main": "hxari.js",
+					"import": {
+						".": [],
+						"templates": [],
+						"component": [
+							"hxari-alert.js",
+							"hxari-avatar.js",
+							"hxari-iterator.js",
+							"hxari-loaderr.js",
+							"hxari-about.js",
+							"hxari-contact.js",
+							"hxari-portofolio.js",
+							"hxari-project.js",
+							"hxari-home.js"
+						]
+					}
+				}
+			},
+			"styles": {
+				"source": "\/sdcard\/project\/personal\/coding\/JS\/hxAri\/assets\/builtin\/styles",
+				"module": {
+					"main": "hxari.css",
+					"import": {
+						".": [
+							"hxari-el.css",
+							"hxari-class.css",
+							"hxari-ecore.css",
+							"hxari-style.css"
+						]
+					}
+				}
+			}
+		},
+		"require": {
+			"script": {
+				"source": "\/sdcard\/project\/personal\/module",
+				"module": [
+					{
+						"name": "Vue",
+						"devl": "vue\/dist\/vue.global.js",
+						"prod": "vue\/dist\/vue.global.prod.js"
+					},
+					{
+						"name": "Vue Router",
+						"devl": "vue-router\/dist\/vue-router.global.js",
+						"prod": "vue-router\/dist\/vue-router.global.prod.js"
+					}
+				]
+			},
+			"styles": {
+				"source": "\/sdcard\/project\/personal\/module",
+				"module": [
+					{
+						"name": "Swiper",
+						"devl": null,
+						"prod": "swiper\/swiper-bundle.min.js"
+					}
+				]
+			}
+		},
+		"onsaved": {
+			"source": "\/sdcard\/project\/personal\/coding\/JS\/hxAri\/assets\/bundle",
+			"builtin": {
+				"script": "hxari.js",
+				"styles": "hxari.css"
+			},
+			"require": {
+				"script": "hxari-module.js",
+				"styles": "hxari-module.css"
+			}
+		},
+		"environment": "development"
+	},
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/hxAri/hxAri.git"
+	},
+	"keywords": [
+		"hxAri",
+		"Self",
+		"Js"
+	],
+	"author": "hxAri",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/hxAri/hxAri/issues"
+	},
+	"homepage": "https://github.com/hxAri/hxAri#readme"
 }
