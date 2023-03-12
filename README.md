@@ -1,3 +1,4 @@
+![Profile Views](https://gpvc.arturio.dev/hxAri)
 ### Introduce
 Hello, my name is Ari Setiawan, I am a Programmer Freelancer from Indonesia who likes to write Programming Languages while drinking a cup of warm coffee.
 No task too tough, no line of code too long, fueled by Cocolatos Chocolate Coffee.
