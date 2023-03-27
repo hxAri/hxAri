@@ -1,0 +1,174 @@
+
+
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500&family=Inconsolata:wght@300;400;500;700&family=Lato:ital,wght@0,100;0,300;0,400;0,700;1,100;1,300;1,400;1,700&family=Poppins:ital,wght@0,100;0,300;0,400;0,500;0,700;1,100;1,300;1,400;1,500;1,700&display=swap');
+
+:root {
+	
+	--bg-00img: url('https://raw.githubusercontent.com/hxAri/hxAri/main/assets/images/1653507238;c0LQ8rTUcU.png');
+	--bg-01img: url('https://raw.githubusercontent.com/hxAri/hxAri/main/assets/images/1644890644;6errNcC6Uw.png');
+	--bg-02img: url('https://raw.githubusercontent.com/hxAri/hxAri/main/assets/images/1654575068;fcTEqRsuqp.jpg');
+	
+	--bg-00: #FFFFFF;
+	--bg-01: #F8F8FF;
+	--bg-02: #F2F3F5;
+	--bg-03: #D6D6D6;
+	
+	--ac-00: #007BFF;
+	--ac-01: #043A6B;
+	
+	--ic-00: #5F6267;
+	
+	--fc-00: #000000;
+	--fc-01: #5F5F5F;
+	--fc-02: #606267;
+	--fc-03: #DDDDDD;
+	
+	--ln-00: #DBDCDE;
+	
+	--sh-30: #000000;
+	--sh-31: #FF0000;
+	--sh-32: #008900;
+	--sh-33: #E3D600;
+	--sh-34: #0062CC;
+	--sh-35: #FF00FF;
+	--sh-36: #00CCCC;
+	--sh-37: #E5E5E5;
+	--sh-38: #;
+	--sh-39: #;
+	
+	--sh-90: #191919;
+	--sh-91: #FF3232;
+	--sh-92: #00BB84;
+	--sh-93: #FDEE00;
+	--sh-94: #3295FF;
+	--sh-95: #FF4CFF;
+	--sh-96: #00FFFF;
+	--sh-97: #FFFFFF;
+	--sh-98: #;
+	--sh-99: #;
+	
+}
+
+[data-theme="dark"] {
+	
+	--bg-00img: url('https://raw.githubusercontent.com/hxAri/hxAri/main/assets/images/1653507326;74GVGUB1E..png');
+	--bg-01img: url('https://raw.githubusercontent.com/hxAri/hxAri/main/assets/images/1644890644;abFVZSCJpK.png');
+	
+	--bg-00: #242526;
+	--bg-01: #0D1017;
+	--bg-02: #3A3B3C;
+	--bg-03: #21262C;
+	
+	--ac-00: #8BC5EC;
+	--ac-01: #0195F7;
+	
+	--ic-00: #8B939E;
+	
+	--fc-00: #FFFFFF;
+	--fc-01: #C9D2D9;
+	--fc-02: #B0B3B8;
+	--fc-03: #8A8A8A;
+	
+	--ln-00: #2D3137;
+	
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+* {
+	margin: 0;
+	padding: 0;
+	transition: background, color .3s;
+}
+*::-webkit-scrollbar {
+	width: 0;
+}
+
+a {
+	color: var(--ac-00);
+	text-decoration: none;
+}
+a:hover {
+	color: var(--ac-01);
+}
+a:not([href]):not([class]) {
+	color: var(--fc-02);
+}
+a:not([href]):not([class]):hover {
+	color: var(--fc-02);
+}
+
+body {
+	text-size-adjust: none;
+	background: var(--bg-01);
+	font-family: "Poppins", sans-serif;
+	font-size: 14px;
+	color: var(--fc-01);
+}
+
+button {
+	font-size: 14px;
+	outline: none;
+	color: var(--fc-01);
+	background: transparent;
+	border: 1px solid transparent;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	color: var(--fc-00);
+	margin-top: 0;
+	margin-bottom: 0.5rem;
+	font-weight: 500;
+	line-height: 1.2;
+}
+
+h1 { font-size: 40px; }
+h2 { font-size: 32px; }
+h3 { font-size: 28px; }
+h4 { font-size: 24px; }
+h5 { font-size: 20px; }
+h6 { font-size: 16px; }
+
+@media (min-width: 1200px) {
+	h1 {
+		font-size: 40px;
+	}
+	h2 {
+		font-size: 32px;
+	}
+	h3 {
+		font-size: 28px;
+	}
+}
+
+hr {
+	border: 0;
+	margin: 0;
+	border-top: 1px solid var(--ln-00);
+}
+
+i {
+	color: var(--ic-00);
+}
+
+img {
+	width: 100%;
+	height: auto;
+}
+
+p {
+	line-height: 1.8;
+}
+
+pre {
+	overflow: scroll;
+}
