@@ -21,6 +21,7 @@
  * @include request
  * @include rmdir
  * @include test
+ * @include theme
  * @include tree
  * @include unalias
  * @include unexport
