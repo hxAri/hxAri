@@ -3,12 +3,9 @@
 	
 	// Import Scripts
 	import Fmt from "../scripts/Fmt.js";
-	import Cookie from "../scripts/Cookie.js";
-	import MultiRequest from "../scripts/MultiRequest.js";
-	import Request from "../scripts/Request.js";
 	import Terminal from "../scripts/Terminal.js";
-	import Theme from "../scripts/Theme.js";
 	import Type from "../scripts/Type";
+	import Value from "../scripts/logics/Value.js";
 	
 	export default {
 		data: () => ({
@@ -89,18 +86,8 @@
 					text: "PGDN"
 				}
 			],
-			terminal: null
+			terminal: new Terminal()
 		}),
-		props: {
-			cookie: {
-				type: Cookie,
-				require: true
-			},
-			theme: {
-				type: Theme,
-				require: true
-			}
-		},
 		mounted: function()
 		{
 			// ...
@@ -140,7 +127,7 @@
 			 */
 			oninputs: function( e )
 			{
-				return( Fmt( "$ {}", this.model ) );
+				return( Fmt( "$ {}", this.terminal.colorize( this.model ) ) );
 			},
 			
 			/*
@@ -175,14 +162,14 @@
 <template>
 	<div class="terminal">
 		<div class="terminal-screen">
-			<div class="terminal-output">
+			<div class="terminal-output" @click="trigger">
 				<div class="terminal-line">
 					<span class="terminal-text">Hello</span>
 				</div>
 			</div>
 			<div class="terminal-form">
-				<label class="terminal-label" v-html="oninputs()"></label>
-				<input class="terminal-input" type="text" v-model="model" autocapitalize="off" ref="input" />
+				<label class="terminal-label" @click="trigger" v-html="oninputs()"></label>
+				<input class="terminal-input" type="text" v-model="model" autocapitalize="off" ref="input" @click="endrange" @keyup="endrange" @focus="endrange" @input="endrange" @change="endrange" @keypress="endrange" @keydown="executor" />
 			</div>
 			<div class="terminal-shortcut dp-none">
 				<div class="terminal-shortcut-key" v-for="shortcut in shortcuts">
@@ -207,6 +194,7 @@
 	.terminal {
 		width: auto;
 		padding: 14px;
+		background: var(--shell-c-30m);
 	}
 		.terminal-label,
 		.terminal-input,
@@ -228,28 +216,17 @@
 			.terminal-output {
 			}
 			.terminal-form {
-				display: flex;
-				background: red;
 				margin-bottom: 14px;
 			}
 				.terminal-label {
-					width: 99.1%;
-					display: block;
-					background: teal;
+					width: auto;
 				}
 				.terminal-input {
-					width: .9%;
+					width: 9px;
 					border: 0;
 					outline: 0;
-					background: yellow;
-				}
-				@media (max-width: 750px) {
-					.terminal-label {
-						width: 97.3%;
-					}
-					.terminal-input {
-						width: 2.7%;
-					}
+					color: var(--shell-c-37m);
+					background: var(--shell-c-37m);
 				}
 		.terminal-shortcut {
 			gap: 14px;

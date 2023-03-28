@@ -3,6 +3,7 @@ import { createApp } from "vue/dist/vue.esm-bundler";
 import { createPinia } from "pinia";
 
 // Importing Stylesheets.
+import "./styles/hxari.shell.css";
 import "./styles/hxari.light.css";
 import "./styles/hxari.dark.css";
 import "./styles/hxari.font.css";
