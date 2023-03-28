@@ -17,12 +17,11 @@
 			shortcuts: [
 				{
 					name: "",
-					code: "",
+					code: 27,
 					text: "ESC"
 				},
 				{
 					name: "",
-					code: "",
 					text: "/"
 				},
 				{
@@ -32,57 +31,57 @@
 				},
 				{
 					name: "",
-					code: "",
+					code: 36,
 					text: "HOME"
 				},
 				{
 					name: "",
-					code: "",
+					code: 38,
 					icon: [ "bx", "bx-up-arrow-alt" ]
 				},
 				{
 					name: "",
-					code: "",
+					code: 35,
 					text: "END"
 				},
 				{
 					name: "",
-					code: "",
+					code: 33,
 					text: "PGUP"
 				},
 				{
 					name: "",
-					code: "",
-					icon: [ "bx", "bx-sort-alt-2", "bx-rotate-90" ]
-				},
-				{
-					name: "",
-					code: "",
+					code: 17,
 					text: "CTRL"
 				},
 				{
 					name: "",
-					code: "",
+					code: 18,
 					text: "ALT"
 				},
 				{
 					name: "",
-					code: "",
+					code: 16,
+					text: "SHIFT", //icon: [ "bx", "bx-sort-alt-2", "bx-rotate-90" ]
+				},
+				{
+					name: "",
+					code: 37,
 					icon: [ "bx", "bx-left-arrow-alt" ]
 				},
 				{
 					name: "",
-					code: "",
+					code: 40,
 					icon: [ "bx", "bx-down-arrow-alt" ]
 				},
 				{
 					name: "",
-					code: "",
+					code: 39,
 					icon: [ "bx", "bx-right-arrow-alt" ]
 				},
 				{
 					name: "",
-					code: "",
+					code: 34,
 					text: "PGDN"
 				}
 			],
@@ -95,15 +94,16 @@
 		methods: {
 			
 			/*
-			 * Trigger android soft keyboard.
+			 * Set input text selection to end.
 			 *
 			 * @params InputEvent e
 			 *
 			 * @return Void
 			 */
-			trigger: function( e )
+			endrange: function( e )
 			{
-				this.$refs.input.focus();
+				e.target.focus();
+				e.target.setSelectionRange( this.range.begin, this.range.end );
 			},
 			
 			/*
@@ -116,6 +116,16 @@
 			executor: function( e )
 			{
 				// ...
+			},
+			
+			keyboard: function( e, shortcut )
+			{
+				if( Type( shortcut, Object ) )
+				{
+					
+				}
+				else {
+				}
 			},
 			
 			/*
@@ -143,17 +153,16 @@
 			},
 			
 			/*
-			 * Set input text selection to end.
+			 * Trigger android soft keyboard.
 			 *
 			 * @params InputEvent e
 			 *
 			 * @return Void
 			 */
-			endrange: function( e )
+			trigger: function( e )
 			{
-				e.target.focus();
-				e.target.setSelectionRange( this.range.begin, this.range.end );
-			}
+				this.$refs.input.focus();
+			},
 		}
 	};
 	
@@ -172,9 +181,9 @@
 				<input class="terminal-input" type="text" v-model="model" autocapitalize="off" ref="input" @click="endrange" @keyup="endrange" @focus="endrange" @input="endrange" @change="endrange" @keypress="endrange" @keydown="executor" />
 			</div>
 			<div class="terminal-shortcut dp-none">
-				<div class="terminal-shortcut-key" v-for="shortcut in shortcuts">
-					<p class="title" v-if="shortcut.text">{{ shortcut.text }}</p>
-					<p class="title" v-else>
+				<div class="terminal-shortcut-key flex flex-center" v-for="shortcut in shortcuts" @click="keyboard( $event, shortcut )">
+					<p class="title flex flex-center" v-if="shortcut.text">{{ shortcut.text }}</p>
+					<p class="title flex flex-center" v-else>
 						<i :class="[ 'title', ...shortcut.icon ]"></i>
 					</p>
 				</div>
