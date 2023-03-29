@@ -3,13 +3,44 @@
 	
 	// Import Scripts
 	import Fmt from "../scripts/Fmt.js";
+	import Mapper from "../scripts/Mapper.js";
 	import Terminal from "../scripts/Terminal.js";
 	import Type from "../scripts/Type";
 	import Value from "../scripts/logics/Value.js";
 	
 	export default {
 		data: () => ({
+			history: [{
+				output: [
+					"                                           ",
+					"             ::                            ",
+					"            ~JJ^... :~^                    ",
+					"      .^::~7JJJJJJ??JJJ^                   ",
+					"      7JJJYYJ?77??JJJJJJ?!!??:             ",
+					"      :JJJ?^.     .^!?JJJJJJ?.             ",
+					"    :^?JJJ.    ~7^   .~?JJJJJ?: ..         ",
+					"   .?JJJJJ^  .!JY7     .?JJJJ~::^::.       ",
+					"    ..^?JJJ??JJJJ:      :JJJ7.:~!~::.      ",
+					"       :JJJ?J?7JJ~       7JJ?^:::::.       ",
+					"       .!7^..  :^.       ?JJ?!!~~^         ",
+					"                        :JJJ7!!!!!         ",
+					"                       .?JJ?!!!~~~.        ",
+					"                      ^?JJ?!!^:::::.       ",
+					"                    :7JJJ7!!~.:~!~::.      ",
+					"                  .!JJJJ7!!!!^::^::.       ",
+					"                .~JJJJJ7!!!!!!!^ .         ",
+					"               ^?JJJJ?!!!!!!!!^            ",
+					"             :7JJJJJ?!!!~^^:^^             ",
+					"           .!JJJJJJ7!!!^::~~::.            ",
+					"          ~?JJJJJJ7!!!!^.^!!^:.            ",
+					"        ^?JJJJJJJ7!!!!!!^:::..             ",
+					"      :7JJJJJJJ?!!!!!!!!^                  ",
+					"      7JJJJJJJ?!!!!!!!~:                   ",
+					"                                           "
+				]
+			}],
 			model: "",
+			prompt: "\\u@\\h: \\w \\d $",
 			range: {
 				begin: -1,
 				end: -1
@@ -89,9 +120,20 @@
 		}),
 		mounted: function()
 		{
-			// ...
 		},
 		methods: {
+			
+			/*
+			 * Colorize string.
+			 *
+			 * @params String string
+			 *
+			 * @return String
+			 */
+			colorize: function( string )
+			{
+				return( this.terminal.colorize( string ) );
+			},
 			
 			/*
 			 * Set input text selection to end.
@@ -111,19 +153,34 @@
 			 *
 			 * @params InputEvent e
 			 *
-			 * @return Void
+			 * @return Promise
 			 */
-			executor: function( e )
+			executor: async function( e )
 			{
-				// ...
+				// Check if key is enter.
+				if( e.key === "Enter" )
+				{
+					this.history.push({
+						prompt: this.prompt,
+						inputs: this.model,
+						output: []
+					});
+					this.model = "";
+				}
 			},
 			
+			/*
+			 * Handle keyboard event.
+			 *
+			 * @params Event e
+			 * @params Object shortcut
+			 *
+			 * @return Void
+			 */
 			keyboard: function( e, shortcut )
 			{
 				if( Type( shortcut, Object ) )
-				{
-					
-				}
+				{}
 				else {
 				}
 			},
@@ -135,21 +192,65 @@
 			 *
 			 * @return String
 			 */
-			oninputs: function( e )
+			oninput: function( e )
 			{
-				return( Fmt( "$ {}", this.terminal.colorize( this.model ) ) );
+				return( Fmt( "{} {}", ...[
+					this.terminal.prompt( this.prompt ),
+					this.terminal.colorable( this.model )
+				]));
 			},
 			
 			/*
 			 * Render Terminal command input and output.
 			 *
-			 * @params String c
-			 *
 			 * @return String
 			 */
-			onrender: function( c = "" )
+			onrender: function()
 			{
-				return( "*" );
+				var self = this;
+				return(
+					
+					// Mapping Terminal Histories.
+					Mapper( this.history,
+						
+						/*
+						 * Handle history.
+						 *
+						 * @params Number i
+						 * @params Object history
+						 *
+						 * @return String
+						 */
+						function( i, history )
+						{
+							var stack = [];
+							
+							// Check if history has prompt.
+							if( Type( history.prompt, String ) )
+							{
+								// Create opening tag.
+								stack.push( "<label class=\"terminal-line-prompt dp-block\">" );
+								
+								// Create terminal prompt.
+								stack.push( self.terminal.prompt( history.prompt ) );
+								
+								// Check if history has input commands.
+								if( Type( history.inputs, String ) )
+								{
+									stack.push( self.terminal.colorable( Fmt( "\x20{}", history.inputs ) ) );
+								}
+								stack.push( "</label>" );
+							}
+							
+							// Check if history has outputs.
+							if( Type( history.output, Array ) )
+							{
+								stack.push( ...Mapper( history.output, ( i, output ) => Fmt( "<label class=\"terminal-line-output dp-block\">{}</label>", self.terminal.colorize( output ) ) ) );
+							}
+							return( stack.join( "" ) );
+						}
+					).join( "" )
+				);
 			},
 			
 			/*
@@ -162,7 +263,7 @@
 			trigger: function( e )
 			{
 				this.$refs.input.focus();
-			},
+			}
 		}
 	};
 	
@@ -172,12 +273,10 @@
 	<div class="terminal">
 		<div class="terminal-screen">
 			<div class="terminal-output" @click="trigger">
-				<div class="terminal-line">
-					<span class="terminal-text">Hello</span>
-				</div>
+				<div class="terminal-line" v-html="onrender()"></div>
 			</div>
-			<div class="terminal-form">
-				<label class="terminal-label" @click="trigger" v-html="oninputs()"></label>
+			<div class="terminal-form" @click="trigger">
+				<label class="terminal-label" v-html="oninput()"></label>
 				<input class="terminal-input" type="text" v-model="model" autocapitalize="off" ref="input" @click="endrange" @keyup="endrange" @focus="endrange" @input="endrange" @change="endrange" @keypress="endrange" @keydown="executor" />
 			</div>
 			<div class="terminal-shortcut dp-none">
@@ -203,8 +302,14 @@
 	.terminal {
 		width: auto;
 		padding: 14px;
+		color: var(--shell-c-37m);
 		background: var(--shell-c-30m);
 	}
+		.terminal .text,
+		.terminal .title,
+		.terminal .sub-title {
+			color: var(--shell-c-37m);
+		}
 		.terminal-label,
 		.terminal-input,
 		.terminal-output,
@@ -222,7 +327,8 @@
 			white-space: pre-wrap;
 			word-wrap: break-word;
 		}
-			.terminal-output {
+			.terminal-output p {
+				line-height: 1.2;
 			}
 			.terminal-form {
 				margin-bottom: 14px;

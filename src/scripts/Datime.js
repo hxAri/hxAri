@@ -64,7 +64,6 @@ Datime.prototype.day = function( f )
 			
 			// Short weekday name.
 			case "a": return( ([ "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" ])[this.date.getDay()] );
-			
 		}
 		return( Fmt( "Invalid format day {}", f ) );
 	}
@@ -84,7 +83,6 @@ Datime.prototype.month = function( f )
 	{
 		switch( f )
 		{
-			
 			// Month.
 			case "m": return( this.month() );
 			
@@ -93,7 +91,6 @@ Datime.prototype.month = function( f )
 			
 			// Short month.
 			case "b": return([ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ])[this.date.getMonth()];
-			
 		}
 		return( Fmt( "Invalid format month {}", f ) );
 	}
