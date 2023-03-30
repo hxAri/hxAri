@@ -240,7 +240,6 @@ Datime.prototype.format.formats = {
 	
 	/// Second (00..60)
 	S: self => self.second()
-	
 };
 
 export default Datime;

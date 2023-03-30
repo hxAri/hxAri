@@ -81,7 +81,6 @@ const Request = async function( method, url, options = {} )
 		
 		// Fired when the request encountered an error.
 		xhr.onerror = evt => reject( xhr );
-		
 	}));
 };
 

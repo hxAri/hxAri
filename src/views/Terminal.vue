@@ -10,37 +10,7 @@
 	
 	export default {
 		data: () => ({
-			history: [{
-				output: [
-					"                                           ",
-					"             ::                            ",
-					"            ~JJ^... :~^                    ",
-					"      .^::~7JJJJJJ??JJJ^                   ",
-					"      7JJJYYJ?77??JJJJJJ?!!??:             ",
-					"      :JJJ?^.     .^!?JJJJJJ?.             ",
-					"    :^?JJJ.    ~7^   .~?JJJJJ?: ..         ",
-					"   .?JJJJJ^  .!JY7     .?JJJJ~::^::.       ",
-					"    ..^?JJJ??JJJJ:      :JJJ7.:~!~::.      ",
-					"       :JJJ?J?7JJ~       7JJ?^:::::.       ",
-					"       .!7^..  :^.       ?JJ?!!~~^         ",
-					"                        :JJJ7!!!!!         ",
-					"                       .?JJ?!!!~~~.        ",
-					"                      ^?JJ?!!^:::::.       ",
-					"                    :7JJJ7!!~.:~!~::.      ",
-					"                  .!JJJJ7!!!!^::^::.       ",
-					"                .~JJJJJ7!!!!!!!^ .         ",
-					"               ^?JJJJ?!!!!!!!!^            ",
-					"             :7JJJJJ?!!!~^^:^^             ",
-					"           .!JJJJJJ7!!!^::~~::.            ",
-					"          ~?JJJJJJ7!!!!^.^!!^:.            ",
-					"        ^?JJJJJJJ7!!!!!!^:::..             ",
-					"      :7JJJJJJJ?!!!!!!!!^                  ",
-					"      7JJJJJJJ?!!!!!!!~:                   ",
-					"                                           "
-				]
-			}],
 			model: "",
-			prompt: "\\u@\\h: \\w \\d $",
 			range: {
 				begin: -1,
 				end: -1
@@ -120,20 +90,9 @@
 		}),
 		mounted: function()
 		{
+			this.terminal.binding = this;
 		},
 		methods: {
-			
-			/*
-			 * Colorize string.
-			 *
-			 * @params String string
-			 *
-			 * @return String
-			 */
-			colorize: function( string )
-			{
-				return( this.terminal.colorize( string ) );
-			},
 			
 			/*
 			 * Set input text selection to end.
@@ -160,12 +119,16 @@
 				// Check if key is enter.
 				if( e.key === "Enter" )
 				{
-					this.history.push({
-						prompt: this.prompt,
-						inputs: this.model,
-						output: []
+					await this.terminal.run( this.model )
+					
+					.then( x =>
+					{
+						console.log( x );
+					})
+					.catch( e =>
+					{
+						console.error( e );
 					});
-					this.model = "";
 				}
 			},
 			
@@ -194,8 +157,12 @@
 			 */
 			oninput: function( e )
 			{
+				if( this.terminal.loading )
+				{
+					return( this.terminal.colorable( this.model ) );
+				}
 				return( Fmt( "{} {}", ...[
-					this.terminal.prompt( this.prompt ),
+					this.terminal.prompt( this.terminal.exports.PS1 ),
 					this.terminal.colorable( this.model )
 				]));
 			},
@@ -208,10 +175,11 @@
 			onrender: function()
 			{
 				var self = this;
+				
 				return(
 					
 					// Mapping Terminal Histories.
-					Mapper( this.history,
+					Mapper( this.terminal.history,
 						
 						/*
 						 * Handle history.
@@ -245,7 +213,7 @@
 							// Check if history has outputs.
 							if( Type( history.output, Array ) )
 							{
-								stack.push( ...Mapper( history.output, ( i, output ) => Fmt( "<label class=\"terminal-line-output dp-block\">{}</label>", self.terminal.colorize( output ) ) ) );
+								stack.push( ...Mapper( history.output, ( i, output ) => Fmt( "<label class=\"terminal-line-output dp-block\">{}</label>", self.terminal.format( output.replaceAll( /\<|\>/g, m => m === "<" ? "&lt" : "&gt" ) ) ) ) );
 							}
 							return( stack.join( "" ) );
 						}
@@ -314,9 +282,9 @@
 		.terminal-input,
 		.terminal-output,
 		.terminal-screen {
-			font-family: "Consolas", monospace;
+			font-family: var(--font-fira);
 			font-size: 14px;
-			font-weight: 500;
+			font-weight: 400;
 			overflow: auto;
 			overflow-x: auto;
 		}

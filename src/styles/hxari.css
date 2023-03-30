@@ -1063,3 +1063,22 @@ pre {
 .text { color: var(--color-3); }
 .title { color: var(--color-1); }
 .sub-title { color: var(--color-2); }
+
+/*
+ * -------------------------------------------------------------------------------------------------------------------------------------------
+ * Texts Styles
+ * -------------------------------------------------------------------------------------------------------------------------------------------
+ *
+ */
+.text-italic {
+	font-style: italic;
+}
+.text-underline {
+	text-decoration: underline;
+}
+.text-underline-dot {
+	text-decoration: underline dot;
+}
+.text-underline-wavy {
+	text-decoration: underline wavy;
+}

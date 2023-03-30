@@ -18,20 +18,42 @@ import Value from "./logics/Value.js";
  */
 function Terminal()
 {
-	// ...
+	console.info( Fmt( "Terminal v{} started.", this.version ) );
 };
 
+/*
+ * Container for the entire alias name.
+ *
+ * @values Object
+ */
 Terminal.prototype.aliases = {};
-Terminal.prototype.author = "Ari Setiawan (hxAri)";
+
+/*
+ * Terminal author info
+ *
+ * @values Object
+ */
+Terminal.prototype.author = {
+	name: "Ari Setiawan",
+	alias: "hxAri",
+	email: "ari160824@gmail.com"
+};
+
+/*
+ * Terminal vue component instance.
+ *
+ * @values Object
+ */
+Terminal.prototype.binding = {};
 
 /*
  * Automatic colorize text, number, and symbols in the string.
  *
- * @params String text
+ * @params String format
  *
  * @return String
  */
-Terminal.prototype.colorable = function( text )
+Terminal.prototype.colorable = function( format )
 {
 	var index = 0;
 	var match = null;
@@ -68,7 +90,7 @@ Terminal.prototype.colorable = function( text )
 		// Create regular expression.
 		var regexp = new RegExp( "(?:" + Object.values( Mapper( patterns, ( i, k, val ) => val.pattern ) ).join( "|" ) + ")", "g" );
 		
-		while( ( match = regexp.exec( text ) ) !== null )
+		while( ( match = regexp.exec( format ) ) !== null )
 		{
 			// Default color for text.
 			var color = "var(--shell-c-37m)";
@@ -96,12 +118,12 @@ Terminal.prototype.colorable = function( text )
 				// Check group has handler.
 				if( Type( patterns[group].handler, [ Function, "handler" ] ) )
 				{
-					result += Fmt( "{}<span style=\"color: {}\">{}</span>", text.substring( index, regexp.lastIndex - match[0].length ), color, patterns[group].handler( match ) );
+					result += Fmt( "{}<span style=\"color: {}\">{}</span>", format.substring( index, regexp.lastIndex - match[0].length ), color, patterns[group].handler( match ) );
 					index = regexp.lastIndex;
 					continue;
 				}
 			}
-			result += Fmt( "{}<span style=\"color: {}\">{}</span>", text.substring( index, regexp.lastIndex - match[0].length ), color, match[0] );
+			result += Fmt( "{}<span style=\"color: {}\">{}</span>", format.substring( index, regexp.lastIndex - match[0].length ), color, match[0] );
 			index = regexp.lastIndex;
 		}
 	}
@@ -109,28 +131,238 @@ Terminal.prototype.colorable = function( text )
 	{
 		console.error( e );
 	}
-	return( result + text.substring( index ) );
+	return( result + format.substring( index ) );
 };
 
 /*
- * Colorize string.
+ * Container for the entire available commands.
  *
- * @params String string
+ * @values Object
+ */
+Terminal.prototype.commands = {};
+
+/*
+ * Date instance.
+ *
+ * @values Datime
+ */
+Terminal.prototype.date = new Datime();
+
+/*
+ * Container for the entire terminal directoies.
+ *
+ * @values Object
+ */
+Terminal.prototype.directory = {};
+
+/*
+ * Container for the entire environment names.
+ *
+ * @values Object
+ */
+Terminal.prototype.exports = {
+	HOME: "/terminal",
+	PS1: "\\[\\e[0;38;5;112m\\]\\u\\[\\e[0;38;5;190m\\]@\\h\\[\\e[0;38;5;214m\\]: \\[\\e[32m\\]\\w \\[\\e[37m\\]$"
+};
+
+/*
+ * String formater.
+ *
+ * @params String format
  *
  * @return String
  */
-Terminal.prototype.colorize = function( string )
+Terminal.prototype.format = function( format )
 {
+	// Regex for match escape sequence.
+	var regexp = /(?<format>\x1b|\\x1b|\\e|((\0|\\0)33))((?:\[|\\\[)(?<code>.*?)(?<type>m)(?<text>[^\n]*))/g;
+	var string = format.replaceAll( /\!\[(bx|bxl|bxs)\]\(([^\)]+)\)/g, `<i class="bx $1-$2 fs-16"></i>` )
+	var match = regexp.exec( string );
+	
+	if( match !== null )
+	{
+		// Defaulf text is blank for avoid error.
+		var text = "";
+		
+		// Get format style.
+		var style = this.formatStyle( match.groups.code );
+		
+		// If format has text will be 
+		if( Type( match.groups.text, String ) )
+		{
+			text = this.format( match.groups.text );
+		}
+		
+		// Check if format has style.
+		if( style )
+		{
+			return( Fmt( "{}<span class=\"terminal-text text\" style=\"{}\">{}</span>", string.substring( 0, regexp.lastIndex - match[0].length ), style, text ) );
+		}
+		return( string.substring( 0, regexp.lastIndex - match[0].length ) + text );
+	}
 	return( string );
 };
 
-Terminal.prototype.commands = {};
-Terminal.prototype.date = new Datime();
-Terminal.prototype.directory = {};
-Terminal.prototype.exports = {
-	HOME: "/terminal"
+/*
+ * Terminal format styling.
+ *
+ * @params String code
+ *
+ * @return False|String
+ */
+Terminal.prototype.formatStyle = function( code )
+{
+	var self = this;
+	
+	// Check if code is valid.
+	if( /^(?:\d{1,2}|[01]\d|2[0-4])(;(?:\d|[0-5]\d)(?:;(?:\d{1,3})){0,2})*$/.test( code ) )
+	{
+		// Split code with semicolon symbol.
+		var codes = code.split( ";" );
+		
+		// If color code has no semicolon.
+		if( codes.length === 1 )
+		{
+			// Check if format code is like \e[0m|\e[00m
+			if( this.formatStyleValue[( codes[0].length -1 )] )
+			{
+				return( this.formatStyleValue[( codes[0].length -1 )][codes[0]] );
+			}
+		}
+		else {
+			
+			var format = false;
+			var color = false;
+			
+			// If color code has one semicolon.
+			if( codes.length === 2 )
+			{
+				format = Type( self.formatStyleValue[( codes[0].length -1 )], [ Array, Object ], () => self.formatStyleValue[( codes[0].length -1 )][codes[0]], () => false );
+				color = Type( self.formatStyleValue[( codes[1].length -1 )], [ Array, Object ], () => self.formatStyleValue[( codes[1].length -1 )][codes[1]], () => false );
+			}
+			
+			// If color code has 3 or more semicolon.
+			if( codes.length >= 4 )
+			{
+				format = Type( self.formatStyleValue[( codes[0].length -1 )], [ Array, Object ], () => self.formatStyleValue[( codes[0].length -1 )][codes[0]], () => false );
+				
+				if( codes[1] === "38" )
+				{
+					if( codes[2] === "4" ) color = Fmt( "background-color: var(--shell-c-38-{}m)", codes[3] );
+					if( codes[2] === "5" ) color =  Fmt( "color: var(--shell-c-38-{}m)", codes[3] );
+					if( codes[2] !== "4" &&
+						codes[2] !== "5" )
+					{
+						if( format )
+						{
+							format += "; ";
+							format += Type( self.formatStyleValue[( codes[2].length -1 )], [ Array, Object ], () => self.formatStyleValue[( codes[2].length -1 )][codes[2]], () => "" );
+						}
+						else {
+							format = Type( self.formatStyleValue[( codes[2].length -1 )], [ Array, Object ], () => self.formatStyleValue[( codes[2].length -1 )][codes[2]], () => false );
+						}
+					}
+				}
+			}
+			if( format && color )
+			{
+				return( Fmt( "{}; {}", format, color ) );
+			}
+			return( format ? format : ( color ? color : false ) );
+		}
+	}
+	return( false );
 };
+
+/*
+ * Terminal format style value.
+ *
+ * @values Array<Object>
+ */
+Terminal.prototype.formatStyleValue = [
+	{
+		0: "font-weight: normal; font-style: normal; text-decoration: none; text-decoration-line: none; color: var(--shell-c-37m); opacity: 1",
+		1: "font-weight: bolder",
+		2: "opacity: .8",
+		3: "font-style: italic",
+		4: "text-decoration-line: underline",
+		5: "font-weight: bolder",
+		6: "font-weight: normal; font-style: normal; text-decoration-line: none; color: var(--shell-c-37m); opacity: 1",
+		7: "background-color: var(--shell-c-37m); color: var(--shell-c-30m)",
+		8: "background-color: var(--shell-c-30m); color: var(--shell-c-30m)",
+		9: "text-decoration-line: line-through",
+	},
+	{
+		30: "color: var(--shell-c-30m)",
+		31: "color: var(--shell-c-31m)",
+		32: "color: var(--shell-c-32m)",
+		33: "color: var(--shell-c-33m)",
+		34: "color: var(--shell-c-34m)",
+		35: "color: var(--shell-c-35m)",
+		36: "color: var(--shell-c-36m)",
+		37: "color: var(--shell-c-37m)",
+		
+		40: "background-color: var(--shell-c-30m)",
+		41: "background-color: var(--shell-c-31m)",
+		42: "background-color: var(--shell-c-32m)",
+		43: "background-color: var(--shell-c-33m)",
+		44: "background-color: var(--shell-c-34m)",
+		45: "background-color: var(--shell-c-35m)",
+		46: "background-color: var(--shell-c-36m)",
+		47: "background-color: var(--shell-c-37m)"
+	}
+];
+
+/*
+ * Terminal History.
+ *
+ * @values Array
+ */
+Terminal.prototype.history = [{
+	output: [
+		"                                           ",
+		"             \x1b[0;38;5;240m::                            ",
+		"            \x1b[0;38;5;245m^\x1b[0;38;5;255mJJ\x1b[0;38;5;245m^\x1b[0;38;5;240m... :~\x1b[0;38;5;245m^                    ",
+		"      \x1b[0;38;5;245m.^\x1b[0;38;5;240m::\x1b[0;38;5;255m~7JJJJJJ??JJJ\x1b[0;38;5;245m^                   ",
+		"      \x1b[0;38;5;255m7JJJYYJ?77??JJJJJJ?!!??\x1b[0;38;5;240m:             ",
+		"      \x1b[0;38;5;240m:\x1b[0;38;5;255mJJJ?\x1b[0;38;5;245m^.     .^\x1b[0;38;5;255m!?JJLJJJ?\x1b[0;38;5;240m.             ",
+		"    \x1b[0;38;5;240m:\x1b[0;38;5;245m^\x1b[0;38;5;255m?JJJ\x1b[0;38;5;245m. \x1b[0;38;5;69m*  \x1b[0;38;5;245m~\x1b[0;38;5;255m7\x1b[0;38;5;245m^   .^\x1b[0;38;5;255m?JIJJJJ?\x1b[0;38;5;240m: ..         ",
+		"   \x1b[0;38;5;240m.\x1b[0;38;5;255m?JJJJJ\x1b[0;38;5;245m^  \x1b[0;38;5;240m.\x1b[0;38;5;245m!\x1b[0;38;5;255mJY7     \x1b[0;38;5;245m.\x1b[0;38;5;255m?JAJJ\x1b[0;38;5;245m~::^\x1b[0;38;5;240m::.       ",
+		"    \x1b[0;38;5;240m..\x1b[0;38;5;245m^\x1b[0;38;5;255m?JJJ??JJJJ\x1b[0;38;5;245m:      :\x1b[0;38;5;255mJNJ7\x1b[0;38;5;245m^\x1b[0;38;5;240m:\x1b[0;38;5;245m~!~\x1b[0;38;5;240m::.      ",
+		"       \x1b[0;38;5;240m:\x1b[0;38;5;255mJJJ?J?7JJ\x1b[0;38;5;245m~       \x1b[0;38;5;255m7AJ?\x1b[0;38;5;245m^\x1b[0;38;5;240m:::::.       ",
+		"       \x1b[0;38;5;240m.\x1b[0;38;5;255m!7\x1b[0;38;5;245m^..  :^.       \x1b[0;38;5;255m?JJ?\x1b[0;38;5;245m!!\x1b[0;38;5;240m~~^         ",
+		"                        \x1b[0;38;5;245m:\x1b[0;38;5;255mJJJ7\x1b[0;38;5;245m!!!!!         ",
+		"                       \x1b[0;38;5;245m:\x1b[0;38;5;255m?JJ?\x1b[0;38;5;245m!!!\x1b[0;38;5;240m~~~.        ",
+		"                      \x1b[0;38;5;245m^\x1b[0;38;5;255m?JJ?\x1b[0;38;5;245m!!^\x1b[0;38;5;240m:::::.       ",
+		"                    \x1b[0;38;5;245m:\x1b[0;38;5;255m7JJJ7\x1b[0;38;5;245m!!\x1b[0;38;5;240m~.:\x1b[0;38;5;245m~!~\x1b[0;38;5;240m::.      ",
+		"                  \x1b[0;38;5;245m:\x1b[0;38;5;255m!JJJJ7\x1b[0;38;5;245m!!!!^::^\x1b[0;38;5;240m::.       ",
+		"                \x1b[0;38;5;245m:\x1b[0;38;5;255m~JJCJJ7\x1b[0;38;5;245m!!!!!!!^\x1b[0;38;5;240m.         ",
+		"               \x1b[0;38;5;245m^\x1b[0;38;5;255m?JHJJ?\x1b[0;38;5;245m!!!!!!!!^            ",
+		"             \x1b[0;38;5;245m:\x1b[0;38;5;255m7JJIJJ?\x1b[0;38;5;245m!!!\x1b[0;38;5;240m^^\x1b[0;38;5;245m::\x1b[0;38;5;240m^^             ",
+		"           \x1b[0;38;5;245m^\x1b[0;38;5;255m!JJJNJJ7\x1b[0;38;5;245m!!!^\x1b[0;38;5;240m::\x1b[0;38;5;245m~~\x1b[0;38;5;240m::.            ",
+		"          \x1b[0;38;5;245m^\x1b[0;38;5;255m?JJTJJJ7\x1b[0;38;5;245m!!!!^.^!!^\x1b[0;38;5;240m:.            ",
+		"        \x1b[0;38;5;245m^\x1b[0;38;5;255m?JJYJJJJ7\x1b[0;38;5;245m!!!!!!^\x1b[0;38;5;240m:::..             ",
+		"      \x1b[0;38;5;245m:\x1b[0;38;5;255m7JJAJJJJ?\x1b[0;38;5;245m!!!!!!!!^                  ",
+		"      \x1b[0;38;5;255m7JJJJJJJ?\x1b[0;38;5;245m!!!!!!!\x1b[0;38;5;240m~:                   ",
+		"\x20",
+		"Type \x1b[0;38;4;111m\x1b[37mhelp\x1b[40m \x1b[37mfor available commands",
+		"\x20"
+	]
+}];
+
+/*
+ * Terminal Hostname.
+ *
+ * @values String
+ */
 Terminal.prototype.hostname = "localhost";
+
+/*
+ * Terminal Loading.
+ *
+ * @values Boolean
+ */
+Terminal.loading = false;
 
 /*
  * Prompt formater.
@@ -154,23 +386,126 @@ Terminal.prototype.prompt = function( format )
 		
 		switch( match.groups.format )
 		{
+			// The date in "Weekday Month Date" format (e.g., "Tue May 26")
 			case "d": value = this.date.format( "%a %b %d" ); break;
+			
+			// The hostname.
 			case "h":
 			case "H": value = this.hostname; break;
+			
+			// New line.
+			case "n": value = "<br/>"; break;
+			
+			// The name of the shell.
+			case "s": value = this.shell; break;
+			
+			// Current working directory.
 			case "w": value = this.router.currentRoute.path !== this.exports.HOME ? this.router.currentRoute.path.replace( this.exports.HOME, "" ) : "~"; break;
+			
+			// Basename current working directory.
 			case "W": value = this.router.currentRoute.path !== this.exports.HOME ? this.router.currentRoute.path.replace( this.exports.HOME, "" ).split( "/" ).pop() : "~"; break;
+			
+			// The username of current user.
 			case "u": value = this.user; break;
+			
+			// The current time in 24-hour HH:MM:SS format.
+			case "t": value = this.date.format( "%H:%M:%S" ); break;
+			
+			// The current time in 12-hour HH:MM:SS format.
+			case "T": value = this.date.format( "%I:%M:%S" ); break;
+			
+			// The current time in 12-hour am/pm format.
+			case "@": value = Fmt( "{} {}", this.date.format( "%I:%M" ), this.date.hours() >= 12 ? "PM" : "AM" ); break;
+			
+			// The current time in 24-hour HH:MM format.
+			case "A": value = this.date.format( "%H:%M" ); break;
+			
+			default: break;
 		}
 		prompt += format.substring( index, regexp.lastIndex - match[0].length ) + value;
 		index = regexp.lastIndex;
 	}
-	return( prompt + format.substring( index ) );
+	return( this.format( prompt + format.substring( index ) ) );
 };
 
+/*
+ * Terminal router.
+ *
+ * @values Router
+ */
 Terminal.prototype.router = Router;
+
+/*
+ * Run terminal with command.
+ *
+ * @params String command
+ *
+ * @return Promise
+ */
+Terminal.prototype.run = async function( command )
+{
+	// Copy current object instance.
+	var self = this;
+	
+	return( new Promise(
+		
+		/*
+		 * Command runner.
+		 *
+		 * @params Function resolve
+		 * @params Function reject
+		 *
+		 * @return Void
+		 */
+		await function( resolve, reject )
+		{
+			// Split command with symbol (&&)
+			var commands = command.split( /(?<=^|[^"'`\\\\])\s*(&&)\s*(?=[^"'`\\\\]|$)/g );
+				commands = commands.filter( command => command !== "&&" );
+			
+			// Setup.
+			//self.loading = true;
+			self.binding.model = "";
+			self.history.push({
+				prompt: self.exports.PS1,
+				inputs: command
+			});
+			
+			// Mapping commands.
+			for( let i in commands )
+			{
+				self.history.push()
+			}
+		}
+	));
+};
+
+/*
+ * Terminal shell name.
+ *
+ * @values String
+ */
 Terminal.prototype.shell = "bash";
+
+/*
+ * Terminal username.
+ *
+ * @values String
+ */
 Terminal.prototype.user = "root";
+
+/*
+ * Terminal version.
+ *
+ * @values String
+ */
 Terminal.prototype.version = "4.0";
+
+/*
+ * Terminal version release.
+ *
+ * @values String
+ */
 Terminal.prototype.versionRelease = "4.0.0";
 
 export default Terminal;

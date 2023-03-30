@@ -59,14 +59,10 @@ export default [
 		component: () => import( "../views/Terminal.vue" ),
 		children: [
 			{
-				path: "bin",
-				name: "terminal-bin",
-				readable: false
-			},
-			{
-				path: "etc",
-				name: "terminal-etc",
-				readable: false
+				path: ":terminalPath(.*?)*",
+				name: "terminal-path",
+				readable: false,
+				component: {}
 			}
 		]
 	}
