@@ -4,13 +4,13 @@
 	// Import Scripts
 	import Fmt from "../scripts/Fmt.js";
 	import Mapper from "../scripts/Mapper.js";
-	import Terminal from "../scripts/Terminal.js";
+	import Terminal from "../scripts/shells/Terminal.js";
 	import Type from "../scripts/Type";
 	import Value from "../scripts/logics/Value.js";
 	
 	export default {
 		data: () => ({
-			model: "",
+			model: "test *",
 			range: {
 				begin: -1,
 				end: -1

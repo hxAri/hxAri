@@ -1,15 +1,17 @@
 
 // Import Router
-import Router from "../router/router.js";
+import Router from "/src/router/router.js";
 
 // Import Scripts
-import Fmt from "./Fmt.js";
-import Datime from "./Datime.js";
-import HTMLEntity from "./HTMLEntity.js";
-import Match from "./Match.js";
-import Mapper from "./Mapper.js";
-import Type from "./Type.js";
-import Value from "./logics/Value.js";
+import Argument from "/src/scripts/shells/Argument.js";
+import Fmt from "/src/scripts/Fmt.js";
+import Datime from "/src/scripts/Datime.js";
+import Directory from "/src/scripts/shells/Directory.js";
+import HTMLEntity from "/src/scripts/HTMLEntity.js";
+import Match from "/src/scripts/Match.js";
+import Mapper from "/src/scripts/Mapper.js";
+import Type from "/src/scripts/Type.js";
+import Value from "/src/scripts/logics/Value.js";
 
 /*
  * Virtual Terminal.
@@ -18,15 +20,26 @@ import Value from "./logics/Value.js";
  */
 function Terminal()
 {
+	this.commands = this.ls( "/bin" );
+	this.router.push(
+		"/terminal/root"
+	);
 	console.info( Fmt( "Terminal v{} started.", this.version ) );
 };
 
 /*
  * Container for the entire alias name.
  *
- * @values Object
+ * @values Array
  */
-Terminal.prototype.aliases = {};
+Terminal.prototype.aliases = [];
+
+/*
+ * Terminal argument functions.
+ *
+ * @values Object<Function>
+ */
+Terminal.prototype.argument = Argument;
 
 /*
  * Terminal author info
@@ -137,9 +150,9 @@ Terminal.prototype.colorable = function( format )
 /*
  * Container for the entire available commands.
  *
- * @values Object
+ * @values Array
  */
-Terminal.prototype.commands = {};
+Terminal.prototype.commands = [];
 
 /*
  * Date instance.
@@ -151,9 +164,35 @@ Terminal.prototype.date = new Datime();
 /*
  * Container for the entire terminal directoies.
  *
- * @values Object
+ * @values Array
  */
-Terminal.prototype.directory = {};
+Terminal.prototype.directory = Directory;
+
+/*
+ * Replace environment name in the command name.
+ *
+ * @params String command
+ *
+ * @return String
+ */
+Terminal.prototype.env = function( command )
+{
+	var value = "";
+	var regex = /(?<!\\)(?<variable>\$(?<name>[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*))/g;
+	var match = regex.exec( command );
+	
+	// Check if there are environment in the command.
+	if( match !== null )
+	{
+		// Check if environment is available.
+		if( Type( this.exports[match.groups.name], String ) )
+		{
+			value = this.exports[match.groups.name];
+		}
+		return( this.env( command.substring( 0, regex.lastIndex - match[0].length ) + value + command.substring( regex.lastIndex ) ) );
+	}
+	return( command );
+};
 
 /*
  * Container for the entire environment names.
@@ -161,7 +200,33 @@ Terminal.prototype.directory = {};
  * @values Object
  */
 Terminal.prototype.exports = {
-	HOME: "/terminal",
+	
+	/*
+	 * Terminal root directory.
+	 *
+	 * @values String
+	 */
+	ROOT: "/terminal",
+	
+	/*
+	 * Terminal home directory.
+	 *
+	 * @values String
+	 */
+	HOME: "/root",
+	
+	/*
+	 * Current terminal working directory info.
+	 *
+	 * @values Object
+	 */
+	PWD: Router.currentRoute,
+	
+	/*
+	 * Terminal prompt.
+	 *
+	 * @values String
+	 */
 	PS1: "\\[\\e[0;38;5;112m\\]\\u\\[\\e[0;38;5;190m\\]@\\h\\[\\e[0;38;5;214m\\]: \\[\\e[32m\\]\\w \\[\\e[37m\\]$"
 };
 
@@ -176,7 +241,7 @@ Terminal.prototype.format = function( format )
 {
 	// Regex for match escape sequence.
 	var regexp = /(?<format>\x1b|\\x1b|\\e|((\0|\\0)33))((?:\[|\\\[)(?<code>.*?)(?<type>m)(?<text>[^\n]*))/g;
-	var string = format.replaceAll( /\!\[(bx|bxl|bxs)\]\(([^\)]+)\)/g, `<i class="bx $1-$2 fs-16"></i>` )
+	var string = format.replaceAll( /\!\[(bx|bxl|bxs)\]\(([a-zA-Z0-9\-\s]+)\)/g, `<i class="bx $1-$2"></i>` )
 	var match = regexp.exec( string );
 	
 	if( match !== null )
@@ -355,14 +420,160 @@ Terminal.prototype.history = [{
  *
  * @values String
  */
-Terminal.prototype.hostname = "localhost";
+Terminal.prototype.hostname = "hxari";
 
 /*
  * Terminal Loading.
  *
  * @values Boolean
  */
-Terminal.loading = false;
+Terminal.prototype.loading = false;
+
+/*
+ * Terminal directory scanner.
+ *
+ * @params String path
+ *
+ * @return Array<Object>
+ *  Array list directory contents.
+ *
+ * @throws Error
+ *  Throw when the directory not found.
+ */
+Terminal.prototype.ls = function( path )
+{
+	// Split pathname.
+	let parts = path.split( "/" ).filter( part => Value.isNotEmpty( part ) );
+	let dir = this.directory;
+	
+	// Mapping parts of pathname.
+	for( let i in parts )
+	{
+		// Get part name.
+		var part = parts[i];
+		
+		// Check if directory value is Object.
+		if( Type( dir, Object ) )
+		{
+			// Check if directory has children.
+			if( Type( dir.child, Array ) )
+			{
+				dir = dir.child;
+			}
+			else {
+				dir = false;
+			}
+		}
+		
+		// Check id directory value is Array.
+		if( Type( dir, Array ) )
+		{
+			// Find directory part name.
+			dir = dir.find( d => 
+			{
+				return d.name === part && ( d.type === "path" || d.type === "symlink" );
+			});
+			
+			// Check if directory not found.
+			if( Type( dir, [ Array, Object ] ) === false )
+			{
+				throw new Error( Fmt( "No such file or directory {}", path ) );
+			}
+		}
+		else {
+			throw new Error( Fmt( "No such file or directory {}", path ) );
+		}
+	}
+	
+	// list the files and directories under the directory.
+	let result = [];
+	
+	// Check if directory is path.
+	if( dir.type === "path" )
+	{
+		return( dir.child );
+		// Mapping items form directory.
+		for( let item of dir.child )
+		{
+			if( item.type === "path")
+			{
+				result.push( item );
+			}
+			else if( item.type === "symlink" )
+			{
+				/*let linkTargetParts = item.from.split("/");
+				let linkTargetDir = directory;
+				for (let i = 0; i < linkTargetParts.length; i++) {
+					let linkTargetPart = linkTargetParts[i];
+					if (linkTargetPart === "") continue;
+					if( !isArray( linkTargetDir ) && typeof linkTargetDir === "object" )
+					{
+						linkTargetDir = linkTargetDir.child;
+					}
+					linkTargetDir = linkTargetDir.find(d => d.name === linkTargetPart && d.type === "path");
+					if (!linkTargetDir) break; // symlink target directory not found
+				}
+				if (linkTargetDir) {
+					let linkTargetPath = linkTargetParts.slice(linkTargetParts.lastIndexOf("") + 1).join("/");
+					let subresult = ls(linkTargetPath);
+					subresult = subresult.map(name => item.name + "/" + name);
+					result.push(...subresult);
+				}
+				*/
+				result.push( item );
+			}
+			else {
+				result.push( item );
+			}
+		}
+		/*
+		// recursively scan the subdirectories
+		for (let item of dir.child) {
+			if (item.type === "path") {
+				let subresult = ls(path + "/" + item.name);
+				//subresult = subresult.map(name => item.name + "/" + name);
+				result = subresult//.push(...subresult);
+			}
+		}*/
+		return( result );
+	}
+	else {
+		return( dir.type === "symlink" ? this.ls( dir.from ) : dir );
+	}
+};
+
+/*
+ * Normalize alias name in the command.
+ * And split command with double-and symbol (&&).
+ *
+ * @params String command
+ *
+ * @return Array
+ */
+Terminal.prototype.normalize = function( command )
+{
+	// Split command with symbol (&&)
+	var commands = command.split( /(?<=^|[^"'`\\\\])\s*&&\s*(?=[^"'`\\\\]|$)/g );
+		commands = commands.filter( x => x !== "&&" );
+	
+	// Mapping commands.
+	for( let i in commands )
+	{
+		// Split command with white space.
+		commands[i] = commands[i].split( /\s/ );
+		
+		// Check if command is alias name.
+		if( Type( this.aliases[commands[i][0]], String ) )
+		{
+			commands[i][0] = this.aliases[commands[i][0]];
+		}
+		commands[i] = commands[i].join( "\x20" );
+		commands[i] = this.env(
+			commands[i]
+		);
+	}
+	return( commands );
+};
 
 /*
  * Prompt formater.
@@ -400,10 +611,10 @@ Terminal.prototype.prompt = function( format )
 			case "s": value = this.shell; break;
 			
 			// Current working directory.
-			case "w": value = this.router.currentRoute.path !== this.exports.HOME ? this.router.currentRoute.path.replace( this.exports.HOME, "" ) : "~"; break;
+			case "w": value = this.pwd() !== this.exports.HOME ? this.pwd() : "~"; break;
 			
 			// Basename current working directory.
-			case "W": value = this.router.currentRoute.path !== this.exports.HOME ? this.router.currentRoute.path.replace( this.exports.HOME, "" ).split( "/" ).pop() : "~"; break;
+			case "W": value = this.pwd( true ); break;
 			
 			// The username of current user.
 			case "u": value = this.user; break;
@@ -429,6 +640,27 @@ Terminal.prototype.prompt = function( format )
 };
 
 /*
+ * Terminal current working directory.
+ *
+ * @params Boolean base
+ *
+ * @return String
+ */
+Terminal.prototype.pwd = function( base = false )
+{
+	// Get current working directory.
+	var path = this.exports.PWD.path;
+		path = path.replace( new RegExp( "^" + this.exports.ROOT.replaceAll( /\//g, "\\/" ), "i" ), "" );
+		path = path === "" ? "/" : path;
+	
+	if( base )
+	{
+		return( path.split( "/" ) ).pop();
+	}
+	return( path );
+};
+
+/*
  * Terminal router.
  *
  * @values Router
@@ -438,11 +670,11 @@ Terminal.prototype.router = Router;
 /*
  * Run terminal with command.
  *
- * @params String command
+ * @params String input
  *
  * @return Promise
  */
-Terminal.prototype.run = async function( command )
+Terminal.prototype.run = async function( input )
 {
 	// Copy current object instance.
 	var self = this;
@@ -459,22 +691,21 @@ Terminal.prototype.run = async function( command )
 		 */
 		await function( resolve, reject )
 		{
-			// Split command with symbol (&&)
-			var commands = command.split( /(?<=^|[^"'`\\\\])\s*(&&)\s*(?=[^"'`\\\\]|$)/g );
-				commands = commands.filter( command => command !== "&&" );
+			// Normalize command name.
+			var commands = self.normalize( input );
 			
 			// Setup.
 			//self.loading = true;
 			self.binding.model = "";
 			self.history.push({
 				prompt: self.exports.PS1,
-				inputs: command
+				inputs: input
 			});
 			
 			// Mapping commands.
 			for( let i in commands )
 			{
-				self.history.push()
+				self.argument.extract.call( self, commands[i] );
 			}
 		}
 	));
@@ -485,7 +716,9 @@ Terminal.prototype.run = async function( command )
  *
  * @values String
  */
-Terminal.prototype.shell = "bash";
+Terminal.prototype.shell = "javascript";
+
+Terminal.prototype.style = "font-weight: normal; font-style: normal; text-decoration: none; text-decoration-line: none; color: var(--shell-c-37m); opacity: 1";
 
 /*
  * Terminal username.
