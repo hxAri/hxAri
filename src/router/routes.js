@@ -49,6 +49,15 @@ export default [
 		component: () => import( "../views/Sitemap.vue" )
 	},
 	{
+		path: "/projects",
+		name: "projects",
+		icon: {
+			active: [ "bx", "bxs-flag" ],
+			default: [ "bx", "bx-flag" ]
+		},
+		component: () => import( "../views/Project.vue" )
+	},
+	{
 		path: "/terminal",
 		name: "terminal",
 		icon: {
@@ -65,5 +74,12 @@ export default [
 				component: {}
 			}
 		]
+	},
+	{
+		path: "/:none(.*?)*",
+		name: "none",
+		visible: false,
+		readable: false,
+		component: {}
 	}
 ];

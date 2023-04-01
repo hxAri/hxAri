@@ -1,12 +1,20 @@
 
 <script>
+	
+	import { RouterLink } from "vue-router";
+	
 	export default {
 		props: {
 			image: {
 				type: Object
 			},
+			profile: {
+				type: Object,
+				require: true
+			},
 			projects: {
-				type: [ Array, Object ]
+				type: [ Array, Object ],
+				require: true
 			}
 		}
 	};
@@ -27,7 +35,9 @@
 					</div>
 				</div>
 				<div class="project-label flex flex-left pd-14">
-					<a class="title" :href="project.html_url">{{ project.name }}</a>
+					<RouterLink class="title" :to="{ path: '/projects/' + project.name, query: { profile: profile.login, owner: project.owner.login } }">
+						{{ project.name }}
+					</RouterLink>
 				</div>
 			</div>
 			<div class="project-footer pd-14">

@@ -24,7 +24,9 @@ export default {
 		var argv = [];
 		
 		// Get current directory contents.
-		var ls = this.ls( this.pwd() );
+		var ls = this.ls( "/usr/*" );
+		
+		console.log( ls );
 		
 		// Mapping extracted argument values.
 		for( let i in extract )
@@ -32,9 +34,7 @@ export default {
 			// Check if input has regular expression.
 			if( sregexp.test( extract[i][0] ) )
 			{
-				console.log( ls );
 			}
-			console.log( extract[i][0] );
 		}
 		return( argv );
 	},

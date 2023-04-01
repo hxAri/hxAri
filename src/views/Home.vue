@@ -371,7 +371,7 @@
 						<p class="text mg-bottom-14">
 							Here are some of the projects I've created and are still developing. Every project is open source anyone can use it or contribute if interesting, don't forget to let others know if it's useful.
 						</p>
-						<Project :projects="projects" :image="image" />
+						<Project :profile="profile" :projects="projects" :image="image" />
 					</div>
 					<div class="content-single pd-14" id="experience" v-scroll-reveal="{ delay: 650 }">
 						<h2 class="title">

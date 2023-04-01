@@ -112,6 +112,9 @@
 				// Mapping routes.
 				Mapper( lists, function( i, list )
 				{
+					// Check if route is not visible.
+					if( Type( list.visible, Boolean ) && list.visible === false ) return;
+					
 					// Check if route has children paths.
 					// And if path is readable.
 					if( Type( list.children, Array ) && list.readable === true )
