@@ -20,7 +20,6 @@ import Value from "/src/scripts/logics/Value.js";
  */
 function Terminal()
 {
-	this.commands = this.ls( "/bin" );
 	this.router.push(
 		"/terminal/root"
 	);
@@ -442,149 +441,189 @@ Terminal.prototype.loading = false;
  */
 Terminal.prototype.ls = function( path )
 {
-	if( path === "*" ||
-		path.match( /\*+$/ ) ||
-		path.match( /\.{1,2}/ ) ||
-		path.match( /^\.\*/ ) )
+	var npath = "";
+	var index = 0;
+	var match = null;
+	var regex = /(?<repeat>\*)|(?<current>^\.\/)/g;
+	
+	// Get current directory working.
+	var work = this.pwd();
+	
+	// Resolve pathname with special character.
+	if( path.match( /^\*+$/ ) !== null )
 	{
-		return( this ).directory;
+		npath = work;
 	}
 	else {
-		
-		// Split pathname.
-		let parts = path.split( "/" ).filter( part => Value.isNotEmpty( part ) );
-		let dir = this.directory;
-		
-		// Mapping parts of pathname.
-		for( let i in parts )
+		while( ( match = regex.exec( path ) ) !== null )
 		{
-			// Get part name.
-			var part = parts[i];
-			
-			// Check if directory value is Object.
-			if( Type( dir, Object ) )
+			// If path has star characters.
+			if( Type( match.groups.repeat, String ) )
 			{
-				// Check if directory has children.
-				if( Type( dir.child, Array ) )
-				{
-					dir = dir.child;
-				}
-				else {
-					dir = false;
-				}
-			}
-			
-			// Check id directory value is Array.
-			if( Type( dir, Array ) )
-			{
-				var regexp = null;
-				
-				// Check if part name have special caharacters.
-				if( /(?<!\\)((?<bracket>\[(?:[^\]\\]|\\.)*\](\+)*)|(?<wildcard>\*)|(?<dot>\.)|(?<operator>\|))/g.test( part ) )
-				{
-					try
-					{
-						// Check if part value is *.
-						if( /^\*+$/.test( part ) )
-						{
-							regexp = new RegExp( /^.*$/g );
-						}
-						else {
-							regexp = new RegExp( "^" + part.replace( /^\*/, ".*" ).replaceAll( /\./g, "\\." ).replaceAll( /\//g, "\\/" ) + "$" );
-						}
-					}
-					catch( error )
-					{
-						regexp = null;
-					}
-				}
-				
-				// Find directory part name.
-				dir = dir.find(
-					
-					/*
-					 * Find directory part name by regex or part name.
-					 *
-					 * @params Object d
-					 *
-					 * @return Boolean
-					 */
-					function( d )
-					{
-						// If part has no regular expression,
-						if( regexp === null )
-						{
-							return( d.name === part && ( d.type === "path" || d.type === "symlink" ) );
-						}
-						return( regexp.test( d.name ) && ( d.type === "path" || d.type === "symlink" ) );
-					}
-				);
-				
-				// Check if directory not found.
-				if( Type( dir, [ Array, Object ] ) === false )
-				{
-					throw new Error( Fmt( "No such file or directory {}", path ) );
-				}
+				// Avoid error no repeating.
+				var value = ".*";
 			}
 			else {
+				var value = work;
+			}
+			npath += path.substring( index, regex.lastIndex - match[0].length ) + value;
+			index = regex.lastIndex;
+		}
+		npath += path.substring( index );
+	}
+	
+	// Check if pathname has no slash in prefix.
+	if( npath[0] !== "/" )
+	{
+		npath = work + "/" + npath;
+	}
+	
+	console.log( npath );
+	
+	// Split pathname.
+	let parts = npath.split( "/" ).filter( part => Value.isNotEmpty( part ) );
+	let dir = this.directory;
+	
+	// Mapping parts of pathname.
+	for( let i in parts )
+	{
+		// Get part name.
+		var part = parts[i];
+		
+		// Check if part name is double dot (..)
+		if( part === ".." )
+		{
+			// If previous part name is available.
+			if( Type( parts[( i -1 )], String ) )
+			{
+				part = parts[( i -1 )];
+			}
+			else {
+				continue;
+			}
+		}
+		
+		// Check if directory value is Object.
+		if( Type( dir, Object ) )
+		{
+			// Check if directory has children.
+			if( Type( dir.child, Array ) )
+			{
+				dir = dir.child;
+			}
+			else {
+				dir = false;
+			}
+		}
+		
+		// Check id directory value is Array.
+		if( Type( dir, Array ) )
+		{
+			var regexp = null;
+			var special = /(?<!\\)((?<bracket>\[(?:[^\]\\]|\\.)*\](\+)*)|(?<wildcard>\*)|(?<or>\|))/g;
+			
+			// Check if part name have special caharacters.
+			if( special.test( part ) )
+			{
+				try
+				{
+					regexp = Fmt( "^{}$", part.replaceAll( /(?:\/)|(?:\.(?!\*))/g, m => m === "/" ? "\\/" : "\\." ) );
+					console.log( regexp );
+					regexp = new RegExp( regexp );
+				}
+				catch( error )
+				{ console.error( error ) }
+			}
+			
+			// Find directory part name.
+			dir = dir.find(
+				
+				/*
+				 * Find directory part name by regex or part name.
+				 *
+				 * @params Object d
+				 *
+				 * @return Boolean
+				 */
+				function( d )
+				{
+					// If part has no regular expression,
+					if( regexp === null )
+					{
+						return( part === d.name );
+					}
+					return( regexp.test( d.name ) );
+				}
+			);
+			
+			// Check if directory not found.
+			if( Type( dir, [ Array, Object ] ) === false )
+			{
+				console.log([
+					Type( dir ),
+					Type( regexp )
+				]);
 				throw new Error( Fmt( "No such file or directory {}", path ) );
 			}
 		}
-		
-		// list the files and directories under the directory.
-		let result = [];
-		
-		// Check if directory is path.
-		if( dir.type === "path" )
-		{
-			return( dir.child );
-			// Mapping items form directory.
-			for( let item of dir.child )
-			{
-				if( item.type === "path")
-				{
-					result.push( item );
-				}
-				else if( item.type === "symlink" )
-				{
-					/*let linkTargetParts = item.from.split("/");
-					let linkTargetDir = directory;
-					for (let i = 0; i < linkTargetParts.length; i++) {
-						let linkTargetPart = linkTargetParts[i];
-						if (linkTargetPart === "") continue;
-						if( !isArray( linkTargetDir ) && typeof linkTargetDir === "object" )
-						{
-							linkTargetDir = linkTargetDir.child;
-						}
-						linkTargetDir = linkTargetDir.find(d => d.name === linkTargetPart && d.type === "path");
-						if (!linkTargetDir) break; // symlink target directory not found
-					}
-					if (linkTargetDir) {
-						let linkTargetPath = linkTargetParts.slice(linkTargetParts.lastIndexOf("") + 1).join("/");
-						let subresult = ls(linkTargetPath);
-						subresult = subresult.map(name => item.name + "/" + name);
-						result.push(...subresult);
-					}
-					*/
-					result.push( item );
-				}
-				else {
-					result.push( item );
-				}
-			}
-			/*
-			// recursively scan the subdirectories
-			for (let item of dir.child) {
-				if (item.type === "path") {
-					let subresult = ls(path + "/" + item.name);
-					//subresult = subresult.map(name => item.name + "/" + name);
-					result = subresult//.push(...subresult);
-				}
-			}*/
-			return( result );
+		else {
+			throw new Error( Fmt( "No such file or directory {}", path ) );
 		}
-		return( dir.type === "symlink" ? this.ls( dir.from ) : dir );
 	}
+	
+	// list the files and directories under the directory.
+	let result = [];
+	
+	// Check if directory is path.
+	if( dir.type === "path" )
+	{
+		return( dir.child );
+		// Mapping items form directory.
+		for( let item of dir.child )
+		{
+			if( item.type === "path")
+			{
+				result.push( item );
+			}
+			else if( item.type === "symlink" )
+			{
+				/*let linkTargetParts = item.from.split("/");
+				let linkTargetDir = directory;
+				for (let i = 0; i < linkTargetParts.length; i++) {
+					let linkTargetPart = linkTargetParts[i];
+					if (linkTargetPart === "") continue;
+					if( !isArray( linkTargetDir ) && typeof linkTargetDir === "object" )
+					{
+						linkTargetDir = linkTargetDir.child;
+					}
+					linkTargetDir = linkTargetDir.find(d => d.name === linkTargetPart && d.type === "path");
+					if (!linkTargetDir) break; // symlink target directory not found
+				}
+				if (linkTargetDir) {
+					let linkTargetPath = linkTargetParts.slice(linkTargetParts.lastIndexOf("") + 1).join("/");
+					let subresult = ls(linkTargetPath);
+					subresult = subresult.map(name => item.name + "/" + name);
+					result.push(...subresult);
+				}
+				*/
+				result.push( item );
+			}
+			else {
+				result.push( item );
+			}
+		}
+		/*
+		// recursively scan the subdirectories
+		for (let item of dir.child) {
+			if (item.type === "path") {
+				let subresult = ls(path + "/" + item.name);
+				//subresult = subresult.map(name => item.name + "/" + name);
+				result = subresult//.push(...subresult);
+			}
+		}*/
+		return( result );
+	}
+	return( dir.type === "symlink" ? this.ls( dir.from ) : dir );
 };
 
 /*
@@ -750,7 +789,9 @@ Terminal.prototype.run = async function( input )
 			// Mapping commands.
 			for( let i in commands )
 			{
-				self.argument.extract.call( self, commands[i] );
+				console.log(
+					self.argument.extract.call( self, commands[i] )
+				);
 			}
 		}
 	));

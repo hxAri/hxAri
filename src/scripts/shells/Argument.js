@@ -1,4 +1,7 @@
 
+// Import Scripts
+import Type from "/src/scripts/Type.js";
+
 export default {
 	
 	/*
@@ -14,7 +17,7 @@ export default {
 	extract: function( argument )
 	{
 		// Pattern for check if string containing special characters.
-		var sregexp = /(?<!\\)((?<bracket>\[(?:[^\]\\]|\\.)*\])|(?<wildcard>\*)|(?<dot>\.))/g;
+		var sregexp = /(?<!\\)((?<bracket>\[(?:[^\]\\]|\\.)*\])|(?<wildcard>\*)|(?<or>\|))/g;
 		
 		// Pattern for extract argument values.
 		var eregexp = /(?:^|\s)(?:"([^"\\]*(?:\\.[^"\\]*)*)"|'([^'\\]*(?:\\.[^'\\]*)*)'|([^'"\\\s]+(?:\\.[^'"\\\s]*)*))(?=\s|$)/g;
@@ -23,18 +26,41 @@ export default {
 		var extract = Array.from( argument.matchAll( eregexp ), m => m );
 		var argv = [];
 		
-		// Get current directory contents.
-		var ls = this.ls( "/usr/*" );
-		
-		console.log( ls );
-		
 		// Mapping extracted argument values.
 		for( let i in extract )
 		{
+			var value = extract[i][0].trim();
+			
 			// Check if input has regular expression.
-			if( sregexp.test( extract[i][0] ) )
+			if( sregexp.test( value ) )
 			{
+				try
+				{
+					// Get file lists.
+					var ls = this.ls( value );
+					
+					// If file or directory exists.
+					if( Type( ls, [ Array, Object ] ) )
+					{
+						if( ls.length > 0 )
+						{
+							for( let i in ls )
+							{
+								argv.push( ls[i].name );
+							}
+							continue;
+						}
+						argv.push( ls.name );
+						continue;
+					}
+				}
+				catch( error )
+				{ console.error( error ); }
 			}
+			else {
+				console.info( value );
+			}
+			argv.push( value );
 		}
 		return( argv );
 	},

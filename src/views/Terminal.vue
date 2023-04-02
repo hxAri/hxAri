@@ -10,7 +10,7 @@
 	
 	export default {
 		data: () => ({
-			model: "test *",
+			model: "test .bash_*",
 			range: {
 				begin: -1,
 				end: -1
