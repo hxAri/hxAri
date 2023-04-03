@@ -10,7 +10,7 @@
 	
 	export default {
 		data: () => ({
-			model: "test .bash_*",
+			model: "alias --a=A --Aa=\"A\" --b=\"B\" --Bb=\"B\"",
 			range: {
 				begin: -1,
 				end: -1
@@ -157,14 +157,17 @@
 			 */
 			oninput: function( e )
 			{
+				// Check if terminal is working for another program.
 				if( this.terminal.loading )
 				{
 					return( this.terminal.colorable( this.model ) );
 				}
-				return( Fmt( "{} {}", ...[
-					this.terminal.prompt( this.terminal.exports.PS1 ),
-					this.terminal.colorable( this.model )
-				]));
+				else {
+					return( Fmt( "{} {}", ...[
+						this.terminal.prompt( this.terminal.exports.PS1 ),
+						this.terminal.colorable( this.model )
+					]));
+				}
 			},
 			
 			/*
@@ -210,10 +213,16 @@
 								stack.push( "</label>" );
 							}
 							
-							// Check if history has outputs.
+							// Check if history has multiple outputs.
 							if( Type( history.output, Array ) )
 							{
 								stack.push( ...Mapper( history.output, ( i, output ) => Fmt( "<label class=\"terminal-line-output dp-block\">{}</label>", self.terminal.format( output.replaceAll( /\<|\>/g, m => m === "<" ? "&lt" : "&gt" ) ) ) ) );
+							}
+							
+							// Check if history has outputs.
+							if( Type( history.output, String ) )
+							{
+								stack.push( Fmt( "<label class=\"terminal-line-output dp-block\">{}</label>", self.terminal.format( history.output.replaceAll( /\<|\>/g, m => m === "<" ? "&lt" : "&gt" ) ) ) );
 							}
 							return( stack.join( "" ) );
 						}

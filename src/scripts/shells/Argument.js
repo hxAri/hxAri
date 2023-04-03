@@ -25,7 +25,7 @@ export default {
 		// Extract argument values.
 		var extract = Array.from( argument.matchAll( eregexp ), m => m );
 		var argv = [];
-		
+		console.log( extract );
 		// Mapping extracted argument values.
 		for( let i in extract )
 		{
@@ -55,10 +55,9 @@ export default {
 					}
 				}
 				catch( error )
-				{ console.error( error ); }
-			}
-			else {
-				console.info( value );
+				{
+					this.log( "error", error );
+				}
 			}
 			argv.push( value );
 		}
@@ -74,6 +73,139 @@ export default {
 	 */
 	parser: function( argv )
 	{
+		var result = {
+			file: null,
+			command: null,
+			argument: {}
+		};
 		
+		// Check if argument value is Array.
+		if( Type( argv, Array ) )
+		{
+			var push = 0;
+			var len = argv.length;
+			
+			// Remove filename from argument values.
+			result.file = argv.shift();
+			
+			// Counting argument based on argument values length.
+			for( let i=0; i < len; i++ )
+			{
+				// Get argument value.
+				var arg = argv[i] ?? null;
+				
+				// Index number.
+				var idx = i +1;
+				
+				// Skip if argument value has unset.
+				if( arg === null ) continue;
+				
+				/*
+				 * Check if the option of the argument is
+				 * not an empty string enclosed in single
+				 * or double quotes.
+				 *
+				 */
+				if( arg !== "" )
+				{
+					// If argument value is long option.
+					if( arg.slice( 0, 2 ) === "--" )
+					{
+						// Get position equal symbol position.
+						var eqPost = arg.indexOf( "=" );
+						
+						// If argument has equal symbol.
+						if( eqPost >= 0 )
+						{
+							var key = arg.slice( 2, eqPost -2 );
+							var val = arg.slice( eqPost +1 );
+						}
+						else {
+							
+							// Get key name.
+							key = arg.slice( 2 );
+							
+							// Index value.
+							val = argv[idx] ?? null;
+							
+							// If argument value is not enclosed empty string.
+							if( val !== "" && val !== null )
+							{
+								// If doesn't minus symbol.
+								if( idx < len && val.length !== 0 && val[0] !== "-" )
+								{
+									i++;
+								}
+								else {
+									
+									// If argument is not exists.
+									if( Type( result.argument[key], [ "Null", "Undefined" ] ) ) val = true;
+								}
+							}
+							else {
+								
+								/*
+								 * Since empty values will still be added to
+								 * named options so that empty strings enclosed
+								 * by single or double quotes are not registered
+								 * again to the argument we unset them
+								 * from the $argv list.
+								 *
+								 */
+								delete argv[idx];
+							}
+						}
+						
+						/*
+						 * If the argument option is given like
+						 * this --= then it will not be considered.
+						 *
+						 */
+						if( key !== "" )
+						{
+							result.argument[key] = val !== null ? val : true;
+						}
+					}
+					
+					// If argument value is short option.
+					else if( arg.slice( 0, 1 ) === "-" )
+					{
+						// If position 2 has equal symbol.
+						if( arg.slice( 2, 1 ) === "=" )
+						{
+							var key = arg.slice( 1, 1 );
+							var val = arg.slice( 3 );
+							
+							result.argument[key] = val;
+						}
+						else {
+							
+							// Split arg like -xyz into Array.
+							var chars = arg.slice( 1 ).split( "" );
+							
+							// Mapping chars.
+							for( let u in chars )
+							{
+								result.argument[chars[u]] = result.argument[chars[u]] ?? true;
+							}
+							
+							// -a value1 -abc value2
+							if( i +1 < len && argv[( i +1 )][0] !== "-" )
+							{
+								result.argument[chars[u]] = argv[( i +1 )];
+								i++;
+							}
+						}
+					}
+					else {
+						result.argument[push++] = arg;
+					}
+				}
+				else {
+					result.argument[push++] = arg;
+				}
+			}
+		}
+		return( result );
 	}
 };

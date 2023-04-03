@@ -20,6 +20,7 @@ import Value from "/src/scripts/logics/Value.js";
  */
 function Terminal()
 {
+	this.commands = this.ls( "/bin" );
 	this.router.push(
 		"/terminal/root"
 	);
@@ -31,7 +32,10 @@ function Terminal()
  *
  * @values Array
  */
-Terminal.prototype.aliases = [];
+Terminal.prototype.aliases = {
+	chintya: "\x65\x63\x68\x6f\x20\x2d\x65\x20\x22\x63\x68\x69\x6e\x74\x79\x61\x3a\x20\x59\x6f\x75\x20\x61\x72\x65\x20\x62\x65\x61\x75\x74\x69\x66\x75\x6c\x2c\x20\x63\x75\x74\x65\x2c\x20\x6b\x69\x6e\x64\x2c\x20\x77\x68\x69\x74\x65\x2c\x20\x72\x65\x64\x64\x69\x73\x68\x2c\x20\x73\x6d\x6f\x6f\x74\x68\x2c\x20\x73\x6f\x66\x74\x2c\x20\x62\x75\x74\x20\x61\x6c\x73\x6f\x20\x76\x65\x72\x79\x20\x61\x6e\x6e\x6f\x79\x69\x6e\x67\x3b\x20\x59\x6f\x75\x20\x6c\x69\x6b\x65\x20\x73\x6b\x79\x20\x62\x6c\x75\x65\x3b\x20\x41\x6e\x64\x20\x79\x6f\x75\x20\x6c\x69\x6b\x65\x20\x63\x6c\x65\x61\x72\x20\x73\x6f\x75\x70\x20\x77\x69\x74\x68\x20\x67\x72\x65\x65\x6e\x20\x73\x70\x69\x6e\x61\x63\x68\x22",
+	lianary: "\x65\x63\x68\x6f\x20\x2d\x65\x20\x22\x6c\x69\x61\x6e\x61\x3a\x20\x52\x65\x6d\x65\x6d\x62\x65\x72\x2c\x20\x66\x61\x6c\x6c\x69\x6e\x67\x20\x69\x6e\x20\x6c\x6f\x76\x65\x20\x62\x65\x63\x61\x75\x73\x65\x20\x6f\x66\x20\x66\x61\x69\x74\x68\x20\x69\x73\x20\x6d\x75\x63\x68\x20\x6d\x6f\x72\x65\x20\x62\x65\x61\x75\x74\x69\x66\x75\x6c\x20\x74\x68\x61\x6e\x20\x66\x61\x6c\x6c\x69\x6e\x67\x20\x69\x6e\x20\x6c\x6f\x76\x65\x20\x62\x65\x63\x61\x75\x73\x65\x20\x6f\x66\x20\x6c\x75\x73\x74\x3b\x20\x49\x20\x73\x68\x6f\x75\x6c\x64\x20\x68\x61\x76\x65\x20\x75\x6e\x64\x65\x72\x73\x74\x6f\x6f\x64\x20\x79\x6f\x75\x72\x20\x63\x6f\x64\x65\x20\x66\x72\x6f\x6d\x20\x74\x68\x65\x20\x73\x74\x61\x72\x74\x22"
+};
 
 /*
  * Terminal argument functions.
@@ -139,9 +143,9 @@ Terminal.prototype.colorable = function( format )
 			index = regexp.lastIndex;
 		}
 	}
-	catch( e )
+	catch( error )
 	{
-		console.error( e );
+		this.log( "error", error );
 	}
 	return( result + format.substring( index ) );
 };
@@ -429,12 +433,55 @@ Terminal.prototype.hostname = "hxari";
 Terminal.prototype.loading = false;
 
 /*
+ * Push new log.
+ *
+ * @params String level
+ * @params Mixed message
+ *
+ * @return Void
+ */
+Terminal.prototype.log = function( level, message )
+{
+	// If message is instance of Error.
+	if( message instanceof Error )
+	{
+		// Parse error stack traces.
+		var stack = this.parseStackTrace( message );
+		
+		// Push error.
+		for( let i in stack )
+		{
+			this.logs.push({
+				level: level,
+				message: message,
+				file: stack[i].file,
+				line: stack[i].line,
+				column: stack[i].column,
+				function: stack[i].function
+			});
+		}
+	}
+	this.logs.push({
+		level: level,
+		message: message
+	});
+};
+
+/*
+ * Container for the entire logs.
+ *
+ * @values Array<Object>
+ */
+Terminal.prototype.logs = [];
+
+/*
  * Terminal directory scanner.
  *
  * @params String path
  *
- * @return Array<Object>
+ * @return Array<Object>|Object
  *  Array list directory contents.
+ *  Object of file info.
  *
  * @throws Error
  *  Throw when the directory not found.
@@ -477,8 +524,6 @@ Terminal.prototype.ls = function( path )
 	{
 		npath = work + "/" + npath;
 	}
-	
-	console.log( npath );
 	
 	// Split pathname.
 	let parts = npath.split( "/" ).filter( part => Value.isNotEmpty( part ) );
@@ -527,12 +572,12 @@ Terminal.prototype.ls = function( path )
 			{
 				try
 				{
-					regexp = Fmt( "^{}$", part.replaceAll( /(?:\/)|(?:\.(?!\*))/g, m => m === "/" ? "\\/" : "\\." ) );
-					console.log( regexp );
-					regexp = new RegExp( regexp );
+					regexp = new RegExp( Fmt( "^{}$", part.replaceAll( /(?:\/)|(?:\.(?!\*))/g, m => m === "/" ? "\\/" : "\\." ) ) );
 				}
 				catch( error )
-				{ console.error( error ) }
+				{
+					this.log( "error", error );
+				}
 			}
 			
 			// Find directory part name.
@@ -559,10 +604,6 @@ Terminal.prototype.ls = function( path )
 			// Check if directory not found.
 			if( Type( dir, [ Array, Object ] ) === false )
 			{
-				console.log([
-					Type( dir ),
-					Type( regexp )
-				]);
 				throw new Error( Fmt( "No such file or directory {}", path ) );
 			}
 		}
@@ -571,57 +612,10 @@ Terminal.prototype.ls = function( path )
 		}
 	}
 	
-	// list the files and directories under the directory.
-	let result = [];
-	
 	// Check if directory is path.
 	if( dir.type === "path" )
 	{
 		return( dir.child );
-		// Mapping items form directory.
-		for( let item of dir.child )
-		{
-			if( item.type === "path")
-			{
-				result.push( item );
-			}
-			else if( item.type === "symlink" )
-			{
-				/*let linkTargetParts = item.from.split("/");
-				let linkTargetDir = directory;
-				for (let i = 0; i < linkTargetParts.length; i++) {
-					let linkTargetPart = linkTargetParts[i];
-					if (linkTargetPart === "") continue;
-					if( !isArray( linkTargetDir ) && typeof linkTargetDir === "object" )
-					{
-						linkTargetDir = linkTargetDir.child;
-					}
-					linkTargetDir = linkTargetDir.find(d => d.name === linkTargetPart && d.type === "path");
-					if (!linkTargetDir) break; // symlink target directory not found
-				}
-				if (linkTargetDir) {
-					let linkTargetPath = linkTargetParts.slice(linkTargetParts.lastIndexOf("") + 1).join("/");
-					let subresult = ls(linkTargetPath);
-					subresult = subresult.map(name => item.name + "/" + name);
-					result.push(...subresult);
-				}
-				*/
-				result.push( item );
-			}
-			else {
-				result.push( item );
-			}
-		}
-		/*
-		// recursively scan the subdirectories
-		for (let item of dir.child) {
-			if (item.type === "path") {
-				let subresult = ls(path + "/" + item.name);
-				//subresult = subresult.map(name => item.name + "/" + name);
-				result = subresult//.push(...subresult);
-			}
-		}*/
-		return( result );
 	}
 	return( dir.type === "symlink" ? this.ls( dir.from ) : dir );
 };
@@ -657,6 +651,56 @@ Terminal.prototype.normalize = function( command )
 		);
 	}
 	return( commands );
+};
+
+/*
+ * Parses a stack trace from an Error object and returns an array of objects
+ * containing information about each function call in the stack trace.
+ *
+ * @params Error error
+ *
+ * @return Array<Object>
+ */
+Terminal.prototype.parseStackTrace = function( error )
+{
+	/*
+	 * Split the stack trace string into an array of lines and
+	 * remove the first line (which contains the error message).
+	 *
+	 */
+	const lines = error.stack.split( "\n" ).slice( 1 );
+
+	/*
+	 * Map over the array of lines and extract information about
+	 * each function call using a regular expression.
+	 *
+	 */
+	return( lines.map( line =>
+	{
+		const match = line.match( /^\s*at\s+(.*)\s+\((.*):(\d+):(\d+)\)$/ );
+		
+		if( match )
+		{
+			/*
+			 * If the line matches the regular expression, extract the function name,
+			 * file name, line number, and column number into an object.
+			 *
+			 */
+			return({
+				function: match[1],
+				file: match[2],
+				line: parseInt( match[3], 10 ),
+				column: parseInt( match[4], 10 ),
+			});
+		}
+		
+		// If the line does not match the regular expression.
+		else {
+			return( null );
+		}
+		
+	// Filter out any null values from the array.
+	}).filter( item => !!item ) );
 };
 
 /*
@@ -734,9 +778,19 @@ Terminal.prototype.pwd = function( base = false )
 {
 	// Get current working directory.
 	var path = this.exports.PWD.path;
-		path = path.replace( new RegExp( "^" + this.exports.ROOT.replaceAll( /\//g, "\\/" ), "i" ), "" );
-		path = path === "" ? "/" : path;
 	
+	// If current path has no defined in vue router.
+	if( Type( path, "Undefined" ) )
+	{
+		// Get pathname.
+		path = this.exports.PWD._value.path;
+	}
+	
+	// Replace /terminal path.
+	path = path.replace( new RegExp( this.exports.ROOT.replaceAll( /\//g, "\\/" ), "i" ), "" );
+	path = path === "" ? "/" : path;
+	
+	// Check if just get base pathname.
 	if( base )
 	{
 		return( path.split( "/" ) ).pop();
@@ -775,24 +829,47 @@ Terminal.prototype.run = async function( input )
 		 */
 		await function( resolve, reject )
 		{
-			// Normalize command name.
-			var commands = self.normalize( input );
-			
-			// Setup.
-			//self.loading = true;
+			self.loading = true;
 			self.binding.model = "";
 			self.history.push({
 				prompt: self.exports.PS1,
-				inputs: input
+				inputs: input,
+				output: []
 			});
 			
-			// Mapping commands.
-			for( let i in commands )
+			try
 			{
-				console.log(
-					self.argument.extract.call( self, commands[i] )
-				);
+				// Normalize command name.
+				var commands = self.normalize( input ).filter( command => command !== "" );
+				
+				// Mapping commands.
+				for( let i in commands )
+				{
+					// Extract command argument values.
+					var argv = self.argument.extract.call( self, commands[i] );
+					
+					// Find command.
+					var command = self.commands.find( command => command.name === argv[0] );
+					
+					// Check if command is exists.
+					if( command )
+					{
+						// Parse command line argument values.
+						var parsed = self.argument.parser.call( self, [ ...argv ] );
+						
+						//console.clear();
+						console.log( JSON.stringify([ argv, parsed ], null, 4 ) );
+					}
+					else {
+						throw new Error( Fmt( "{}: Command not found", argv[0] ) );
+					}
+				}
 			}
+			catch( error )
+			{
+				self.history.push({ output: Fmt( "{}: {}", self.shell, error ) });
+			}
+			self.loading = false;
 		}
 	));
 };
@@ -802,8 +879,13 @@ Terminal.prototype.run = async function( input )
  *
  * @values String
  */
-Terminal.prototype.shell = "javascript";
+Terminal.prototype.shell = "js";
 
+/*
+ * Terminal style.
+ *
+ * @values String
+ */
 Terminal.prototype.style = "font-weight: normal; font-style: normal; text-decoration: none; text-decoration-line: none; color: var(--shell-c-37m); opacity: 1";
 
 /*

@@ -5,7 +5,6 @@
  * @include alias
  * @include cd
  * @include cp
- * @include chintya
  * @include clear
  * @include contact
  * @include cookie
@@ -16,7 +15,6 @@
  * @include export
  * @include help
  * @include hostname
- * @include liana
  * @include ls
  * @include mkdir
  * @include mv
