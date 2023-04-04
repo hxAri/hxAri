@@ -426,13 +426,19 @@ pre {
 .container {
 	width: 100%;
 	max-width: 1200px;
-	@media only screen and (min-width: 992px) and (max-width: 1199px) {
+}
+@media only screen and (min-width: 992px) and (max-width: 1199px) {
+	.container {
 		max-width: 80vw;
 	}
-	@media only screen and (min-width: 768px) and (max-width: 991px) {
+}
+@media only screen and (min-width: 768px) and (max-width: 991px) {
+	.container {
 		max-width: 90vw;
 	}
-	@media only screen and (max-width: 767px) {
+}
+@media only screen and (max-width: 767px) {
+	.container {
 		max-width: 100%;
 	}
 }
@@ -440,15 +446,21 @@ pre {
 	max-width: 90vw;
 	margin: 0 auto;
 	padding: 0 20px;
-	@media only screen and (min-width: 992px) and (max-width: 1199px) {
+}
+@media only screen and (min-width: 992px) and (max-width: 1199px) {
+	.deep-container {
 		max-width: 80vw;
 		padding: 0 15px;
 	}
-	@media only screen and (min-width: 768px) and (max-width: 991px) {
+}
+@media only screen and (min-width: 768px) and (max-width: 991px) {
+	.deep-container {
 		max-width: 90vw;
 		padding: 0 10px;
 	}
-	@media only screen and (max-width: 767px) {
+}
+@media only screen and (max-width: 767px) {
+	.deep-container {
 		max-width: 100%;
 		padding: 0 10px;
 	}

@@ -1,6 +1,7 @@
 
 // Import Scripts
 import Type from "/src/scripts/Type.js";
+import Value from "/src/scripts/logics/Value.js";
 
 export default {
 	
@@ -20,16 +21,22 @@ export default {
 		var sregexp = /(?<!\\)((?<bracket>\[(?:[^\]\\]|\\.)*\])|(?<wildcard>\*)|(?<or>\|))/g;
 		
 		// Pattern for extract argument values.
-		var eregexp = /(?:^|\s)(?:"([^"\\]*(?:\\.[^"\\]*)*)"|'([^'\\]*(?:\\.[^'\\]*)*)'|([^'"\\\s]+(?:\\.[^'"\\\s]*)*))(?=\s|$)/g;
+		var eregexp = /(?<=\s|^)(--\w+(?:-\w+)*|-{1}(?=\w))(?:=(?:(?:"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`)|\$\((?:[^\)\\]|\\.)*\)|(?:(?<=\s|^|\\)[^=\s"'\`$]+(?:(?<!\\)(?:\s+|`(?:\\.|[^`\\])*`|[\$][\(](?:\\.|[^\(\)\\])*[\)]+)[^=\s"'\`$]*)*))|(\S+))*(?=\s|$)|(\S*)(?:\"(?:[^\"\\]|\\.)*\"|\'(?:[^\'\\]|\\.)*\'|\`(?:[^\`\\]|\\.)*\`|\$\((?:[^\)\\]|\\.)*\))(\S*)|(\S+)|(?:(?<=\s|^)[^-]\S*(?=\s|$))/g;
 		
 		// Extract argument values.
 		var extract = Array.from( argument.matchAll( eregexp ), m => m );
 		var argv = [];
-		console.log( extract );
+		
 		// Mapping extracted argument values.
 		for( let i in extract )
 		{
+			// Get matched value.
 			var value = extract[i][0].trim();
+			
+			// Pattern for match flanked characters.
+			var qregex = /(?<quotes>(?<quote>[\"\'])(?<quoted>(?:[^\k<quote>\\]|\\.)*)\k<quote>)|(?<subtitution>(?<subtitution_command>\$\((?<command>(?:[^\)\\]|\\.)*)\))|(?<subtitution_expansion>\$\{(?<expansion>(?:[^\}\\]|\\.])*)\})|(?<subtitution_backticks>\`(?<backticks>(?:[^\`\\]|\\.)*)\`))/g;
+			
+			console.log( qregex.exec( extract ) );
 			
 			// Check if input has regular expression.
 			if( sregexp.test( value ) )
@@ -82,20 +89,20 @@ export default {
 		// Check if argument value is Array.
 		if( Type( argv, Array ) )
 		{
-			var push = 0;
-			var len = argv.length;
+			var post = 0;
+			var length = argv.length;
 			
 			// Remove filename from argument values.
 			result.file = argv.shift();
 			
 			// Counting argument based on argument values length.
-			for( let i=0; i < len; i++ )
+			for( let i = 0; i < length; i++ )
 			{
 				// Get argument value.
 				var arg = argv[i] ?? null;
 				
 				// Index number.
-				var idx = i +1;
+				let idx = i +1;
 				
 				// Skip if argument value has unset.
 				if( arg === null ) continue;
@@ -112,27 +119,25 @@ export default {
 					if( arg.slice( 0, 2 ) === "--" )
 					{
 						// Get position equal symbol position.
-						var eqPost = arg.indexOf( "=" );
+						var index = arg.indexOf( "=" );
 						
 						// If argument has equal symbol.
-						if( eqPost >= 0 )
+						if( index >= 0 )
 						{
-							var key = arg.slice( 2, eqPost -2 );
-							var val = arg.slice( eqPost +1 );
+							var key = arg.slice( 2, index );
+							var val = arg.slice( index +2 );
+								val = Value.isNotEmpty( val ) ? val : null;
 						}
 						else {
 							
-							// Get key name.
-							key = arg.slice( 2 );
-							
-							// Index value.
-							val = argv[idx] ?? null;
+							var key = arg.slice( 2 );
+							var val = argv[idx] ?? null;
 							
 							// If argument value is not enclosed empty string.
-							if( val !== "" && val !== null )
+							if( val !== null )
 							{
 								// If doesn't minus symbol.
-								if( idx < len && val.length !== 0 && val[0] !== "-" )
+								if( idx < length && val.length !== 0 && val[0] !== "-" )
 								{
 									i++;
 								}
@@ -161,49 +166,49 @@ export default {
 						 * this --= then it will not be considered.
 						 *
 						 */
-						if( key !== "" )
+						if( Value.isNotEmpty( key ) )
 						{
-							result.argument[key] = val !== null ? val : true;
+							result.argument[key] = val = val !== null ? val : true;
 						}
+						continue;
 					}
 					
 					// If argument value is short option.
 					else if( arg.slice( 0, 1 ) === "-" )
 					{
 						// If position 2 has equal symbol.
-						if( arg.slice( 2, 1 ) === "=" )
+						if( arg.slice( 2, 3 ) === "=" )
 						{
-							var key = arg.slice( 1, 1 );
+							var key = arg.slice( 1, 2 );
 							var val = arg.slice( 3 );
 							
-							result.argument[key] = val;
+							result.argument[key] = Value.isEmpty( val ) ? result.argument[key] ?? true: val;
 						}
 						else {
 							
 							// Split arg like -xyz into Array.
-							var chars = arg.slice( 1 ).split( "" );
+							var chars = arg.slice( 1 );
+								chars = chars.split( "" );
 							
 							// Mapping chars.
 							for( let u in chars )
 							{
+								// If option has value.
+								if( u >= 1 && chars[u] === "=" )
+								{
+									var key = chars[( u -1 )];
+									var val = arg.slice( arg.indexOf( "=" ) +1 );
+									
+									result.argument[key] = Value.isEmpty( val ) ? result.argument[key] ?? true: val;
+									break;
+								}
 								result.argument[chars[u]] = result.argument[chars[u]] ?? true;
 							}
-							
-							// -a value1 -abc value2
-							if( i +1 < len && argv[( i +1 )][0] !== "-" )
-							{
-								result.argument[chars[u]] = argv[( i +1 )];
-								i++;
-							}
 						}
-					}
-					else {
-						result.argument[push++] = arg;
+						continue;
 					}
 				}
-				else {
-					result.argument[push++] = arg;
-				}
+				result.argument[post++] = arg;
 			}
 		}
 		return( result );

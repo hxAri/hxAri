@@ -192,6 +192,10 @@ Terminal.prototype.env = function( command )
 		{
 			value = this.exports[match.groups.name];
 		}
+		else if( match.groups.name === "PWD" )
+		{
+			value = this.exports.PWD.path ?? "";
+		}
 		return( this.env( command.substring( 0, regex.lastIndex - match[0].length ) + value + command.substring( regex.lastIndex ) ) );
 	}
 	return( command );
@@ -453,7 +457,7 @@ Terminal.prototype.log = function( level, message )
 		{
 			this.logs.push({
 				level: level,
-				message: message,
+				message: `${message}`,
 				file: stack[i].file,
 				line: stack[i].line,
 				column: stack[i].column,
@@ -542,6 +546,7 @@ Terminal.prototype.ls = function( path )
 			if( Type( parts[( i -1 )], String ) )
 			{
 				part = parts[( i -1 )];
+				i--;
 			}
 			else {
 				continue;
@@ -555,6 +560,12 @@ Terminal.prototype.ls = function( path )
 			if( Type( dir.child, Array ) )
 			{
 				dir = dir.child;
+			}
+			
+			// Check if directory is symlink.
+			else if( dir.type === "symlink" )
+			{
+				return( Fmt( "{}/{}", this.ls( dir.from ), part ) );
 			}
 			else {
 				dir = false;
@@ -592,12 +603,12 @@ Terminal.prototype.ls = function( path )
 				 */
 				function( d )
 				{
-					// If part has no regular expression,
-					if( regexp === null )
+					// If part has regular expression,
+					if( regexp !== null )
 					{
-						return( part === d.name );
+						return( regexp.test( d.name ) );
 					}
-					return( regexp.test( d.name ) );
+					return( part === d.name );
 				}
 			);
 			
@@ -617,6 +628,7 @@ Terminal.prototype.ls = function( path )
 	{
 		return( dir.child );
 	}
+	console.log( dir.name + "/" + part + ": " + npath + ": " + path );
 	return( dir.type === "symlink" ? this.ls( dir.from ) : dir );
 };
 
@@ -839,35 +851,33 @@ Terminal.prototype.run = async function( input )
 			
 			try
 			{
-				// Normalize command name.
-				var commands = self.normalize( input ).filter( command => command !== "" );
+				// Find command line shell.
+				var shell = self.ls( Fmt( "/bin/{}", self.shell ) );
 				
-				// Mapping commands.
-				for( let i in commands )
+				console.log( shell );
+				
+				// Check if shell is allowed for executable.
+				/*if( shell.modes.x === true )
 				{
-					// Extract command argument values.
-					var argv = self.argument.extract.call( self, commands[i] );
 					
-					// Find command.
-					var command = self.commands.find( command => command.name === argv[0] );
-					
-					// Check if command is exists.
-					if( command )
-					{
-						// Parse command line argument values.
-						var parsed = self.argument.parser.call( self, [ ...argv ] );
-						
-						//console.clear();
-						console.log( JSON.stringify([ argv, parsed ], null, 4 ) );
-					}
-					else {
-						throw new Error( Fmt( "{}: Command not found", argv[0] ) );
-					}
 				}
+				else {
+					throw new TypeError( Fmt( "Permission denied for bin/{}", self.shell ) );
+				}*/
 			}
 			catch( error )
 			{
-				self.history.push({ output: Fmt( "{}: {}", self.shell, error ) });
+				self.log( "error", error );
+				self.history.push({
+					output: [
+						Fmt( "{}: {}", self.shell, error ),
+						JSON.stringify(
+							self.logs,
+							null,
+							4
+						)
+					]
+				});
 			}
 			self.loading = false;
 		}

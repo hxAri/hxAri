@@ -10,7 +10,9 @@
 	
 	export default {
 		data: () => ({
-			model: "alias --a=A --Aa=\"A\" --b=\"B\" --Bb=\"B\"",
+			//model: "test --a --A= --A-a=\"A \"a\" --b --B= --B-b='B \'b' ---c --C= ---C-c=`$( C \"c\" )`s --d --D= --D-d=$( echo \"Hello World\" )i \"Hello 'X', `Y` \\\"World!\\\"\" \'Hello \"X\", `Y` \\\'World!\\\'\' \`Hello \"X\", 'Y' \\\`World!\\\`\` $( echo \"Hello World\" ) \"$( echo \\\"Hello World\\\" )\" '$( echo \"Hello World\" )' X`$( echo \"Hello World\" )`Y \\ 0 -s -hort=Short",
+			//model: "test -a -A= -a-E=A -bcd=$ROOT",
+			model: "test --test=$( test \"*\" )",
 			range: {
 				begin: -1,
 				end: -1
@@ -216,7 +218,7 @@
 							// Check if history has multiple outputs.
 							if( Type( history.output, Array ) )
 							{
-								stack.push( ...Mapper( history.output, ( i, output ) => Fmt( "<label class=\"terminal-line-output dp-block\">{}</label>", self.terminal.format( output.replaceAll( /\<|\>/g, m => m === "<" ? "&lt" : "&gt" ) ) ) ) );
+								stack.push( ...Mapper( history.output, ( i, output ) => Fmt( "<label class=\"terminal-line-output dp-block\">{}</label>", self.terminal.format( `${output}`.replaceAll( /\<|\>/g, m => m === "<" ? "&lt" : "&gt" ) ) ) ) );
 							}
 							
 							// Check if history has outputs.

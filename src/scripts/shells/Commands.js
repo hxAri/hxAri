@@ -29,7 +29,12 @@
 export default [
 	{
 		name: "alias",
-		type: "executable",
+		type: "file",
+		modes: {
+			r: true,
+			x: true,
+			w: true
+		},
 		abouts: [
 			"Define terminal command alias name",
 			"No arguments will be return all defined aliases"
@@ -55,10 +60,41 @@ export default [
 	},
 	{
 		name: "clear",
-		type: "executable",
+		type: "file",
+		modes: {
+			r: true,
+			x: true,
+			w: true
+		},
 		mounted: function({})
 		{
 			this.$shell.history = [];
+		}
+	},
+	{
+		name: "js",
+		type: "file",
+		modes: {
+			r: true,
+			x: true,
+			w: true
+		},
+		mounted: function({ argument })
+		{
+			// ...
+		}
+	},
+	{
+		name: "test",
+		type: "file",
+		modes: {
+			r: true,
+			x: true,
+			w: true
+		},
+		mounted: function({})
+		{
+			// ...
 		}
 	}
 ];
