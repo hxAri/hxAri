@@ -80,6 +80,6 @@ export default [
 		name: "none",
 		visible: false,
 		readable: false,
-		component: {}
+		component: () => import( "/src/views/None.vue" )
 	}
 ];

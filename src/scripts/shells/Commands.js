@@ -1,4 +1,6 @@
 
+import Js from "./commands/Js.js";
+
 /*
  * Terminal Commands.
  *
@@ -30,11 +32,6 @@ export default [
 	{
 		name: "alias",
 		type: "file",
-		modes: {
-			r: true,
-			x: true,
-			w: true
-		},
 		abouts: [
 			"Define terminal command alias name",
 			"No arguments will be return all defined aliases"
@@ -61,37 +58,15 @@ export default [
 	{
 		name: "clear",
 		type: "file",
-		modes: {
-			r: true,
-			x: true,
-			w: true
-		},
 		mounted: function({})
 		{
 			this.$shell.history = [];
 		}
 	},
-	{
-		name: "js",
-		type: "file",
-		modes: {
-			r: true,
-			x: true,
-			w: true
-		},
-		mounted: function({ argument })
-		{
-			// ...
-		}
-	},
+	Js,
 	{
 		name: "test",
 		type: "file",
-		modes: {
-			r: true,
-			x: true,
-			w: true
-		},
 		mounted: function({})
 		{
 			// ...

@@ -90,6 +90,15 @@
 			],
 			terminal: new Terminal()
 		}),
+		watch: {
+			title: {
+				immediate: true,
+				handler: function()
+				{
+					document.title = "hxAri · Terminal";
+				}
+			}
+		},
 		mounted: function()
 		{
 			this.terminal.binding = this;

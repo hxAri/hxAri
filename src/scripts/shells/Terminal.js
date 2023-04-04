@@ -10,6 +10,7 @@ import Directory from "/src/scripts/shells/Directory.js";
 import HTMLEntity from "/src/scripts/HTMLEntity.js";
 import Match from "/src/scripts/Match.js";
 import Mapper from "/src/scripts/Mapper.js";
+import Not from "/src/scripts/logics/Not.js";
 import Type from "/src/scripts/Type.js";
 import Value from "/src/scripts/logics/Value.js";
 
@@ -60,7 +61,107 @@ Terminal.prototype.author = {
  *
  * @values Object
  */
-Terminal.prototype.binding = {};
+Terminal.prototype.binding = null;
+
+/*
+ * Terminal command builder.
+ *
+ * Before the program is executed, the program must be made
+ * like a component with this program or command being able
+ * to call or access methods from the Terminal and each
+ * variable that is defined will remain intact and be stored
+ * and can be reused when the program is run. Please note that
+ * other programs can also access all the variables that are set,
+ * each variable from various commands will be combined in
+ * one container just like one place.
+ *
+ * @params Array<Object>|Object shell
+ *  Array bind program/command prototypes.
+ *  Object The program/command to be executed.
+ * @params String file
+ *  The program/command name.
+ * @params Object argv, args
+ *  argv Argument values.
+ *  args Argument parsed.
+ *
+ * @return Object
+ */
+Terminal.prototype.builder = function( shell, file, { argv, args })
+{
+	var built = {};
+	
+	/*
+	 * Prototype setter.
+	 *
+	 * @params Object prototypes
+	 *
+	 * @return Void
+	 */
+	var map = function( prototypes )
+	{
+		Mapper( prototypes,
+			
+			/*
+			 * Set program/ command prototype.
+			 *
+			 * @params Number i
+			 * @params String name
+			 * @params Mixed value
+			 *
+			 * @return Void
+			 */
+			function( i, name, value )
+			{
+				// Set prototype.
+				built.prototype[name] = value;
+				
+				// If prototype type is Function.
+				if( Type( value, name ) )
+				{
+					built.prototype[name].bind(
+						built
+					);
+				}
+			}
+		);
+	};
+	
+	if( Type( shell, Object ) )
+	{
+		// Resolve shell data.
+		shell.data = Type( shell.data, Object, () => shell.data, () => Object.create({}) );
+		
+		// Resolve shell methods.
+		shell.methods = Type( shell.methods, Object, () => shell.methods, () => Object.create({}) );
+		
+		// Get shell mounted.
+		built = shell.mounted;
+		
+		// Set up shell prototypes.
+		built.prototype.$root = this;
+		built.prototype.$name = this.aliases;
+		built.prototype.$bind = this.binding;
+		built.prototype.$vars = this.exports;
+		built.prototype.$argv = argv;
+		built.prototype.$args = args;
+		
+		// Allow program for reuse without rebuilt.
+		built.prototype.$self = built;
+		built.prototype.$init = null;
+		
+		// Mapping program/ command data and methods.
+		map({ ...shell.data, ...shell.methods });
+	}
+	else {
+		
+		// Get shell mounted.
+		built = shell[0].mounted;
+		
+		// Mapping previous prototypes from contructed program/command.
+		map( Object.getPrototypeOf( shell[1] ) );
+	}
+	return( built );
+};
 
 /*
  * Automatic colorize text, number, and symbols in the string.
@@ -170,36 +271,6 @@ Terminal.prototype.date = new Datime();
  * @values Array
  */
 Terminal.prototype.directory = Directory;
-
-/*
- * Replace environment name in the command name.
- *
- * @params String command
- *
- * @return String
- */
-Terminal.prototype.env = function( command )
-{
-	var value = "";
-	var regex = /(?<!\\)(?<variable>\$(?<name>[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*))/g;
-	var match = regex.exec( command );
-	
-	// Check if there are environment in the command.
-	if( match !== null )
-	{
-		// Check if environment is available.
-		if( Type( this.exports[match.groups.name], String ) )
-		{
-			value = this.exports[match.groups.name];
-		}
-		else if( match.groups.name === "PWD" )
-		{
-			value = this.exports.PWD.path ?? "";
-		}
-		return( this.env( command.substring( 0, regex.lastIndex - match[0].length ) + value + command.substring( regex.lastIndex ) ) );
-	}
-	return( command );
-};
 
 /*
  * Container for the entire environment names.
@@ -546,7 +617,6 @@ Terminal.prototype.ls = function( path )
 			if( Type( parts[( i -1 )], String ) )
 			{
 				part = parts[( i -1 )];
-				i--;
 			}
 			else {
 				continue;
@@ -628,41 +698,7 @@ Terminal.prototype.ls = function( path )
 	{
 		return( dir.child );
 	}
-	console.log( dir.name + "/" + part + ": " + npath + ": " + path );
 	return( dir.type === "symlink" ? this.ls( dir.from ) : dir );
-};
-
-/*
- * Normalize alias name in the command.
- * And split command with double-and symbol (&&).
- *
- * @params String command
- *
- * @return Array
- */
-Terminal.prototype.normalize = function( command )
-{
-	// Split command with symbol (&&)
-	var commands = command.split( /(?<=^|[^"'`\\\\])\s*&&\s*(?=[^"'`\\\\]|$)/g );
-		commands = commands.filter( x => x !== "&&" );
-	
-	// Mapping commands.
-	for( let i in commands )
-	{
-		// Split command with white space.
-		commands[i] = commands[i].split( /\s/ );
-		
-		// Check if command is alias name.
-		if( Type( this.aliases[commands[i][0]], String ) )
-		{
-			commands[i][0] = this.aliases[commands[i][0]];
-		}
-		commands[i] = commands[i].join( "\x20" );
-		commands[i] = this.env(
-			commands[i]
-		);
-	}
-	return( commands );
 };
 
 /*
@@ -820,11 +856,11 @@ Terminal.prototype.router = Router;
 /*
  * Run terminal with command.
  *
- * @params String input
+ * @params String argument
  *
  * @return Promise
  */
-Terminal.prototype.run = async function( input )
+Terminal.prototype.run = async function( argument )
 {
 	// Copy current object instance.
 	var self = this;
@@ -845,39 +881,37 @@ Terminal.prototype.run = async function( input )
 			self.binding.model = "";
 			self.history.push({
 				prompt: self.exports.PS1,
-				inputs: input,
+				inputs: argument,
 				output: []
 			});
 			
 			try
 			{
 				// Find command line shell.
-				var shell = self.ls( Fmt( "/bin/{}", self.shell ) );
+				var shell = self.commands.find( shell => shell.name === self.shell );
 				
-				console.log( shell );
-				
-				// Check if shell is allowed for executable.
-				/*if( shell.modes.x === true )
+				// If shell is available.
+				if( shell )
 				{
+					// Built shell.
+					var built = self.builder( shell, null, { argv: null, args: null } );
 					
+					// Push shell outputs.
+					self.history.push({
+						
+						// Execute shell.
+						output: new built({ argument })
+					});
 				}
 				else {
-					throw new TypeError( Fmt( "Permission denied for bin/{}", self.shell ) );
-				}*/
+					throw new Error( Fmt( "{}: Shells not available", self.shell ) );
+				}
 			}
 			catch( error )
 			{
 				self.log( "error", error );
-				self.history.push({
-					output: [
-						Fmt( "{}: {}", self.shell, error ),
-						JSON.stringify(
-							self.logs,
-							null,
-							4
-						)
-					]
-				});
+				self.history.push({ output: Fmt( "{}: {}", self.shell, error ) });
+				self.history.push({ output: JSON.stringify( self.parseStackTrace( error ), null, 4 ) });
 			}
 			self.loading = false;
 		}

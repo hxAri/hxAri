@@ -103,6 +103,15 @@
 			responses: {},
 			organization: []
 		}),
+		watch: {
+			title: {
+				immediate: true,
+				handler: function()
+				{
+					document.title = "hxAri";
+				}
+			}
+		},
 		mounted: async function()
 		{
 			// Copy object instance.
@@ -317,9 +326,8 @@
 							<span class="title fb-45">View Resume</span>
 						</button>
 					</a>
-					<hr class="hr" />
-					<!--
-					<div class="mg-top-14 mg-lc-top flex flex-left" v-for="org in organization">
+					<hr class="hr mg-bottom-14" />
+					<div class="mg-bottom-14 mg-lc-bottom flex flex-left" v-for="org in organization">
 						<a class="flex flex-left" :href="org.html_url" target="_blank" rel="noopener noreferrer">
 							<div class="avatar mg-right-14">
 								<div class="avatar-wrapper flex flex-center organization-avatar-wrapper rd-circle">
@@ -330,7 +338,6 @@
 							<p class="title">{{ org.name }}</p>
 						</a>
 					</div>
-					-->
 				</div>
 			</div>
 			<div class="home-contents">

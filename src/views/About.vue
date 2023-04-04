@@ -11,6 +11,15 @@
 		}),
 		props: {
 		},
+		watch: {
+			title: {
+				immediate: true,
+				handler: function()
+				{
+					document.title = "hxAri · About";
+				}
+			}
+		},
 		components: {
 		}
 	};

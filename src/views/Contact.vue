@@ -87,6 +87,15 @@
 				type: null
 			}
 		}),
+		watch: {
+			title: {
+				immediate: true,
+				handler: function()
+				{
+					document.title = "hxAri · Contact";
+				}
+			}
+		},
 		methods: {
 			allow: function( allow )
 			{
