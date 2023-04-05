@@ -21,9 +21,9 @@
 					text: "Indonesia, Lampung Province, Pringsewu Regency, Sukoharjo District, 35674"
 				},
 				{
-					icon: [ "bx", "bxs-phone" ],
-					text: "+62 8583-9110-30",
-					link: "https://wa.me/6285839211030"
+					icon: [ "bx", "bxl-whatsapp" ],
+					text: "+62 858-3913-6990",
+					link: "https://wa.me/6285839136990"
 				},
 				{
 					icon: [ "bx", "bx-mail-send" ],
@@ -32,7 +32,8 @@
 				},
 				{
 					icon: [ "bx", "bx-world" ],
-					text: "https://hxari.github.io/"
+					text: "https://hxari.github.io/",
+					link: "https://hxari.github.io/"
 				}
 			],
 			models: [

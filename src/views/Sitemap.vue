@@ -70,6 +70,9 @@
 				// Mapping routes.
 				Mapper( routes, function( i, route )
 				{
+					// Check if route is not visible.
+					if( Type( route.visible, Boolean ) && route.visible === false ) return;
+					
 					// Create route list.
 					stack += Fmt( format.join( "" ), route.path, route.name );
 					

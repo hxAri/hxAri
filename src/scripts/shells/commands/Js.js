@@ -185,6 +185,6 @@ export default {
 	},
 	mounted: function({ argument })
 	{
-		alert();
+		// ...
 	}
 };

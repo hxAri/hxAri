@@ -315,7 +315,7 @@
 							<i class="bx bxs-map"></i>{{ profile.location ?? "Milky Way" }}
 						</li>
 						<li class="flex flex-left mg-bottom-4">
-							<i class="bx bxs-phone"></i>+62 8583-9211-030
+							<i class="bx bxl-whatsapp"></i>+62 858-3913-6990
 						</li>
 						<li class="flex flex-left">
 							<i class="bx bx-mail-send"></i>{{ profile.email ?? "ari160824@gmail.com" }}

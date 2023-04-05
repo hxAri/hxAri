@@ -16,7 +16,7 @@
 			format: [
 				"<div class=\"sidebar-single flex flex-left\">",
 					"<i :class=\"{}\"></i>",
-					"<RouterLink class=\"sidebar-route\" to=\"{}\">",
+					"<RouterLink class=\"sidebar-route\" to=\"{}\" @click=\"$emit( 'close' )\">",
 						"{}",
 					"</RouterLink>",
 				"</div>"
@@ -25,7 +25,7 @@
 				"<div class=\"sidebar-single\">",
 					"<div class=\"sidebar-single sidebar-single-dropdown flex flex-left\">",
 						"<i :class=\"{ icon }\"></i>",
-						"<RouterLink class=\"sidebar-route\" to=\"{ path }\">",
+						"<RouterLink class=\"sidebar-route\" to=\"{ path }\" @click=\"$emit( 'close' )\">",
 							"{ name }",
 						"</RouterLink>",
 						"<i :class=\"[ 'sidebar-icon', 'sidebar-dropdown-icon', 'bx', actives['{ uniq }'] ? 'bx-chevron-up' : 'bx-chevron-down' ]\" data-uniq=\"{ uniq }\" @click=\"dropdown\"></i>",

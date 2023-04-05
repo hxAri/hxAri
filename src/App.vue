@@ -4,7 +4,6 @@
 	import { RouterLink, RouterView } from "vue-router";
 	
 	// Import Scripts.
-	import Cookie from "./scripts/Cookie.js";
 	import Datime from "./scripts/Datime.js";
 	import Theme from "./scripts/Theme.js";
 	
@@ -18,7 +17,6 @@
 			dateFormat: null,
 			theme: new Theme(),
 			themeColor: null,
-			cookie: new Cookie(),
 			footer: [
 				{
 					path: "/",
@@ -133,11 +131,11 @@
 					</button>
 				</div>
 				<div class="list-group">
-					<Sidebar />
+					<Sidebar @close="buttonBurgerHandle" />
 				</div>
 			</div>
 		</div>
-		<RouterView :theme="theme" :cookie="cookie" />
+		<RouterView />
 	</main>
 	<footer class="footer flex flex-center">
 		<div class="footer-wrapper">
