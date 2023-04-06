@@ -3,7 +3,6 @@
 import Cookie from "./Cookie.js";
 import Null from "./types/Null.js";
 import Type from "./Type.js";
-import Undefined from "./types/Undefined.js";
 
 /*
  * Theme utility
@@ -15,11 +14,28 @@ import Undefined from "./types/Undefined.js";
  */
 const Theme = function({ set } = {})
 {
-	if( Type( set, Undefined ) )
+	this.theme = {
+		dark: {
+			color: "#202521",
+			token: "7a51da870ccc24c22518717d3cf56d29"
+		},
+		light: {
+			color: "#eeeeee",
+			token: "73fe8a55fee50b1e4b81af2e2446ea04"
+		}
+	};
+	try
 	{
-		set = this.get();
+		var self = this;
+		var color = set;
+			color = Type( color, "Undefined", () => self.get(), () => color );
+		
+		self.set( color );
 	}
-	this.set( set );
+	catch( error )
+	{
+		console.warn( `Theme:\x20${error}` );
+	}
 };
 
 /*
@@ -28,22 +44,6 @@ const Theme = function({ set } = {})
  * @values String
  */
 Theme.prototype.name = "dGhlbWU";
-
-/*
- * Theme colors.
- *
- * @values Object
- */
-Theme.prototype.theme = {
-	dark: {
-		color: "#202521",
-		token: "7a51da870ccc24c22518717d3cf56d29"
-	},
-	light: {
-		color: "#eeeeee",
-		token: "73fe8a55fee50b1e4b81af2e2446ea04"
-	}
-};
 
 /*
  * Theme contructor results.
@@ -66,29 +66,36 @@ Theme.prototype.default = "light";
  */
 Theme.prototype.get = function()
 {
-	// Get current theme color from cookie.
-	var token = Cookie.prototype.get( this.name );
-	
-	// If token value is String type.
-	if( Type( token, String ) )
+	try
 	{
-		// If token value equals with dark.
-		if( token === this.theme.dark.token )
-		{
-			return( "dark" );
-		}
-	}
-	else {
+		// Get current theme color from cookie.
+		var token = Cookie.prototype.get( this.name );
 		
-		// If device supported dark mode.
-		if( window.matchMedia )
+		// If token value is String type.
+		if( Type( token, String ) )
 		{
-			// Check if dark.mode is activated.
-			if( window.matchMedia( "(prefers-color-scheme:dark)" ).matches )
+			// If token value equals with dark.
+			if( token === this.theme.dark.token )
 			{
 				return( "dark" );
 			}
 		}
+		else {
+			
+			// If device supported dark mode.
+			if( window.matchMedia )
+			{
+				// Check if dark.mode is activated.
+				if( window.matchMedia( "(prefers-color-scheme:dark)" ).matches )
+				{
+					return( "dark" );
+				}
+			}
+		}
+	}
+	catch( error )
+	{
+		console.warn( `Theme.prototype.get:\x20${error}` );
 	}
 	return( "light" );
 };
@@ -102,27 +109,33 @@ Theme.prototype.get = function()
  */
 Theme.prototype.set = function( color )
 {
-	// Get token value from cookie.
-	var cookie = Cookie.prototype.get( this.name );
-	var defaultc = this.default;
-	
-	// Normalize color.
-	color = Type( color, Undefined, () => defaultc, () => color );
-	
-	// If current cookie value does not equals.
-	if( cookie !== this.theme[color].token )
+	try
 	{
-		Cookie.prototype.set(
-			this.name,
-			this.theme[color].token,
-			{
-				path: "/",
-				expires: 30
-			}
-		);
+		// Get token value from cookie.
+		var cookie = Cookie.prototype.get( this.name );
+		var defaultColor = this.default;
+		
+		// Normalize color.
+		color = Type( color, String, () => color, () => defaultColor );
+		
+		// If current cookie value does not equals.
+		if( cookie !== this.theme[color].token )
+		{
+			Cookie.prototype.set( ...[
+				this.name,
+				this.theme[color].token, {
+					path: "/",
+					expires: 30
+				}
+			]);
+		}
+		this.setHtml( color );
+		this.setMeta( color );
 	}
-	this.set.prototype.html( color );
-	this.set.prototype.meta( color );
+	catch( error )
+	{
+		console.warn( `Theme.prototype.set:\x20${error}` );
+	}
 };
 
 /*
@@ -132,7 +145,7 @@ Theme.prototype.set = function( color )
  *
  * @return Void
  */
-Theme.prototype.set.prototype.html = color => document.documentElement.dataset.theme = color;
+Theme.prototype.setHtml = color => document.documentElement.dataset.theme = color;
 
 /*
  * Set theme color to HTMLMetaElement.
@@ -141,7 +154,7 @@ Theme.prototype.set.prototype.html = color => document.documentElement.dataset.t
  *
  * @return Void
  */
-Theme.prototype.set.prototype.meta = color =>
+Theme.prototype.setMeta = function( color )
 {
 	var meta = null;
 	
@@ -159,7 +172,7 @@ Theme.prototype.set.prototype.meta = color =>
 	}
 	
 	// Set meta attribute content value.
-	meta.setAttribute( "content", Theme.prototype.theme[color].color );
+	meta.setAttribute( "content", this.theme[color].color );
 };
 
 export default Theme;

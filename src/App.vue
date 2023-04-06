@@ -16,7 +16,7 @@
 			date: new Datime(),
 			dateFormat: null,
 			theme: new Theme(),
-			themeColor: null,
+			themeColor: Theme.prototype.default,
 			footer: [
 				{
 					path: "/",
@@ -126,8 +126,7 @@
 						</RouterLink>
 					</h5>
 					<button class="button sidebar-switch" @click="buttonSwitchTheme">
-						<i class="bx bx-sun fs-20" v-if="( themeColor === 'dark' )"></i>
-						<i class="bx bx-moon fs-20" v-else></i>
+						<i :class="[ 'bx', 'fs-20', themeColor === 'dark' ? 'bx-sun' : 'bx-moon' ]"></i>
 					</button>
 				</div>
 				<div class="list-group">

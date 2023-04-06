@@ -1,5 +1,7 @@
 
-import Js from "./commands/Js.js";
+// Import Terminal Commands
+import Echo from "/src/scripts/shells/commands/Echo.js";
+import Js from "/src/scripts/shells/commands/Js.js";
 
 /*
  * Terminal Commands.
@@ -63,6 +65,7 @@ export default [
 			this.$shell.history = [];
 		}
 	},
+	Echo,
 	Js,
 	{
 		name: "test",

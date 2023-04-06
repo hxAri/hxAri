@@ -12,7 +12,7 @@
 		data: () => ({
 			//model: "test --a --A= --A-a=\"A \"a\" --b --B= --B-b='B \'b' ---c --C= ---C-c=`$( C \"c\" )`s --d --D= --D-d=$( echo \"Hello World\" )i \"Hello 'X', `Y` \\\"World!\\\"\" \'Hello \"X\", `Y` \\\'World!\\\'\' \`Hello \"X\", 'Y' \\\`World!\\\`\` $( echo \"Hello World\" ) \"$( echo \\\"Hello World\\\" )\" '$( echo \"Hello World\" )' X`$( echo \"Hello World\" )`Y \\ 0 -s -hort=Short",
 			//model: "test -a -A= -a-E=A -bcd=$ROOT",
-			model: "test --test=$( test \"*\" )",
+			model: "chintya --chintya=$( chintya ) && X=X Y=Y && lianary --lianary=$( lianary ) ${X}",
 			range: {
 				begin: -1,
 				end: -1
@@ -219,7 +219,7 @@
 								// Check if history has input commands.
 								if( Type( history.inputs, String ) )
 								{
-									stack.push( self.terminal.colorable( Fmt( "\x20{}", history.inputs ) ) );
+									stack.push( self.terminal.colorable( "\x20" + history.inputs ) );
 								}
 								stack.push( "</label>" );
 							}

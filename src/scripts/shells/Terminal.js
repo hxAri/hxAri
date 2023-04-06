@@ -78,15 +78,13 @@ Terminal.prototype.binding = null;
  * @params Array<Object>|Object shell
  *  Array bind program/command prototypes.
  *  Object The program/command to be executed.
- * @params String file
- *  The program/command name.
  * @params Object argv, args
  *  argv Argument values.
  *  args Argument parsed.
  *
  * @return Object
  */
-Terminal.prototype.builder = function( shell, file, { argv, args })
+Terminal.prototype.builder = function( shell, { argv, args })
 {
 	var built = {};
 	
@@ -141,13 +139,8 @@ Terminal.prototype.builder = function( shell, file, { argv, args })
 		built.prototype.$root = this;
 		built.prototype.$name = this.aliases;
 		built.prototype.$bind = this.binding;
-		built.prototype.$vars = this.exports;
-		built.prototype.$argv = argv;
-		built.prototype.$args = args;
-		
-		// Allow program for reuse without rebuilt.
-		built.prototype.$self = built;
-		built.prototype.$init = null;
+		built.prototype.$envs = this.exports;
+		built.prototype.$vars = this.declare;
 		
 		// Mapping program/ command data and methods.
 		map({ ...shell.data, ...shell.methods });
@@ -160,8 +153,18 @@ Terminal.prototype.builder = function( shell, file, { argv, args })
 		// Mapping previous prototypes from contructed program/command.
 		map( Object.getPrototypeOf( shell[1] ) );
 	}
+	built.prototype.$argv = argv;
+	built.prototype.$args = args;
+	
 	return( built );
 };
+
+/*
+ * Terminal command instances.
+ *
+ * @values Object
+ */
+Terminal.prototype.built = {};
 
 /*
  * Automatic colorize text, number, and symbols in the string.
@@ -199,7 +202,7 @@ Terminal.prototype.colorable = function( format )
 		string: {
 			pattern: "(?<string>(?<!\\\\)(\"(.*?)(?<!\\\\)\")|(\'(.*?)(?<!\\\\)\')|(\`(.*?)(?<!\\\\)\`))",
 			colorize: "var(--shell-c-38-220m)",
-			handler: match => match[0].replaceAll( /(?<!\\)(\\"|\\'|\\`|\\r|\\t|\\n|\\s)/g, m => Fmt( "<span style=\"color: var(--shell-c-38-208m)\">{}</span>", m ) )
+			handler: match => match[0].replaceAll( /(?<!\\)(\\"|\\'|\\`|\\r|\\t|\\n|\\s)/g, m => `<span style="color: var(--shell-c-38-208m)">${m}</span>` )
 		}
 	};
 	try
@@ -266,6 +269,13 @@ Terminal.prototype.commands = [];
 Terminal.prototype.date = new Datime();
 
 /*
+ * All declared variables.
+ *
+ * @values Object
+ */
+Terminal.prototype.declare = {};
+
+/*
  * Container for the entire terminal directoies.
  *
  * @values Array
@@ -305,7 +315,7 @@ Terminal.prototype.exports = {
 	 *
 	 * @values String
 	 */
-	PS1: "\\[\\e[0;38;5;112m\\]\\u\\[\\e[0;38;5;190m\\]@\\h\\[\\e[0;38;5;214m\\]: \\[\\e[32m\\]\\w \\[\\e[37m\\]$"
+	PS1: "\\[\\e[0;38;5;112m\\]\\u\\[\\e[0;38;5;190m\\]@\\h\\[\\e[0;38;5;214m\\]:\\[\\e[32m\\]\\w\\[\\e[37m\\]$"
 };
 
 /*
@@ -894,14 +904,13 @@ Terminal.prototype.run = async function( argument )
 				if( shell )
 				{
 					// Built shell.
-					var built = self.builder( shell, null, { argv: null, args: null } );
-					
-					// Push shell outputs.
-					self.history.push({
-						
-						// Execute shell.
-						output: new built({ argument })
-					});
+					var built = self.builder( shell, { argv: null, args: null } );
+					var exec = new built({ argument });
+						exec.forEach( output => 
+							self.history.push({
+								output: output
+							})
+						);
 				}
 				else {
 					throw new Error( Fmt( "{}: Shells not available", self.shell ) );
@@ -911,7 +920,7 @@ Terminal.prototype.run = async function( argument )
 			{
 				self.log( "error", error );
 				self.history.push({ output: Fmt( "{}: {}", self.shell, error ) });
-				self.history.push({ output: JSON.stringify( self.parseStackTrace( error ), null, 4 ) });
+				//self.history.push({ output: JSON.stringify( self.parseStackTrace( error ), null, 4 ) });
 			}
 			self.loading = false;
 		}
