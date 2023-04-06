@@ -1,6 +1,7 @@
 
 // Import Scripts
 import Fmt from "/src/scripts/Fmt.js";
+import Mapper from "/src/scripts/Mapper.js";
 import Not from "/src/scripts/logics/Not.js";
 import Type from "/src/scripts/Type.js";
 import Value from "/src/scripts/logics/Value.js";
@@ -8,7 +9,12 @@ import Value from "/src/scripts/logics/Value.js";
 export default {
 	name: "js",
 	type: "file",
-	data: {},
+	data: {
+		regexp: {
+			numeric: /^-?\d+(\.\d+)?$/,
+			datetime: /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d{3})?Z)?$/
+		}
+	},
 	options: {},
 	methods: {
 		
@@ -27,14 +33,54 @@ export default {
 		},
 		
 		/*
+		 * Convert the string to the appropriate data value.
+		 *
+		 * @params Mixed value
+		 *
+		 * @return Mixed
+		 */
+		convert: function( value )
+		{
+			if( Not( value, [ "Null", "Undefined" ] ) )
+			{
+				if( Type( value, String ) )
+				{
+					// Remove whitespaces.
+					value = value.trim();
+					
+					try
+					{
+						// Check if value is a boolean string
+						if( value === "true" || value === "false" ) return( value === "true" );
+						
+						// Check if value is a numeric string
+						if( /^-?\d+(\.\d+)?$/.test( value ) ) return( parseFloat( value ) );
+						
+						// Check if value is a JSON string
+						if( value.startsWith( "{" ) &&
+							value.endsWith( "}" ) )
+						{
+							return( JSON ).parse( value );
+						}
+						
+						// Check if value is a date string
+						if( /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d{3})?Z)?$/.test( value ) ) return( new Date( value ) );
+					}
+					catch( error )
+					{}
+				}
+				return( value );
+			}
+			return( null );
+		},
+		
+		/*
 		 * Subtitution expansion.
 		 *
 		 * @params String syntax
 		 *  Subtitution syntax.
 		 *
 		 * @return Mixed
-		 *
-		 * @throws TypeError
 		 */
 		expansion: function( syntax )
 		{
@@ -64,6 +110,8 @@ export default {
 			// Mapping extracted argument values.
 			for( let i in extract )
 			{
+				if( Value.isEmpty( extract[i][0] ) ) continue;
+				
 				// Get matched value.
 				var value = extract[i][0].trim();
 				
@@ -130,91 +178,56 @@ export default {
 		},
 		
 		/*
-		 * Replace variable names in the arguments.
+		 * Parameter builder for program/command.
 		 *
-		 * @params String argument
+		 * @params Object shell
+		 * @params Object args
 		 *
-		 * @return Array
+		 * @return Object
 		 */
-		replace: function( argument )
+		params: function( shell, args )
 		{
-			var self = this;
-			var result = [];
-			var splits = argument.split( /(?<=^|[^"'`\\\\])\s*&&\s*(?=[^"'`\\\\]|$)/g );
+			var params = {};
 			
-			// Mapping splited arguments.
-			for( let i in splits )
+			// Check if shell has options.
+			if( Type( shell.options, Object ) )
 			{
-				// If argument is not && symbols.
-				if( splits[i] !== "&&" )
+				// Mapping options.
+				Mapper( shell.options, function( i, name, option )
 				{
-					var value = "";
-					var regex = /(?<!\\)(?<variable>\$(?<name>[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*))/g;
-					var match = regex.exec( splits[i] );
-					
-					// If argument has variable.
-					if( match !== null )
+					// If option is available in arguments.
+					if( Not( args[name], "Undefined" ) )
 					{
-						// Check if variable is declared.
-						if( Not( this.$vars[match.groups.name], "Undefined" ) )
-						{
-							value = this.$vars[match.groups.name];
-						}
-						
-						// Check if environment is available.
-						else if( Not( this.$envs[match.groups.name], "Undefined" ) )
-						{
-							// If environment name is PWD.
-							if( match.groups.name === "PWD" )
-							{
-								value = this.$envs.PWD.path ?? "";
-							}
-							else {
-								value = this.$envs[match.groups.name];
-							}
-						}
-						splits[i] = this.replace( splits[i].substring( 0, regex.lastIndex - match[0].length ) + value + splits[i].substring( regex.lastIndex ) );
+						params[name] = args[name];
 					}
 					
-					// If split value is not Array.
-					if( Type( splits[i], Array ) )
+					// If option has alias name,
+					// And if alias name is available in arguments.
+					if( Type( option.alias, String ) && Not( args[option.alias], "Undefined" ) )
 					{
-						result.push( ...splits[i] );
+						params[name] = args[option.alias];
 					}
 					else {
 						
-						// Find and remove defined variable syntax.
-						var single = splits[i].replace( /(?<!['"`])\b(?:[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)=(\S+)\b(?<!['"`])/g, match =>
+						// Check if option is require.
+						if( option.require === true )
 						{
-							// Set variable into containers.
-							return([ "", self.$vars[match.substring( 0, match.indexOf( "=" ) )] = match.substring( match.indexOf( "=" ) +1 ) ][0]);
-						});
-						
-						// Check if value is not empty.
-						if( Value.isNotEmpty( single ) )
-						{
-							// Split argument with whitespace.
-							var spaces = single.split( "\x20" );
-							
-							// Check if alias name is available.
-							if( Type( this.$name[spaces[0]], String ) )
-							{
-								// Resolve alias name.
-								var replace = this.replace( this.$name[spaces[0]] );
-								
-								// Get first splited argument.
-								var prefix = replace[0] + "\x20" + spaces.slice( 1 ).join( "\x20" );
-								
-								result.push( ...[ prefix, ...replace.slice( 1 ) ] );
-							}
-							else {
-								result.push( single );
-							}
+							throw Fmt( "{}: {}: Option required", shell.name, name );
 						}
 					}
-				}
+					
+					// Check if option has type.
+					if( Not( params[name], "Undefined" ) &&
+						Not( option.type, "Undefined" ) )
+					{
+						if( Not( params[name], option.type ) )
+						{
+							throw Fmt( "{}: {}: Option must be type {}, {} given", shell.name, name, option.type, Type( params[name] ) );
+						}
+					}
+				});
 			}
-			return( result );
+			return( params );
 		},
 		
 		/*
@@ -310,7 +323,7 @@ export default {
 							 */
 							if( Value.isNotEmpty( key ) )
 							{
-								args[key] = val = val !== null ? val : true;
+								args[key] = this.convert( val = val !== null ? val : true );
 							}
 							continue;
 						}
@@ -324,7 +337,7 @@ export default {
 								var key = arg.slice( 1, 2 );
 								var val = arg.slice( 3 );
 								
-								args[key] = Value.isEmpty( val ) ? args[key] ?? true: val;
+								args[key] = this.convert( Value.isEmpty( val ) ? args[key] ?? true : val );
 							}
 							else {
 								
@@ -341,19 +354,107 @@ export default {
 										var key = chars[( u -1 )];
 										var val = arg.slice( arg.indexOf( "=" ) +1 );
 										
-										args[key] = Value.isEmpty( val ) ? args[key] ?? true: val;
+										args[key] = this.convert( Value.isEmpty( val ) ? args[key] ?? true: val );
 										break;
 									}
-									args[chars[u]] = args[chars[u]] ?? true;
+									args[chars[u]] = this.convert( args[chars[u]] ?? true );
 								}
 							}
 							continue;
 						}
 					}
-					args[post++] = arg;
+					args[post++] = this.convert( arg );
 				}
 			}
 			return( args );
+		},
+		
+		/*
+		 * Replace variable names in the arguments.
+		 *
+		 * @params String argument
+		 *
+		 * @return Array
+		 */
+		replace: function( argument )
+		{
+			var self = this;
+			var result = [];
+			var splits = argument.split( /(?<=^|[^"'`\\\\])\s*&&\s*(?=[^"'`\\\\]|$)/g );
+			
+			// Mapping splited arguments.
+			for( let i in splits )
+			{
+				// If argument is not && symbols.
+				if( splits[i] !== "&&" && Value.isNotEmpty( splits[i] ) )
+				{
+					var value = "";
+					var regex = /(?<!\\)(?<variable>\$(?<name>[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*))/g;
+					var match = regex.exec( splits[i] );
+					
+					// If argument has variable.
+					if( match !== null )
+					{
+						// Check if variable is declared.
+						if( Not( this.$vars[match.groups.name], "Undefined" ) )
+						{
+							value = this.$vars[match.groups.name];
+						}
+						
+						// Check if environment is available.
+						else if( Not( this.$envs[match.groups.name], "Undefined" ) )
+						{
+							// If environment name is PWD.
+							if( match.groups.name === "PWD" )
+							{
+								value = this.$envs.PWD.path ?? "";
+							}
+							else {
+								value = this.$envs[match.groups.name];
+							}
+						}
+						splits[i] = this.replace( splits[i].substring( 0, regex.lastIndex - match[0].length ) + value + splits[i].substring( regex.lastIndex ) );
+					}
+					
+					// If split value is not Array.
+					if( Type( splits[i], Array ) )
+					{
+						result.push( ...splits[i] );
+					}
+					else {
+						
+						// Find and remove defined variable syntax.
+						var single = splits[i].replace( /(?<!['"`])\b(?:[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)=(\S+)\b(?<!['"`])/g, match =>
+						{
+							// Set variable into containers.
+							return([ "", self.$vars[match.substring( 0, match.indexOf( "=" ) )] = match.substring( match.indexOf( "=" ) +1 ) ][0]);
+						});
+						
+						// Check if value is not empty.
+						if( Value.isNotEmpty( single ) )
+						{
+							// Split argument with whitespace.
+							var spaces = single.split( "\x20" );
+							
+							// Check if alias name is available.
+							if( Type( this.$name[spaces[0]], String ) )
+							{
+								// Resolve alias name.
+								var replace = this.replace( this.$name[spaces[0]] );
+								
+								// Get first splited argument.
+								var prefix = replace[0] + "\x20" + spaces.slice( 1 ).join( "\x20" );
+								
+								result.push( ...[ prefix, ...replace.slice( 1 ) ] );
+							}
+							else {
+								result.push( single );
+							}
+						}
+					}
+				}
+			}
+			return( result );
 		}
 	},
 	mounted: function({ argument })
@@ -384,7 +485,11 @@ export default {
 				}
 				
 				// Instantiate program/command.
-				var exec = new built({ e: args.e });
+				var exec = new built(
+					
+					// Build program/command parameters.
+					this.params( shell, args )
+				);
 				
 				// If command return outputs.
 				if( Type( exec, Array ) )

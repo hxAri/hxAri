@@ -10,9 +10,7 @@
 	
 	export default {
 		data: () => ({
-			//model: "test --a --A= --A-a=\"A \"a\" --b --B= --B-b='B \'b' ---c --C= ---C-c=`$( C \"c\" )`s --d --D= --D-d=$( echo \"Hello World\" )i \"Hello 'X', `Y` \\\"World!\\\"\" \'Hello \"X\", `Y` \\\'World!\\\'\' \`Hello \"X\", 'Y' \\\`World!\\\`\` $( echo \"Hello World\" ) \"$( echo \\\"Hello World\\\" )\" '$( echo \"Hello World\" )' X`$( echo \"Hello World\" )`Y \\ 0 -s -hort=Short",
-			//model: "test -a -A= -a-E=A -bcd=$ROOT",
-			model: "chintya --chintya=$( chintya ) && X=X Y=Y && lianary --lianary=$( lianary ) ${X}",
+			model: "",
 			range: {
 				begin: -1,
 				end: -1
