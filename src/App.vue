@@ -4,12 +4,12 @@
 	import { RouterLink, RouterView } from "vue-router";
 	
 	// Import Scripts.
-	import Datime from "./scripts/Datime.js";
-	import Theme from "./scripts/Theme.js";
+	import Datime from "/src/scripts/Datime.js";
+	import Theme from "/src/scripts/Theme.js";
 	
 	// Import Widgets.
-	import Avatar from "./widgets/Avatar.vue";
-	import Sidebar from "./widgets/Sidebar.vue";
+	import Avatar from "/src/widgets/Avatar.vue";
+	import Sidebar from "/src/widgets/Sidebar.vue";
 	
 	export default {
 		data: () => ({

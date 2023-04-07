@@ -4,19 +4,20 @@
 	import { RouterLink } from "vue-router";
 	
 	// Import Scripts.
-	import Fmt from "../scripts/Fmt.js";
-	import Image from "../scripts/Image.js";
-	import Json from "../scripts/Json.js";
-	import Mapper from "../scripts/Mapper.js";
-	import MultiRequest from "../scripts/MultiRequest.js";
-	import Request from "../scripts/Request.js";
-	import Type from "../scripts/Type.js";
-	import Value from "../scripts/logics/Value.js";
+	import Fmt from "/src/scripts/Fmt.js";
+	import Image from "/src/scripts/Image.js";
+	import Json from "/src/scripts/Json.js";
+	import Mapper from "/src/scripts/Mapper.js";
+	import MultiRequest from "/src/scripts/MultiRequest.js";
+	import Request from "/src/scripts/Request.js";
+	import Type from "/src/scripts/Type.js";
+	import Value from "/src/scripts/logics/Value.js";
 	
 	// Import Widgets.
-	import Avatar from "../widgets/Avatar.vue";
-	import Project from "../widgets/Project.vue";
-	import Skill from "../widgets/Skill.vue";
+	import Avatar from "/src/widgets/Avatar.vue";
+	import Error from "/src/widgets/Error.vue";
+	import Project from "/src/widgets/Project.vue";
+	import Skill from "/src/widgets/Skill.vue";
 	
 	export default {
 		data: () => ({
@@ -265,6 +266,7 @@
 		},
 		components: {
 			Avatar,
+			Error,
 			Project,
 			Skill
 		}
@@ -278,9 +280,10 @@
 			<div class="spinner"></div>
 		</div>
 	</div>
-	<div class="" v-else-if="error">
-		{{ error }}
-	</div>
+	<Error v-else-if="error">
+		<h3 class="title">Something Wrong</h3>
+		<p class="sub-title">{{ error }}</p>
+	</Error>
 	<div class="" v-else>
 		<div class="banner">
 			<div class="banner-group">
@@ -616,7 +619,7 @@
 				}
 	}
 	.profile-about .hr,
-	.home-contents {
+	.home-contents .hr {
 		width: 100%;
 	}
 	

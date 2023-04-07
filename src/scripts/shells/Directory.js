@@ -1,6 +1,6 @@
 
 // Import Scripts
-import Commands from "./Commands.js";
+import Commands from "/src/scripts/shells/Commands.js";
 
 /*
  * Terminal Directory Structure.

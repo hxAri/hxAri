@@ -1,9 +1,7 @@
 
 // Import application scripts.
 import Not from "./Not.js";
-import Null from "../types/Null.js";
 import Type from "../Type.js";
-import Undefined from "../types/Undefined.js";
 
 /*
  * Check if value given is empty.
@@ -14,7 +12,7 @@ import Undefined from "../types/Undefined.js";
  */
 const isEmpty = function( value )
 {
-	if( Not( value, [ Undefined, Boolean, Null ] ) )
+	if( Not( value, [ "Undefined", Boolean, "Null" ] ) )
 	{
 		if( Type( value, Array ) )
 		{
@@ -26,7 +24,7 @@ const isEmpty = function( value )
 		}
 		if( Type( value, String ) )
 		{
-			return( value.length !== 0 ? ( value.match( /^([\s\t\n]*)$/ ) ? true : false ) : true );
+			return( value.length !== 0 ? ( value.match( /^([\s\t\n\r]*)$/ ) ? true : false ) : true );
 		}
 		return( false );
 	}

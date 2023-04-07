@@ -15,21 +15,49 @@ export default {
 			datetime: /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d{3})?Z)?$/
 		}
 	},
-	options: {},
+	options: {
+		argument: {
+			type: String,
+			usage: "",
+			require: true
+		}
+	},
 	methods: {
+		
+		/*
+		 * Resolve backslash in the raw strings.
+		 *
+		 * @params String string
+		 *
+		 * @return String
+		 */
+		backslash: string => string.replaceAll( /(?:\\{1,})(?!(x|e|0))/g, match =>
+		{
+			// If the number of backslashes is one.
+			if( match.length === 1 ) return( "" );
+			
+			// If number of backslash is odd.
+			if( match.length % 2 !== 0 )
+			{
+				return( "\\".repeat( match.length -1 ) );
+			}
+			
+			// Make backslashes as much as the amount minus two.
+			return( "\\".repeat( match.length === 2 ? match.length -1 : match.length -2 ) );
+		}),
 		
 		/*
 		 * Subtitution command.
 		 *
-		 * @params Object groups
+		 * @params String argument
 		 *  Object groups from exec returns.
 		 *
 		 * @return Mixed
 		 */
-		backticks: function( groups )
+		command: function( argument )
 		{
-			// ...
-			return( "" );
+			// Execute command.
+			var exec = this.$exec( argument );
 		},
 		
 		/*
@@ -54,7 +82,7 @@ export default {
 						if( value === "true" || value === "false" ) return( value === "true" );
 						
 						// Check if value is a numeric string
-						if( /^-?\d+(\.\d+)?$/.test( value ) ) return( parseFloat( value ) );
+						if( this.regexp.numeric.test( value ) ) return( parseFloat( value ) );
 						
 						// Check if value is a JSON string
 						if( value.startsWith( "{" ) &&
@@ -64,7 +92,7 @@ export default {
 						}
 						
 						// Check if value is a date string
-						if( /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d{3})?Z)?$/.test( value ) ) return( new Date( value ) );
+						if( this.regexp.datetime.test( value ) ) return( new Date( value ) );
 					}
 					catch( error )
 					{}
@@ -72,6 +100,32 @@ export default {
 				return( value );
 			}
 			return( null );
+		},
+		
+		/*
+		 * Execute raw string javascript.
+		 *
+		 * @params String raw
+		 *
+		 * @return Mixed
+		 */
+		execute: function( argv )
+		{
+			var result = [];
+			
+			// Mapping argument values.
+			for( let i in argv )
+			{
+				var func = new Function( `return(${argv[i]});` );
+				var out = func();
+				
+				// Check if function has return values.
+				if( Not( out, "Undefined" ) )
+				{
+					result.push( `${out}`.split( "\n" ) );
+				}
+			}
+			return( result );
 		},
 		
 		/*
@@ -98,7 +152,7 @@ export default {
 		extract: function( argument )
 		{
 			// Pattern for check if string containing special characters.
-			var sregexp = /(?<!\\)((?<bracket>\[(?:[^\]\\]|\\.)*\])|(?<wildcard>\*)|(?<or>\|))/g;
+			var sregexp = /(?<!['"`])(?<!\\)((?<bracket>\[(?:[^\]\\]|\\.)*\])|(?<wildcard>\*)|(?<or>\|))(?<!['"`])/g;
 			
 			// Pattern for extract argument values.
 			var eregexp = /(?<=\s|^)(--\w+(?:-\w+)*|-{1}(?=\w))(?:=(?:(?:"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`)|\$\((?:[^\)\\]|\\.)*\)|(?:(?<=\s|^|\\)[^=\s"'\`$]+(?:(?<!\\)(?:\s+|`(?:\\.|[^`\\])*`|[\$][\(](?:\\.|[^\(\)\\])*[\)]+)[^=\s"'\`$]*)*))|(\S+))*(?=\s|$)|(\S*)(?:\"(?:[^\"\\]|\\.)*\"|\'(?:[^\'\\]|\\.)*\'|\`(?:[^\`\\]|\\.)*\`|\$\((?:[^\)\\]|\\.)*\))(\S*)|(\S+)|(?:(?<=\s|^)[^-]\S*(?=\s|$))/g;
@@ -114,35 +168,6 @@ export default {
 				
 				// Get matched value.
 				var value = extract[i][0].trim();
-				
-				// Pattern for match flanked characters.
-				var qregex = /(?!\\)(?:(?<quotes>(["'])(?<quoted>(?:[^\1\\]|\\.)*)\1)|(?<subtitution>(?<subtitution_command>\$\((?<command>(?:[^\)\\]|\\.)*)\))|(?<subtitution_expansion>\$\{(?<expansion>(?:[^\}\\]|\\.])*)\})|(?<subtitution_backticks>\`(?<backticks>(?:[^\`\\]|\\.)*)\`)))/gm;
-				var result = "";
-				var match = null;
-				var index = 0;
-				
-				while( ( match = qregex.exec( value ) ) !== null )
-				{
-					result += value.substring( index, qregex.lastIndex - match[0].length );
-					
-					switch( true )
-					{
-						case Type( match.groups.subtitution_command, String ):
-						case Type( match.groups.subtitution_backticks, String ):
-							result += this.backticks( match.groups );
-							break;
-						case Type( match.groups.subtitution_expansion, String ):
-							result += this.expansion( match.groups );
-							break;
-						default:
-							result += match.groups.quotes.slice( 1, match[0].length -1 );
-							break;
-					}
-					index = qregex.lastIndex;
-				}
-				
-				// Append strings.
-				value = result + value.substring( index );
 				
 				// Check if input has regular expression.
 				if( sregexp.test( value ) )
@@ -172,7 +197,51 @@ export default {
 						this.$root.log( "error", error );
 					}
 				}
-				argv.push( value );
+				
+				// Pattern for match flanked characters.
+				var qregex = /(?!\\)(?:(?<quotes>(["'])(?<quoted>(?:[^\1\\]|\\.)*)\1)|(?<subtitution>(?<subtitution_command>\$\((?<command>(?:[^\)\\]|\\.)*)\))|(?<subtitution_expansion>\$\{(?<expansion>(?:[^\}\\]|\\.])*)\})|(?<subtitution_backticks>\`(?<backticks>(?:[^\`\\]|\\.)*)\`)))/gm;
+				var result = "";
+				var match = null;
+				var index = 0;
+				
+				while( ( match = qregex.exec( value ) ) !== null )
+				{
+					result += this.backslash( value.substring( index, qregex.lastIndex - match[0].length ) );
+					
+					switch( true )
+					{
+						case Type( match.groups.subtitution_command, String ):
+							result += this.command( 
+								this.backslash(
+									match.groups.command
+								)
+							);
+							break;
+						case Type( match.groups.subtitution_backticks, String ):
+							result += this.command( 
+								this.backslash( 
+									match.groups.backticks
+								)
+							);
+							break;
+						case Type( match.groups.subtitution_expansion, String ):
+							result += this.expansion( match.groups );
+							break;
+						default:
+							result += this.backslash( match.groups.quotes.slice( 1, match[0].length -1 ) );
+							break;
+					}
+					index = qregex.lastIndex;
+				}
+				
+				// Append strings.
+				value = result + this.backslash( value.substring( index ) );
+				
+				// Check if argument value is not empty.
+				if( Value.isNotEmpty( value ) )
+				{
+					argv.push( value );
+				}
 			}
 			return( argv );
 		},
@@ -222,7 +291,7 @@ export default {
 					{
 						if( Not( params[name], option.type ) )
 						{
-							throw Fmt( "{}: {}: Option must be type {}, {} given", shell.name, name, option.type, Type( params[name] ) );
+							throw Fmt( "{}: {}: Option must be type {}, {} given", shell.name, name, option.type.name, Type( params[name] ) );
 						}
 					}
 				});
@@ -247,8 +316,11 @@ export default {
 				var post = 0;
 				var length = argv.length;
 				
+				// Copy argument values.
+				argv = [ ...argv ];
+				
 				// Remove filename from argument values.
-				//result.file = argv.shift();
+				delete argv[0];
 				
 				// Counting argument based on argument values length.
 				for( let i = 0; i < length; i++ )
@@ -281,7 +353,7 @@ export default {
 							{
 								var key = arg.slice( 2, index );
 								var val = arg.slice( index +2 );
-									val = Value.isNotEmpty( val ) ? val : null;
+									val = Value.isNotEmpty( val ) ? val.trim() : null;
 							}
 							else {
 								
@@ -363,7 +435,7 @@ export default {
 							continue;
 						}
 					}
-					args[post++] = this.convert( arg );
+					args[post++] = this.convert( arg.trim() );
 				}
 			}
 			return( args );
@@ -423,12 +495,27 @@ export default {
 					}
 					else {
 						
-						// Find and remove defined variable syntax.
-						var single = splits[i].replace( /(?<!['"`])\b(?:[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)=(\S+)\b(?<!['"`])/g, match =>
+						var regexp = /(?<!['"`])\b(?:(?<name>[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)=(?<value>\S+))\b(?<!['"`])/g;
+						var single = "";
+						var index = 0;
+						
+						while( ( match = regexp.exec( splits[i] ) ) !== null )
 						{
-							// Set variable into containers.
-							return([ "", self.$vars[match.substring( 0, match.indexOf( "=" ) )] = match.substring( match.indexOf( "=" ) +1 ) ][0]);
-						});
+							// Set as global variable.
+							this.$vars[match.groups.name] = match.groups.value;
+							
+							// Append string.
+							single += splits[i].substring( index, regexp.lastIndex - match[0].length );
+							index = regexp.lastIndex;
+							
+							// ...
+							if( /^[\s\t]*$/.test( single ) )
+							{
+								continue;
+							}
+							single += match[0];
+						}
+						single += splits[i].substring( index );
 						
 						// Check if value is not empty.
 						if( Value.isNotEmpty( single ) )
@@ -457,16 +544,19 @@ export default {
 			return( result );
 		}
 	},
-	mounted: function({ argument })
+	mounted: function({ argument } = {})
 	{
+		// Save current instance.
+		this.$root.built.js = this;
+		
 		// Normalize argument passed.
-		var resolved = this.replace( argument );
+		var resolved = this.replace( argument.trim() );
 		var results = [];
 		
 		// Mapping resolved arguments.
 		for( let i in resolved )
 		{
-			var argv = this.extract( resolved[i] );
+			var argv = this.extract( resolved[i].trim() );
 			var args = this.parser( argv );
 			
 			// Find command line shell.
@@ -475,29 +565,37 @@ export default {
 			// If shell is available.
 			if( shell )
 			{
-				// Checks if the command has a previous instance.
-				if( this.$root.built[argv[0]] )
+				// Checks if command name is `js`.
+				if( argv[0] === "js" )
 				{
-					var built = this.$root.builder( [ shell, this.$root.built[argv[0]] ], { argv, args } );
+					results.push( ...this.execute( argv.slice( 1 ) ) );
 				}
 				else {
-					var built = this.$root.builder( shell, { argv, args } );
-				}
-				
-				// Instantiate program/command.
-				var exec = new built(
 					
-					// Build program/command parameters.
-					this.params( shell, args )
-				);
-				
-				// If command return outputs.
-				if( Type( exec, Array ) )
-				{
-					results.push( exec );
-				}
-				else {
-					this.$root.built[argv[0]] = exec;
+					// Checks if the command has a previous instance.
+					if( this.$root.built[argv[0]] )
+					{
+						var built = this.$root.builder( [ shell, this.$root.built[argv[0]] ], { argv, args } );
+					}
+					else {
+						var built = this.$root.builder( shell, { argv, args } );
+					}
+					
+					// Instantiate program/command.
+					var exec = new built(
+						
+						// Build program/command parameters.
+						this.params( shell, args )
+					);
+					
+					// If command return outputs.
+					if( Type( exec, Array ) )
+					{
+						results.push( exec );
+					}
+					else {
+						this.$root.built[argv[0]] = exec;
+					}
 				}
 			}
 			else {

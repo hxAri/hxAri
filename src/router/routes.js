@@ -1,6 +1,6 @@
 
 // Import Views
-import Home from "../views/Home.vue";
+import Home from "/src/views/Home.vue";
 
 export default [
 	{
@@ -19,7 +19,7 @@ export default [
 			active: [ "bx", "bxs-info-circle" ],
 			default: [ "bx", "bx-info-circle" ]
 		},
-		component: () => import( "../views/About.vue" )
+		component: () => import( "/src/views/About.vue" )
 	},
 	{
 		path: "/contact",
@@ -28,7 +28,7 @@ export default [
 			active: [ "bx", "bxs-phone" ],
 			default: [ "bx", "bx-phone" ]
 		},
-		component: () => import( "../views/Contact.vue" )
+		component: () => import( "/src/views/Contact.vue" )
 	},
 	{
 		path: "/privacy",
@@ -37,7 +37,7 @@ export default [
 			active: [ "bx", "bxs-lock" ],
 			default: [ "bx", "bx-lock" ]
 		},
-		component: () => import( "../views/Privacy.vue" )
+		component: () => import( "/src/views/Privacy.vue" )
 	},
 	{
 		path: "/sitemap",
@@ -46,7 +46,7 @@ export default [
 			active: [ "bx", "bx-link-alt" ],
 			default: [ "bx", "bx-link" ]
 		},
-		component: () => import( "../views/Sitemap.vue" )
+		component: () => import( "/src/views/Sitemap.vue" )
 	},
 	{
 		path: "/projects",
@@ -55,7 +55,7 @@ export default [
 			active: [ "bx", "bxs-flag" ],
 			default: [ "bx", "bx-flag" ]
 		},
-		component: () => import( "../views/Project.vue" )
+		component: () => import( "/src/views/Project.vue" )
 	},
 	{
 		path: "/terminal",
@@ -65,7 +65,7 @@ export default [
 			default: [ "bx", "bx-terminal" ]
 		},
 		readable: false,
-		component: () => import( "../views/Terminal.vue" ),
+		component: () => import( "/src/views/Terminal.vue" ),
 		children: [
 			{
 				path: ":terminalPath(.*?)*",

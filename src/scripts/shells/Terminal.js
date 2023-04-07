@@ -145,29 +145,13 @@ Terminal.prototype.builder = function( shell, { argv, args })
 		/*
 		 * Allow program/ command for call another.
 		 *
-		 * @params String name
-		 * @params Object argv, args
-		 *  argv Argument values.
-		 *  args Argument parsed.
+		 * @params String argument
 		 *
-		 * @return Function
+		 * @return Mixed
 		 */
-		built.prototype.$exec = function( name, { argv, args } = {} )
+		built.prototype.$exec = function( argument )
 		{
-			// Find command line shell.
-			var shell = this.$root.commands.find( shell => shell.name === argv[0] );
-			
-			// If shell is available.
-			if( shell )
-			{
-				// Checks if the command has a previous instance.
-				if( this.$root.built[argv[0]] )
-				{
-					return( this ).$root.builder( [ shell, this.$root.built[argv[0]] ], { argv, args } );
-				}
-				return( this ).$root.builder( shell, { argv, args } );
-			}
-			throw Fmt( "{}: Command not found", name );
+			// ...
 		};
 		
 		// Mapping program/ command data and methods.

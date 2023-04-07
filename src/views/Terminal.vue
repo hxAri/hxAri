@@ -2,15 +2,15 @@
 <script>
 	
 	// Import Scripts
-	import Fmt from "../scripts/Fmt.js";
-	import Mapper from "../scripts/Mapper.js";
-	import Terminal from "../scripts/shells/Terminal.js";
-	import Type from "../scripts/Type";
-	import Value from "../scripts/logics/Value.js";
+	import Fmt from "/src/scripts/Fmt.js";
+	import Mapper from "/src/scripts/Mapper.js";
+	import Terminal from "/src/scripts/shells/Terminal.js";
+	import Type from "/src/scripts/Type";
+	import Value from "/src/scripts/logics/Value.js";
 	
 	export default {
 		data: () => ({
-			model: "",
+			model: "$(echo -e \"Hello World!\")",
 			range: {
 				begin: -1,
 				end: -1
