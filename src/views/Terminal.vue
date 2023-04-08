@@ -10,7 +10,7 @@
 	
 	export default {
 		data: () => ({
-			model: "x=0 && $((x++\\))",
+			model: "",
 			range: {
 				begin: -1,
 				end: -1

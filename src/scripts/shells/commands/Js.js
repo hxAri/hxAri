@@ -57,11 +57,34 @@ export default {
 		command: function( argument )
 		{
 			let match;
+			var $vars = this.$vars;
 			
-			// Check if subtitution is Aritmethic syntax.
-			if( match = argument.match( /^\(?:([^\\)]|\\.)*\)$/ ) )
+			// Check if subtitution is Arithmetic syntax.
+			if( match = argument.match( /^\((([^\\)]|\\.)*)\)$/ ) )
 			{
+				// Split with comman separator.
+				var syntax = match[1].split( "," );
 				
+				for( let i in syntax )
+				{
+					// Replace letters in rithmetic syntax,
+					syntax[i] = syntax[i].replaceAll( /([a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*)/g, ( name ) =>
+					{
+						// Check if variable is not defined.
+						if( Type( $vars[name], "Undefined" ) )
+						{
+							$vars[name] = 0;
+						}
+						return( `$vars.${name}` );
+					});
+					
+					// Execute arithmetic syntax.
+					var fun = new Function( `return ${syntax[i]}` );
+					
+					// Get aritmethic result.
+					syntax[i] = fun() ?? "";
+				}
+				return( syntax.join( "\x20" ) );
 			}
 			return( this.$exec( argument ) );
 		},
