@@ -1,5 +1,5 @@
 
-// Import Scripts.
+// Import Scripts
 import Type from "./Type.js";
 
 /*
@@ -13,60 +13,75 @@ import Type from "./Type.js";
 export default function Fmt( format, ...values )
 {
 	var i = 0;
+	var index = 0;
 	var match = null;
-	var regex = /(?:(?<format>(?<except>\\{0,})(\{[\s\t]*((?<key>[a-zA-Z_\x80-\xff]([a-zA-Z0-9_\x80-\xff]{0,}[a-zA-Z0-9_\x80-\xff]{1})*)|(?<index>[\d]+))*[\s\t]*\})))/igms;
+	var slash = "";
+	var result = "";
+	var regexp = /(?:(?<except>\\{0,})(?<format>(\{[\s\t]*((?<key>[a-zA-Z_\x80-\xff]([a-zA-Z0-9_\x80-\xff]{0,}[a-zA-Z0-9_\x80-\xff]{1})*)|(?<index>[\d]+))*[\s\t]*\})))/igms;
 	
+	// If format value is String type.
 	if( Type( format, String ) )
 	{
-		// [0] => Matched.
-		// [2] => Backslash<Exception>
-		// [3] => Format<MatchedWithoutBackslash>
-		// [4] => Index/Key<Matched>
-		while( ( match = regex.exec( format ) ) !== null )
+		while( ( match = regexp.exec( format ) ) !== null )
 		{
+			slash = "";
+			result += format.substring( index, regexp.lastIndex - match[0].length );
+			index = regexp.lastIndex;
+			
 			// If backslash character exists.
-			if( Type( match[2], String ) && match[2] !== "" )
+			if( Type( match.groups.backslash, String ) )
 			{
-				// Get backslash lenght.
-				var length = match[2].length;
+				// Get backslash length.
+				var length = length = match.groups.backslash.length;
 				
-				// If the number of backslashes is one.
-				if( length === 1 )
+				// If the number of backslashes is more than one.
+				if( length !== 1 )
 				{
-					format.replaceAll( match[0], match[3] ); continue;
-				}
-				
-				// If number of backslash is odd.
-				if( length % 2 !== 0 )
-				{
-					format = format.replaceAll( match[0], "\\".repeat( length -1 ) + match[3] ); continue;
-				}
-				
-				// Make backslashes as much as the amount minus two.
-				match[2] = "\\".repeat( length === 2 ? length -1 : length -2 );
-			}
-			
-			// If element 4 on array match and element 1 on array args exists.
-			if( typeof match[4] !== "undefined" &&
-				typeof values[0] !== "undefined" )
-			{
-				// If value of element 1 on array args Object type.
-				if( typeof values[0] === "object" )
-				{
-					// Check if value is only number.
-					if( /^\d+$/.test( match[4] ) )
+					// If number of backslash is odd.
+					if( length % 2 !== 0 )
 					{
-						match[4] = parseInt( match[4] );
+						result += "\\".repeat( length -1 );
+						result += match.groups.format;
+						continue;
 					}
-					format = format.replace( match[0], typeof values[0][match[4]] !== "undefined" ? match[2] + values[0][match[4]] : match[2] + "" ); continue;
+					
+					// Make backslashes as much as the amount minus two.
+					slash = "\\".repeat( length === 2 ? length -1 : length -2 );
+				}
+				else {
+					result += match.groups.format;
+					continue;
 				}
 			}
 			
-			// Only replace by iteration.
-			format = format.replace( match[0], typeof values[i] !== "undefined" ? match[2] + values[i++] : match[2] + "" );
+			// Append backslash characters.
+			result += slash;
+			
+			// If Index or Key is exists in groups.
+			if( Type( match.groups.key, String ) ||
+				Type( match.groups.index, String ) )
+			{
+				// If format by key name.
+				if( Type( match.groups.key, String ) )
+				{
+					// If value of element 1 on array args Object type.
+					if( Type( values[0], Object ) )
+					{
+						result += values[0][match.groups.key] ?? "";
+					}
+				}
+				else {
+					
+					// Get value by index.
+					result += values[match.groups.index] ?? "";
+				}
+				continue;
+			}
+			
+			// Get value by index iteration.
+			result += values[i++] ?? "";
 		}
-		return( format );
+		return( result + format.substring( index ) );
 	}
-	console.log( Type( format, String ) );
 	throw new TypeError( `Argument format must be type String, ${Type( format )} given` );
 };

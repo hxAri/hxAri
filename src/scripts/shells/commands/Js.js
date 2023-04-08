@@ -56,8 +56,14 @@ export default {
 		 */
 		command: function( argument )
 		{
-			// Execute command.
-			var exec = this.$exec( argument );
+			let match;
+			
+			// Check if subtitution is Aritmethic syntax.
+			if( match = argument.match( /^\(?:([^\\)]|\\.)*\)$/ ) )
+			{
+				
+			}
+			return( this.$exec( argument ) );
 		},
 		
 		/*
@@ -211,21 +217,19 @@ export default {
 					switch( true )
 					{
 						case Type( match.groups.subtitution_command, String ):
-							result += this.command( 
-								this.backslash(
-									match.groups.command
-								)
-							);
-							break;
 						case Type( match.groups.subtitution_backticks, String ):
-							result += this.command( 
-								this.backslash( 
-									match.groups.backticks
+							argv.push( result );
+							argv.push( ...this.extract(
+								this.command( 
+									this.backslash(
+										typeof match.groups.backticks === "string" ? match.groups.backticks : match.groups.command
+									)
 								)
-							);
+							));
+							result = "";
 							break;
 						case Type( match.groups.subtitution_expansion, String ):
-							result += this.expansion( match.groups );
+							result += this.expansion( this.backslash( match.groups ) );
 							break;
 						default:
 							result += this.backslash( match.groups.quotes.slice( 1, match[0].length -1 ) );
@@ -243,7 +247,7 @@ export default {
 					argv.push( value );
 				}
 			}
-			return( argv );
+			return( argv.filter( arg => Value.isNotEmpty( arg ) ) );
 		},
 		
 		/*
@@ -458,7 +462,7 @@ export default {
 			for( let i in splits )
 			{
 				// If argument is not && symbols.
-				if( splits[i] !== "&&" && Value.isNotEmpty( splits[i] ) )
+				if( splits[i] !== "&&" && splits[i] !== ";" && Value.isNotEmpty( splits[i] ) )
 				{
 					var value = "";
 					var regex = /(?<!\\)(?<variable>\$(?<name>[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*))/g;
@@ -553,53 +557,55 @@ export default {
 		var resolved = this.replace( argument.trim() );
 		var results = [];
 		
-		// Mapping resolved arguments.
 		for( let i in resolved )
 		{
 			var argv = this.extract( resolved[i].trim() );
 			var args = this.parser( argv );
 			
-			// Find command line shell.
-			var shell = this.$root.commands.find( shell => shell.name === argv[0] );
-			
-			// If shell is available.
-			if( shell )
+			if( argv.length >= 1 )
 			{
-				// Checks if command name is `js`.
-				if( argv[0] === "js" )
+				// Find command line shell.
+				var shell = this.$root.commands.find( shell => shell.name === argv[0] );
+				
+				// If shell is available.
+				if( shell )
 				{
-					results.push( ...this.execute( argv.slice( 1 ) ) );
+					// Checks if command name is `js`.
+					if( argv[0] === "js" )
+					{
+						results.push( ...this.execute( argv.slice( 1 ) ) );
+					}
+					else {
+						
+						// Checks if the command has a previous instance.
+						if( this.$root.built[argv[0]] )
+						{
+							var built = this.$root.builder( [ shell, this.$root.built[argv[0]] ], { argv, args } );
+						}
+						else {
+							var built = this.$root.builder( shell, { argv, args } );
+						}
+						
+						// Instantiate program/command.
+						var exec = new built(
+							
+							// Build program/command parameters.
+							this.params( shell, args )
+						);
+						
+						// If command return outputs.
+						if( Type( exec, Array ) )
+						{
+							results.push( exec );
+						}
+						else {
+							this.$root.built[argv[0]] = exec;
+						}
+					}
 				}
 				else {
-					
-					// Checks if the command has a previous instance.
-					if( this.$root.built[argv[0]] )
-					{
-						var built = this.$root.builder( [ shell, this.$root.built[argv[0]] ], { argv, args } );
-					}
-					else {
-						var built = this.$root.builder( shell, { argv, args } );
-					}
-					
-					// Instantiate program/command.
-					var exec = new built(
-						
-						// Build program/command parameters.
-						this.params( shell, args )
-					);
-					
-					// If command return outputs.
-					if( Type( exec, Array ) )
-					{
-						results.push( exec );
-					}
-					else {
-						this.$root.built[argv[0]] = exec;
-					}
+					throw Fmt( "{}: Command not found", argv[0] );
 				}
-			}
-			else {
-				throw Fmt( "{}: Command not found", argv[0] );
 			}
 		}
 		return( results );

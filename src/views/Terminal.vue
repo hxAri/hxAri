@@ -10,7 +10,7 @@
 	
 	export default {
 		data: () => ({
-			model: "$(echo -e \"Hello World!\")",
+			model: "x=0 && $((x++\\))",
 			range: {
 				begin: -1,
 				end: -1

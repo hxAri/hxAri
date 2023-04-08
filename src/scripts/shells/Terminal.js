@@ -151,7 +151,30 @@ Terminal.prototype.builder = function( shell, { argv, args })
 		 */
 		built.prototype.$exec = function( argument )
 		{
-			// ...
+			// Find command line shell.
+			var shell = this.$root.commands.find( shell => shell.name === this.$root.shell );
+			var result = [];
+			
+			// If shell is available.
+			if( shell )
+			{
+				// Check if shell has previous instance.
+				if( this.$root.built[shell.name] )
+				{
+					var built = this.$root.builder( [ shell, this.$root.built[shell.name] ], { argv: null, args: null } );
+				}
+				else {
+					var built = this.$root.builder( shell, { argv: null, args: null } );
+				}
+				var exec = new built({ argument });
+					exec.forEach( output => 
+						result.push( output.join( "\x20" ) )
+					);
+			}
+			else {
+				throw new Error( Fmt( "{}: Shells not available", this.$root.shell ) );
+			}
+			return( result.join( "\x20" ) );
 		};
 		
 		// Mapping program/ command data and methods.
@@ -431,7 +454,7 @@ Terminal.prototype.formatStyle = function( code )
 			}
 			if( format && color )
 			{
-				return( Fmt( "{}; {}", format, color ) );
+				return( `${format}; ${color}` );
 			}
 			return( format ? format : ( color ? color : false ) );
 		}
@@ -915,8 +938,14 @@ Terminal.prototype.run = async function( argument )
 				// If shell is available.
 				if( shell )
 				{
-					// Built shell.
-					var built = self.builder( shell, { argv: null, args: null } );
+					// Check if shell has previous instance.
+					if( self.built[self.shell] )
+					{
+						var built = self.builder( [ shell, self.built[shell.name] ], { argv: null, args: null } );
+					}
+					else {
+						var built = self.builder( shell, { argv: null, args: null } );
+					}
 					var exec = new built({ argument });
 						exec.forEach( output => 
 							self.history.push({
