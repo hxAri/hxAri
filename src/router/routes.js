@@ -1,6 +1,13 @@
 
 // Import Views
+import About from "/src/views/About.vue";
+import Contact from "/src/views/Contact.vue";
 import Home from "/src/views/Home.vue";
+import None from "/src/views/None.vue";
+import Privacy from "/src/views/Privacy.vue";
+import Project from "/src/views/Project.vue";
+import Sitemap from "/src/views/Sitemap.vue";
+import Terminal from "/src/views/Terminal.vue";
 
 export default [
 	{
@@ -19,7 +26,7 @@ export default [
 			active: [ "bx", "bxs-info-circle" ],
 			default: [ "bx", "bx-info-circle" ]
 		},
-		component: () => import( "/src/views/About.vue" )
+		component: About
 	},
 	{
 		path: "/contact",
@@ -28,7 +35,7 @@ export default [
 			active: [ "bx", "bxs-phone" ],
 			default: [ "bx", "bx-phone" ]
 		},
-		component: () => import( "/src/views/Contact.vue" )
+		component: Contact
 	},
 	{
 		path: "/privacy",
@@ -37,7 +44,7 @@ export default [
 			active: [ "bx", "bxs-lock" ],
 			default: [ "bx", "bx-lock" ]
 		},
-		component: () => import( "/src/views/Privacy.vue" )
+		component: Privacy
 	},
 	{
 		path: "/sitemap",
@@ -46,7 +53,7 @@ export default [
 			active: [ "bx", "bx-link-alt" ],
 			default: [ "bx", "bx-link" ]
 		},
-		component: () => import( "/src/views/Sitemap.vue" )
+		component: Sitemap
 	},
 	{
 		path: "/projects",
@@ -55,7 +62,7 @@ export default [
 			active: [ "bx", "bxs-flag" ],
 			default: [ "bx", "bx-flag" ]
 		},
-		component: () => import( "/src/views/Project.vue" )
+		component: Project
 	},
 	{
 		path: "/terminal",
@@ -65,7 +72,7 @@ export default [
 			default: [ "bx", "bx-terminal" ]
 		},
 		readable: false,
-		component: () => import( "/src/views/Terminal.vue" ),
+		component: Terminal,
 		children: [
 			{
 				path: ":terminalPath(.*?)*",
@@ -80,6 +87,6 @@ export default [
 		name: "none",
 		visible: false,
 		readable: false,
-		component: () => import( "/src/views/None.vue" )
+		component: None
 	}
 ];

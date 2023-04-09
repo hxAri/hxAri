@@ -86,7 +86,7 @@
 					text: "PGDN"
 				}
 			],
-			terminal: new Terminal()
+			terminal: null
 		}),
 		watch: {
 			title: {
@@ -97,9 +97,9 @@
 				}
 			}
 		},
-		mounted: function()
+		created: function()
 		{
-			this.terminal.binding = this;
+			this.terminal = new Terminal( this, this.$router );
 		},
 		methods: {
 			

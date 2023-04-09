@@ -1,7 +1,4 @@
 
-// Import Router
-import Router from "/src/router/router.js";
-
 // Import Scripts
 import Argument from "/src/scripts/shells/Argument.js";
 import Fmt from "/src/scripts/Fmt.js";
@@ -17,15 +14,18 @@ import Value from "/src/scripts/logics/Value.js";
 /*
  * Virtual Terminal.
  *
+ * @params Object binding
+ * @params Object router
+ *
  * @return Terminal
  */
-function Terminal()
+function Terminal( binding, router )
 {
+	this.router = router;
+	this.router.push( "/terminal/root" );
+	this.exports.PWD = router.currentRoute;
+	this.binding = binding;
 	this.commands = this.ls( "/bin" );
-	this.router.push(
-		"/terminal/root"
-	);
-	console.info( Fmt( "Terminal v{} started.", this.version ) );
 };
 
 /*
@@ -343,7 +343,9 @@ Terminal.prototype.exports = {
 	 *
 	 * @values Object
 	 */
-	PWD: Router.currentRoute,
+	PWD: {
+		path: "/terminal"
+	},
 	
 	/*
 	 * Terminal prompt.
@@ -896,7 +898,7 @@ Terminal.prototype.pwd = function( base = false )
  *
  * @values Router
  */
-Terminal.prototype.router = Router;
+Terminal.prototype.router = null;
 
 /*
  * Run terminal with command.
