@@ -10,7 +10,7 @@
 	
 	export default {
 		data: () => ({
-			model: "js --help",
+			model: "alias --help",
 			range: {
 				begin: -1,
 				end: -1

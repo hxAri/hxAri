@@ -3,7 +3,7 @@
 import Fmt from "/src/scripts/Fmt.js";
 import Datime from "/src/scripts/Datime.js";
 import Directory from "/src/scripts/shells/Directory.js";
-import Help from "/src/scripts/shells/Help.js";
+import Helper from "/src/scripts/shells/Helper.js"
 import HTMLEntity from "/src/scripts/HTMLEntity.js";
 import Match from "/src/scripts/Match.js";
 import Mapper from "/src/scripts/Mapper.js";
@@ -171,11 +171,9 @@ Terminal.prototype.builder = function( shell, { argv, args })
 		};
 		
 		/*
-		 * Allow a program/ command to display information about itself.
-		 *
-		 * @return Array
+		 * @inherit /src/scripts/shells/Helper
 		 */
-		built.prototype.$help = () => Help( shell );
+		built.prototype.$help = () => Helper( shell );
 		
 		// Mapping program/ command data and methods.
 		map({ ...shell.data, ...shell.methods });
