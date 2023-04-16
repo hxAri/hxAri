@@ -20,9 +20,15 @@ export default {
 		}
 	},
 	methods: {
+		
+		/*
+		 * Parse argument values into string.
+		 *
+		 * @return String
+		 */
 		toString: function()
 		{
-			return( this ).$argv.slice( this.$args.e === true ? 2 : 1 ).join( "\x20" );
+			return( this ).$argv.slice( this.$args.e === true || this.$args.n === true ? 2 : 1 ).join( "\x20" );
 		}
 	},
 	mounted: function({ e, n } = {})

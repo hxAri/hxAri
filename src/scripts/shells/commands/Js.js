@@ -1,5 +1,6 @@
 
 // Import Scripts
+import Author from "/src/scripts/Author.js";
 import Fmt from "/src/scripts/Fmt.js";
 import Mapper from "/src/scripts/Mapper.js";
 import Not from "/src/scripts/logics/Not.js";
@@ -15,11 +16,21 @@ export default {
 			datetime: /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d{3})?Z)?$/
 		}
 	},
+	author: Author,
+	version: {
+		number: "1.0",
+		release: "1.0.0"
+	},
 	options: {
 		argument: {
 			type: String,
-			usage: "",
+			usage: "Execute program/command",
 			require: true
+		},
+		help: {
+			type: Boolean,
+			usage: "Display help",
+			require: false
 		}
 	},
 	methods: {
@@ -252,7 +263,7 @@ export default {
 							result = "";
 							break;
 						case Type( match.groups.subtitution_expansion, String ):
-							result += this.expansion( this.backslash( match.groups ) );
+							result += this.expansion( this.backslash( match.groups.expansion ) );
 							break;
 						default:
 							result += this.backslash( match.groups.quotes.slice( 1, match[0].length -1 ) );
@@ -596,7 +607,14 @@ export default {
 					// Checks if command name is `js`.
 					if( argv[0] === "js" )
 					{
-						results.push( ...this.execute( argv.slice( 1 ) ) );
+						// Display shell info.
+						if( Type( args.help, Boolean ) )
+						{
+							results.push( this.$help() );
+						}
+						else {
+							results.push( ...this.execute( argv.slice( 1 ) ) );
+						}
 					}
 					else {
 						
