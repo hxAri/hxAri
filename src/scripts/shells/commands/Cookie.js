@@ -8,6 +8,7 @@ import Type from "/src/scripts/Type.js";
 
 export default {
 	name: "cookie",
+	type: "binary",
 	data: {
 		path: "/",
 		value: null,

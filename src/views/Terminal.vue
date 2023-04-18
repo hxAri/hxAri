@@ -10,7 +10,7 @@
 	
 	export default {
 		data: () => ({
-			model: "",
+			model: "ls ..",//"echo $((x,x++,x*89\\))",
 			range: {
 				begin: -1,
 				end: -1
@@ -212,12 +212,12 @@
 								stack.push( "<label class=\"terminal-line-prompt dp-block\">" );
 								
 								// Create terminal prompt.
-								stack.push( self.terminal.prompt( history.prompt ) );
+								stack.push( history.prompt );
 								
 								// Check if history has input commands.
 								if( Type( history.inputs, String ) )
 								{
-									stack.push( self.terminal.colorable( "\x20" + history.inputs ) );
+									stack.push( "\x20" + history.inputs );
 								}
 								stack.push( "</label>" );
 							}
@@ -228,10 +228,10 @@
 								stack.push( ...Mapper( history.output, ( i, output ) => Fmt( "<label class=\"terminal-line-output dp-block\">{}</label>", self.terminal.format( `${output}`.replaceAll( /\<|\>/g, m => m === "<" ? "&lt" : "&gt" ) ) ) ) );
 							}
 							
-							// Check if history has outputs.
-							if( Type( history.output, String ) )
+							// Check if history has single outputs.
+							else if( Type( history.output, [ Number, String ] ) )
 							{
-								stack.push( Fmt( "<label class=\"terminal-line-output dp-block\">{}</label>", self.terminal.format( history.output.replaceAll( /\<|\>/g, m => m === "<" ? "&lt" : "&gt" ) ) ) );
+								stack.push( Fmt( "<label class=\"terminal-line-output dp-block\">{}</label>", self.terminal.format( `${history.output}`.replaceAll( /\<|\>/g, m => m === "<" ? "&lt" : "&gt" ) ) ) );
 							}
 							return( stack.join( "" ) );
 						}
@@ -260,10 +260,11 @@
 		<div class="terminal-screen">
 			<div class="terminal-output" @click="trigger">
 				<div class="terminal-line" v-html="onrender()"></div>
-			</div>
+			
 			<div class="terminal-form" @click="trigger">
 				<label class="terminal-label" v-html="oninput()"></label>
 				<input class="terminal-input" type="text" v-model="model" autocapitalize="off" ref="input" @click="endrange" @keyup="endrange" @focus="endrange" @input="endrange" @change="endrange" @keypress="endrange" @keydown="executor" />
+			</div>
 			</div>
 			<div class="terminal-shortcut dp-none">
 				<div class="terminal-shortcut-key flex flex-center" v-for="shortcut in shortcuts" @click="keyboard( $event, shortcut )">
@@ -313,11 +314,23 @@
 			white-space: pre-wrap;
 			word-wrap: break-word;
 		}
-			.terminal-output p {
-				line-height: 1.2;
+			.terminal-output {
+				height: auto;
+				min-height: 420px;
+				max-height: auto;
 			}
-			.terminal-form {
-				margin-bottom: 14px;
+			@media (max-width: 750px) {
+				.terminal-output {
+					min-height: 360px;
+				}
+			}
+				.terminal-output p {
+					line-height: 1.2;
+				}
+			@media (max-width: 750px) {
+				.terminal-form {
+					/** margin-bottom: 14px; */
+				}
 			}
 				.terminal-label {
 					width: auto;
@@ -342,7 +355,7 @@
 			}
 		@media (max-width: 750px) {
 			.terminal-shortcut {
-				display: grid;
+				/** display: grid; */
 			}
 		}
 	

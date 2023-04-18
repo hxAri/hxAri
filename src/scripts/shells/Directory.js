@@ -1,6 +1,7 @@
 
 // Import Terminal Commands
 import Alias from "/src/scripts/shells/commands/Alias.js";
+import Cd from "/src/scripts/shells/commands/Cd.js";
 import Clear from "/src/scripts/shells/commands/Clear.js";
 import Cookie from "/src/scripts/shells/commands/Cookie.js";
 import Echo from "/src/scripts/shells/commands/Echo.js";
@@ -123,14 +124,14 @@ export default [
 				 * Terminal Commands.
 				 *
 				 * @include alias +
-				 * @include cd
+				 * @include browser
+				 * @include cd +
 				 * @include cp
 				 * @include clear +
 				 * @include contact
 				 * @include cookie +
 				 * @include date
 				 * @include echo +
-				 * @include eruda
 				 * @include exit +
 				 * @include export
 				 * @include help +
@@ -149,6 +150,7 @@ export default [
 				 */
 				child: [
 					Alias,
+					Cd,
 					Clear,
 					Cookie,
 					Echo,

@@ -16,8 +16,11 @@ import App from "/src/App.vue";
 import LazyLoad from "/src/directives/LazyLoad.js";
 import ScrollReveal from "/src/directives/ScrollReveal.js";
 
+// Import Stores
+import Store from "/src/stores/store.js";
+
 // Import Router
-import router from "/src/router/router.js";
+import Router from "/src/router/router.js";
 
 // The application instance.
 const app = createApp( App );
@@ -27,7 +30,8 @@ app.directive( "lazyload", LazyLoad );
 app.directive( "scroll-reveal", ScrollReveal );
 
 // Install the object instance as a plugin.
-app.use( router );
+app.use( Router );
+app.use( Store );
 
 // Mount element.
 app.mount( "#root" );

@@ -9,7 +9,7 @@ import Type from "/src/scripts/Type.js";
 
 export default {
 	name: "help",
-	type: "file",
+	type: "binary",
 	data: {
 		banner: Banner,
 		abouts: [

@@ -9,7 +9,7 @@ import Value from "/src/scripts/logics/Value.js";
 
 export default {
 	name: "js",
-	type: "file",
+	type: "binary",
 	data: {
 		regexp: {
 			numeric: /^-?\d+(\.\d+)?$/,
@@ -35,13 +35,25 @@ export default {
 	methods: {
 		
 		/*
+		 * Execute arithmetic javascript syntax.
+		 *
+		 * @params String syntax
+		 *
+		 * @return Number
+		 */
+		arithmetic: function( syntax )
+		{
+			
+		},
+		
+		/*
 		 * Resolve backslash in the raw strings.
 		 *
 		 * @params String string
 		 *
 		 * @return String
 		 */
-		backslash: string => string.replaceAll( /(?:\\{1,})(?!(x|e|0))/g, match =>
+		backslash: string => string.replaceAll( /(?:\\{1,})(?!(x|e|\\r|\\t|\\n|\\s|033))/g, match =>
 		{
 			// If the number of backslashes is one.
 			if( match.length === 1 ) return( "" );
@@ -74,27 +86,8 @@ export default {
 			{
 				// Split with comman separator.
 				var syntax = match[1].split( "," );
-				
-				for( let i in syntax )
-				{
-					// Replace letters in rithmetic syntax,
-					syntax[i] = syntax[i].replaceAll( /([a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*)/g, ( name ) =>
-					{
-						// Check if variable is not defined.
-						if( Type( $vars[name], "Undefined" ) )
-						{
-							$vars[name] = 0;
-						}
-						return( `$vars.${name}` );
-					});
-					
-					// Execute arithmetic syntax.
-					var fun = new Function( `return ${syntax[i]}` );
-					
-					// Get aritmethic result.
-					syntax[i] = fun() ?? "";
-				}
-				return( syntax.join( "\x20" ) );
+				console.log( syntax );
+			//	return( syntax.join( "\x20" ) );
 			}
 			return( this.$exec( argument ) );
 		},

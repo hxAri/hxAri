@@ -7,7 +7,7 @@ import Type from "/src/scripts/Type.js";
 
 export default {
 	name: "theme",
-	type: "file",
+	type: "binary",
 	data: {
 		theme: new Theme()
 	},

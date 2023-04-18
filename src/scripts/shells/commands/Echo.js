@@ -4,9 +4,9 @@ import Author from "/src/scripts/Author.js";
 
 export default {
 	name: "echo",
-	type: "file",
+	type: "binary",
 	data: {
-		regexp: /(?:(?<backslash>\\\\)|\\(?<escaped>b|n|r|s|t|v))/g
+		regexp: /(?:(?<backslash>\\\\)|\\(?<escaped>b|n|r|s|t|v|033|x))/g
 	},
 	author: Author,
 	abouts: "Display text on the terminal",

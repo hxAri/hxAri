@@ -1,15 +1,13 @@
 
 <script>
 	
+	import { mapState } from "vuex";
 	import { RouterLink } from "vue-router";
 	
 	// Import Scripts.
 	import Fmt from "/src/scripts/Fmt.js";
 	import Image from "/src/scripts/Image.js";
 	import Json from "/src/scripts/Json.js";
-	import Mapper from "/src/scripts/Mapper.js";
-	import MultiRequest from "/src/scripts/MultiRequest.js";
-	import Request from "/src/scripts/Request.js";
 	import Type from "/src/scripts/Type.js";
 	import Value from "/src/scripts/logics/Value.js";
 	
@@ -96,13 +94,7 @@
 					]
 				}
 			},
-			image: Image,
-			error: false,
-			loading: true,
-			requests: [],
-			projects: [],
-			responses: {},
-			organization: []
+			image: Image
 		}),
 		watch: {
 			title: {
@@ -113,120 +105,20 @@
 				}
 			}
 		},
-		mounted: async function()
+		computed: {
+			...mapState([
+				"error",
+				"loading",
+				"profile",
+				"projects",
+				"organization"
+			])
+		},
+		created: async function()
 		{
-			// Copy object instance.
-			var self = this;
-			
-			// Request targets.
-			var requests = [
-				{
-					method: "GET",
-					name: "organization",
-					url: "https://raw.githubusercontent.com/hxAri/hxAri/main/organizations.json"
-				},
-				{
-					method: "GET",
-					name: "projects",
-					url: "https://raw.githubusercontent.com/hxAri/hxAri/main/projects.json"
-				},
-				{
-					method: "GET",
-					name: "profile",
-					url: "https://api.github.com/users/hxAri"
-				}
-			];
-			
-			// Create multiple requests.
-			await MultiRequest( requests )
-			
-			// Handle all request responses.
-			.then( r =>
-			{
-				// Mapping request reponses.
-				Mapper( r, async function( i, request )
-				{
-					// Push request.
-					self.requests.push( request );
-					
-					// Check if response status code is ok.
-					if( request.status === 200 )
-					{
-						// Decode json response.
-						var response = Json.decode( request.response );
-						
-						// Push request response.
-						self.responses[requests[i].name] = response;
-						
-						// If request type is profile.
-						if( requests[i].name === "profile" )
-						{
-							self.profile = response;
-						}
-					}
-					else {
-						self.error = Request.StatusText( request.status );
-					}
-				});
-			})
-			.catch( e => self.error = Type( e, XMLHttpRequest, () => "No Internet Connection", () => e ) );
-			
-			// Mapping organizations.
-			for( let u in self.responses.organization )
-			{
-				// Get organization name.
-				var name = self.responses.organization[u];
-				
-				// Get all organization profile.
-				await Request( "GET", Fmt( "https://api.github.com/orgs/{}", name ) )
-					
-				// Handle all request responses.
-				.then( r =>
-				{
-					// Push request.
-					self.requests.push( r );
-					
-					// Check if response status code is ok.
-					if( r.status === 200 )
-					{
-						self.organization.push( self.responses[name] = Json.decode( r.response ) );
-					}
-					else {
-						self.error = Request.StatusText( r.status );
-					}
-				})
-				.catch( e => self.error = Type( e, XMLHttpRequest, () => "No Internet Connection", () => e ) );
-			}
-			
-			// Mapping projects.
-			for( let i in self.responses.projects )
-			{
-				// Get all organization profile.
-				await Request( "GET", Fmt( "https://api.github.com/repos/{}", self.responses.projects[i] ) )
-					
-				// Handle all request responses.
-				.then( r =>
-				{
-					// Push request.
-					self.requests.push( r );
-					
-					// Check if response status code is ok.
-					if( r.status === 200 )
-					{
-						// Decode response.
-						var response = Json.decode( r.response );
-						
-						// Push response.
-						self.responses[response.name] = response
-						self.projects.push( response );
-					}
-					else {
-						self.error = Request.StatusText( r.status );
-					}
-				})
-				.catch( e => self.error = Type( e, XMLHttpRequest, () => "No Internet Connection", () => e ) );
-			}
-			self.loading = false;
+			// Send request if the request has not been sent,
+			// Or if something wrong when sending request.
+			if( this.$store.getters.requested === false || this.$store.getters.error ) await this.$store.dispatch( "requests" );
 		},
 		methods: {
 			

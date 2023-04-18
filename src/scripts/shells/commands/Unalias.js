@@ -6,7 +6,7 @@ import Type from "/src/scripts/Type.js";
 
 export default {
 	name: "unalias",
-	type: "file",
+	type: "binary",
 	author: Author,
 	abouts: "Remove terminal command alias",
 	options: {

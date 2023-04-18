@@ -7,7 +7,7 @@ import Type from "/src/scripts/Type.js";
 
 export default {
 	name: "alias",
-	type: "file",
+	type: "binary",
 	author: Author,
 	abouts: "Define terminal command alias name",
 	options: {
@@ -25,7 +25,7 @@ export default {
 		}
 	},
 	data: {
-		regexp: /^(?<define>(?<name>[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)\=(?<value>\S*))$/g
+		regexp: /^(?<define>(?<name>[a-zA-Z_\x7f-\xff][a-zA-Z0-9-_\x7f-\xff]*)\=(?<value>[^\n]*))/
 	},
 	methods: {
 		
@@ -68,15 +68,9 @@ export default {
 				// Match alias syntax.
 				var match = this.regexp.exec( vals[i] );
 				
-				// If alias syntax is valid.
-				if( match !== null )
+				// If alias syntax is invalid.
+				if( match === null )
 				{
-					// Set or replace alias.
-					this.$name[match.groups.name] = match.groups.value ?? "\"\"";
-					iter++;
-				}
-				else {
-					
 					// Check if alias is exists.
 					if( this.$name[vals[i]] )
 					{
@@ -85,7 +79,11 @@ export default {
 					else {
 						outs.push( Fmt( "{}: alias: {}: Not found", this.$root.shell, vals[i] ) );
 					}
+					continue;
 				}
+				
+				// Set or replace alias.
+				this.$name[match.groups.name] = match.groups.value ?? "\"\""; iter++;
 			}
 		}
 		return( iter >= 1 ? outs : ( outs.length >= 1 ? outs : this.print() ) );
