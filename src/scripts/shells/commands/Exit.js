@@ -3,12 +3,12 @@
 import Author from "/src/scripts/Author.js";
 
 export default {
-	name: "clear",
+	name: "exit",
 	type: "file",
 	author: Author,
-	abouts: "Clear the terminal screen",
+	abouts: "Close current terminal tab",
 	mounted: function()
 	{
-		this.$root.history = [];
+		window.close();
 	}
 };

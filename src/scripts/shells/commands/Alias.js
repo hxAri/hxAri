@@ -1,5 +1,6 @@
 
 // Import Scripts
+import Author from "/src/scripts/Author.js";
 import Fmt from "/src/scripts/Fmt.js";
 import Mapper from "/src/scripts/Mapper.js";
 import Type from "/src/scripts/Type.js";
@@ -7,9 +8,8 @@ import Type from "/src/scripts/Type.js";
 export default {
 	name: "alias",
 	type: "file",
-	abouts: [
-		"Define terminal command alias name"
-	],
+	author: Author,
+	abouts: "Define terminal command alias name",
 	options: {
 		h: {
 			type: Boolean,

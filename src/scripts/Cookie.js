@@ -64,7 +64,6 @@ Cookie.prototype.get = function( name )
 				// Return cookie values.
 				return( decodeURIComponent( result.split( "=" )[1] ) );
 			}
-			console.log( 0 )
 		}
 		return( false );
 	}
@@ -231,8 +230,7 @@ Cookie.prototype.set = function( name, value, { comment, domain, expires, maxage
 			this.load();
 			
 			// Returns the cookie's raw header value.
-			return( header );
-			
+			return( Fmt( "Set-Cookie: {}", header ) );
 		}
 		else {
 			throw new TypeError( "Cookie name cannot be empty or null." );

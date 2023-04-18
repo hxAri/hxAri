@@ -17,19 +17,18 @@ export default {
 		}
 	},
 	author: Author,
-	version: {
-		number: "1.0",
-		release: "1.0.0"
-	},
+	abouts: "A simple virtual shell command line",
+	version: "1.0",
+	release: "10, Apr 2023",
 	options: {
 		argument: {
 			type: String,
-			usage: "Execute program/command",
+			usage: "Execute JavaScript syntax",
 			require: true
 		},
 		help: {
 			type: Boolean,
-			usage: "Display help",
+			usage: "Display this help",
 			require: false
 		}
 	},
@@ -178,7 +177,6 @@ export default {
 		 */
 		expansion: function( syntax )
 		{
-			// var regexp = /^(?<name>[a-zA-Z0-9]+)()(?<>[^\n]+)$/;
 			return( "" );
 		},
 		

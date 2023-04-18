@@ -1,12 +1,15 @@
+
+// Import Scripts
+import Author from "/src/scripts/Author.js";
+
 export default {
 	name: "echo",
 	type: "file",
 	data: {
 		regexp: /(?:(?<backslash>\\\\)|\\(?<escaped>b|n|r|s|t|v))/g
 	},
-	abouts: [
-		"Display text on the terminal"
-	],
+	author: Author,
+	abouts: "Display text on the terminal",
 	options: {
 		e: {
 			type: Boolean,

@@ -1,5 +1,6 @@
 
 // Import Scripts
+import Banner from "/src/scripts/shells/Banner.js";
 import Fmt from "/src/scripts/Fmt.js";
 import Datime from "/src/scripts/Datime.js";
 import Directory from "/src/scripts/shells/Directory.js";
@@ -173,7 +174,7 @@ Terminal.prototype.builder = function( shell, { argv, args })
 		/*
 		 * @inherit /src/scripts/shells/Helper
 		 */
-		built.prototype.$help = () => Helper( shell );
+		built.prototype.$help = function() { return( Helper( this, shell ) ); };
 		
 		// Mapping program/ command data and methods.
 		map({ ...shell.data, ...shell.methods });
@@ -228,9 +229,13 @@ Terminal.prototype.colorable = function( format )
 			pattern: "(?<bracket>\\{|\\}|(((?<!\\\\\x1b)\\[)|\\])|\\(|\\))",
 			colorize: "var(--shell-c-38-214m)"
 		},
-		type: {
-			pattern: "(?<type>\\b(False|True)\\b)",
+		boolean: {
+			pattern: "(?<boolean>\\b(False|True)\\b)",
 			colorize: "var(--shell-c-38-199m)"
+		},
+		type: {
+			pattern: "(?<type>\\b(Array|Date|String|Number|Bigint|Boolean|Undefined|Null|Symbol|Object)\\b)",
+			colorize: "var(--shell-c-38-213m)"
 		},
 		string: {
 			pattern: "(?<string>(?<!\\\\)(\"(.*?)(?<!\\\\)\")|(\'(.*?)(?<!\\\\)\')|(\`(.*?)(?<!\\\\)\`))",
@@ -241,7 +246,7 @@ Terminal.prototype.colorable = function( format )
 	try
 	{
 		// Create regular expression.
-		var regexp = new RegExp( "(?:" + Object.values( Mapper( patterns, ( i, k, val ) => val.pattern ) ).join( "|" ) + ")", "g" );
+		var regexp = new RegExp( "(?:" + Object.values( Mapper( patterns, ( i, k, val ) => val.pattern ) ).join( "|" ) + ")", "ig" );
 		
 		while( ( match = regexp.exec( format ) ) !== null )
 		{
@@ -277,6 +282,119 @@ Terminal.prototype.colorable = function( format )
 				}
 			}
 			result += Fmt( "{}<span style=\"color: {}\">{}</span>", format.substring( index, regexp.lastIndex - match[0].length ), color, match[0] );
+			index = regexp.lastIndex;
+		}
+	}
+	catch( error )
+	{
+		this.log( "error", error );
+	}
+	return( result + format.substring( index ) );
+};
+
+/*
+ * Automatic colorize text, number, and symbols in the string with ansi color.
+ *
+ * @params String format
+ * @params String base
+ *  Base color.
+ *
+ * @return String
+ */
+Terminal.prototype.colorableAnsi = function( format, base )
+{
+	// Avoid empty base color.
+	var basec = Type( base, String, () => base, () => "\x1b[37m" );
+	
+	// Current match index.
+	var index = 0;
+	
+	// Matched symbol.
+	var match = null;
+	
+	// Result.
+	var result = "";
+	
+	// Patterns.
+	var patterns = {
+		number: {
+			pattern: "(?<number>\\b(?<!\\\\(x1b|033)|\\;|\\[)(\\d+)\\b)",
+			colorize: "\x1b[0;38;5;61m"
+		},
+		define: {
+			pattern: "(?<define>(\\@|\\$)[a-zA-Z0-9_-]+)",
+			colorize: "\x1b[0;38;5;111m"
+		},
+		symbol: {
+			pattern: "(?<symbol>(\\\\(?<!x1b)|(\\\\(?<!033)))|\\:|\\*|\\-|\\+|\\/|\\&|\\%|\\=|((?<!\\d)\;(?<!\\d))|\\,|\\.|\\?|\\!|\\<|\\>|\\|)",
+			colorize: "\x1b[0;38;5;69m"
+		},
+		bracket: {
+			pattern: "(?<bracket>\\{|\\}|(((?<!\\\\\x1b|\x1b)\\[)|\\])|\\(|\\))",
+			colorize: "\x1b[0;38;5;214m"
+		},
+		boolean: {
+			pattern: "(?<boolean>\\b(False|True)\\b)",
+			colorize: "\x1b[0;38;5;199m"
+		},
+		type: {
+			pattern: "(?<type>\\b(Array|Date|String|Number|Bigint|Boolean|Undefined|Null|Symbol|Object)\\b)",
+			colorize: "\x1b[0;38;5;213m"
+		},
+		string: {
+			pattern: "(?<string>(?<!\\\\)(\"(.*?)(?<!\\\\)\")|(\'(.*?)(?<!\\\\)\')|(\`(.*?)(?<!\\\\)\`))",
+			colorize: "\x1b[0;38;5;220m",
+			handler: match => match[0].replaceAll( /(?<!\\)(\\"|\\'|\\`|\\r|\\t|\\n|\\s)/g, m => `\x1b[0;38;5;208m${m}\x1b[0;38;5;220m` )
+		}
+	};
+	
+	try
+	{
+		// Create regular expression.
+		var regexp = new RegExp( "(?:" + Object.values( Mapper( patterns, ( i, k, val ) => val.pattern ) ).join( "|" ) + ")", "ig" );
+		
+		while( ( match = regexp.exec( format ) ) !== null )
+		{
+			// Default color for text.
+			var color = "var(--shell-c-37m)";
+			
+			// Check if match has groups.
+			if( Type( match.groups, Object ) )
+			{
+				// Get all group names.
+				var groups = Object.keys( match.groups );
+				
+				for( let i in groups )
+				{
+					// Get group name.
+					var group = groups[i];
+					
+					// Check if group is available.
+					if( Type( patterns[group], Object ) &&
+						Type( match.groups[group], String ) )
+					{
+						color = patterns[group].colorize;
+						break;
+					}
+				}
+				// \x1b[0;38;5;
+				// Check group has handler.
+				if( Type( patterns[group].handler, [ Function, "handler" ] ) )
+				{
+					//result += Fmt( "{}<span style=\"color: {}\">{}</span>", format.substring( index, regexp.lastIndex - match[0].length ), color, patterns[group].handler( match ) );
+					result += format.substring( index, regexp.lastIndex - match[0].length );
+					result += color;
+					result += patterns[group].handler( match );
+					result += basec;
+					index = regexp.lastIndex;
+					continue;
+				}
+			}
+			//result += Fmt( "{}<span style=\"color: {}\">{}</span>", format.substring( index, regexp.lastIndex - match[0].length ), color, match[0] );
+			result += format.substring( index, regexp.lastIndex - match[0].length );
+			result += color;
+			result += match[0];
+			result += basec;
 			index = regexp.lastIndex;
 		}
 	}
@@ -508,34 +626,7 @@ Terminal.prototype.formatStyleValue = [
  */
 Terminal.prototype.history = [{
 	output: [
-		"                                           ",
-		"             \x1b[0;38;5;240m::                            ",
-		"            \x1b[0;38;5;245m^\x1b[0;38;5;255mJJ\x1b[0;38;5;245m^\x1b[0;38;5;240m... :~\x1b[0;38;5;245m^                    ",
-		"      \x1b[0;38;5;245m.^\x1b[0;38;5;240m::\x1b[0;38;5;255m~7JJJJJJ??JJJ\x1b[0;38;5;245m^                   ",
-		"      \x1b[0;38;5;255m7JJJYYJ?77??JJJJJJ?!!??\x1b[0;38;5;240m:             ",
-		"      \x1b[0;38;5;240m:\x1b[0;38;5;255mJJJ?\x1b[0;38;5;245m^.     .^\x1b[0;38;5;255m!?JJLJJJ?\x1b[0;38;5;240m.             ",
-		"    \x1b[0;38;5;240m:\x1b[0;38;5;245m^\x1b[0;38;5;255m?JJJ\x1b[0;38;5;245m. \x1b[0;38;5;69m*  \x1b[0;38;5;245m~\x1b[0;38;5;255m7\x1b[0;38;5;245m^   .^\x1b[0;38;5;255m?JIJJJJ?\x1b[0;38;5;240m: ..         ",
-		"   \x1b[0;38;5;240m.\x1b[0;38;5;255m?JJJJJ\x1b[0;38;5;245m^  \x1b[0;38;5;240m.\x1b[0;38;5;245m!\x1b[0;38;5;255mJY7     \x1b[0;38;5;245m.\x1b[0;38;5;255m?JAJJ\x1b[0;38;5;245m~::^\x1b[0;38;5;240m::.       ",
-		"    \x1b[0;38;5;240m..\x1b[0;38;5;245m^\x1b[0;38;5;255m?JJJ??JJJJ\x1b[0;38;5;245m:      :\x1b[0;38;5;255mJNJ7\x1b[0;38;5;245m^\x1b[0;38;5;240m:\x1b[0;38;5;245m~!~\x1b[0;38;5;240m::.      ",
-		"       \x1b[0;38;5;240m:\x1b[0;38;5;255mJJJ?J?7JJ\x1b[0;38;5;245m~       \x1b[0;38;5;255m7AJ?\x1b[0;38;5;245m^\x1b[0;38;5;240m:::::.       ",
-		"       \x1b[0;38;5;240m.\x1b[0;38;5;255m!7\x1b[0;38;5;245m^..  :^.       \x1b[0;38;5;255m?JJ?\x1b[0;38;5;245m!!\x1b[0;38;5;240m~~^         ",
-		"                        \x1b[0;38;5;245m:\x1b[0;38;5;255mJJJ7\x1b[0;38;5;245m!!!!!         ",
-		"                       \x1b[0;38;5;245m:\x1b[0;38;5;255m?JJ?\x1b[0;38;5;245m!!!\x1b[0;38;5;240m~~~.        ",
-		"                      \x1b[0;38;5;245m^\x1b[0;38;5;255m?JJ?\x1b[0;38;5;245m!!^\x1b[0;38;5;240m:::::.       ",
-		"                    \x1b[0;38;5;245m:\x1b[0;38;5;255m7JJJ7\x1b[0;38;5;245m!!\x1b[0;38;5;240m~.:\x1b[0;38;5;245m~!~\x1b[0;38;5;240m::.      ",
-		"                  \x1b[0;38;5;245m:\x1b[0;38;5;255m!JJJJ7\x1b[0;38;5;245m!!!!^::^\x1b[0;38;5;240m::.       ",
-		"                \x1b[0;38;5;245m:\x1b[0;38;5;255m~JJCJJ7\x1b[0;38;5;245m!!!!!!!^\x1b[0;38;5;240m.         ",
-		"               \x1b[0;38;5;245m^\x1b[0;38;5;255m?JHJJ?\x1b[0;38;5;245m!!!!!!!!^            ",
-		"             \x1b[0;38;5;245m:\x1b[0;38;5;255m7JJIJJ?\x1b[0;38;5;245m!!!\x1b[0;38;5;240m^^\x1b[0;38;5;245m::\x1b[0;38;5;240m^^             ",
-		"           \x1b[0;38;5;245m^\x1b[0;38;5;255m!JJJNJJ7\x1b[0;38;5;245m!!!^\x1b[0;38;5;240m::\x1b[0;38;5;245m~~\x1b[0;38;5;240m::.            ",
-		"          \x1b[0;38;5;245m^\x1b[0;38;5;255m?JJTJJJ7\x1b[0;38;5;245m!!!!^.^!!^\x1b[0;38;5;240m:.            ",
-		"        \x1b[0;38;5;245m^\x1b[0;38;5;255m?JJYJJJJ7\x1b[0;38;5;245m!!!!!!^\x1b[0;38;5;240m:::..             ",
-		"      \x1b[0;38;5;245m:\x1b[0;38;5;255m7JJAJJJJ?\x1b[0;38;5;245m!!!!!!!!^                  ",
-		"      \x1b[0;38;5;255m7JJJJJJJ?\x1b[0;38;5;245m!!!!!!!\x1b[0;38;5;240m~:                   ",
-		"\x20",
-		"Type \x1b[0;38;4;111m\x1b[37mhelp\x1b[40m \x1b[37mfor available commands",
-		"\x20"
-	]
+		...Banner, "\x20", "Type \x1b[0;38;4;111m\x1b[37mhelp\x1b[40m \x1b[37mfor available commands", "\x20" ]
 }];
 
 /*
@@ -730,11 +821,11 @@ Terminal.prototype.ls = function( path )
 			// Check if directory not found.
 			if( Type( dir, [ Array, Object ] ) === false )
 			{
-				throw new Error( Fmt( "No such file or directory {}", path ) );
+				throw Fmt( "No such file or directory {}", path );
 			}
 		}
 		else {
-			throw new Error( Fmt( "No such file or directory {}", path ) );
+			throw Fmt( "No such file or directory {}", path );
 		}
 	}
 	
@@ -960,7 +1051,7 @@ Terminal.prototype.run = async function( argument )
 			catch( error )
 			{
 				self.log( "error", error );
-				self.history.push({ output: Fmt( "{}: {}", self.shell, error ) });
+				self.history.push({ output: self.colorableAnsi( Fmt( "{}: {}", self.shell, error ) ) });
 				//self.history.push({ output: JSON.stringify( self.parseStackTrace( error ), null, 4 ) });
 			}
 			self.loading = false;

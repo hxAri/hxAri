@@ -1,14 +1,14 @@
 
 // Import Scripts
+import Author from "/src/scripts/Author.js";
 import Fmt from "/src/scripts/Fmt.js";
 import Type from "/src/scripts/Type.js";
 
 export default {
 	name: "unalias",
 	type: "file",
-	abouts: [
-		"Remove terminal command alias"
-	],
+	author: Author,
+	abouts: "Remove terminal command alias",
 	options: {
 		a: {
 			type: Boolean,

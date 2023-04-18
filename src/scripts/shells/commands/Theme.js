@@ -1,5 +1,6 @@
 
 // Import Scripts
+import Author from "/src/scripts/Author.js";
 import Fmt from "/src/scripts/Fmt.js";
 import Theme from "/src/scripts/Theme.js";
 import Type from "/src/scripts/Type.js";
@@ -10,6 +11,8 @@ export default {
 	data: {
 		theme: new Theme()
 	},
+	author: Author,
+	abouts: "Change theme color",
 	options: {
 		c: {
 			type: String,
