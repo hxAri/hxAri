@@ -10,7 +10,7 @@
 	
 	export default {
 		data: () => ({
-			model: "ls ..",//"echo $((x,x++,x*89\\))",
+			model: "",//"echo $((x,x++,x*89\\))",
 			range: {
 				begin: -1,
 				end: -1
