@@ -1,7 +1,7 @@
 {
     "name": "hxari",
     "author": "hxAri",
-    "version": "4.1.6",
+    "version": "4.1.7",
     "license": "MIT",
     "private": false,
     "main": "dist/js/hxari.js",
