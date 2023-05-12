@@ -2,6 +2,14 @@
     "max": 100,
     "skills": [
         {
+            "name": "CSS",
+            "value": 90
+        },
+        {
+            "name": "HTML",
+            "value": 90
+        },
+        {
             "name": "JavaScript",
             "value": 94
         },
