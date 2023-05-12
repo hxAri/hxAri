@@ -2,40 +2,20 @@
     "max": 100,
     "skills": [
         {
-            "name": "C",
-            "value": 20
-        },
-        {
-            "name": "CSS",
-            "value": 65
-        },
-        {
-            "name": "HTML",
-            "value": 90
-        },
-        {
-            "name": "Java",
-            "value": 45
-        },
-        {
             "name": "JavaScript",
-            "value": 75
-        },
-        {
-            "name": "PHP",
             "value": 92
         },
         {
-            "name": "Python",
-            "value": 72
+            "name": "PHP",
+            "value": 96
         },
         {
-            "name": "Ruby",
-            "value": 35
+            "name": "Python",
+            "value": 90
         },
         {
             "name": "Shell",
-            "value": 70
+            "value": 90
         }
     ]
 }
