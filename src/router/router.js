@@ -33,6 +33,15 @@ const router = createRouter({
 				behavior: "smooth"
 			});
 		}
+		
+		// If target has query tab.
+		else if( to.query.tab )
+		{
+			return({
+				el: to.query.tab,
+				behavior: "smooth"
+			});
+		}
 		else {
 			
 			// If previous position is available.
