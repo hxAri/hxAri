@@ -24,9 +24,56 @@
 		}
 	},
 	"certificate": {
-		"source": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/certs",
-		"certificates": []
+		"source": {
+			"image": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/certs",
+			"cert": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/certs"
+		},
+		"certificates": [
+			{
+				"title": "Career Preparation Fair",
+				"image": "",
+				"source": "",
+				"datetime": "Tuesday, May 15 2023",
+				"description": [
+					"For actively participating in the **\"Career Preparation Fair\"** at Career Support Festival 2023"
+				]
+			},
+			{
+				"title": "Mobile Game and Programming Training",
+				"image": "",
+				"source": "",
+				"datetime": "Saturday, 10 June 2023",
+				"galery": [
+					{
+						"image": "",
+						"datetime": "",
+						"description": ""
+					}
+				],
+				"description": [
+					"Has attended Mobile Game and Programming Training",
+					"Organized by the Computer Laboratory of the Darmajaya Institute of Informatics and Business Bandar Lampung"
+				]
+			}
+		]
 	},
+	"experiences": [
+		{
+			"title": "",
+			"datetime": {
+				"start": "",
+				"finish": ""
+			},
+			"galery": [
+				{
+					"image": "",
+					"datetime": "",
+					"description": ""
+				}
+			],
+			"description": []
+		}
+	],
 	"image": {
 		"source": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images",
 		"images": {
@@ -108,10 +155,14 @@
 		}
 	},
 	"maintenance": true,
+	"organizations": [
+		"octancle",
+		"yfure"
+	],
 	"projects": [
 		{
 			"name": "Android",
-			"include": false,
+			"include": true,
 			"document": "https://raw.githubusercontent.com/hxAri/Android/main/docs/",
 			"tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1647263980;c78Y41VWj3.png"
 		},
@@ -123,7 +174,7 @@
 		},
 		{
 			"name": "Eremento",
-			"include": true,
+			"include": false,
 			"document": "https://raw.githubusercontent.com/hxAri/Eremento/main/docs/",
 			"tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1653507202;5fe1yJwN3F.png"
 		},
