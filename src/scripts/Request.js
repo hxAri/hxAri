@@ -1,6 +1,8 @@
 
 // Import Scripts.
-import Type from "./Type.js";
+import Value from "/src/scripts/logics/Value.js";
+import Not from "/src/scripts/logics/Not.js"
+import Type from "/src/scripts/Type.js";
 
 /*
  * Request
@@ -77,10 +79,35 @@ const Request = async function( method, url, options = {} )
 		}
 		
 		// Fired when an XMLHttpRequest transaction completes successfully.
-		xhr.onload = evt => resolve( xhr );
+		xhr.onload = evt =>
+		{
+			// If request is failed.
+			if( xhr.status !== 200 )
+			{
+				var message = null;
+				try
+				{
+					// Trying to parse json response.
+					// This only works if response is json type.
+					var resp = xhr.response;
+						resp = `${resp}`;
+						resp = Json.decode( resp );
+					
+					// Check if response has message.
+					if( Type( resp.message, String ) && Value.isNotEmpty( resp.message ) )
+					{
+						message = resp.message;
+					}
+				}
+				catch( e )
+				{}
+				return reject( new Error( message ? message : Request.StatusText( xhr.status ) ), xhr );
+			}
+			return resolve( xhr );
+		};
 		
 		// Fired when the request encountered an error.
-		xhr.onerror = evt => reject( xhr );
+		xhr.onerror = evt => reject( "Connection Error", xhr );
 	}));
 };
 
@@ -175,7 +202,7 @@ Request.Header = function( raw )
 Request.ContentType = function( content )
 {
 	// Check if the raw is not undefined type.
-	if( not( content, "Undefined" ) ) return;
+	if( Not( content, "Undefined" ) )
 	{
 		// Check if the raw type has not been split.
 		if( Type( content, String ) )
