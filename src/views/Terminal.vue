@@ -128,16 +128,12 @@
 				// Check if key is enter.
 				if( e.key === "Enter" )
 				{
-					await this.terminal.run( this.model )
+					// Focusable.
+					this.trigger();
 					
-					.then( x =>
-					{
-						console.log( x );
-					})
-					.catch( e =>
-					{
-						console.error( e );
-					});
+					await this.terminal.run( this.model )
+						.then( x => console.log( x ) )
+						.catch( e => console.error( e ) );
 				}
 			},
 			
@@ -166,6 +162,9 @@
 			 */
 			oninput: function( e )
 			{
+				// Focusable.
+				this.trigger();
+				
 				// Check if terminal is working for another program.
 				if( this.terminal.loading )
 				{
@@ -187,6 +186,7 @@
 			onrender: function()
 			{
 				var self = this;
+					self.trigger();
 				
 				return(
 					
@@ -248,7 +248,12 @@
 			 */
 			trigger: function( e )
 			{
-				this.$refs.input.focus();
+				try
+				{
+					this.$refs.input.focus();
+				}
+				catch( e )
+				{}
 			}
 		}
 	};

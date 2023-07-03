@@ -49,8 +49,7 @@
 			{
 				return({
 					data: () => ({
-						actives: {
-						}
+						actives: {}
 					}),
 					mounted: function()
 					{

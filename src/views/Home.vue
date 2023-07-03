@@ -1,12 +1,11 @@
 
 <script>
 	
-	import { mapState } from "vuex";
+	import { mapGetters, mapState } from "vuex";
 	import { RouterLink } from "vue-router";
 	
 	// Import Scripts.
 	import Fmt from "/src/scripts/Fmt.js";
-	import Image from "/src/scripts/Image.js";
 	import Json from "/src/scripts/Json.js";
 	import Type from "/src/scripts/Type.js";
 	import Value from "/src/scripts/logics/Value.js";
@@ -83,17 +82,6 @@
 					}
 				}
 			],
-			contents: {
-				abouts: {
-					class: [ "text", "mg-bottom-14", "mg-lc-bottom" ],
-					inner: [
-						"Hello, introduce my name is Ari Setiawan",
-						"I am a Full Stack Developer from Indonesia who likes to drink Chocolate coffee while thinking of crazy ideas to build programs that can benefit everyone",
-						"I have been writing code from 2019 to be precise when I was in junior high school until now I like to write code, but apart from that all my family doesn't care about it",
-						"I prefer to work independently or alone but apart from that I can also work well in a team"
-					]
-				}
-			},
 			image: Image
 		}),
 		watch: {
@@ -109,16 +97,35 @@
 			...mapState([
 				"error",
 				"loading",
+				"configs",
 				"profile",
-				"projects",
-				"organization"
+				"organizations"
+			]),
+			...mapGetters([
+				"hasConfig",
+				"hasProfile",
+				"hasOrganization"
 			])
 		},
 		created: async function()
 		{
 			// Send request if the request has not been sent,
 			// Or if something wrong when sending request.
-			if( this.$store.getters.requested === false || this.$store.getters.error ) await this.$store.dispatch( "requests" );
+			if( this.hasConfig === false ||
+				this.hasProfile === false ||
+				this.error )
+			{
+				// Dispatch for priority targets.
+				await this.$store.dispatch( "priority" );
+			}
+			
+			// Send request if the organization doest not available.
+			if( this.hasOrganization === false &&
+				this.error === false )
+			{
+				// Dispatch for organization.
+				await this.$store.dispatch( "organization" );
+			}
 		},
 		methods: {
 			
@@ -167,135 +174,147 @@
 </script>
 
 <template>
+	<div class="banner">
+		<div class="banner-group">
+			<div class="banner-album"></div>
+			<div class="banner-cover"></div>
+		</div>
+	</div>
 	<div class="loading flex flex-center pd-24" v-if="loading">
 		<div class="animate">
 			<div class="spinner"></div>
 		</div>
 	</div>
-	<Error v-else-if="error">
+	<Error v-else-if="loading === false && error">
 		<h3 class="title">Something Wrong</h3>
 		<p class="sub-title">{{ error }}</p>
 	</Error>
-	<div class="" v-else>
-		<div class="banner">
-			<div class="banner-group">
-				<div class="banner-album"></div>
-				<div class="banner-cover"></div>
-			</div>
-		</div>
-		<div class="home dp-flex">
-			<div class="home-profile">
-				<div class="profile-common">
-					<div class="profile-picture flex flex-center rd-circle">
-						<div class="profile-picture-border flex flex-center rd-circle">
-							<div class="profile-picture-spaces flex flex-center rd-circle">
-								<!--<Avatar :attrs="{ avatar: 'profile-avatar', wrapper: [ 'profile-avatar-wrapper', 'rd-circle' ] }" title="Ari Setiawan" alt="Ari Setiawan (hxAri)" src="https://avatars.githubusercontent.com/u/90847846?v=4" />-->
-								<div class="avatar flex flex-center profile-avatar">
-									<div class="avatar-wrapper flex flex-center profile-avatar-wrapper rd-circle">
-										<img class="avatar-image lazy" title="Ari Setiawan" alt="Ari Setiawan (hxAri)" :data-src="profile.avatar_url" v-lazyload />
-										<div class="avatar-cover"></div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="profile-common-info mg-top-20">
-						<p class="title fs-20 fb-45 mg-0 fullname">{{ profile.name }}</p>
-						<p class="text fs-14 fb-35 mg-0 biography">{{ profile.bio ?? "A Full Stack Developer" }}</p>
-					</div>
-				</div>
-				<div class="profile-about pd-20">
-					<ul class="bx-ul mg-bottom-14">
-						<li class="flex flex-left mg-bottom-4">
-							<i class="bx bxs-map"></i>{{ profile.location ?? "Milky Way" }}
-						</li>
-						<li class="flex flex-left mg-bottom-4">
-							<i class="bx bxl-whatsapp"></i>+62 858-3913-6990
-						</li>
-						<li class="flex flex-left">
-							<i class="bx bx-mail-send"></i>{{ profile.email ?? "ari160824@gmail.com" }}
-						</li>
-					</ul>
-					<a :href="image.resume" target="_blank" rel="noopener noreferrer">
-						<button class="button button-resume mg-bottom-14 pd-14">
-							<span class="title fb-45">View Resume</span>
-						</button>
-					</a>
-					<hr class="hr mg-bottom-14" />
-					<div class="mg-bottom-14 mg-lc-bottom flex flex-left" v-for="org in organization">
-						<a class="flex flex-left" :href="org.html_url" target="_blank" rel="noopener noreferrer">
-							<div class="avatar mg-right-14">
-								<div class="avatar-wrapper flex flex-center organization-avatar-wrapper rd-circle">
-									<img class="avatar-image" :title="org.name" :alt="org.login" :data-src="org.avatar_url" v-lazyload />
+	<div class="home dp-flex" v-else>
+		<div class="home-profile">
+			<div class="profile-common">
+				<div class="profile-picture flex flex-center rd-circle">
+					<div class="profile-picture-border flex flex-center rd-circle">
+						<div class="profile-picture-spaces flex flex-center rd-circle">
+							<!--<Avatar :attrs="{ avatar: 'profile-avatar', wrapper: [ 'profile-avatar-wrapper', 'rd-circle' ] }" title="Ari Setiawan" alt="Ari Setiawan (hxAri)" src="https://avatars.githubusercontent.com/u/90847846?v=4" />-->
+							<div class="avatar flex flex-center profile-avatar">
+								<div class="avatar-wrapper flex flex-center profile-avatar-wrapper rd-circle">
+									<img class="avatar-image lazy" title="Ari Setiawan" alt="Ari Setiawan (hxAri)" :data-src="profile.avatar_url" v-lazyload />
 									<div class="avatar-cover"></div>
 								</div>
 							</div>
-							<p class="title">{{ org.name }}</p>
-						</a>
-					</div>
-				</div>
-			</div>
-			<div class="home-contents">
-				<div class="tabs flex flex-center scroll-hidden">
-					<div :class="active( tab.hash )" @click="$router.push({ hash: tab.hash })" v-for="tab in tabs">
-						<div class="tab-inner flex flex-center pd-left-14 pd-right-14">
-							<span :class="iconic( tab )"></span>
-							<span class="tab-text">{{ tab.text }}</span>
 						</div>
 					</div>
 				</div>
-				<div class="content-groups pd-14">
-					<div class="content-single pd-14" id="about" v-scroll-reveal="{ delay: 650 }">
-						<h2 class="title">
-							<RouterLink class="title flex flex-left" to="#about">
-								<i class="bx bxs-info-circle mg-right-14"></i>Abouts
-							</RouterLink>
-						</h2>
-						<hr class="hr mg-top-14 mg-bottom-14" />
-						<p :class="contents.abouts.class" v-for="about in contents.abouts.inner" v-scroll-reveal="{ delay: 650 }">{{ about }}</p>
+				<div class="profile-common-info mg-top-20">
+					<p class="title fs-20 fb-45 mg-0 fullname">{{ configs.author.name ?? profile.name }}</p>
+					<p class="text fs-14 fb-35 mg-0 biography">{{ profile.bio ?? "Self expansion infinite void" }}</p>
+				</div>
+			</div>
+			<div class="profile-about pd-20">
+				<ul class="bx-ul mg-bottom-14">
+					<li class="flex flex-left mg-bottom-4">
+						<i class="bx bxs-map"></i>{{ profile.location ?? configs.address.universe ?? "Milky Way" }}
+					</li>
+					<li class="flex flex-left mg-bottom-4">
+						<i class="bx bxl-whatsapp"></i>{{ configs.author.contact.phone }}
+					</li>
+					<li class="flex flex-left">
+						<i class="bx bx-mail-send"></i>{{ configs.author.contact.email ?? profile.email ?? "hxari@proton.me" }}
+					</li>
+				</ul>
+				<a :href="image.resume" target="_blank" rel="noopener noreferrer">
+					<button class="button button-resume mg-bottom-14 pd-14">
+						<span class="title fb-45">View Resume</span>
+					</button>
+				</a>
+				<hr class="hr mg-bottom-14" />
+				<div class="organization" v-if="hasOrganization">
+					<div class="mg-bottom-14 mg-lc-bottom flex flex-left" v-for="organization in organizations">
+						<a class="flex flex-left" :href="organization.html_url" target="_blank" rel="noopener noreferrer">
+							<div class="avatar mg-right-14">
+								<div class="avatar-wrapper flex flex-center organization-avatar-wrapper rd-circle">
+									<img class="avatar-image" :title="organization.name" :alt="organization.login" :data-src="organization.avatar_url" v-lazyload />
+									<div class="avatar-cover"></div>
+								</div>
+							</div>
+							<p class="title">{{ organization.name }}</p>
+						</a>
 					</div>
-					<div class="content-single pd-14" id="skill" v-scroll-reveal="{ delay: 650 }">
-						<h2 class="title">
-							<RouterLink class="title flex flex-left" to="#skill">
-								<i class="bx bxs-hot mg-right-14"></i>Skills
-							</RouterLink>
-						</h2>
-						<hr class="hr mg-top-14 mg-bottom-14" />
-						<Skill :image="image" />
+				</div>
+				<div class="organization" v-else>
+					<div class="organization-loading mg-bottom-14 mg-lc-bottom flex flex-left" v-for="i in configs.organizations">
+						<div class="flex flex-left">
+							<div class="avatar mg-right-14">
+								<div class="avatar-wrapper flex flex-center organization-avatar-wrapper rd-circle">
+								</div>
+							</div>
+							<p class="title"></p>
+						</div>
 					</div>
-					<div class="content-single pd-14" id="project" v-scroll-reveal="{ delay: 650 }">
-						<h2 class="title">
-							<RouterLink class="title flex flex-left" to="#project">
-								<i class="bx bxs-flag mg-right-14"></i>Projects
-							</RouterLink>
-						</h2>
-						<hr class="hr mg-top-14 mg-bottom-14" />
-						<p class="text mg-bottom-14">
-							Here are some of the projects I've created and are still developing. Every project is open source anyone can use it or contribute if interesting, don't forget to let others know if it's useful.
-						</p>
-						<Project :profile="profile" :projects="projects" :image="image" />
+				</div>
+			</div>
+		</div>
+		<div class="home-contents">
+			<div class="tabs flex flex-center scroll-hidden">
+				<div :class="active( tab.hash )" @click="$router.push({ hash: tab.hash })" v-for="tab in tabs">
+					<div class="tab-inner flex flex-center pd-left-14 pd-right-14">
+						<span :class="iconic( tab )"></span>
+						<span class="tab-text">{{ tab.text }}</span>
 					</div>
-					<div class="content-single pd-14" id="experience" v-scroll-reveal="{ delay: 650 }">
-						<h2 class="title">
-							<RouterLink class="title flex flex-left" to="#experience">
-								<i class="bx bxs-star mg-right-14"></i>Experience
-							</RouterLink>
-						</h2>
-						<hr class="hr mg-top-14 mg-bottom-14" />
-						<h4 class="title">Industrial Work</h4>
-						<p class="text mg-bottom-14">
-							I have had work experience doing industrial work practices at <a href="https://www.darmajaya.ac.id/" target="_blank" rel="noopener noreferrer">The Darmajaya Institute of Informatics and Business Campus</a> to be precise in Bandar Lampung in the Computer Lab section as a Computer Service Technician for 4 months
-						</p>
-					</div>
-					<div class="content-single pd-14" id="certificate" v-scroll-reveal="{ delay: 650 }">
-						<h2 class="title">
-							<RouterLink class="title flex flex-left" to="#certificate">
-								<i class="bx bx-check-double mg-right-14"></i>Certificate
-							</RouterLink>
-						</h2>
-						<hr class="hr mg-top-14 mg-bottom-14" />
-						<p class="text">Unavailable</p>
-					</div>
+				</div>
+			</div>
+			<div class="content-groups pd-14">
+				<div class="content-single pd-14" id="about" v-scroll-reveal="{ delay: 650 }">
+					<h2 class="title">
+						<RouterLink class="title flex flex-left" to="#about">
+							<i class="bx bxs-info-circle mg-right-14"></i>Abouts
+						</RouterLink>
+					</h2>
+					<hr class="hr mg-top-14 mg-bottom-14" />
+					<p class="text mg-bottom-14 mg-lc-bottom" v-for="about in configs.author.abouts" v-scroll-reveal="{ delay: 650 }">{{ about }}</p>
+				</div>
+				<div class="content-single pd-14" id="skill" v-scroll-reveal="{ delay: 650 }">
+					<h2 class="title">
+						<RouterLink class="title flex flex-left" to="#skill">
+							<i class="bx bxs-hot mg-right-14"></i>Skills
+						</RouterLink>
+					</h2>
+					<hr class="hr mg-top-14 mg-bottom-14" />
+					<Skill :skills="configs.skill.skills" :percentage="configs.skill.percentage" />
+				</div>
+				<div class="content-single pd-14" id="project" v-scroll-reveal="{ delay: 650 }">
+					<h2 class="title">
+						<RouterLink class="title flex flex-left" to="#project">
+							<i class="bx bxs-flag mg-right-14"></i>Projects
+						</RouterLink>
+					</h2>
+					<hr class="hr mg-top-14 mg-bottom-14" />
+					<p class="text mg-bottom-14">
+						Here are some of the projects I've created and are still developing.
+						Every project is open source anyone can use it or contribute if interesting,
+						don't forget to let others know if it's useful.
+					</p>
+					<Project :profile="profile" :projects="configs.projects" :image="configs.image" />
+				</div>
+				<div class="content-single pd-14" id="experience" v-scroll-reveal="{ delay: 650 }">
+					<h2 class="title">
+						<RouterLink class="title flex flex-left" to="#experience">
+							<i class="bx bxs-star mg-right-14"></i>Experience
+						</RouterLink>
+					</h2>
+					<hr class="hr mg-top-14 mg-bottom-14" />
+					<p class="text"></p>
+					<!--<Experience />-->
+				</div>
+				<div class="content-single pd-14" id="certificate" v-scroll-reveal="{ delay: 650 }">
+					<h2 class="title">
+						<RouterLink class="title flex flex-left" to="#certificate">
+							<i class="bx bx-check-double mg-right-14"></i>Certificate
+						</RouterLink>
+					</h2>
+					<hr class="hr mg-top-14 mg-bottom-14" />
+					<p class="text">Some of the award certificates that I have won</p>
+					<!--<Certificate />-->
 				</div>
 			</div>
 		</div>
@@ -347,9 +366,12 @@
 				position: absolute;
 				background: rgba(0,0,0,.4);
 			}
+			[data-theme="dark"] .banner-cover {
+				background: rgba(0,0,0,.2);
+			}
 	@media (max-width: 750px) {
 		.banner {
-			height: 360px;
+			height: 300px;
 		}
 			.banner-album {
 				width: 100%;
@@ -406,9 +428,31 @@
 					width: 100%;
 					background: var(--background-3);
 				}
-				.organization-avatar-wrapper {
-					background: var(--background-2);
+				.organization {
+					display: block;
 				}
+					.organization-loading > .flex.flex-left {
+					}
+						.organization-loading > .flex.flex-left > .avatar {
+						}
+							.organization-loading > .flex.flex-left > .avatar > .avatar-wrapper {
+								animation: blinking 2s linear infinite;
+							}
+							.organization-loading > .flex.flex-left > .title {
+								width: 199px;
+								height: 40px;
+								border-radius: 3px;
+								background: var(--background-2);
+								animation: blinking 2s linear infinite;
+							}
+							@media ( max-width: 750px ) {
+								.organization-loading > .flex.flex-left > .title {
+									width: 278px;
+								}
+							}
+					.organization-avatar-wrapper {
+						background: var(--background-2);
+					}
 		.home-contents {
 			width: 70%;
 			height: fit-content;

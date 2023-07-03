@@ -14,6 +14,7 @@ export default createStore({
 	state: () => ({
 		error: false,
 		loading: true,
+		configs: null,
 		targets: [
 			{
 				method: "GET",

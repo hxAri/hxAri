@@ -16,7 +16,7 @@ export default {
 		const image = new Image();
 		
 		image.src = el.dataset.src;
-		image.onload = () =>
+		image.onload = e =>
 		{
 			el.src = image.src;
 			el.classList.add( "lazy-loaded" );

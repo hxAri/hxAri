@@ -1,11 +1,13 @@
 
 <script>
 	
+	import { mapGetters, mapState } from "vuex";
 	import { RouterLink, RouterView } from "vue-router";
 	
 	// Import Scripts.
 	import Datime from "/src/scripts/Datime.js";
 	import Theme from "/src/scripts/Theme.js";
+	import Type from "/src/scripts/Type.js";
 	
 	// Import Widgets.
 	import Avatar from "/src/widgets/Avatar.vue";
@@ -39,35 +41,31 @@
 					text: "Sitemap"
 				}
 			],
-			medsos: [
-				{
-					link: "https://instagram.com/hx.ari",
-					icon: "bx bxl-instagram"
-				},
-				{
-					link: "https://facebook.com/hx.are",
-					icon: "bx bxl-facebook"
-				},
-				{
-					link: "https://linkedin.com/in/hxari",
-					icon: "bx bxl-linkedin"
-				},
-				{
-					link: "https://twitter.com/hxxAre",
-					icon: "bx bxl-twitter"
-				},
-				{
-					link: "https://github.com/hxAri",
-					icon: "bx bxl-github"
-				},
-				{
-					link: "https://www.tiktok.com/@hxare",
-					icon: "bx bxl-tiktok"
-				}
-			]
+			icons: {
+				instagram: "bx bxl-instagram",
+				facebook: "bx bxl-facebook",
+				linkedin: "bx bxl-linkedin",
+				twitter: "bx bxl-twitter",
+				github: "bx bxl-github",
+				tiktok: "bx bxl-tiktok"
+			}
 		}),
+		computed: {
+			...mapState([
+				"configs"
+			]),
+			...mapGetters([
+				"hasConfig"
+			])
+		},
 		mounted: async function()
 		{
+			// Check if configuration does not requested.
+			if( this.hasConfig === false )
+			{
+				// Trying to get configuration.
+				await this.$store.dispatch( "priority" );
+			}
 			this.dateFormat = this.date.format( "2021 - %Y" );
 			this.themeColor = this.theme.get();
 		},
@@ -148,11 +146,14 @@
 				</div>
 				<div class="footer-group pd-14">
 					<h5 class="mg-bottom-8">Follow Me</h5>
-					<p class="">Stay connected with me.</p>
-					<li class="li dp-inline-block mg-right-10" v-for="i in medsos">
-						<a :href="i.link" target="_blank" rel="noopener noreferrer">
-							<i :class="i.icon"></i>
+					<p class="fc-1m">Stay connected with me.</p>
+					<li class="li dp-inline-block mg-right-10" v-for="( link, social ) in configs.author.social" v-if="hasConfig">
+						<a :href="link" target="_blank" rel="noopener noreferrer">
+							<i :class="icons[social]"></i>
 						</a>
+					</li>
+					<li class="li dp-inline-block mg-right-10" v-else>
+						<i class="bx bx-sync bx-spin"></i>
 					</li>
 				</div>
 			</div>
