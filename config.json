@@ -7,8 +7,15 @@
 			"district": "Sukoharjo",
 			"postcode": 35673,
 			"province": "Lampung",
-			"regency": "Pringsewu"
+			"regency": "Pringsewu",
+			"universe": "Milky Way"
 		},
+		"abouts": [
+			"Hello, introduce my name is Ari Setiawan.",
+			"I am a Programmer from Indonesia who likes to drink Chocolate coffee while thinking of crazy ideas to build programs that can benefit everyone.",
+			"I have been writing code from 2019 to be precise when I was in junior high school until now I like to write code, but apart from that all my family doesn't care about it.",
+			"I prefer to work independently or alone but apart from that I can also work well in a team."
+		],
 		"contact": {
 			"email": "hxari@proton.me",
 			"phone": "+62 858-3913-6990"
@@ -59,19 +66,27 @@
 	},
 	"experiences": [
 		{
-			"title": "",
+			"title": "Sales of Herbal Medicines",
 			"datetime": {
-				"start": "",
-				"finish": ""
+				"begin": "30-11-2020",
+				"end": "21-07-2021"
 			},
-			"galery": [
-				{
-					"image": "",
-					"datetime": "",
-					"description": ""
-				}
-			],
-			"description": []
+			"galery": [],
+			"description": [
+				"Online Business at Health Wealth International Company"
+			]
+		},
+		{
+			"title": "Industrial Work",
+			"datetime": {
+				"begin": "24-01-2022",
+				"end": "13-15-2022"
+			},
+			"galery": [],
+			"description": [
+				"Industrial Work Practices as Service Computer Technician in Institute Business and Informatics Darmajaya Bandar Lampung.",
+				"I have had work experience doing industrial work practices at The Darmajaya Institute of Informatics and Business Campus to be precise in Bandar Lampung in the Computer Lab section as a Computer Service Technician for 4 months."
+			]
 		}
 	],
 	"image": {
@@ -163,48 +178,64 @@
 		{
 			"name": "Android",
 			"include": true,
+			"endpoint": "hxAri/Android",
+			"homepage": "https://github.com/hxAri/",
 			"document": "https://raw.githubusercontent.com/hxAri/Android/main/docs/",
 			"tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1647263980;c78Y41VWj3.png"
 		},
 		{
 			"name": "Atarashī",
 			"include": false,
+			"endpoint": "hxAri/Atarashi",
+			"homepage": "https://github.com/hxAri/",
 			"document": "https://raw.githubusercontent.com/hxAri/Atarashi/main/docs/",
 			"tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/"
 		},
 		{
 			"name": "Eremento",
 			"include": false,
+			"endpoint": "hxAri/Eremento",
+			"homepage": "https://github.com/hxAri/",
 			"document": "https://raw.githubusercontent.com/hxAri/Eremento/main/docs/",
 			"tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1653507202;5fe1yJwN3F.png"
 		},
 		{
 			"name": "CIn",
 			"include": false,
+			"endpoint": "hxAri/CIn",
+			"homepage": "https://github.com/hxAri/",
 			"document": "https://raw.githubusercontent.com/hxAri/CIn/main/docs/",
 			"tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/"
 		},
 		{
 			"name": "Furasuko",
 			"include": false,
+			"endpoint": "hxAri/Furasuko",
+			"homepage": "https://github.com/hxAri/",
 			"document": "https://raw.githubusercontent.com/hxAri/Furasuko/main/docs/",
 			"tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/"
 		},
 		{
 			"name": "Ekisu",
 			"include": false,
+			"endpoint": "hxAri/Ekisu",
+			"homepage": "https://github.com/hxAri/",
 			"document": "https://raw.githubusercontent.com/hxAri/Ekisu/main/docs/",
 			"tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/"
 		},
 		{
 			"name": "Service",
 			"include": false,
+			"endpoint": "hxAri/Service",
+			"homepage": "https://github.com/hxAri/",
 			"document": "https://raw.githubusercontent.com/hxAri/Service/main/docs/",
 			"tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/"
 		},
 		{
 			"name": "Kanashī",
 			"include": true,
+			"endpoint": "hxAri/Kanashi",
+			"homepage": "https://github.com/hxAri/",
 			"document": "https://raw.githubusercontent.com/hxAri/Kanashi/main/docs/",
 			"tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1654820424;51ydWrxRcv.png"
 		},
@@ -212,18 +243,24 @@
 			"name": "Sheyu",
 			"alias": "Sheruyūtiriti",
 			"include": false,
+			"endpoint": "hxAri/Sheyu",
+			"homepage": "https://github.com/hxAri/",
 			"document": "https://raw.githubusercontent.com/hxAri/Sheyu/main/docs/",
 			"tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/"
 		},
 		{
 			"name": "Faibā",
 			"include": true,
+			"endpoint": "hxAri/Faiba",
+			"homepage": "https://github.com/hxAri/",
 			"document": "https://raw.githubusercontent.com/hxAri/Faiba/main/docs/",
 			"tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1653507345;50XUUPql.z.png"
 		},
 		{
 			"name": "Yume",
 			"include": true,
+			"endpoint": "yfure/Yume",
+			"homepage": "https://github.com/hxAri/",
 			"document": "https://raw.githubusercontent.com/hxAri/Yume/main/docs/",
 			"tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1653507383;6bi9u6QnWb.png"
 		}
@@ -237,14 +274,16 @@
 		"skills": [
 			{
 				"name": "HTML5",
-				"image": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1665938533;bbdszyUZLM.png",
+				"type": "programming",
+				"image": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/languages/1665938533;bbdszyUZLM.png",
 				"values": 90,
 				"description": null,
 				"certificates": []
 			},
 			{
 				"name": "CSS3",
-				"image": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1665938615;3eIDhLG2TO.png",
+				"type": "programming",
+				"image": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/languages/1665938615;3eIDhLG2TO.png",
 				"values": 80,
 				"description": null,
 				"certificates": []
