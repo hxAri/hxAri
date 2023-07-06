@@ -1,0 +1,23 @@
+{
+	"title": "Kanashī",
+	"routes": [
+		{
+			"path": "/projects/Kanashi",
+			"name": "home",
+			"readable": true,
+			"component": {}
+		},
+		{
+			"path": "/projects/Kanashi/install",
+			"name": "install",
+			"readable": true,
+			"component": {}
+		},
+		{
+			"path": "/projects/Kanashi/usages",
+			"name": "usage",
+			"readable": true,
+			"component": {}
+		}
+	]
+}
