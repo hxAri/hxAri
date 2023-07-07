@@ -2,6 +2,7 @@
 // Import Views
 import About from "/src/views/About.vue";
 import Contact from "/src/views/Contact.vue";
+import Document from "/src/views/Document.vue";
 import Home from "/src/views/Home.vue";
 import None from "/src/views/None.vue";
 import Privacy from "/src/views/Privacy.vue";
@@ -62,7 +63,16 @@ export default [
 			active: [ "bx", "bxs-flag" ],
 			default: [ "bx", "bx-flag" ]
 		},
-		component: Project
+		readable: true,
+		component: Project,
+		children: []
+	},
+	{
+		path: "/projects/:project/:section(.*?)*",
+		name: "project",
+		visible: false,
+		sensitive: false,
+		component: Document
 	},
 	{
 		path: "/terminal",
@@ -72,6 +82,7 @@ export default [
 			default: [ "bx", "bx-terminal" ]
 		},
 		readable: false,
+		sensitive: true,
 		component: Terminal,
 		children: [
 			{
