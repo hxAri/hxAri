@@ -1,4 +1,4 @@
-![Profile Views](https://gpvc.arturio.dev/hxAri)
+<!--![Profile Views](https://gpvc.arturio.dev/hxAri)-->
 
 A Full Stack Developer from Indonesia who likes to drink Chocolate coffee while thinking of crazy ideas to build programs that can benefit everyone
 
