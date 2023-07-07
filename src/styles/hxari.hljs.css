@@ -1,0 +1,236 @@
+
+/*
+ * @author Enkia
+ * @prefer Tokyo Night
+ * @source https://github.com/enkia/tokyo-night-vscode-theme
+ *
+ * @remake Highlight.js
+ * @source 
+
+/*
+ * -------------------------------------------------------------------------------------------------------------------------------------------
+ * Tokyo Night Light
+ * -------------------------------------------------------------------------------------------------------------------------------------------
+ *
+ */
+:root {
+	--hljs-background: #d5d6db;
+	--hljs-color: #565a6e;
+	--hljs-punctuation: #343b58;
+	--hljs-magenta: #5a4a78;
+	--hljs-blue: #34548a;
+	--hljs-green-er: #485e30;
+	--hljs-green: #33635c;
+	--hljs-light-blue: #0f4b6e;
+	--hljs-cyan: #166775;
+	--hljs-yellow: #8f5e15;
+	--hljs-orange: #965027;
+	--hljs-red: #8c4351;
+	--hljs-comment: #9699a3;
+}
+
+/*
+ * -------------------------------------------------------------------------------------------------------------------------------------------
+ * Tokyo Night Dark
+ * -------------------------------------------------------------------------------------------------------------------------------------------
+ *
+ */
+[data-theme="dark"] {
+	--hljs-background: #1a1b26;
+	--hljs-color: #9aa5ce;
+	--hljs-punctuation: #c0caf5;
+	--hljs-magenta: #bb9af7;
+	--hljs-blue: #7aa2f7;
+	--hljs-green-er: #9ece6a;
+	--hljs-green: #73daca;
+	--hljs-light-blue: #7dcfff;
+	--hljs-cyan: #2ac3de;
+	--hljs-yellow: #e0af68;
+	--hljs-orange: #ff9e64;
+	--hljs-red: #f7768e;
+	--hljs-comment: #565f89;
+}
+
+/*
+ * -------------------------------------------------------------------------------------------------------------------------------------------
+ * Highlight.js Styling
+ * -------------------------------------------------------------------------------------------------------------------------------------------
+ *
+ */
+.hljs {
+	background: var(--hljs-background);
+	color: var(--hljs-color);
+}
+	.hljs-emphasis { font-style: italic; }
+	.hljs-strong { font-weight: bold; }
+	
+	/*
+	 * @include Meta
+	 * @include Comment
+	 *
+	 */
+	.hljs-meta,
+	.hljs-comment {
+		color: var(--hljs-comment);
+	}
+	
+	/*
+	 * @display Red
+	 *
+	 * @include This Keyword
+	 * @include HTML Elements
+	 * @include Regex Group Symbol
+	 * @include CSS Units
+	 * @include Terminal Red
+	 *
+	 */
+	.hljs-tag,
+	.hljs-doctag,
+	.hljs-selector-id,
+	.hljs-selector-class,
+	.hljs-regexp,
+	.hljs-template-tag,
+	.hljs-selector-pseudo,
+	.hljs-selector-attr,
+	.hljs-variable.language_,
+	.hljs-deletion {
+		color: var(--hljs-red);
+	}
+	
+	/*
+	 * @display Orange
+	 *
+	 * @include Numbe
+	 * @include Boolean Constants
+	 * @include Language Support Constants
+	 *
+	 */
+	.hljs-variable,
+	.hljs-template-variable,
+	.hljs-number,
+	.hljs-literal,
+	.hljs-type,
+	.hljs-params,
+	.hljs-link {
+		color: var(--hljs-orange);
+	}
+	
+	
+	/*
+	 * @display Yellow
+	 *
+	 * @include Function Parameters
+	 * @include Regex Character Sets
+	 * @include Terminal Yellow
+	 *
+	 */
+	.hljs-built_in, 
+	.hljs-attribute {
+		color: var(--hljs-yellow);
+	}
+	
+	/*
+	 * @display Cyan
+	 *
+	 * @include Language Support Functions
+	 * @include CSS HTML Elements
+	 *
+	 */
+	.hljs-selector-tag {
+		color: var(--hljs-cyan);
+	}
+	
+	/*
+	 * @display Light Blue
+	 *
+	 * @include Object Properties
+	 * @include Regex Quantifiers and Flags
+	 * @include Markdown Headings
+	 * @include Terminal Cyan
+	 * @include Markdown Code
+	 * @include Import or Export Keywords
+	 *
+	 */
+	.hljs-keyword,
+	.hljs-title.function_,
+	.hljs-title,
+	.hljs-title.class_,
+	.hljs-title.class_.inherited__,
+	.hljs-subst,
+	.hljs-property {
+		color: var(--hljs-light-blue);
+	}
+	
+	/*
+	 * @display Green
+	 *
+	 * @include Object Literal Keys
+	 * @include Markdown Links
+	 * @include Terminal Green
+	 *
+	 */
+	.hljs-selector-tag {
+		color: var(--hljs-green);
+	}
+	
+	
+	/*
+	 * @display Green(er)
+	 *
+	 * @include Strings
+	 * @include CSS Class Names
+	 *
+	 */
+	.hljs-quote,
+	.hljs-string,
+	.hljs-symbol,
+	.hljs-bullet,
+	.hljs-addition {
+		color: var(--hljs-green-er);
+	}
+	
+	/*
+	 * @display Blue
+	 *
+	 * @include Function Names
+	 * @include CSS Property Names
+	 * @include Terminal Blue
+	 *
+	 */
+	.hljs-code,
+	.hljs-formula,
+	.hljs-section {
+		color: var(--hljs-blue);
+	}
+	
+	/*
+	 * @display Magenta
+	 *
+	 * @include Control Keywords
+	 * @include Storage Types
+	 * @include Regex Symbols
+	 * @include Operators
+	 * @include HTML Attributes
+	 * @include Terminal Magenta
+	 *
+	 */
+	.hljs-name,
+	.hljs-keyword,
+	.hljs-operator,
+	.hljs-keyword,
+	.hljs-char.escape_,
+	.hljs-attr {
+		color: var(--hljs-magenta);
+	}
+	
+	/*
+	 * @display White
+	 *
+	 * @include Variables
+	 * @include Class Names
+	 * @include Terminal White
+	 *
+	 */
+	.hljs-punctuation {
+		color: var(--hljs-punctuation);
+	}
