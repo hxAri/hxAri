@@ -6,8 +6,8 @@ import "/src/styles/hxari.shell.css";
 import "/src/styles/hxari.light.css";
 import "/src/styles/hxari.dark.css";
 import "/src/styles/hxari.font.css";
+import "/src/styles/hxari.hljs.css";
 import "/src/styles/hxari.css";
-import "/src/styles/hxari.style.css";
 
 // Import Application
 import App from "/src/App.vue";
