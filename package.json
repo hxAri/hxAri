@@ -1,7 +1,7 @@
 {
     "name": "hxari",
     "author": "hxAri",
-    "version": "4.1.7",
+    "version": "4.1.8",
     "license": "MIT",
     "private": false,
     "main": "dist/js/hxari.js",
@@ -13,6 +13,7 @@
         "test:unit": "vitest"
     },
     "dependencies": {
+        "highlight.js": "^11.8.0",
         "scrollreveal": "^4.0.9",
         "vue": "^3.2.47",
         "vue-router": "^4.1.6",
@@ -31,7 +32,7 @@
         "url": "git+https://github.com/hxAri/hxAri.git"
     },
     "keywords": [
-    	"Github",
+        "Github",
         "hxAri",
         "Self",
         "Vue",
