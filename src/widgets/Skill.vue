@@ -1,21 +1,25 @@
 
 <script>
 	
+	import { mapState } from "vuex";
+	
 	// Import Scripts
 	import Json from "../scripts/Json.js";
 	import Request from "../scripts/Request.js";
 	import Type from "../scripts/Type.js";
 	
 	export default {
-		props: {
-			skills: {
-				type: Object,
-				required: true
-			},
-			percentage: {
-				type: Number,
-				required: true
-			}
+		data: () => ({
+			percentage: 0,
+			skills: null
+		}),
+		computed: mapState([
+			"configs"
+		]),
+		mounted: function()
+		{
+			this.percentage = this.configs.skill.percentage;
+			this.skills = this.configs.skill.skills;
 		}
 	};
 	
