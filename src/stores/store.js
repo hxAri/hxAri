@@ -49,7 +49,7 @@ export default createStore({
 				error: false,
 				request: null,
 				method: "GET",
-				url: "/config.json"//https://raw.githubusercontent.com/hxAri/hxAri/main/config.json"
+				url: "https://raw.githubusercontent.com/hxAri/hxAri/main/config.json"
 			},
 			profile: {
 				error: false,

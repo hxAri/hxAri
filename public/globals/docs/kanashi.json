@@ -11,7 +11,7 @@
 					"attributes": {
 						"class": "",
 						"style": {},
-						"innerHTML": "{{ images }}"
+						"innerHTML": "Home"
 					}
 				}
 			}

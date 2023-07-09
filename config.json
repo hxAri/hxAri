@@ -247,7 +247,7 @@
             "endpoint": "hxAri/Kanashi",
             "homepage": "https://github.com/hxAri/",
             "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1654820424;51ydWrxRcv.png",
-            "document_url": "/public/globals/docs/kanashi.json"
+            "document_url": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/globals/docs/kanashi.json"
         },
         {
             "name": "Service",
