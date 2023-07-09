@@ -9,9 +9,9 @@
 				"template": {
 					"name": "div",
 					"attributes": {
-						"style": {},
 						"class": "",
-						"innerHTML": "{{ component }}"
+						"style": {},
+						"innerHTML": "{{ images }}"
 					}
 				}
 			}
