@@ -5,7 +5,7 @@
 	import { RouterLink } from "vue-router";
 	
 	// Import Routes
-	import Routes from "/src/router/routes.js";
+	import Routes from "/src/routing/routes.js";
 	
 	// Import Scripts
 	import Eremento from "/src/scripts/Eremento.js";
@@ -272,6 +272,16 @@
 		methods: {
 			
 			/*
+			 * Re-emit from dynamic component.
+			 *
+			 * @return Void
+			 */
+			close: function()
+			{
+				this.$emit( "close" );
+			},
+			
+			/*
 			 * Create icon binding.
 			 *
 			 * @params Object list
@@ -414,10 +424,10 @@
 			<div class="pd-14" v-if="project.document_loading">
 				<div class="pd-14 bg-3 blinking rd-square mg-bottom-14 mg-lc-bottom" v-for="i in 6"></div>
 			</div>
-			<component v-bind:is="default" v-else-if="project.document_error"></component>
-			<component v-bind:is="projectMenu" v-else-if="document"></component>
+			<component v-bind:is="default" @close="close" v-else-if="project.document_error"></component>
+			<component v-bind:is="projectMenu" @close="close" v-else-if="document"></component>
 		</div>
-		<component v-bind:is="default" v-else></component>
+		<component v-bind:is="default" @close="close" v-else></component>
 	</div>
 </template>
 

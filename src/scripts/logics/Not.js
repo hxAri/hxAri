@@ -1,6 +1,6 @@
 
 // Importing application scripts.
-import Type from "../Type.js";
+import Type from "/src/scripts/Type.js";
 
 /*
  * Not is the negation of the function is/Type.

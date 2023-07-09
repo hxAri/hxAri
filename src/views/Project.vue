@@ -5,7 +5,6 @@
 	
 	// Import Scripts.
 	import Fmt from "/src/scripts/Fmt.js";
-	import Image from "/src/scripts/Image.js";
 	import Json from "/src/scripts/Json.js";
 	import Type from "/src/scripts/Type.js";
 	
@@ -14,9 +13,6 @@
 	import Project from "/src/widgets/Project.vue";
 	
 	export default {
-		data: () => ({
-			image: Image
-		}),
 		watch: {
 			title: {
 				immediate: true,
@@ -29,17 +25,8 @@
 		computed: {
 			...mapState([
 				"error",
-				"loading",
-				"profile",
-				"projects",
-				"organization"
+				"loading"
 			])
-		},
-		created: async function()
-		{
-			// Send request if the request has not been sent,
-			// Or if something wrong when sending request.
-			if( this.$store.getters.requested === false || this.$store.getters.error ) await this.$store.dispatch( "requests" );
 		},
 		components: {
 			Error,
@@ -70,7 +57,7 @@
 					<p class="text mg-bottom-14">
 						Here are some of the projects I've created and are still developing. Every project is open source anyone can use it or contribute if interesting, don't forget to let others know if it's useful.
 					</p>
-					<Project :profile="profile" :projects="projects" :image="image" />
+					<Project />
 				</div>
 			</div>
 		</div>

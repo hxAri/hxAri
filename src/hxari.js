@@ -17,11 +17,10 @@ import LazyLoad from "/src/directives/LazyLoad.js";
 import ScrollReveal from "/src/directives/ScrollReveal.js";
 
 // Import Stores
-import Config from "/src/stores/config.js";
 import Store from "/src/stores/store.js";
 
 // Import Router
-import Router from "/src/router/router.js";
+import Router from "/src/routing/router.js";
 
 // The application instance.
 const app = createApp( App );
@@ -32,8 +31,7 @@ app.directive( "scroll-reveal", ScrollReveal );
 
 // Install the object instance as a plugin.
 app.use( Router );
-app.use( Config );
-//app.use( Store );
+app.use( Store );
 
 // Mount element.
 app.mount( "#root" );

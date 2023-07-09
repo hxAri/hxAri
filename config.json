@@ -175,7 +175,7 @@
         "home": false,
         "none": false,
         "privacy": false,
-        "project": true,
+        "project": false,
         "projects": false,
         "sitemap": false,
         "terminal": false

@@ -1,6 +1,6 @@
 
 // Import application scripts.
-import Type from "../Type.js";
+import Type from "/src/scripts/Type.js";
 
 /*
  * Mixed is PHP's default data type but

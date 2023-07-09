@@ -1,9 +1,9 @@
 
 // Import Scripts
-import Fmt from "./Fmt.js";
-import Mapper from "./Mapper.js";
-import Request from "./Request.js";
-import Type from "./Type.js";
+import Fmt from "/src/scripts/Fmt.js";
+import Mapper from "/src/scripts/Mapper.js";
+import Request from "/src/scripts/Request.js";
+import Type from "/src/scripts/Type.js";
 
 /*
  * Send multiple requests.

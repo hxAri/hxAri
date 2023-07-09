@@ -1,24 +1,14 @@
 
 <script>
+	
+	import { mapState } from "vuex";
+	
+	// Import Scripts
+	import Eremento from "/src/scripts/Eremento.js";
+	import Not from "/src/scripts/logics/Not.js";
+	import Type from "/src/scripts/Type.js";
+	
 	export default {
-		data: () => ({
-			texts: [
-				"Your privacy is important to me, and I am committed to protecting it. This privacy policy outlines how I collect, use, and protect any personal information that you provide when you visit my portfolio website.",
-				"What information do I collect?",
-				"I do not collect any personal information from you when you visit my website, unless you choose to provide it to me voluntarily. If you contact me through the contact form on my website or via email, I will collect your name, email address, and any other information you choose to provide.",
-				"How do I use your information?",
-				"I will only use your personal information to respond to your inquiries, provide you with information about my services, or fulfill any requests that you make. I will not share, sell, or otherwise distribute your information to any third party, unless required to do so by law.",
-				"How do I protect your information?",
-				"I take reasonable and appropriate measures to protect your personal information from unauthorized access, disclosure, alteration, or destruction. However, please note that no data transmission over the internet is completely secure, and I cannot guarantee the absolute security of your information.",
-				"Third-party links",
-				"My portfolio website may contain links to third-party websites that are not under my control. These links are provided for your convenience and do not imply endorsement or approval of the content, policies, or practices of these websites. Please review the privacy policies of these websites before submitting any personal information.",
-				"Changes to this privacy policy",
-				"I reserve the right to modify this privacy policy at any time without prior notice. Any changes to the policy will be reflected on this page, and your continued use of my website after such modifications constitutes your acceptance of the new policy.",
-				"If you have any questions or concerns about this privacy policy or the way your personal information is handled, please feel free to contact me."
-			]
-		}),
-		props: {
-		},
 		watch: {
 			title: {
 				immediate: true,
@@ -28,17 +18,126 @@
 				}
 			}
 		},
-		components: {
-		}
+		computed: mapState([
+			"configs"
+		]),
+		methods: {
+			
+			/*
+			 * Create object to arrange with Eremento.
+			 *
+			 * @params Array<Object|String> contents
+			 *
+			 * @return Array<Object>
+			 */
+			create: function( contents )
+			{
+				var result = [];
+				
+				// Mapping contents.
+				for( let content of contents )
+				{
+					// If content has option.
+					if( Type( content, Object ) )
+					{
+						// If content is subtitle.
+						// Multiline contents does not
+						// Work with sub-title contents.
+						if( content.subtitle )
+						{
+							result.push({
+								name: "p",
+								attributes: {
+									class: "sub-title mg-bottom-14 mg-lc-bottom",
+									innerHTML: this.paragraph( String( content.contents ) )
+								}
+							});
+							continue;
+						}
+						
+						// Normalize if value is Not Array.
+						if( Not( content.contents, Array ) )
+						{
+							content.contents = [
+								String( content.contents )
+							];
+						}
+						result = [
+							...result,
+							...this.create( content.contents )
+						];
+					}
+					else {
+						result.push({
+							name: "p",
+							attributes: {
+								class: "text mg-bottom-14 mg-lc-bottom",
+								innerHTML: this.paragraph( String( content ) )
+							}
+						});
+					}
+				}
+				return( result );
+			},
+			
+			/*
+			 * HTML Paragraph replacer.
+			 *
+			 * @params String paragraph
+			 *
+			 * @return String
+			 */
+			paragraph: function( paragraph )
+			{
+				var regexp = /((?<bold>\*{1,2})|(?<underline>\b\_{1,2})|(?<italic>\~{1,2}))(?<value>[^\1]*)(\1)/gm;
+				var string = "";
+				var index = 0;
+				var match;
+				
+				while( ( match = regexp.exec( paragraph ) ) !== null )
+				{
+					// Get regex group name.
+					var kind = Object.keys( match.groups ).find( group => Type( match.groups[group], String ) );
+						kind = kind === "bold" ? "fb-45" : `text-${kind}`;
+					
+					// Format captured character.
+					var value = `<span class="${kind}">${match.groups.value}</span>`;
+					
+					string += paragraph.substring( index, regexp.lastIndex - match[0].length );
+					string += value;
+					index = regexp.lastIndex;
+				}
+				return( string + paragraph.substring( index ) );
+			},
+			
+			/*
+			 * Rendering element.
+			 *
+			 * @return String
+			 *  HTML Raw element
+			 */
+			render: function()
+			{
+				return(
+					Eremento.arrange(
+						this.create(
+							this.configs.routes.privacy
+						)
+					)
+				);
+			}
+		},
+		components: {}
 	};
+	
 </script>
 
 <template>
-	<div class="container">
-		<div class="deep-container">
-			<div class="privacy pd-top-34 pd-bottom-34">
-				<h2 class="title mg-bottom-14">Privacy</h2>
-				<p class="text mg-bottom-14 mg-lc-bottom" v-for="text in texts">{{ text }}</p>
+	<div class="privacy flex flex-center">
+		<div class="privacy-block bg-2">
+			<div class="privacy-content pd-18">
+				<h2 class="title mg-bottom-8">Privacy</h2>
+				<div class="privacy-paragraphs" v-html="render()"></div>
 			</div>
 		</div>
 	</div>
@@ -52,6 +151,28 @@
 	 * -------------------------------------------------------------------------------------------------------------------------------------------
 	 *
 	 */
-	.privacy {}
+	.privacy {
+		width: 100vw;
+		height: auto;
+	}
+	@media( max-width: 750px ) {
+		.privacy {
+			width: 100%;
+			display: block;
+		}
+	}
+		.privacy-block {
+			width: 65vw;
+			display: block;
+		}
+		@media( max-width: 750px ) {
+			.privacy-block {
+				width: auto;
+			}
+		}
+			.privacy-content {
+				width: auto;
+				height: auto;
+			}
 	
 </style>

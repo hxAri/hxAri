@@ -1,8 +1,8 @@
 
 // Import application scripts.
-import Cookie from "./Cookie.js";
-import Null from "./types/Null.js";
-import Type from "./Type.js";
+import Cookie from "/src/scripts/Cookie.js";
+import Null from "/src/scripts/types/Null.js";
+import Type from "/src/scripts/Type.js";
 
 /*
  * Theme utility
@@ -58,6 +58,13 @@ Theme.prototype.result = null;
  * @values String
  */
 Theme.prototype.default = "light";
+
+/*
+ * Current theme color.
+ *
+ * @values String
+ */
+Theme.prototype.color = "light";
 
 /*
  * Get current theme token.
@@ -121,6 +128,9 @@ Theme.prototype.set = function( color )
 		// If current cookie value does not equals.
 		if( cookie !== this.theme[color].token )
 		{
+			// Set current color.
+			this.color = color;
+			
 			Cookie.prototype.set( ...[
 				this.name,
 				this.theme[color].token, {

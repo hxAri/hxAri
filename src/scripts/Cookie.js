@@ -1,9 +1,9 @@
 
 // Import Scripts.
-import Fmt from "./Fmt.js";
-import Not from "./logics/Not.js";
-import Type from "./Type.js";
-import Value from "./logics/Value.js";
+import Fmt from "/src/scripts/Fmt.js";
+import Not from "/src/scripts/logics/Not.js";
+import Type from "/src/scripts/Type.js";
+import Value from "/src/scripts/logics/Value.js";
 
 /*
  * Cookie utility

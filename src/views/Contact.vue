@@ -1,41 +1,19 @@
 
 <script>
 	
+	import { mapState } from "vuex";
+	
 	// Import Scripts
-	import Choice from "../scripts/Choice.js";
-	import Fmt from "../scripts/Fmt.js";
-	import Image from "../scripts/Image.js";
-	import Mapper from "../scripts/Mapper.js";
-	import Request from "../scripts/Request.js";
-	import Type from "../scripts/Type.js";
-	import Value from "../scripts/logics/Value.js";
+	import Choice from "/src/scripts/Choice.js";
+	import Fmt from "/src/scripts/Fmt.js";
+	import Mapper from "/src/scripts/Mapper.js";
+	import Request from "/src/scripts/Request.js";
+	import Type from "/src/scripts/Type.js";
+	import Value from "/src/scripts/logics/Value.js";
 	
 	export default {
 		data: () => ({
-			banner: {
-				backgroundImage: Fmt( "url({})", Choice( Image.anime ) )
-			},
-			detail: [
-				{
-					icon: [ "bx", "bxs-map" ],
-					text: "Indonesia, Lampung Province, Pringsewu Regency, Sukoharjo District, 35674"
-				},
-				{
-					icon: [ "bx", "bxl-whatsapp" ],
-					text: "+62 858-3913-6990",
-					link: "https://wa.me/6285839136990"
-				},
-				{
-					icon: [ "bx", "bx-mail-send" ],
-					text: "ari160824@gmail.com",
-					link: "mailto:ari160824@gmail.com"
-				},
-				{
-					icon: [ "bx", "bx-world" ],
-					text: "https://hxari.github.io/",
-					link: "https://hxari.github.io/"
-				}
-			],
+			detail: [],
 			models: [
 				{
 					icon: [ "bx", "bx-user" ],
@@ -97,7 +75,48 @@
 				}
 			}
 		},
+		computed: mapState([
+			"configs"
+		]),
+		created: function()
+		{
+			this.detail = [
+				{
+					icon: [ "bx", "bxs-map" ],
+					text: Fmt( "{}, {} Province, {} Regency, {} District, {}", ...[
+						this.configs.author.address.country,
+						this.configs.author.address.province,
+						this.configs.author.address.regency,
+						this.configs.author.address.district,
+						this.configs.author.address.postcode
+					])
+				},
+				{
+					icon: [ "bx", "bxl-whatsapp" ],
+					text: this.configs.author.contact.phone,
+					link: Fmt( "https://wa.me/{}", this.configs.author.contact.phone.replaceAll( /\-|\+|\s/g, "" ) )
+				},
+				{
+					icon: [ "bx", "bx-mail-send" ],
+					text: this.configs.author.contact.email,
+					link: Fmt( "mailto:{}", this.configs.author.contact.email )
+				},
+				{
+					icon: [ "bx", "bx-world" ],
+					text: "https://hxari.github.io/",
+					link: "https://hxari.github.io/"
+				}
+			];
+		},
 		methods: {
+			
+			/*
+			 * Enable all form inputs.
+			 *
+			 * @params Boolean allow
+			 *
+			 * @return Void
+			 */
 			allow: function( allow )
 			{
 				for( let i in this.models )
@@ -105,6 +124,23 @@
 					this.$refs[this.models[i].name].disabled = allow;
 				}
 			},
+			
+			/*
+			 * Return randomize background image.
+			 *
+			 * @return Object
+			 *  Ovject style of background image
+			 */
+			choice: function()
+			{
+				return({ backgroundImage: Fmt( "url({}/{})", this.configs.image.source, Choice( this.configs.image.images.animes ) ) });
+			},
+			
+			/*
+			 * Reset all value of form inputs.
+			 *
+			 * @return Void
+			 */
 			reset: function()
 			{
 				for( let i in this.models )
@@ -112,6 +148,14 @@
 					this.models[i].value = null;
 				}
 			},
+			
+			/*
+			 * Handle form submit.
+			 *
+			 * @params Event e
+			 *
+			 * @return Promise
+			 */
 			submit: async function( e )
 			{
 				// Copy object instance.
@@ -153,35 +197,35 @@
 					
 					// Send email message.
 					await Request( ...Object.values( self.request ) )
-					
-					// Handle email response.
-					.then( r =>
-					{
-						// Check if request is succesfull sent.
-						if( r.status === 200 )
+						
+						// Handle email response.
+						.then( r =>
 						{
-							self.reset();
+							// Check if request is succesfull sent.
+							if( r.status === 200 )
+							{
+								self.reset();
+								self.trigger = {
+									text: "Email has been sent successfully",
+									type: "success"
+								};
+							}
+							else {
+								self.trigger = {
+									text: Request.StatusText( r.status ),
+									type: "warning"
+								};
+							}
+						})
+						
+						// When something wrong.
+						.catch( e =>
+						{
 							self.trigger = {
-								text: "Email has been sent successfully",
-								type: "success"
+								text: Type( e, XMLHttpRequest, () => "No Internet Connection", () => e ),
+								type: "error"
 							};
-						}
-						else {
-							self.trigger = {
-								text: Request.StatusText( r.status ),
-								type: "warning"
-							};
-						}
-					})
-					
-					// When something wrong.
-					.catch( e =>
-					{
-						self.trigger = {
-							text: Type( e, XMLHttpRequest, () => "No Internet Connection", () => e ),
-							type: "error"
-						};
-					});
+						});
 				}
 				catch( e )
 				{
@@ -214,7 +258,7 @@
 		</div>
 		<div class="contact flex flex-center">
 			<div class="contact-wrapper flex rd-square">
-				<div class="contact-info" :style="banner">
+				<div class="contact-info" :style="choice()">
 					<div class="contact-cover flex flex-center">
 						<div class="contact-cover-block">
 							<div class="mg-bottom-26">

@@ -1,6 +1,6 @@
 
 // Import Scripts.
-import Callable from "./types/Callable.js";
+import Callable from "/src/scripts/types/Callable.js";
 
 /*
  * Get value type.

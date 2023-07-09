@@ -4,9 +4,9 @@
 	import { mapState } from "vuex";
 	
 	// Import Scripts
-	import Json from "../scripts/Json.js";
-	import Request from "../scripts/Request.js";
-	import Type from "../scripts/Type.js";
+	import Json from "/src/scripts/Json.js";
+	import Request from "/src/scripts/Request.js";
+	import Type from "/src/scripts/Type.js";
 	
 	export default {
 		data: () => ({
@@ -40,10 +40,6 @@
 
 <style scoped>
 	
-	.skill-loading {
-	}
-	.skill-error {
-	}
 	.skill-single {
 		width: 100%;
 	}

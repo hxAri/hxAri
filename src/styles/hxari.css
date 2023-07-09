@@ -2,7 +2,7 @@
 * {
 	margin: 0;
 	padding: 0;
-	transition: background .3s, opacity .3s, color .2s;
+	transition: background .3s, opacity .3s, border .3s, box-shadow .3s, color .2s;
 	box-sizing: border-box;
 	text-size-adjust: none;
 	scroll-behavior: smooth;
@@ -521,6 +521,7 @@ a.tc-ac-4 {
 .container {
 	width: 100%;
 	max-width: 1200px;
+	margin: auto;
 }
 @media only screen and (min-width: 992px) and (max-width: 1199px) {
 	.container {
@@ -694,6 +695,31 @@ a.tc-ac-4 {
 
 /*
  * -------------------------------------------------------------------------------------------------------------------------------------------
+ * Font Families
+ * -------------------------------------------------------------------------------------------------------------------------------------------
+ *
+ */
+.fm-consolas {
+	font-family: var(--font-consolas);
+}
+.fm-fira {
+	font-family: var(--font-fira);
+}
+.fm-fredoka {
+	font-family: var(--font-fredroka);
+}
+.fm-inconsolata {
+	font-family: var(--font-inconsolata);
+}
+.fm-lato {
+	font-family: var(--font-lato);
+}
+.fm-poppins {
+	font-family: var(--font-poppins);
+}
+
+/*
+ * -------------------------------------------------------------------------------------------------------------------------------------------
  * Forms Styling
  * -------------------------------------------------------------------------------------------------------------------------------------------
  *
@@ -732,7 +758,7 @@ a.tc-ac-4 {
 			transition: all .3s;
 		}
 		.form-group .form-input:focus {
-			border-color: var(--border-2);
+			border-color: #007bff;
 			color: var(--color-1);
 		}
 		.form-group .form-texta {

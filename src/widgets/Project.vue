@@ -78,7 +78,7 @@
 </script>
 
 <template>
-	<div class="projects">
+	<div class="template">
 		<div :class="[ 'modal', 'modal', 'flex', 'flex-center', active ? 'active' : '' ]">
 			<div class="modal-exit" @click="active = null"></div>
 			<div :class="[ 'modal-main', 'rd-square', active ? 'active' : '' ]">
@@ -171,29 +171,31 @@
 				</div>
 			</div>
 		</div>
-		<div class="project rd-square" v-for="project in filter()" v-scroll-reveal="{ delay: 600 }">
-			<div class="project-body" v-scroll-reveal="{ delay: 600 }">
-				<div class="project-avatar avatar-wrapper flex flex-center" @click="display( project )">
-					<img class="avatar-image" :title="project.name" :alt="project.name" :data-src="project.tumbnail" v-lazyload />
-					<div class="avatar-cover"></div>
-				</div>
-				<div class="project-language" v-if="$store.state.projects[project.endpoint]">
-					<div class="project-language-avatar-wrapper avatar-wrapper">
-						<img class="avatar-image" :title="project.name" alt="Language" :data-src="language( projects[project.endpoint].language )" v-lazyload />
+		<div class="projects">
+			<div class="project rd-square" v-for="project in filter()" v-scroll-reveal="{ delay: 600 }">
+				<div class="project-body" v-scroll-reveal="{ delay: 600 }">
+					<div class="project-avatar avatar-wrapper flex flex-center" @click="display( project )">
+						<img class="avatar-image" :title="project.name" :alt="project.name" :data-src="project.tumbnail" v-lazyload />
 						<div class="avatar-cover"></div>
 					</div>
+					<div class="project-language" v-if="$store.state.projects[project.endpoint]">
+						<div class="project-language-avatar-wrapper avatar-wrapper">
+							<img class="avatar-image" :title="project.name" alt="Language" :data-src="language( projects[project.endpoint].language )" v-lazyload />
+							<div class="avatar-cover"></div>
+						</div>
+					</div>
+					<div class="project-label flex flex-left pd-14">
+						<RouterLink class="title" :to="{ path: '/projects/' + project.endpoint.split( '/' ).pop(), query: {} }">
+							{{ project.name }}
+						</RouterLink>
+					</div>
 				</div>
-				<div class="project-label flex flex-left pd-14">
-					<RouterLink class="title" :to="{ path: '/projects/' + project.endpoint.split( '/' ).pop(), query: {} }">
-						{{ project.name }}
+				<div class="project-footer pd-14">
+					<a :href="project.homepage" target="_blank" rel="noopener noreferrer">Visit Repository</a><br/>
+					<RouterLink :to="{ path: '/projects/' + project.endpoint.split( '/' ).pop(), query: {} }">
+						View Documentation
 					</RouterLink>
 				</div>
-			</div>
-			<div class="project-footer pd-14">
-				<a :href="project.homepage" target="_blank" rel="noopener noreferrer">Visit Repository</a><br/>
-				<RouterLink :to="{ path: '/projects/' + project.endpoint.split( '/' ).pop(), query: {} }">
-					View Documentation
-				</RouterLink>
 			</div>
 		</div>
 	</div>
@@ -257,10 +259,10 @@
 			height: auto;
 			overflow: hidden;
 			transition: border .3s;
-			border: 1px solid var(--border-1);
+			border: 1px solid var(--border-3);
 		}
 		.project:hover {
-			border-color: var(--border-2);
+			border-color: var(--border-3);
 		}
 			.project-body {
 				width: auto;

@@ -2,7 +2,7 @@
 <script>
 	
 	// Import Scripts
-	import Type from "../scripts/Type.js";
+	import Type from "/src/scripts/Type.js";
 	
 	export default {
 		data: () => ({

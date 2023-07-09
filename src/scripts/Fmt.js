@@ -1,6 +1,6 @@
 
 // Import Scripts
-import Type from "./Type.js";
+import Type from "/src/scripts/Type.js";
 
 /*
  * String formater.

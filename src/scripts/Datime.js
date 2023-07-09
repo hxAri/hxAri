@@ -1,7 +1,7 @@
 
 // Import application scripts.
-import Fmt from "./Fmt.js";
-import Type from "./Type.js";
+import Fmt from "/src/scripts/Fmt.js";
+import Type from "/src/scripts/Type.js";
 
 /*
  * Date utility.
@@ -20,7 +20,7 @@ const Datime = function( datetime )
 	{
 		this.date = new Date( datetime * 1000 );
 	}
-	if( Type( datetime, String ) )
+	else if( Type( datetime, String ) )
 	{
 		this.date = new Date( datetime );
 	}
@@ -250,6 +250,7 @@ const Datime = function( datetime )
 		/// Second (00..60)
 		S: self => self.second()
 	};
+	return( this );
 };
 
 export default Datime;

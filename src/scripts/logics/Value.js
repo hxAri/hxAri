@@ -1,7 +1,7 @@
 
 // Import application scripts.
-import Not from "./Not.js";
-import Type from "../Type.js";
+import Not from "/src/scripts/logics/Not.js";
+import Type from "/src/scripts/Type.js";
 
 /*
  * Check if value given is empty.

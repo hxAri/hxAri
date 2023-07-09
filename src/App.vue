@@ -6,19 +6,18 @@
 	
 	// Import Scripts.
 	import Datime from "/src/scripts/Datime.js";
-	import Theme from "/src/scripts/Theme.js";
 	import Type from "/src/scripts/Type.js";
 	
 	// Import Widgets.
 	import Avatar from "/src/widgets/Avatar.vue";
+	import Error from "/src/widgets/Error.vue";
 	import Sidebar from "/src/widgets/Sidebar.vue";
 	
 	export default {
 		data: () => ({
 			date: new Datime(),
 			dateFormat: null,
-			theme: new Theme(),
-			themeColor: Theme.prototype.default,
+			themeColor: null,
 			footer: [
 				{
 					path: "/",
@@ -52,13 +51,16 @@
 		}),
 		computed: {
 			...mapState([
-				"configs"
+				"error",
+				"theme",
+				"configs",
+				"loading"
 			]),
 			...mapGetters([
 				"hasConfig"
 			])
 		},
-		mounted: async function()
+		created: async function()
 		{
 			// Check if configuration does not requested.
 			if( this.hasConfig === false )
@@ -95,6 +97,7 @@
 		},
 		components: {
 			Avatar,
+			Error,
 			Sidebar
 		}
 	}
@@ -127,12 +130,32 @@
 						<i :class="[ 'bx', 'fs-20', themeColor === 'dark' ? 'bx-sun' : 'bx-moon' ]"></i>
 					</button>
 				</div>
-				<div class="list-group">
-					<Sidebar @close="buttonBurgerHandle" />
+				<div class="sidebar-body scroll-x">
+					<div class="list-group">
+						<div class="pd-14 blinking" v-if="loading">
+							<div class="pd-16 rd-square bg-4 mg-bottom-14 mg-lc-bottom" v-for="i in 6"></div>
+						</div>
+						<div class="" v-else-if="error">
+						</div>
+						<Sidebar @close="buttonBurgerHandle" v-else />
+					</div>
 				</div>
 			</div>
 		</div>
-		<RouterView />
+		<div class="loading flex flex-center pd-24" v-if="loading">
+			<div class="animate">
+				<div class="spinner"></div>
+			</div>
+		</div>
+		<Error v-else-if="error">
+			<h3 class="title">Something Wrong</h3>
+			<p class="sub-title">{{ error }}</p>
+		</Error>
+		<Error v-else-if="configs.maintenance[$route.name]">
+			<h3 class="title">Maintenance</h3>
+			<p class="sub-title">Currently page is under Maintenance</p>
+		</Error>
+		<RouterView v-else />
 	</main>
 	<footer class="footer flex flex-center">
 		<div class="footer-wrapper">
@@ -152,7 +175,7 @@
 							<i :class="icons[social]"></i>
 						</a>
 					</li>
-					<li class="li dp-inline-block mg-right-10" v-else>
+					<li class="li dp-inline-block mg-right-10" v-for="i in 4" v-else>
 						<i class="bx bx-sync bx-spin"></i>
 					</li>
 				</div>
@@ -178,7 +201,7 @@
 		z-index: 999;
 		position: fixed;
 		background: var(--background-1);
-		border-bottom: 1px solid var(--border-4);
+		border-bottom: 1px solid var(--border-3);
 		box-shadow: 0 2px 1.5px rgba(0,0,0,.1);
 	}
 		.header-banner {
@@ -229,7 +252,7 @@
 				padding: 14px;
 				position: relative;
 				background: var(--background-1);
-				border-bottom: 1px solid var(--border-2);
+				border-bottom: 1px solid var(--border-3);
 				box-shadow: 0 2px 1.5px rgba(0,0,0,.1);
 			}
 				.sidebar-title a {
@@ -245,6 +268,10 @@
 					border: 0;
 					background: transparent;
 				}
+			.sidebar-body {
+				height: 100%;
+				overflow: scroll;
+			}
 	.sidebar.sidebar-active {
 		left: 0 !Important;
 	}
@@ -252,6 +279,17 @@
 		.sidebar .sidebar.sidebar-main {
 			width: 83%;
 		}
+	}
+	
+	/*
+	 * -------------------------------------------------------------------------------------------------------------------------------------------
+	 * Loading Styling
+	 * -------------------------------------------------------------------------------------------------------------------------------------------
+	 *
+	 */
+	.loading {
+		width: 100vw;
+		height: 100vh;
 	}
 	
 	/*

@@ -5,14 +5,13 @@
 	import { RouterLink } from "vue-router";
 	
 	// Import Scripts.
-	import Fmt from "/src/scripts/Fmt.js";
-	import Json from "/src/scripts/Json.js";
 	import Type from "/src/scripts/Type.js";
 	import Value from "/src/scripts/logics/Value.js";
 	
 	// Import Widgets.
 	import Avatar from "/src/widgets/Avatar.vue";
-	import Error from "/src/widgets/Error.vue";
+	import Certificate from "/src/widgets/Certificate.vue";
+	import Experience from "/src/widgets/Experience.vue";
 	import Project from "/src/widgets/Project.vue";
 	import Skill from "/src/widgets/Skill.vue";
 	
@@ -23,66 +22,41 @@
 					hash: "#about",
 					text: "Abouts",
 					icon: {
-						active: [
-							"bx",
-							"bxs-info-circle"
-						],
-						default: [
-							"bx",
-							"bx-info-circle"
-						]
+						active: [ "bx", "bxs-info-circle" ],
+						default: [ "bx", "bx-info-circle" ]
 					}
 				},
 				{
 					hash: "#skill",
 					text: "Skills",
 					icon: {
-						default: [
-							"bx",
-							"bxs-hot"
-						]
+						default: [ "bx", "bxs-hot" ]
 					}
 				},
 				{
 					hash: "#project",
 					text: "Projects",
 					icon: {
-						active: [
-							"bx",
-							"bxs-flag"
-						],
-						default: [
-							"bx",
-							"bx-flag"
-						]
+						active: [ "bx", "bxs-flag" ],
+						default: [ "bx", "bx-flag" ]
 					}
 				},
 				{
 					hash: "#experience",
-					text: "Experience",
+					text: "Experiences",
 					icon: {
-						active: [
-							"bx",
-							"bxs-star"
-						],
-						default: [
-							"bx",
-							"bx-star"
-						]
+						active: [ "bx", "bxs-star" ],
+						default: [ "bx", "bx-star" ]
 					}
 				},
 				{
 					hash: "#certificate",
-					text: "Certificate",
+					text: "Certificates",
 					icon: {
-						default: [
-							"bx",
-							"bx-check-double"
-						]
+						default: [ "bx", "bx-check-double" ]
 					}
 				}
-			],
-			image: Image
+			]
 		}),
 		watch: {
 			title: {
@@ -165,7 +139,8 @@
 		},
 		components: {
 			Avatar,
-			Error,
+			Certificate,
+			Experience,
 			Project,
 			Skill
 		}
@@ -180,16 +155,7 @@
 			<div class="banner-cover"></div>
 		</div>
 	</div>
-	<div class="loading flex flex-center pd-24" v-if="loading">
-		<div class="animate">
-			<div class="spinner"></div>
-		</div>
-	</div>
-	<Error v-else-if="loading === false && error">
-		<h3 class="title">Something Wrong</h3>
-		<p class="sub-title">{{ error }}</p>
-	</Error>
-	<div class="home dp-flex" v-else>
+	<div class="home dp-flex">
 		<div class="home-profile">
 			<div class="profile-common">
 				<div class="profile-picture flex flex-center rd-circle">
@@ -213,16 +179,22 @@
 			<div class="profile-about pd-20">
 				<ul class="bx-ul mg-bottom-14">
 					<li class="flex flex-left mg-bottom-4">
-						<i class="bx bxs-map"></i>{{ profile.location ?? configs.address.universe ?? "Milky Way" }}
+						<i class="bx bxs-map"></i>{{ configs.author.address.universe ?? profile.location ?? "Milky Way" }}
 					</li>
 					<li class="flex flex-left mg-bottom-4">
-						<i class="bx bxl-whatsapp"></i>{{ configs.author.contact.phone }}
+						<i class="bx bxl-whatsapp"></i>
+						<a class="sub-title" :href="'https://wa.me/' + configs.author.contact.phone.replaceAll( /\-|\+|\s/g, '' ) " target="_blank" rel="noopener noreferrer">
+							{{ configs.author.contact.phone }}
+						</a>
 					</li>
 					<li class="flex flex-left">
-						<i class="bx bx-mail-send"></i>{{ configs.author.contact.email ?? profile.email ?? "hxari@proton.me" }}
+						<i class="bx bx-mail-send"></i>
+						<a class="sub-title" :href="'mailto:' + configs.author.contact.email ?? profile.email ?? 'hxari@proton.me'" target="_blank" rel="noopener noreferrer">
+							{{ configs.author.contact.email ?? profile.email ?? "hxari@proton.me" }}
+						</a>
 					</li>
 				</ul>
-				<a :href="image.resume" target="_blank" rel="noopener noreferrer">
+				<a :href="configs.resume.png" target="_blank" rel="noopener noreferrer">
 					<button class="button button-resume mg-bottom-14 pd-14">
 						<span class="title fb-45">View Resume</span>
 					</button>
@@ -280,7 +252,8 @@
 						</RouterLink>
 					</h2>
 					<hr class="hr mg-top-14 mg-bottom-14" />
-					<Skill :skills="configs.skill.skills" :percentage="configs.skill.percentage" />
+					<p class="text"></p>
+					<Skill />
 				</div>
 				<div class="content-single pd-14" id="project" v-scroll-reveal="{ delay: 650 }">
 					<h2 class="title">
@@ -289,32 +262,28 @@
 						</RouterLink>
 					</h2>
 					<hr class="hr mg-top-14 mg-bottom-14" />
-					<p class="text mg-bottom-14">
-						Here are some of the projects I've created and are still developing.
-						Every project is open source anyone can use it or contribute if interesting,
-						don't forget to let others know if it's useful.
-					</p>
-					<Project :profile="profile" :projects="configs.projects" :image="configs.image" />
+					<p class="text"></p>
+					<Project />
 				</div>
 				<div class="content-single pd-14" id="experience" v-scroll-reveal="{ delay: 650 }">
 					<h2 class="title">
 						<RouterLink class="title flex flex-left" to="#experience">
-							<i class="bx bxs-star mg-right-14"></i>Experience
+							<i class="bx bxs-star mg-right-14"></i>Experiences
 						</RouterLink>
 					</h2>
 					<hr class="hr mg-top-14 mg-bottom-14" />
 					<p class="text"></p>
-					<!--<Experience />-->
+					<Experience />
 				</div>
 				<div class="content-single pd-14" id="certificate" v-scroll-reveal="{ delay: 650 }">
 					<h2 class="title">
 						<RouterLink class="title flex flex-left" to="#certificate">
-							<i class="bx bx-check-double mg-right-14"></i>Certificate
+							<i class="bx bx-check-double mg-right-14"></i>Certificates
 						</RouterLink>
 					</h2>
 					<hr class="hr mg-top-14 mg-bottom-14" />
-					<p class="text">Some of the award certificates that I have won</p>
-					<!--<Certificate />-->
+					<p class="text"></p>
+					<Certificate />
 				</div>
 			</div>
 		</div>
@@ -322,17 +291,6 @@
 </template>
 
 <style scoped>
-	
-	/*
-	 * -------------------------------------------------------------------------------------------------------------------------------------------
-	 * Loading Styling
-	 * -------------------------------------------------------------------------------------------------------------------------------------------
-	 *
-	 */
-	.loading {
-		width: 100vw;
-		height: 100vh;
-	}
 	
 	/*
 	 * -------------------------------------------------------------------------------------------------------------------------------------------
@@ -397,7 +355,6 @@
 			position: -webkit-sticky;
 			position: sticky;
 			background: var(--background-1);
-			border-right: 1px solid var(--border-4);
 		}
 			.profile-common {
 				padding: 20px;
@@ -426,7 +383,8 @@
 			}
 				.button-resume {
 					width: 100%;
-					background: var(--background-3);
+					border: 1px solid var(--border-4);
+					background: var(--background-2);
 				}
 				.organization {
 					display: block;
@@ -484,10 +442,11 @@
 							color: var(--color-1);
 						}
 			.content-groups {
-				background: var(--background-2);
+				background: var(--background-1);
+				border-left: 1px solid var(--border-3);
 			}
 				.content-single {
-					border-bottom: 1px solid var(--border-1);
+					border-bottom: 1px solid var(--border-3);
 				}
 				.content-single:last-child {
 					border-bottom: 0;
@@ -501,7 +460,6 @@
 				margin: 0;
 				padding: 0;
 				position: static;
-				border: 0;
 			}
 				.profile-common {
 					top: 0;
@@ -544,15 +502,21 @@
 				.tabs {
 					justify-content: flex-start;
 				}
-				.content-single {
-					margin-bottom: 14px;
-					border-radius: 4px;
-					border: 1px solid var(--border-3);
+				.content-groups {
+					/** padding: 0; **/
+					background: var(--background-2);
 				}
-				.content-single:last-child {
-					margin-bottom: 0;
-					border: 1px solid var(--border-3);
-				}
+					.content-single {
+						margin-bottom: 14px;
+						border-radius: 4px;
+						background: var(--background-1);
+						border: 1px solid transparent;
+						box-shadow: 0 0 4px rgba(0,0,0,.1);
+					}
+					.content-single:last-child {
+						margin-bottom: 0;
+						border: 1px solid transparent;
+					}
 	}
 	.profile-about .hr,
 	.home-contents .hr {

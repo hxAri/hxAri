@@ -1,7 +1,7 @@
 
 // Import Scripts.
-import Match from "./Match.js";
-import Type from "./Type.js";
+import Match from "/src/scripts/Match.js";
+import Type from "/src/scripts/Type.js";
 
 /*
  * Array, Object, and String Mapper.

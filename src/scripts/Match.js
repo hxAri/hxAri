@@ -1,8 +1,8 @@
 
 // Importing application scripts.
-import Callable from "./types/Callable.js";
-import Not from "./logics/Not.js";
-import Type from "./Type.js";
+import Callable from "/src/scripts/types/Callable.js";
+import Not from "/src/scripts/logics/Not.js";
+import Type from "/src/scripts/Type.js";
 
 /*
  * Check if value is callable or function.

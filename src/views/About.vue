@@ -1,16 +1,14 @@
 
 <script>
+	
+	import { mapState } from "vuex";
+	
+	// Import Scripts
+	import Eremento from "/src/scripts/Eremento.js";
+	import Not from "/src/scripts/logics/Not.js";
+	import Type from "/src/scripts/Type.js";
+	
 	export default {
-		data: () => ({
-			texts: [
-				"Welcome to my portfolio website, a digital showcase of my expertise as a full-stack developer. This site serves as a hub for my latest projects and demonstrates my technical skills, creativity, and commitment to delivering exceptional web solutions.",
-				"Through my work on a variety of web development projects, including Kanashi, Sheyu, etc. I have honed my ability to design and develop responsive, user-friendly, and visually stunning websites. My portfolio website features a range of examples that highlight my proficiency with various programming languages, frameworks, and tools.",
-				"As you explore my portfolio, you'll see that I take a client-focused approach to web development, working closely with my clients to understand their unique needs and goals. From conceptualization to implementation, I strive to deliver customized, high-quality web solutions that exceed expectations.",
-				"I hope you find my portfolio website informative and engaging. If you have any questions or are interested in discussing a potential project, please don't hesitate to contact me. Thank you for visiting!"
-			]
-		}),
-		props: {
-		},
 		watch: {
 			title: {
 				immediate: true,
@@ -20,17 +18,126 @@
 				}
 			}
 		},
-		components: {
-		}
+		computed: mapState([
+			"configs"
+		]),
+		methods: {
+			
+			/*
+			 * Create object to arrange with Eremento.
+			 *
+			 * @params Array<Object|String> contents
+			 *
+			 * @return Array<Object>
+			 */
+			create: function( contents )
+			{
+				var result = [];
+				
+				// Mapping contents.
+				for( let content of contents )
+				{
+					// If content has option.
+					if( Type( content, Object ) )
+					{
+						// If content is subtitle.
+						// Multiline contents does not
+						// Work with sub-title contents.
+						if( content.subtitle )
+						{
+							result.push({
+								name: "p",
+								attributes: {
+									class: "sub-title mg-bottom-14 mg-lc-bottom",
+									innerHTML: this.paragraph( String( content.contents ) )
+								}
+							});
+							continue;
+						}
+						
+						// Normalize if value is Not Array.
+						if( Not( content.contents, Array ) )
+						{
+							content.contents = [
+								String( content.contents )
+							];
+						}
+						result = [
+							...result,
+							...this.create( content.contents )
+						];
+					}
+					else {
+						result.push({
+							name: "p",
+							attributes: {
+								class: "text mg-bottom-14 mg-lc-bottom",
+								innerHTML: this.paragraph( String( content ) )
+							}
+						});
+					}
+				}
+				return( result );
+			},
+			
+			/*
+			 * HTML Paragraph replacer.
+			 *
+			 * @params String paragraph
+			 *
+			 * @return String
+			 */
+			paragraph: function( paragraph )
+			{
+				var regexp = /((?<bold>\*{1,2})|(?<underline>\b\_{1,2})|(?<italic>\~{1,2}))(?<value>[^\1]*)(\1)/gm;
+				var string = "";
+				var index = 0;
+				var match;
+				
+				while( ( match = regexp.exec( paragraph ) ) !== null )
+				{
+					// Get regex group name.
+					var kind = Object.keys( match.groups ).find( group => Type( match.groups[group], String ) );
+						kind = kind === "bold" ? "fb-45" : `text-${kind}`;
+					
+					// Format captured character.
+					var value = `<span class="${kind}">${match.groups.value}</span>`;
+					
+					string += paragraph.substring( index, regexp.lastIndex - match[0].length );
+					string += value;
+					index = regexp.lastIndex;
+				}
+				return( string + paragraph.substring( index ) );
+			},
+			
+			/*
+			 * Rendering element.
+			 *
+			 * @return String
+			 *  HTML Raw element
+			 */
+			render: function()
+			{
+				return(
+					Eremento.arrange(
+						this.create(
+							this.configs.routes.about
+						)
+					)
+				);
+			}
+		},
+		components: {}
 	};
+	
 </script>
 
 <template>
-	<div class="container">
-		<div class="deep-container">
-			<div class="about pd-top-34 pd-bottom-34">
-				<h2 class="title mg-bottom-14">About</h2>
-				<p class="text mg-bottom-14 mg-lc-bottom" v-for="text in texts">{{ text }}</p>
+	<div class="about flex flex-center">
+		<div class="about-block bg-2">
+			<div class="about-content pd-18">
+				<h2 class="title mg-bottom-8">About</h2>
+				<div class="about-paragraphs" v-html="render()"></div>
 			</div>
 		</div>
 	</div>
@@ -44,6 +151,28 @@
 	 * -------------------------------------------------------------------------------------------------------------------------------------------
 	 *
 	 */
-	.about {}
+	.about {
+		width: 100vw;
+		height: auto;
+	}
+	@media( max-width: 750px ) {
+		.about {
+			width: 100%;
+			display: block;
+		}
+	}
+		.about-block {
+			width: 65vw;
+			display: block;
+		}
+		@media( max-width: 750px ) {
+			.about-block {
+				width: auto;
+			}
+		}
+			.about-content {
+				width: auto;
+				height: auto;
+			}
 	
 </style>

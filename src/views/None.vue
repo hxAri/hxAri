@@ -24,7 +24,7 @@
 				<i class="notfound-icon bx bx-sad"></i>
 			</div>
 			<h1 class="title">404</h1>
-			<h3 class="sub-title mg-bottom-14">Oops! Page Not Found</h3>
+			<h3 class="sub-title mg-bottom-14">Oops! {{ $route.query.message ? $route.query.message : "Page Not Found" }}</h3>
 			<p class="text">
 				Sorry but the page you are looking for does not exist, have been removed.
 				Name changed or is temporarily unavailable
