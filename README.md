@@ -1,3 +1,5 @@
+
+![hxAri](https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1677866924;deVw5x2Uzx.png)
 <!--![Profile Views](https://gpvc.arturio.dev/hxAri)-->
 
 A Full Stack Developer from Indonesia who likes to drink Chocolate coffee while thinking of crazy ideas to build programs that can benefit everyone
