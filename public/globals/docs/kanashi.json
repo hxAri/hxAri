@@ -1,0 +1,59 @@
+{
+	"title": "Kanashī",
+	"routes": [
+		{
+			"path": "/projects/Kanashi",
+			"name": "home",
+			"readable": true,
+			"component": {
+				"template": {
+					"name": "div",
+					"attributes": {
+						"class": "",
+						"style": {},
+						"innerHTML": "Home"
+					}
+				}
+			}
+		},
+		{
+			"path": "/projects/Kanashi/history",
+			"name": "history",
+			"readable": true,
+			"component": {
+				"template": {
+					"name": "div",
+					"attributes": {
+						"innerHTML": "History"
+					}
+				}
+			}
+		},
+		{
+			"path": "/projects/Kanashi/install",
+			"name": "install",
+			"readable": true,
+			"component": {
+				"template": {
+					"name": "div",
+					"attributes": {
+						"innerHTML": "Install"
+					}
+				}
+			}
+		},
+		{
+			"path": "/projects/Kanashi/usages",
+			"name": "usage",
+			"readable": true,
+			"component": {
+				"template": {
+					"name": "div",
+					"attributes": {
+						"innerHTML": "Usage"
+					}
+				}
+			}
+		}
+	]
+}

@@ -1,0 +1,417 @@
+{
+    "author": {
+        "name": "Ari Setiawan",
+        "alias": "hxAri",
+        "address": {
+            "country": "Indonesia",
+            "district": "Sukoharjo",
+            "postcode": 35673,
+            "province": "Lampung",
+            "regency": "Pringsewu",
+            "universe": "Milky Way"
+        },
+        "abouts": [
+            "Hello, introduce my name is Ari Setiawan.",
+            "I am a Programmer from Indonesia who likes to drink Chocolate coffee while thinking of crazy ideas to build programs that can benefit everyone.",
+            "I have been writing code from 2019 to be precise when I was in junior high school until now I like to write code, but apart from that all my family doesn't care about it.",
+            "I prefer to work independently or alone but apart from that I can also work well in a team."
+        ],
+        "contact": {
+            "email": "hxari@proton.me",
+            "phone": "+62 858-3913-6990"
+        },
+        "social": {
+            "instagram": "https://www.instagram.com/hx.ari",
+            "linkedin": "https://www.linkedin.com/in/hxAri",
+            "twitter": "https://www.twitter.com/hxxAre",
+            "github": "https://github.com/hxAri",
+            "tiktok": "https://www.tiktok.com/@hxare"
+        },
+        "status": {
+        }
+    },
+    "certificate": {
+        "source": {
+            "origin": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/certs",
+            "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/certificate"
+        },
+        "certificates": [
+            {
+                "title": "Career Preparation Fair",
+                "source": "1688786479;faMyU4T43P.pdf",
+                "tumbnail": "1688786479;faMyU4T43P.png",
+                "timestamp": 1684083600,
+                "description": [
+                    "For actively participating in the \"**Career Preparation Fair**\" at Career Support Festival 2023"
+                ]
+            },
+            {
+                "title": "Mobile Game and Programming Training",
+                "source": "1688786593;cc27c8Nw69.pdf",
+                "tumbnail": "1688786593;cc27c8Nw69.png",
+                "timestamp": 1686330000,
+                "galery": [
+                    {
+                        "image": "",
+                        "description": []
+                    }
+                ],
+                "description": [
+                    "Has attended Mobile Game and Programming Training",
+                    "Organized by the Computer Laboratory of the Darmajaya Institute of Informatics and Business Bandar Lampung"
+                ]
+            }
+        ]
+    },
+    "experiences": [
+        {
+            "title": "Herbal Medicine Seller",
+            "company": "Health Wealth International",
+            "timestamp": {
+                "begin": 1606669200,
+                "end": 1626800400
+            },
+            "galery": [],
+            "description": [
+                "Online Business Herbal Medicine Seller at Health Wealth International Company"
+            ]
+        },
+        {
+            "title": "Industrial Work",
+            "company": "Institute Business and Informatics",
+            "timestamp": {
+                "begin": 1642957200,
+                "end": 1652374800
+            },
+            "galery": [],
+            "description": [
+                "Industrial Work Practices as Service Computer Technician in Institute Business and Informatics Darmajaya Bandar Lampung. I have had work experience doing industrial work practices at The Darmajaya Institute of Informatics and Business Campus to be precise in Bandar Lampung in the Computer Lab section as a Computer Service Technician for 4 months."
+            ]
+        }
+    ],
+    "image": {
+        "source": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images",
+        "images": {
+            "animes": {
+                "anya": "animes/1688279305;faDUy.5qBI.png",
+                "chitoge": "animes/1688279325;b8HHSrMkjX.png",
+                "daki": "animes/1679790488;e8vB3VRArc.png",
+                "hiyori": "animes/1688279338;69Pd5HHpyI.png",
+                "ichigiyoururi": "animes/1679790473;8awC2VZFr2.png",
+                "iwamura": "animes/1688279350;deNMK25Vag.png",
+                "kohaku": "animes/1688279368;d7uAlY4A14.png",
+                "kosaki": "animes/1688279381;e5glk07waf.png",
+                "kugisaki": "animes/1688279407;95sVg5JKS4.png",
+                "marika": "animes/1688279419;64.7fJ1vXO.png",
+                "mitsuha": "animes/1688279430;8eDaRCoRR3.png",
+                "miyamoto": "animes/1688279442;c4wbmgmV6G.png",
+                "nakime": "animes/1679790638;7bJ3k6IQYK.png",
+                "nazuna": "animes/1679790502;aeklVNfU.8.png",
+                "nezuko": "animes/1688279478;cf0CraJt1D.png",
+                "rikka": "animes/1688279288;53rDAXzTQo.png",
+                "saya": "animes/1679790519;23ctpzKlx8.png",
+                "shinka": "animes/",
+                "susamaru": "animes/1688279568;a3.IUmc5Z7.png",
+                "tamayo": "animes/1688279497;bdoro2q.wx.png",
+                "touka": "animes/",
+                "tsugumi": "animes/1688279508;a2qHWFuRVW.png",
+                "yusaki": "animes/1679790537;b2MtUlRvVA.png",
+                "yuzuriha": "animes/1688279518;f5f1sEadU9.png"
+            },
+            "banner": {},
+            "framework": {
+                "aura": "framework/1665939026;9eq2QiuOjt.png",
+                "cake": "framework/1679780625;f4I004yGjm.png",
+                "ci": "framework/1665962721;13qeKKNBUO.png",
+                "bootstrap": "framework/1665972372;bctUyBhCQf.png",
+                "flask": "framework/1665972839;9ax1yGkAzb.png",
+                "fuel": "framework/1665962246;beuCcVbYqh.png",
+                "django": "framework/1665972605;adlUDwbhAb.png",
+                "jquery": "framework/1665961991;a5FUwrnf.s.png",
+                "laravel": "framework/1665962108;a5PBxfVpsA.png",
+                "phalcon": "framework/1665938776;09.UC4s6ez.png",
+                "rails": "framework/1665961813;60eYD.WAYM.png",
+                "react": "framework/1665962130;7br.U9nm.q.png",
+                "slim": "framework/1665962661;03.aeUh8zh.png",
+                "symfony": "framework/1665962379;39VYgmi0o9.png",
+                "vue": "framework/1665972404;0cHip.F6ka.png",
+                "yii": "framework/1665962324;adJGgXJz.z.png",
+                "yume": "framework/1653507383;6bi9u6QnWb.png",
+                "zend": "framework/1665962273;76i.QEIxMB.png"
+            },
+            "language": {
+                "c": "languages/1665939161;73ubvXTML..png",
+                "csharp": "languages/1665939141;a799bPWAk3.png",
+                "cpp": "languages/1665939108;95qK.MVhw7.png",
+                "css": "languages/1665938615;3eIDhLG2TO.png",
+                "html": "languages/1665938533;bbdszyUZLM.png",
+                "java": "languages/1665961890;ba5MjPh.vQ.png",
+                "javascript": "languages/1665962019;485GG2Rcrx.png",
+                "js": "languages/1665962019;485GG2Rcrx.png",
+                "json": "languages/1665972701;caaQzNm1Ut.png",
+                "php": "languages/1665938456;79H8p8g.8F.png",
+                "python": "languages/1665961949;d6aKjxhTWN.png",
+                "ruby": "languages/1665961760;11VI0euxrG.png",
+                "shell": "languages/1665972209;0dDyo2s2Qz.png",
+                "sass": "languages/1665962588;adYm24GDM0.png"
+            },
+            "projects": {},
+            "technology": {
+                "android": "technology/1665972799;358kg0wVCn.png",
+                "git": "technology/1665938747;27YqAP6v.C.png",
+                "github": "technology/1665938408;68ZQFVnqY7.png",
+                "gitlab": "technology/1665972439;fdU94C3pDR.png",
+                "linux": "technology/1665938703;6eS3rI4P.I.png",
+                "nodejs": "technology/1665962561;29NbGg267g.png",
+                "npm": "technology/1665972871;bb531rSfmN.png",
+                "tor": "technology/1665938892;b8DAigRdrg.png",
+                "vsc": "technology/1665972474;68z9QiE7w5.png"
+            }
+        }
+    },
+    "maintenance": {
+        "about": false,
+        "contact": false,
+        "home": true,
+        "none": false,
+        "privacy": false,
+        "project": false,
+        "projects": false,
+        "sitemap": false,
+        "terminal": false
+    },
+    "organizations": [
+        "octancle",
+        "yfure"
+    ],
+    "projects": [
+        {
+            "name": "Android",
+            "include": true,
+            "endpoint": "hxAri/Android",
+            "homepage": "https://github.com/hxAri/",
+            "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1647263980;c78Y41VWj3.png",
+            "document_url": "https://raw.githubusercontent.com/hxAri/Android/main/globals/docs/"
+        },
+        {
+            "name": "Atarashī",
+            "include": false,
+            "endpoint": "hxAri/Atarashi",
+            "homepage": "https://github.com/hxAri/",
+            "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/",
+            "document_url": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/globals/docs/atarashi.json"
+        },
+        {
+            "name": "CIn",
+            "include": false,
+            "endpoint": "hxAri/CIn",
+            "homepage": "https://github.com/hxAri/",
+            "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/",
+            "document_url": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/globals/docs/cin.json"
+        },
+        {
+            "name": "Ekisu",
+            "include": false,
+            "endpoint": "hxAri/Ekisu",
+            "homepage": "https://github.com/hxAri/",
+            "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/",
+            "document_url": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/globals/docs/ekisu.json"
+        },
+        {
+            "name": "Eremento",
+            "include": false,
+            "endpoint": "hxAri/Eremento",
+            "homepage": "https://github.com/hxAri/",
+            "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1653507202;5fe1yJwN3F.png",
+            "document_url": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/globals/docs/eremento.json"
+        },
+        {
+            "name": "Faibā",
+            "include": true,
+            "endpoint": "hxAri/Tree",
+            "homepage": "https://github.com/hxAri/",
+            "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1653507345;50XUUPql.z.png",
+            "document_url": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/globals/docs/faiba.json"
+        },
+        {
+            "name": "Furasuko",
+            "include": false,
+            "endpoint": "hxAri/Furasuko",
+            "homepage": "https://github.com/hxAri/",
+            "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/",
+            "document_url": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/globals/docs/furasuko.json"
+        },
+        {
+            "name": "Kanashī",
+            "include": true,
+            "endpoint": "hxAri/Kanashi",
+            "homepage": "https://github.com/hxAri/",
+            "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1654820424;51ydWrxRcv.png",
+            "document_url": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/globals/docs/kanashi.json"
+        },
+        {
+            "name": "Service",
+            "include": false,
+            "endpoint": "hxAri/Service",
+            "homepage": "https://github.com/hxAri/",
+            "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/",
+            "document_url": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/globals/docs/service.json"
+        },
+        {
+            "name": "Sheyu",
+            "alias": "Sheruyūtiriti",
+            "include": false,
+            "endpoint": "hxAri/Sheyu",
+            "homepage": "https://github.com/hxAri/",
+            "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/",
+            "document_url": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/globals/docs/sheyu.json"
+        },
+        {
+            "name": "Yume",
+            "include": true,
+            "endpoint": "yfure/Yume",
+            "homepage": "https://github.com/hxAri/",
+            "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1653507383;6bi9u6QnWb.png",
+            "document_url": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/globals/docs/yume.json"
+        }
+    ],
+    "resume": {
+        "pdf": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/resume/1679677747;81xemRE3u4.pdf",
+        "png": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/resume/1679677747;81xemRE3u4.png"
+    },
+    "routes": {
+        "about": [
+            {
+                "subtitle": false,
+                "contents": [
+                    "Welcome to my portfolio website, a digital showcase of my expertise as a **Programmer**. This site serves as a hub for my latest projects and demonstrates my technical skills, creativity, and commitment to delivering exceptional web solutions.",
+                    "Through my work on a variety of web development projects, including *Kanashi*, Sheyu, etc. I have honed my ability to design and develop responsive, user-friendly, and visually stunning websites. My portfolio website features a range of examples that highlight my proficiency with various programming languages, frameworks, and tools.",
+                    "As you explore my portfolio, you'll see that I take a client-focused approach to web development, working closely with my clients to understand their unique needs and goals. From conceptualization to implementation, I strive to deliver customized, high-quality web solutions that exceed expectations.",
+                    "I hope you find my portfolio website informative and engaging. If you have any questions or are interested in discussing a potential project, please don't hesitate to contact me. Thank you for visiting!"
+                ]
+            }
+        ],
+        "privacy": [
+            {
+                "subtitle": false,
+                "contents": "Your privacy is important to me, and I am committed to protecting it. This privacy policy outlines how I collect, use, and protect any personal information that you provide when you visit my portfolio website."
+            },
+            {
+                "subtitle": true,
+                "contents": "What information do I collect?"
+            },
+            {
+                "subtitle": false,
+                "contents": "I do not collect any personal information from you when you visit my website, unless you choose to provide it to me voluntarily. If you contact me through the contact form on my website or via email, I will collect your name, email address, and any other information you choose to provide."
+            },
+            {
+                "subtitle": true,
+                "contents": "How do I use your information?"
+            },
+            {
+                "subtitle": false,
+                "contents": "I will only use your personal information to respond to your inquiries, provide you with information about my services, or fulfill any requests that you make. I will not share, sell, or otherwise distribute your information to any third party, unless required to do so by law."
+            },
+            {
+                "subtitle": true,
+                "contents": "How do I protect your information?"
+            },
+            {
+                "subtitle": false,
+                "contents": "I take reasonable and appropriate measures to protect your personal information from unauthorized access, disclosure, alteration, or destruction. However, please note that no data transmission over the internet is completely secure, and I cannot guarantee the absolute security of your information."
+            },
+            {
+                "subtitle": true,
+                "contents": "Third-party links"
+            },
+            {
+                "subtitle": false,
+                "contents": "My portfolio website may contain links to third-party websites that are not under my control. These links are provided for your convenience and do not imply endorsement or approval of the content, policies, or practices of these websites. Please review the privacy policies of these websites before submitting any personal information."
+            },
+            {
+                "subtitle": true,
+                "contents": "Changes to this privacy policy"
+            },
+            {
+                "subtitle": false,
+                "contents": [
+                    "I reserve the right to modify this privacy policy at any time without prior notice. Any changes to the policy will be reflected on this page, and your continued use of my website after such modifications constitutes your acceptance of the new policy.",
+                    "If you have any questions or concerns about this privacy policy or the way your personal information is handled, please feel free to contact me."
+                ]
+            }
+        ],
+        "sitemap": [
+            {
+                "subtitle": false,
+                "contents": [
+                    "A sitemap is a page on my portfolio website that provides an overview of the website's structure and content. It is designed to help visitors navigate the website more easily and to help search engines crawl and index the website's pages.",
+                    "My portfolio website's sitemap includes links to all of the website's main pages, including the home page, about page, portfolio page, blog page, and contact page. It also includes links to any other important pages or sections of the website.",
+                    "By using the sitemap, visitors can quickly find the information they are looking for without having to navigate through multiple pages. It also helps search engines understand the structure and content of the website, which can improve the website's visibility and ranking in search results.",
+                    "In addition to the sitemap, my portfolio website also includes a navigation menu that allows visitors to easily access the main pages of the website from any page on the website. This provides an additional level of convenience for visitors and helps ensure that they can find the information they need quickly and easily.",
+                    "I hope you find the sitemap and navigation menu on my portfolio website helpful. If you have any questions or feedback, please feel free to contact me."
+                ]
+            }
+        ]
+    },
+    "skill": {
+        "percentage": 100,
+        "skills": [
+            {
+                "name": "HTML5",
+                "type": "language",
+                "image": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/languages/1665938533;bbdszyUZLM.png",
+                "values": 100,
+                "description": null,
+                "certificates": []
+            },
+            {
+                "name": "CSS3",
+                "type": "language",
+                "image": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/languages/1665938615;3eIDhLG2TO.png",
+                "values": 80,
+                "description": null,
+                "certificates": []
+            },
+            {
+                "name": "Java",
+                "type": "language",
+                "image": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/languages/1665961890;ba5MjPh.vQ.png",
+                "values": 80,
+                "description": null,
+                "certificates": []
+            },
+            {
+                "name": "JavaScript",
+                "type": "language",
+                "image": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/languages/1665962019;485GG2Rcrx.png",
+                "values": 100,
+                "description": null,
+                "certificates": []
+            },
+            {
+                "name": "PHP",
+                "type": "language",
+                "image": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/languages/1665938456;79H8p8g.8F.png",
+                "values": 100,
+                "description": null,
+                "certificates": []
+            },
+            {
+                "name": "Python",
+                "type": "language",
+                "image": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/languages/1665961949;d6aKjxhTWN.png",
+                "values": 80,
+                "description": null,
+                "certificates": []
+            },
+            {
+                "name": "Shell",
+                "type": "language",
+                "image": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/languages/1665972209;0dDyo2s2Qz.png",
+                "values": 95,
+                "description": null,
+                "certificates": []
+            }
+        ]
+    }
+}
