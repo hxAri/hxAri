@@ -171,12 +171,12 @@
     },
     "maintenance": {
         "about": false,
-        "contact": false,
+        "contact": true,
         "home": true,
         "none": false,
         "privacy": false,
         "project": false,
-        "projects": false,
+        "projects": true,
         "sitemap": false,
         "terminal": false
     },
