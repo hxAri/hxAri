@@ -178,7 +178,7 @@
         "project": false,
         "projects": true,
         "sitemap": false,
-        "terminal": false
+        "terminal": true
     },
     "organizations": [
         "octancle",
