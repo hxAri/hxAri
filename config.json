@@ -174,11 +174,12 @@
         "contact": true,
         "home": true,
         "none": false,
+        "preview": false,
         "privacy": false,
-        "project": false,
+        "project": true,
         "projects": true,
         "sitemap": false,
-        "terminal": true
+        "terminal": false
     },
     "organizations": [
         "octancle",
