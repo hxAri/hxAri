@@ -172,7 +172,7 @@
     "maintenance": {
         "about": false,
         "contact": false,
-        "home": false,
+        "home": true,
         "none": false,
         "preview": false,
         "privacy": false,
