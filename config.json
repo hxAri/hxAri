@@ -171,7 +171,7 @@
     },
     "maintenance": {
         "about": false,
-        "contact": true,
+        "contact": false,
         "home": true,
         "none": false,
         "preview": false,
