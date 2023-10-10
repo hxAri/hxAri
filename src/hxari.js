@@ -7,6 +7,7 @@ import "/src/styles/hxari.light.css";
 import "/src/styles/hxari.dark.css";
 import "/src/styles/hxari.font.css";
 import "/src/styles/hxari.hljs.css";
+import "/src/styles/hxari.md.css";
 import "/src/styles/hxari.css";
 
 // Import Application
