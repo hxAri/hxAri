@@ -13,20 +13,7 @@ export default {
 	data: {
 		banner: Banner,
 		abouts: [
-			...[
-				"\x20",
-				"This program was created because I like Linux",
-				"This is just a virtual Terminal built using JavaScript",
-				"where the way it works is made as similar as possible to",
-				"the Terminal on the Linux Kernel, if you are interested in",
-				"trying it I suggest you to use Hacker's Keyboard if you are",
-				"an Android user visiting  this page, but if you are using a",
-				"Laptop/ Computer you don't need that you can just type any",
-				"command you like, add option -h|--help  to display information",
-				"on the command you are calling, the following is a list of",
-				"commands that are already available and you can try:",
-				"\x20"
-			]
+			"\x20"
 		]
 	},
 	author: Author,

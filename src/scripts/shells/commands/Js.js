@@ -12,8 +12,9 @@ export default {
 	type: "binary",
 	data: {
 		regexp: {
-			numeric: /^-?\d+(\.\d+)?$/,
-			datetime: /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d{3})?Z)?$/
+			datetime: /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d{3})?Z)?$/,
+			expansion: /^$/,
+			numeric: /^-?\d+(\.\d+)?$/
 		}
 	},
 	author: Author,
@@ -42,9 +43,7 @@ export default {
 		 * @return Number
 		 */
 		arithmetic: function( syntax )
-		{
-			
-		},
+		{},
 		
 		/*
 		 * Resolve backslash in the raw strings.
@@ -107,7 +106,6 @@ export default {
 				{
 					// Remove whitespaces.
 					value = value.trim();
-					
 					try
 					{
 						// Check if value is a boolean string
@@ -238,7 +236,6 @@ export default {
 				while( ( match = qregex.exec( value ) ) !== null )
 				{
 					result += this.backslash( value.substring( index, qregex.lastIndex - match[0].length ) );
-					
 					switch( true )
 					{
 						case Type( match.groups.subtitution_command, String ):
@@ -267,10 +264,7 @@ export default {
 				value = result + this.backslash( value.substring( index ) );
 				
 				// Check if argument value is not empty.
-				if( Value.isNotEmpty( value ) )
-				{
-					argv.push( value );
-				}
+				if( Value.isNotEmpty( value ) ) argv.push( value );
 			}
 			return( argv.filter( arg => Value.isNotEmpty( arg ) ) );
 		},
@@ -481,7 +475,7 @@ export default {
 		{
 			var self = this;
 			var result = [];
-			var splits = argument.split( /(?<=^|[^"'`\\\\])\s*&&\s*(?=[^"'`\\\\]|$)/g );
+			var splits = argument.split( /(?<=^|[^"'`\\\\])\s*(?:&&|;)\s*(?=[^"'`\\\\]|$)/g );
 			
 			// Mapping splited arguments.
 			for( let i in splits )

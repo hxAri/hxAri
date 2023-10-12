@@ -41,14 +41,14 @@ export default {
 			{
 				switch( this.$args.color )
 				{
-					case "black": return( Fmt( "\x1b[30m{}", name ) );
-					case "red": return( Fmt( "\x1b[31m{}", name ) );
-					case "green": return( Fmt( "\x1b[32m{}", name ) );
-					case "yellow": return( Fmt( "\x1b[33m{}", name ) );
-					case "blue": return( Fmt( "\x1b[34m{}", name ) );
-					case "purple": return( Fmt( "\x1b[35m{}", name ) );
-					case "cyan": return( Fmt( "\x1b[36m{}", name ) );
-					case "white": return( Fmt( "\x1b[37m{}", name ) );
+					case "black": return( Fmt( "\x1b[1;30m{}", name ) );
+					case "red": return( Fmt( "\x1b[1;31m{}", name ) );
+					case "green": return( Fmt( "\x1b[1;32m{}", name ) );
+					case "yellow": return( Fmt( "\x1b[1;33m{}", name ) );
+					case "blue": return( Fmt( "\x1b[1;34m{}", name ) );
+					case "purple": return( Fmt( "\x1b[1;35m{}", name ) );
+					case "cyan": return( Fmt( "\x1b[1;36m{}", name ) );
+					case "white": return( Fmt( "\x1b[1;37m{}", name ) );
 					
 					// Throw for usupported color.
 					default: throw Fmt( "{}: Unsupported color", this.$args.color );
@@ -59,42 +59,12 @@ export default {
 				// Colorize filename based on filetype.
 				switch( type )
 				{
-					case "binary": return( Fmt( "\x1b[32m{}", name ) );
-					case "path": return( Fmt( "\x1b[34m{}", name ) );
-					case "symlink": return( Fmt( "\x1b[36m{}", name ) );
+					case "binary": return( Fmt( "\x1b[1;32m{}", name ) );
+					case "path": return( Fmt( "\x1b[1;34m{}", name ) );
+					case "symlink": return( Fmt( "\x1b[1;36m{}", name ) );
 				}
 				return( Fmt( "\x1b[37m{}", name ) );
 			}
-		},
-		
-		/*
-		 * Resolve pathname.
-		 *
-		 * @params String path
-		 *
-		 * @return String
-		 */
-		resolve: function( path )
-		{
-			// Split pathname with slash.
-			var names = Fmt( "{}{}", path[0] !== "/" ? this.$root.pwd() + "/" : "", path ).split( "/" );
-			var result = [];
-			
-			// Mapping path names.
-			for( let i in names )
-			{
-				if( names[i] === "." ) continue;
-				if( names[i] === ".." )
-				{
-					if( result[( i -1 )] )
-					{
-						delete result[( i -1 )];
-					}
-					continue;
-				}
-				result.push( names[i] );
-			}
-			return( result.length ? result : [ "/" ] ).join( "/" ).replace( /^\/\//, "" );
 		}
 	},
 	mounted: function({ color, help } = {})
@@ -109,10 +79,10 @@ export default {
 			else {
 				
 				// Get pathname.
-				var path = this.$args[0] ?? this.$root.pwd();
+				var path = this.$root.pathResolver( this.$args[0] ?? this.$root.pwd(), false );
 				
 				// Get file list.
-				var files = this.$root.ls( this.resolve( path ) );
+				var files = this.$root.ls( path );
 			}
 			
 			// Display help.

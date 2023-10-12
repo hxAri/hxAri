@@ -10,55 +10,18 @@ export default {
 	author: Author,
 	abouts: "Change the shell working directory",
 	methods: {
-		
-		/*
-		 * Resolve pathname.
-		 *
-		 * @params String path
-		 *
-		 * @return String
-		 */
-		resolve: function( path )
-		{
-			// Check if target destination is old destination.
-			if( path === "-" )
-			{
-				path = this.$envs['PWD-OLD'] ?? this.$root.pwd();
-			}
-			
-			// Split pathname with slash.
-			var names = Fmt( "{}{}", path[0] !== "/" ? this.$root.pwd() + "/" : "", path ).split( "/" );
-			var result = [];
-			
-			// Mapping path names.
-			for( let i in names )
-			{
-				if( names[i] === "." ) continue;
-				if( names[i] === ".." )
-				{
-					if( result[( i -1 )] )
-					{
-						delete result[( i -1 )];
-					}
-					continue;
-				}
-				result.push( names[i] );
-			}
-			return( result.length ? result : [ "/" ] ).join( "/" ).replace( /^\/\//, "" );
-		}
 	},
 	mounted: function()
 	{
 		// Remove command name from argument values.
 		var argv = this.$argv.slice( 1 );
-		
 		try
 		{
 			// Check for avoid to many arguments.
 			if( argv.length > 1 ) throw "To many arguments";
 			
 			// Resolve pathname.
-			var name = this.resolve( argv[0] = argv[0] ?? this.$envs.HOME );
+			var name = this.$root.pathResolver( argv[0] = argv[0] ?? this.$envs.HOME, true );
 			
 			// Try to check directory.
 			var path = this.$root.ls( name );
@@ -74,7 +37,7 @@ export default {
 			
 			// Push route path.
 			this.$root.router.push(
-				Fmt( "/terminal/{}", name ).replaceAll( /\/\//g, "/" )
+				Fmt( "/terminal/{}", name ).replaceAll( /\/\//g, "/" ).replace( /\/$/g, "" )
 			);
 		}
 		catch( error )
