@@ -1,16 +1,25 @@
 
 <script>
+
+	import { mapState } from "vuex";
 	
 	// Import Scripts
 	import Fmt from "/src/scripts/Fmt.js";
 	import Mapper from "/src/scripts/Mapper.js";
-	import Terminal from "/src/scripts/shells/Terminal.js";
 	import Type from "/src/scripts/Type";
-	import Value from "/src/scripts/logics/Value.js";
 	
 	export default {
 		data: () => ({
-			model: "",//"echo $((x,x++,x*89\\))",
+			label: {
+				after: null,
+				prompt: null,
+				before: null
+			},
+			model: "",
+			mouse: {
+				from: -1,
+				to: -1
+			},
 			range: {
 				begin: -1,
 				end: -1
@@ -85,8 +94,7 @@
 					code: 34,
 					text: "PGDN"
 				}
-			],
-			terminal: null
+			]
 		}),
 		watch: {
 			title: {
@@ -97,12 +105,42 @@
 				}
 			}
 		},
+		computed: mapState([
+			"terminal"
+		]),
 		created: function()
 		{
-			this.terminal = new Terminal( this, this.$router );
+			this.terminal.binding = this;
+			this.terminal.router = this.$router;
+			try
+			{
+				// Check if current route path is main terminal view path.
+				if( this.terminal.pwd() === "/" )
+				{
+					// Push route to home directory.
+					this.terminal.router.push( Fmt( "/terminal{}", this.terminal.exports.HOME ) );
+				}
+				else {
+					this.terminal.ls( this.terminal.pwd() );
+				}
+			}
+			catch( error )
+			{
+				this.terminal.history.push({ output: [ Fmt( "{}: {}", this.terminal.shell, error ) ] });
+			}
+		},
+		mounted: function()
+		{
+			this.endrange();
+			this.mouse.from = this.$refs.input.selectionStart;
 		},
 		methods: {
 			
+			pointer: function( e )
+			{
+				console.log( e )
+			},
+
 			/*
 			 * Set input text selection to end.
 			 *
@@ -112,8 +150,35 @@
 			 */
 			endrange: function( e )
 			{
-				e.target.focus();
-				e.target.setSelectionRange( this.range.begin, this.range.end );
+				// Resolve terminal prompt display.
+				this.label.prompt = this.terminal.loading === false ? this.terminal.prompt( this.terminal.exports.PS1 ) : null;
+
+				// ...
+				if( Type( this.$refs.input, HTMLInputElement ) )
+				{
+					var after = "";
+					var before = "";
+					var model = this.model;
+					var input = this.$refs.input;
+						// input.style.color = input.selectionStart !== model.length ? "var(--shell-c-0-30m)" : "transparent";
+					
+					if( this.mouse.from < 0 )
+					{
+						this.mouse.from = model.length;
+						this.mouse.to = model.length -1;
+					}
+					else {
+						this.mouse.from = this.mouse.to;
+						this.mouse.to = input.selectionStart;
+					}
+					this.label.after = this.terminal.colorable( model.substring( this.mouse.to, model.length ) );
+					this.label.before = this.terminal.colorable( model.substring( 0, this.mouse.to ) );
+					this.trigger();
+				}
+				else {
+					this.label.after = null;
+					this.label.before = this.terminal.colorable( this.model );
+				}
 			},
 			
 			/*
@@ -125,12 +190,12 @@
 			 */
 			executor: async function( e )
 			{
+				// Focusable.
+				this.trigger();
+				
 				// Check if key is enter.
 				if( e.key === "Enter" )
 				{
-					// Focusable.
-					this.trigger();
-					
 					await this.terminal.run( this.model )
 						.then( x => console.log( x ) )
 						.catch( e => console.error( e ) );
@@ -154,31 +219,6 @@
 			},
 			
 			/*
-			 * Terminal ONInput
-			 *
-			 * @params InputEvent e
-			 *
-			 * @return String
-			 */
-			oninput: function( e )
-			{
-				// Focusable.
-				this.trigger();
-				
-				// Check if terminal is working for another program.
-				if( this.terminal.loading )
-				{
-					return( this.terminal.colorable( this.model ) );
-				}
-				else {
-					return( Fmt( "{} {}", ...[
-						this.terminal.prompt( this.terminal.exports.PS1 ),
-						this.terminal.colorable( this.model )
-					]));
-				}
-			},
-			
-			/*
 			 * Render Terminal command input and output.
 			 *
 			 * @return String
@@ -191,7 +231,7 @@
 				return(
 					
 					// Mapping Terminal Histories.
-					Mapper( this.terminal.history,
+					Mapper( self.terminal.history,
 						
 						/*
 						 * Handle history.
@@ -217,7 +257,7 @@
 								// Check if history has input commands.
 								if( Type( history.inputs, String ) )
 								{
-									stack.push( "\x20" + history.inputs );
+									stack.push( history.inputs.trim() );
 								}
 								stack.push( "</label>" );
 							}
@@ -252,8 +292,8 @@
 				{
 					this.$refs.input.focus();
 				}
-				catch( e )
-				{}
+				catch( e ) {
+				}
 			}
 		}
 	};
@@ -267,8 +307,10 @@
 				<div class="terminal-line" v-html="onrender()"></div>
 			
 			<div class="terminal-form" @click="trigger">
-				<label class="terminal-label" v-html="oninput()"></label>
+				<label class="terminal-prompt" v-html="label.prompt"></label>
+				<label class="terminal-label" v-html="label.before"></label>
 				<input class="terminal-input" type="text" v-model="model" autocapitalize="off" ref="input" @click="endrange" @keyup="endrange" @focus="endrange" @input="endrange" @change="endrange" @keypress="endrange" @keydown="executor" />
+				<label class="terminal-label" v-html="label.after"></label>
 			</div>
 			</div>
 			<div class="terminal-shortcut dp-none">
@@ -294,13 +336,13 @@
 	.terminal {
 		width: auto;
 		padding: 14px;
-		color: var(--shell-c-37m);
-		background: var(--shell-c-30m);
+		color: var(--shell-c-0-37m);
+		background: var(--shell-c-0-30m);
 	}
 		.terminal .text,
 		.terminal .title,
 		.terminal .sub-title {
-			color: var(--shell-c-37m);
+			color: var(--shell-c-1-37m);
 		}
 		.terminal-label,
 		.terminal-input,
@@ -333,9 +375,9 @@
 					line-height: 1.2;
 				}
 			@media (max-width: 750px) {
-				.terminal-form {
+				/*.terminal-form {*/
 					/** margin-bottom: 14px; */
-				}
+				/*}*/
 			}
 				.terminal-label {
 					width: auto;
@@ -344,8 +386,11 @@
 					width: 9px;
 					border: 0;
 					outline: 0;
-					color: var(--shell-c-37m);
-					background: var(--shell-c-37m);
+					white-space: -moz-pre-wrap !important;
+					white-space: pre-wrap;
+					color: var(--shell-c-1-37m);
+					caret-color: var(--shell-c-1-37m);
+					background: var(--shell-c-1-37m);
 				}
 		.terminal-shortcut {
 			gap: 14px;
@@ -359,9 +404,9 @@
 				background: var(--background-3);
 			}
 		@media (max-width: 750px) {
-			.terminal-shortcut {
+			/*.terminal-shortcut {*/
 				/** display: grid; */
-			}
+			/*}*/
 		}
 	
 </style>

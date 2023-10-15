@@ -179,7 +179,10 @@
 			<div class="profile-about pd-20">
 				<ul class="bx-ul mg-bottom-14">
 					<li class="flex flex-left mg-bottom-4">
-						<i class="bx bxs-map"></i>{{ configs.author.address.universe ?? profile.location ?? "Milky Way" }}
+						<i class="bx bx-map"></i>{{ configs.author.address.universe ?? profile.location ?? "Milky Way" }}
+					</li>
+					<li class="flex flex-left mg-bottom-4">
+						<i class="bx bx-buildings"></i>{{ configs.author.company ?? profile.company ?? "Freelance" }}
 					</li>
 					<li class="flex flex-left mg-bottom-4">
 						<i class="bx bxl-whatsapp"></i>
@@ -300,7 +303,7 @@
 	 */
 	.banner {
 		width: 100vw;
-		height: 250px;
+		height: 300px;
 		background-color: var(--background-2);
 	}
 		.banner-group {
@@ -327,7 +330,15 @@
 			[data-theme="dark"] .banner-cover {
 				background: rgba(0,0,0,.2);
 			}
-	@media (max-width: 750px) {
+	@media( max-width: 1080px ) {
+		.banner {
+			height: 250px;
+		}
+			.banner-album {
+				width: 100%;
+			}
+	}
+	@media( max-width: 750px ) {
 		.banner {
 			height: 300px;
 		}
