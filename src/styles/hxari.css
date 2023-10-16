@@ -73,7 +73,7 @@ h4 { font-size: 24px; }
 h5 { font-size: 20px; }
 h6 { font-size: 16px; }
 
-@media (min-width: 1200px) {
+@media( min-width: 1200px ) {
 	h1 {
 		font-size: 40px;
 	}
@@ -117,6 +117,11 @@ p {
 
 pre {
 	overflow-y: scroll;
+}
+pre::-webkit-scrollbar {
+	width: 0;
+	height: 0;
+	display: none;
 }
 
 /*
@@ -256,7 +261,7 @@ a.tc-ac-4 {
 			.alert-single.warning .alert-close .bx {
 				color: #523E02;
 			}
-@media (max-width: 750px) {
+@media( max-width: 750px ) {
 	.alert-slot {
 		width: 85.7%;
 	}
@@ -268,8 +273,8 @@ a.tc-ac-4 {
  * -------------------------------------------------------------------------------------------------------------------------------------------
  *
  */
-.animate {
-}
+/* .animate { */
+/* } */
 	.animate .sekeleton {
 		width: 315px;
 		height: 250px; 
@@ -329,8 +334,8 @@ a.tc-ac-4 {
  * -------------------------------------------------------------------------------------------------------------------------------------------
  *
  */
-.avatar {
-}
+/* .avatar { */
+/* } */
 	.avatar-wrapper {
 		width: 40px;
 		height: 40px;
@@ -523,17 +528,17 @@ a.tc-ac-4 {
 	max-width: 1200px;
 	margin: auto;
 }
-@media only screen and (min-width: 992px) and (max-width: 1199px) {
+@media only screen and ( min-width: 992px ) and ( max-width: 1199px ) {
 	.container {
 		max-width: 80vw;
 	}
 }
-@media only screen and (min-width: 768px) and (max-width: 991px) {
+@media only screen and ( min-width: 768px ) and ( max-width: 991px ) {
 	.container {
 		max-width: 90vw;
 	}
 }
-@media only screen and (max-width: 767px) {
+@media only screen and ( max-width: 767px ) {
 	.container {
 		max-width: 100%;
 	}
@@ -543,19 +548,19 @@ a.tc-ac-4 {
 	margin: 0 auto;
 	padding: 0 20px;
 }
-@media only screen and (min-width: 992px) and (max-width: 1199px) {
+@media only screen and ( min-width: 992px ) and ( max-width: 1199px ) {
 	.deep-container {
 		max-width: 80vw;
 		padding: 0 15px;
 	}
 }
-@media only screen and (min-width: 768px) and (max-width: 991px) {
+@media only screen and ( min-width: 768px ) and ( max-width: 991px ) {
 	.deep-container {
 		max-width: 90vw;
 		padding: 0 10px;
 	}
 }
-@media only screen and (max-width: 767px) {
+@media only screen and ( max-width: 767px ) {
 	.deep-container {
 		max-width: 100%;
 		padding: 0 10px;
@@ -992,6 +997,7 @@ span.ic-4 {
 	overflow: hidden;
 }
 .modal.active {
+	top: 0 !important;
 	bottom: 0 !important;
 }
 	.modal-exit {
@@ -1014,9 +1020,18 @@ span.ic-4 {
 	.modal-main.active {
 		bottom: 5% !important;
 	}
-	@media (max-width: 750px) {
+	@media( max-width: 1080px ) {
 		.modal-main {
-			width: 90vw;
+			width: 86vw;
+			height: 50vh;
+		}
+		.modal-main.active {
+			bottom: 25% !important;
+		}
+	}
+	@media( max-width: 750px ) {
+		.modal-main {
+			width: 91.4vw;
 			height: 79.4vh;
 			border-bottom: 0;
 			border-radius: 7px 7px 0 0;
@@ -1241,7 +1256,7 @@ span.ic-4 {
 .slide.active {
 	bottom: 0 !Important;
 }
-@media (max-width: 750px) {
+@media( max-width: 750px ) {
 	.slide-main {
 		width: 92%;
 		left: 4%;

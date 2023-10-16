@@ -1,0 +1,78 @@
+
+/*
+ * hxAri Markdown Stying
+ *
+ */
+
+/*
+ * -------------------------------------------------------------------------------------------------------------------------------------------
+ * Markdown Light
+ * -------------------------------------------------------------------------------------------------------------------------------------------
+ *
+ */
+:root {
+	--md-background: #e5e5e5;
+}
+
+/*
+ * -------------------------------------------------------------------------------------------------------------------------------------------
+ * Markdown Dark
+ * -------------------------------------------------------------------------------------------------------------------------------------------
+ *
+ */
+[data-theme="dark"] {
+	--md-background: #12121a;
+}
+
+/*
+ * -------------------------------------------------------------------------------------------------------------------------------------------
+ * Markdown Styling
+ * -------------------------------------------------------------------------------------------------------------------------------------------
+ *
+ */
+ .markdown {
+	background-color: var(--md-background);
+	max-height: fit-content;
+	min-height: 100%;
+	padding: 14px;
+}
+	.markdown h1,
+	.markdown h2,
+	.markdown h3,
+	.markdown h4,
+	.markdown h5,
+	.markdown h6 {
+		margin-top: 14px;
+		margin-bottom: 14px;
+	}
+	.markdown ul {
+		margin: 0;
+		padding-left: 20px;
+	}
+	.markdown li ul {
+		margin-top: 10px;
+	}
+		.markdown li {
+			margin-bottom: 14px;
+			/* margin-bottom: 0.5em; */
+			/* padding-left: 14px; */
+			cursor: pointer;
+		}
+		/* li:before { */
+			/* content: "•"; */
+			/* font-weight: 600; */
+			/* color: #999; */
+			/* margin-right: 14px; */
+			/* margin-right: 0.5em; */
+		/* } */
+		/* .markdown li:hover { */
+			/* background-color: var(--background-3); */
+		/* } */
+	.markdown pre {
+		background: var(--hljs-background);
+		border-radius: 7px;
+		color: var(--hljs-color);
+		margin-top: 14px;
+		margin-bottom: 14px;
+		padding: 14px;
+	}
