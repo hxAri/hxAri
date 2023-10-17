@@ -39,7 +39,7 @@
 	 */
 	.error {
 		width: 100%;
-		height: 100%;
+		height: auto; /** 100% */
 		background: var(--background-2);
 	}
 	@media( max-width: 750px ) {
@@ -61,7 +61,7 @@
 			}
 				.error-banner {
 					width: auto;
-					height: 680px;
+					height: 100%;
 				}
 				@media (max-width: 750px) {
 					.error-banner {

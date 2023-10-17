@@ -34,11 +34,11 @@
 		<div class="experiences">
 			<div class="experience mg-bottom-14 mg-lc-bottom pd-bottom-14 pd-lc-bottom" v-for="experience in experiences">
 				<p class="title fb-45 mg-0">{{ experience.title }}</p>
-				<p class="sub-title fb-45 mg-0">{{ experience.company }}</p>
+				<p class="sub-title fb-45 mg-0"><i class="bx bx-buildings mg-right-10"></i>{{ experience.company }}</p>
 				<p class="sub-title fb-4 mg-bottom-12">
-					Started from <span class="fb-45">{{ datetime( experience.timestamp.begin ).format( "%d-%m-%Y" ) }}</span> to <span class="fb-45">{{ datetime( experience.timestamp.end ).format( "%d-%m-%Y" ) }}</span>
+					<i class="bx bx-time mg-right-10"></i>Started from <span class="fb-45">{{ datetime( experience.timestamp.begin ).format( "%d-%m-%Y" ) }}</span> to <span class="fb-45">{{ experience.timestamp.end !== 0 ? datetime( experience.timestamp.end ).format( "%d-%m-%Y" ) : "present" }}</span>
 				</p>
-				<p class="text mg-bottom-12 mg-lc-bottom" v-for="description in experience.description">{{ description }}</p>
+				<p class="text mg-bottom-12 mg-lc-bottom" v-if="experience.description.length" v-for="description in experience.description">{{ description }}</p>
 			</div>
 		</div>
 	</div>
@@ -52,8 +52,8 @@
 	 * -------------------------------------------------------------------------------------------------------------------------------------------
 	 *
 	 */
-	.experiences {
-	}
+	/* .experiences { */
+	/* } */
 		.experience {
 			border-bottom: 1px solid var(--border-3);
 		}

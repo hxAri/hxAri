@@ -8,7 +8,11 @@
 	import Datime from "/src/scripts/Datime.js";
 	import Fmt from "/src/scripts/Fmt.js";
 	import Not from "/src/scripts/logics/Not.js";
-	
+	import Type from "/src/scripts/Type.js"
+
+	// Import Widgets
+	import Markdown from "/src/widgets/Markdown.vue";
+
 	export default {
 		data: () => ({
 			active: null
@@ -16,7 +20,8 @@
 		computed: {
 			...mapState([
 				"configs",
-				"projects"
+				"projects",
+				"readmes"
 			])
 		},
 		methods: {
@@ -70,8 +75,21 @@
 			 */
 			language: function( language )
 			{
-				return Fmt( "{}/{}", this.configs.image.source, this.configs.image.images.language[language.toLowerCase()] )
+				return Type( language, String, () => Fmt( "{}/{}", this.configs.image.source, this.configs.image.images.language[language.toLowerCase()] ), () => "" );
+			},
+
+			/*
+			 * Return current markedown of project.
+			 *
+			 * @return String
+			 */
+			readme: function()
+			{
+				return this.readmes[( this.active.endpoint ? this.active.endpoint : this.active.name )];
 			}
+		},
+		components: {
+			Markdown
 		}
 	};
 	
@@ -83,19 +101,31 @@
 			<div class="modal-exit" @click="active = null"></div>
 			<div :class="[ 'modal-main', 'rd-square', active ? 'active' : '' ]">
 				<div class="project-modal scroll-x" v-if="active">
-					<div class="project-modal-single pd-14" v-if="active.loading">
-						<div class="project-modal-avatar-fixed flex flex-center">
-							<div class="project-modal-avatar-wrapper avatar-wrapper bg-4 blinking rd-square"></div>
-							<div class="project-language">
-								<div class="project-language-avatar-wrapper avatar-wrapper bg-2 rd-circle blinking"></div>
+					<div class="project-modal-groups flex" v-if="active.loading">
+						<div class="project-modal-group overview scroll-y">
+							<div class="project-modal-single pd-14">
+								<div class="project-modal-avatar-fixed flex flex-center">
+									<div class="project-modal-avatar-wrapper avatar-wrapper bg-4 blinking rd-square"></div>
+									<div class="project-language">
+										<div class="project-language-avatar-wrapper avatar-wrapper bg-2 rd-circle blinking"></div>
+									</div>
+								</div>
+								<div class="pd-14 blinking rd-square bg-4 mg-top-14 mg-bottom-14">
+									<div class="pd-6 rd-square bg-3 mg-bottom-14 mg-lc-bottom" v-for="i in 4"></div>
+								</div>
+								<div class="pd-14 blinking rd-square bg-4 mg-bottom-14" v-for="i in 3"></div>
+								<div class="flex flex-left">
+									<div class="pd-8 blinking rd-circle bg-3 mg-right-14 mg-lc-right" v-for="i in 4"></div>
+								</div>
 							</div>
 						</div>
-						<div class="pd-14 blinking rd-square bg-4 mg-top-14 mg-bottom-14">
-							<div class="pd-6 rd-square bg-3 mg-bottom-14 mg-lc-bottom" v-for="i in 4"></div>
-						</div>
-						<div class="pd-14 blinking rd-square bg-4 mg-bottom-14" v-for="i in 3"></div>
-						<div class="flex flex-left">
-							<div class="pd-8 blinking rd-circle bg-3 mg-right-14 mg-lc-right" v-for="i in 4"></div>
+						<div class="project-modal-group readme bg-1 scroll-y">
+							<div class="project-modal-single pd-14">
+								<div class="pd-14 rd-square bg-3 mg-bottom-14 mg-lc-bottom blinking" v-for="i in 4">
+									<div class="pd-14 rd-square bg-2 mg-bottom-14"></div>
+									<div class="pd-6 rd-square bg-4 mg-bottom-14 mg-lc-bottom" v-for="u in 4"></div>
+								</div>
+							</div>
 						</div>
 					</div>
 					<div class="project-modal-single pd-14" v-else-if="active.error">
@@ -108,65 +138,72 @@
 							</button>
 						</div>
 					</div>
-					<div class="project-modal-single pd-14" v-else>
-						<div class="project-modal-avatar-fixed flex flex-center">
-							<div class="project-modal-avatar-wrapper avatar-wrapper">
-								<img class="avatar-image lazy" :title="active.name" :alt="active.name" :data-src="active.tumbnail" v-lazyload />
-								<div class="avatar-cover"></div>
-							</div>
-							<div class="project-language">
-								<div class="project-language-avatar-wrapper avatar-wrapper">
-									<img class="avatar-image" :title="active.name" alt="Language" :data-src="language( projects[active.endpoint].language )" v-lazyload />
-									<div class="avatar-cover"></div>
+					<div class="project-modal-groups flex" v-else>
+						<div class="project-modal-group overview scroll-y">
+							<div class="project-modal-single pd-14">
+								<div class="project-modal-avatar-fixed flex flex-center">
+									<div class="project-modal-avatar-wrapper avatar-wrapper">
+										<img class="avatar-image lazy" :title="active.name" :alt="active.name" :data-src="active.tumbnail" v-lazyload />
+										<div class="avatar-cover"></div>
+									</div>
+									<div class="project-language">
+										<div class="project-language-avatar-wrapper avatar-wrapper">
+											<img class="avatar-image" :title="active.name" alt="Language" :data-src="language( projects[active.endpoint] ? ( projects[active.endpoint].language ? projects[active.endpoint].language : active.language ) : active.language )" v-lazyload />
+											<div class="avatar-cover"></div>
+										</div>
+									</div>
 								</div>
+								<h3 class="title center mg-bottom-24" data-title="name">{{ active.name }}</h3>
+								<p class="text mg-bottom-14">
+									{{ projects[active.endpoint].description }}
+								</p>
+								<h6 class="title mg-0">License</h6>
+								<p class="sub-title mg-bottom-14">
+									{{ projects[active.endpoint].license ? projects[active.endpoint].license.name : "Unavailable" }}
+								</p>
+								<p class="text mg-bottom-14">
+									<RouterLink class="dp-block" :to="{ path: '/projects/' + active.endpoint.split( '/' ).pop(), query: {} }">
+										{{ projects[active.endpoint].homepage }}
+									</RouterLink>
+									<a class="dp-block" :href="projects[active.endpoint].html_url" target="_blank" rel="noopener noreferrer">{{ projects[active.endpoint].html_url }}</a>
+								</p>
+								<div class="text mg-bottom-14 datetime">
+									<p class="sub-title pd-14 rd-square bg-2 mg-bottom-14">
+										<i class="bx bx-time-five mg-right-12"></i>
+										Created {{ datetime( projects[active.endpoint].created_at ).format( "%A, %b %d %Y" ) }}
+									</p>
+									<p class="sub-title pd-14 rd-square bg-3 mg-bottom-14">
+										<i class="bx bx-check-double mg-right-12"></i>
+										Updated {{ datetime( projects[active.endpoint].updated_at ).format( "%A, %b %d %Y" ) }}
+									</p>
+									<p class="sub-title pd-14 rd-square bg-4">
+										<i class="bx bx-git-commit mg-right-12"></i>
+										Pushed {{ datetime( projects[active.endpoint].pushed_at ).format( "%A, %b %d %Y" ) }}
+									</p>
+								</div>
+								<p class="text">
+									<span class="sub-title mg-right-6">
+										<i class="bx bxs-star"></i>
+										{{ projects[active.endpoint].stargazers_count }}
+									</span>
+									<span class="sub-title mg-right-6">
+										<i class="bx bx-git-repo-forked"></i>
+										{{ projects[active.endpoint].forks_count }}
+									</span>
+									<span class="sub-title mg-right-6">
+										<i class="bx bxs-show"></i>
+										{{ projects[active.endpoint].watchers_count }}
+									</span>
+									<span class="sub-title">
+										<i class="bx bxs-bug"></i>
+										{{ projects[active.endpoint].open_issues_count }}
+									</span>
+								</p>
 							</div>
 						</div>
-						<h3 class="title center mg-bottom-24" data-title="name">{{ active.name }}</h3>
-						<p class="text mg-bottom-14">
-							{{ projects[active.endpoint].description }}
-						</p>
-						<h6 class="title mg-0">License</h6>
-						<p class="sub-title mg-bottom-14">
-							{{ projects[active.endpoint].license.name }}
-						</p>
-						<p class="text mg-bottom-14">
-							<RouterLink class="dp-block" :to="{ path: '/projects/' + active.endpoint.split( '/' ).pop(), query: {} }">
-								{{ projects[active.endpoint].homepage }}
-							</RouterLink>
-							<a class="dp-block" :href="projects[active.endpoint].html_url" target="_blank" rel="noopener noreferrer">{{ projects[active.endpoint].html_url }}</a>
-						</p>
-						<div class="text mg-bottom-14 datetime">
-							<p class="sub-title pd-14 rd-square bg-1 mg-bottom-14">
-								<i class="bx bx-time-five mg-right-12"></i>
-								Created {{ datetime( projects[active.endpoint].created_at ).format( "%A, %b %d %Y" ) }}
-							</p>
-							<p class="sub-title pd-14 rd-square bg-1 mg-bottom-14">
-								<i class="bx bx-check-double mg-right-12"></i>
-								Updated {{ datetime( projects[active.endpoint].updated_at ).format( "%A, %b %d %Y" ) }}
-							</p>
-							<p class="sub-title pd-14 rd-square bg-3">
-								<i class="bx bx-git-commit mg-right-12"></i>
-								Pushed {{ datetime( projects[active.endpoint].pushed_at ).format( "%A, %b %d %Y" ) }}
-							</p>
+						<div class="project-modal-group readme scroll-y">
+							<Markdown :content="readme()" />
 						</div>
-						<p class="text">
-							<span class="sub-title mg-right-6">
-								<i class="bx bxs-star"></i>
-								{{ projects[active.endpoint].stargazers_count }}
-							</span>
-							<span class="sub-title mg-right-6">
-								<i class="bx bx-git-repo-forked"></i>
-								{{ projects[active.endpoint].forks_count }}
-							</span>
-							<span class="sub-title mg-right-6">
-								<i class="bx bxs-show"></i>
-								{{ projects[active.endpoint].watchers_count }}
-							</span>
-							<span class="sub-title">
-								<i class="bx bxs-bug"></i>
-								{{ projects[active.endpoint].open_issues_count }}
-							</span>
-						</p>
 					</div>
 				</div>
 			</div>
@@ -178,9 +215,9 @@
 						<img class="avatar-image" :title="project.name" :alt="project.name" :data-src="project.tumbnail" v-lazyload />
 						<div class="avatar-cover"></div>
 					</div>
-					<div class="project-language" v-if="$store.state.projects[project.endpoint]">
+					<div class="project-language" v-if="$store.state.projects[project.endpoint] !== null | project.language !== null">
 						<div class="project-language-avatar-wrapper avatar-wrapper">
-							<img class="avatar-image" :title="project.name" alt="Language" :data-src="language( projects[project.endpoint].language )" v-lazyload />
+							<img class="avatar-image" :title="project.name" alt="Language" :data-src="language( projects[project.endpoint] ? ( projects[project.endpoint].language ? projects[project.endpoint].language : project.language ) : project.language )" v-lazyload />
 							<div class="avatar-cover"></div>
 						</div>
 					</div>
@@ -215,25 +252,60 @@
 		gap: 14px;
 		grid-template-columns: repeat( 2, 1fr );
 	}
+	@media( max-width: 750px ) {
+		.modal-main {
+			border-radius: 4px 4px 0 0;
+		}
+		.projects {
+			grid-template-columns: repeat( 1, 1fr );
+		}
+	}
 		.project-modal {
 			width: auto;
-			height: 100%;
+			height: inherit;
 		}
-			.project-modal-single {
+			.project-modal-groups {
+				width: 100%;
+				height: inherit;
+				position: relative;
 			}
+			@media( max-width: 750px ) {
+				.project-modal-groups {
+					display: block;
+				}
+			}
+				.project-modal-group.overview {
+					width: 40%;
+					height: inherit;
+					/* border-right: 1px solid var(--border-3); */
+				}
+				.project-modal-group.readme {
+					width: 60%;
+					height: 100%;
+				}
+				@media( max-width: 750px ) {
+					.project-modal-group.overview,
+					.project-modal-group.readme {
+						width: auto;
+						height: auto;
+						overflow-y: unset;
+					}
+				}
+			/* .project-modal-single { */
+			/* } */
 				.project-modal-avatar-fixed {
 					width: 100%;
-					height: 300px;
+					height: 360px;
 					position: relative;
 					/** background: red; **/
 				}
-				@media( max-width: 750px ) {
-					.project-modal-avatar-fixed {
-					}
-				}
+				/* @media( max-width: 750px ) { */
+					/* .project-modal-avatar-fixed { */
+					/* } */
+				/* } */
 					.project-modal-avatar-wrapper {
-						width: 276px;
-						height: 276px;
+						width: 360px;
+						height: 360px;
 						/** background: teal; **/
 					}
 					@media( max-width: 750px ) {
@@ -270,6 +342,11 @@
 				position: relative;
 				background: var(--background-2);
 			}
+			@media( max-width: 750px ) {
+				.project-body {
+					height: 350px;
+				}
+			}
 				.project-avatar.avatar-wrapper,
 				.project-avatar.avatar-cover {
 					width: auto;
@@ -298,13 +375,5 @@
 				height: 100%;
 				background: var(--background-1);
 			}
-	@media( max-width: 750px ) {
-		.projects {
-			grid-template-columns: repeat( 1, 1fr );
-		}
-			.project-body {
-				height: 350px;
-			}
-	}
 	
 </style>

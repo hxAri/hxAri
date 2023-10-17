@@ -2,6 +2,7 @@
 <script>
 	
 	import { mapState } from "vuex";
+	import MarkdownIt from "markdown-it";
 	
 	// Import Scripts
 	import Datime from "/src/scripts/Datime.js";
@@ -12,7 +13,8 @@
 	export default {
 		data: () => ({
 			preview: null,
-			certificates: []
+			certificates: [],
+			markdown: null
 		}),
 		computed: mapState([
 			"configs"
@@ -20,14 +22,20 @@
 		created: function()
 		{
 			this.certificates = this.configs.certificate.certificates;
+			this.markdown = new MarkdownIt({
+				html: false
+			});
 		},
 		methods: {
 			
 			/*
-			 * @inherit Datime
+			 * Return new Datime instance.
 			 *
+			 * @params Number|String datetime
+			 *
+			 * @return Datime
 			 */
-			datetime: datetime => new Datime( datetime ),
+			 datetime: datetime => new Datime( datetime ),
 			
 			/*
 			 * HTML Paragraph replacer.
@@ -115,14 +123,39 @@
 			<div class="modal-exit" @click="preview = null"></div>
 			<div :class="[ 'modal-main', 'rd-square', preview ? 'active' : '' ]">
 				<div class="certificate-modal scroll-x" v-if="preview">
-					<div class="certificate-modal-single pd-14">
-						<div class="certificate-modal-avatar-fixed flex flex-center">
-							<div class="certificate-modal-avatar-wrapper avatar-wrapper">
-								<img class="avatar-image lazy" :data-src="tumbnail( preview.tumbnail )" :alt="preview.title" title="Certificate Preview Image" v-lazyload />
-								<div class="avatar-cover"></div>
+					<div class="certificate-modal-groups flex">
+						<div class="certificate-modal-group overview scroll-y">
+							<div class="certificate-modal-single pd-14">
+								<div class="certificate-modal-avatar-fixed flex flex-center mg-bottom-14">
+									<div class="certificate-modal-avatar-wrapper avatar-wrapper rd-square">
+										<img class="avatar-image lazy" :data-src="tumbnail( preview.tumbnail )" :alt="preview.title" title="Certificate Preview Image" v-lazyload />
+										<div class="avatar-cover"></div>
+									</div>
+								</div>
+								<h5 class="title center mg-bottom-14" data-title="certificate.title">{{ preview.title }}</h5>
+								<p class="text mg-bottom-14">
+									<p class="mg-bottom-14 mg-lc-bottom" v-for="description in preview.description">
+										<p class="" v-html="markdown.render( description )"></p>
+									</p>
+								</p>
+								<div class="text mg-bottom datetime">
+									<p class="sub-title pd-14 rd-square bg-2 mg-bottom-14">
+										<i class="bx bx-time-five mg-right-12"></i>
+										Obtained {{ datetime( preview.timestamp ).format( "%A, %b %d %Y" ) }}
+									</p>
+								</div>
+								<div class="text mg-bottom cert">
+									<a class="sub-title bg-3 dp-block title center mg-bottom-14 pd-14 rd-square fb-4" :href="tumbnail( preview.tumbnail )" target="_blank" rel="noopener noreferrer">Preview</a>
+									<a class="sub-title bg-4 dp-block title center pd-14 rd-square fb-4" :href="source( preview.source )" target="_blank" rel="noopener noreferrer">Original</a>
+								</div>
 							</div>
 						</div>
-						<h5 class="title center mg-bottom-24" data-title="certificate.title">{{ preview.title }}</h5>
+						<hr class="certificate-modal-hr hr dp-none" />
+						<div class="certificate-modal-group additional scroll-y">
+							<div class="certificate-modal-single pd-14">
+								No additional information about this
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -147,6 +180,12 @@
 </template>
 
 <style scoped>
+
+	@media( max-width: 750px ) {
+		.modal-main {
+			border-radius: 4px 4px 0 0;
+		}
+	}
 	
 	/*
 	 * -------------------------------------------------------------------------------------------------------------------------------------------
@@ -156,34 +195,83 @@
 	 */
 	.certificate-modal {
 		width: auto;
-		height: 100%;
+		height: inherit;
 	}
-		.certificate-modal-single {
+		.certificate-modal-groups {
+			width: 100%;
+			height: inherit;
+			position: relative;
 		}
+		@media( max-width: 750px ) {
+			.certificate-modal-groups {
+				display: block;
+			}
+		}
+			.certificate-modal-group.overview {
+				width: 40%;
+				height: inherit;
+				border-right: 1px solid var(--border-3);
+			}
+			@media( max-width: 750px ) {
+				.certificate-modal-group.overview {
+					border: 0;
+				}
+			}
+			.certificate-modal-group.additional {
+				width: 60%;
+				height: 100%;
+			}
+			@media( max-width: 750px ) {
+				.certificate-modal-group.overview,
+				.certificate-modal-group.additional {
+					width: auto;
+					height: auto;
+					overflow-y: unset;
+				}
+				.certificate-modal-hr {
+					display: block;
+					border-radius: 0px;
+					border-top: 2px solid var(--border-2);
+				}
+			}
+		/* .certificate-modal-single { */
+		/* } */
 			.certificate-modal-avatar-fixed {
 				width: 100%;
-				height: 300px;
+				height: 240px;
 				position: relative;
-				/** background: red; */
+				/* background: red; */
 			}
 			@media( max-width: 750px ) {
 				.certificate-modal-avatar-fixed {
-				}
-			}
-			@media( max-width: 360px ) {
-				.certificate-modal-avatar-fixed {
+					height: 208px;
 				}
 			}
 				.certificate-modal-avatar-wrapper {
+					width: 100%;
+					height: 100%;
+					overflow: hidden;
+					/* background: teal; */
 				}
 				@media( max-width: 750px ) {
 					.certificate-modal-avatar-wrapper {
+						width: 300px;
+						height: 100%;
 					}
 				}
 				@media( max-width: 360px ) {
 					.certificate-modal-avatar-wrapper {
+						width: 100%;
+						height: 100%;
 					}
 				}
+			.certificate-modal-single > .cert > a,
+			.certificate-modal-single > .datetime > p {
+				border: 1px solid var(--border-3);
+			}
+			.certificate-modal-single > .title.center {
+				text-align: center;
+			}
 			.certificate-modal-single > .datetime > p {
 				border: 1px solid var(--border-3);
 			}
@@ -221,6 +309,7 @@
 					height: auto;
 					bottom: 0;
 					background: rgba(166,166,237,.2);
+					color: var(--shell-c-0-30m);
 					position: absolute;
 				}
 			.certificate-footer {
@@ -232,7 +321,7 @@
 				grid-template-columns: repeat( 1, 1fr );
 			}
 			.certificate-body {
-				height: 257px;
+				height: 255px;
 			}
 		}
 	
