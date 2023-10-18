@@ -1,12 +1,16 @@
 
 import { createStore } from "vuex";
 
+// Import Router
+import Router from "/src/routing/router.js";
+
 // Import Scripts
 import Fmt from "/src/scripts/Fmt.js";
 import Json from "/src/scripts/Json.js";
 import Mapper from "/src/scripts/Mapper.js";
 import Request from "/src/scripts/Request.js";
 import Requests from "/src/scripts/Requests.js";
+import Terminal from  "/src/scripts/shells/Terminal.js";
 import Theme from "/src/scripts/Theme.js";
 import Type from "/src/scripts/Type.js";
 
@@ -39,17 +43,21 @@ function finder( state, project )
 export default createStore({
 	state: () => ({
 		error: false,
-		theme: new Theme(),
 		configs: null,
-		profile: null,
+		documents: {},
 		loading: false,
+		organizations: null,
+		profile: null,
+		projects: {},
+		readmes: {},
+		routes: Router,
 		request: [],
 		targets: {
 			configs: {
 				error: false,
 				request: null,
 				method: "GET",
-				url: "https://raw.githubusercontent.com/hxAri/hxAri/main/config.json"
+				url: process.env.NODE_ENV === "production" ? "https://raw.githubusercontent.com/hxAri/hxAri/main/config.json" : "/config.json"
 			},
 			profile: {
 				error: false,
@@ -58,9 +66,8 @@ export default createStore({
 				url: "https://api.github.com/users/hxAri"
 			}
 		},
-		projects: {},
-		documents: {},
-		organizations: null
+		terminal: new Terminal( null, Router ),
+		theme: new Theme()
 	}),
 	getters: {
 		
@@ -158,6 +165,49 @@ export default createStore({
 			// Disable loading request.
 			project.document_loading = false;
 		},
+
+		/*
+		 * Get all organization informations.
+		 *
+		 * @params Object state, dispatch
+		 *
+		 * @return Promise
+		 */
+		organization: async function({ state, dispatch, getters, commit })
+		{
+			// Check if priority requests does not made.
+			if( getters.hasConfig === false &&
+				state.loading === false )
+			{
+				// Dispatch priority requests.
+				await dispatch( "priority" );
+			}
+			
+			// Check if something wrongs.
+			if( state.error ||
+				state.loading )
+			{
+				return;
+			}
+			for( let u in state.configs.organizations )
+			{
+				// Get all organization profile.
+				await Request( "GET", Fmt( "https://api.github.com/orgs/{}", state.configs.organizations[u] ) )
+						
+					// Handle request response.
+					.then( request => commit( "organization", request.response ) )
+					
+					// Stop the next request execution.
+					.catch( e => { state.configs.organizations[u] = e; } );
+				
+				// If request succesfull created.
+				if( Type( state.configs.organizations[u], String ) )
+				{
+					continue;
+				}
+				break;
+			}
+		},
 		
 		/*
 		 * Get profile and configuration application.
@@ -221,7 +271,7 @@ export default createStore({
 		},
 		
 		/*
-		 * Get all project informations.
+		 * Get project informations.
 		 *
 		 * @params Object state, dispatch
 		 * @params String project
@@ -247,70 +297,51 @@ export default createStore({
 			// If project is on request.
 			if( project.loading ) return;
 			
-			// Reset error info.
 			project.error = false;
-			
-			// Enable loading request.
-			// And trying get project info.
-			project.loading = Request( "GET", Fmt( "https://api.github.com/repos/{}", project.endpoint ? project.endpoint : project.name ) );
-			
-			// Awaiting request.
-			await project.loading 
-				
-				// Handle request response.
-				.then( request =>
-				{
-					// Parse request response.
-					state.projects[project.endpoint ? project.endpoint : project.name] = Json.decode( request.response );
-				})
-				
-				// Set error occured on project.
-				.catch( e => { project.error = e; } );
-			
-			// Disable loading request.
-			project.loading = false;
-		},
-		
-		/*
-		 * Get all organization informations.
-		 *
-		 * @params Object state, dispatch
-		 *
-		 * @return Promise
-		 */
-		organization: async function({ state, dispatch, getters, commit })
-		{
-			// Check if priority requests does not made.
-			if( getters.hasConfig === false &&
-				state.loading === false )
+			project.handler = [
+				request => state.projects[project.endpoint ? project.endpoint : project.name] = Json.decode( request.response ),
+				request => state.readmes[project.endpoint ? project.endpoint : project.name] = request.response
+			];
+
+			// If project has readme file documentation.
+			if( Type( project.readme_url, String ) )
 			{
-				// Dispatch priority requests.
-				await dispatch( "priority" );
-			}
-			
-			// Check if something wrongs.
-			if( state.error ||
-				state.loading )
-			{
-				return;
-			}
-			for( let u in state.configs.organizations )
-			{
-				// Get all organization profile.
-				await Request( "GET", Fmt( "https://api.github.com/orgs/{}", state.configs.organizations[u] ) )
-						
-					// Handle request response.
-					.then( request => commit( "organization", request.response ) )
+				// Create multiple requests.
+				project.loading = Requests([
+					Fmt( "https://api.github.com/repos/{}", project.endpoint ? project.endpoint : project.name ),
+					project.readme_url
+				]);
+
+				// A waiting request.
+				await project.loading
+
+					// Handle all requests response.
+					.then( r => Mapper( r, ( i, request ) => project.handler[i]( request ) ) )
 					
-					// Stop the next request execution.
-					.catch( e => { state.configs.organizations[u] = e; } );
+					// Set error occured on project.
+					.catch( e => { project.error = e; } );
 				
-				// If request succesfull created.
-				if( Type( state.configs.organizations[u], String ) )
-				{
-					continue;
-				}
-				break;
+				console.log( "After" );
+					
+				// Disable loading request.
+				project.loading = false;
+			}
+			else {
+
+				// Just get project information.
+				project.loading = Request( "GET", Fmt( "https://api.github.com/repos/{}", project.endpoint ? project.endpoint : project.name ) );
+
+				// A waiting request.
+				await project.loading
+
+					// Handle request response.
+					.then( request => state.projects[project.endpoint ? project.endpoint : project.name] = Json.decode( request.response ) )
+					
+					// Set error occured on project.
+					.catch( e => { project.error = e; } );
+					
+				// Disable loading request.
+				project.loading = false;
 			}
 		}
 	},
