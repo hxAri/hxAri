@@ -31,10 +31,17 @@ export default async function MultiRequest( requests )
 			 */
 			async function( i, request )
 			{
-				var url = Type( request.url, String, () => request.url, () => "" );
-				var method = Type( request.method, String, () => request.method, () => "GET" );
-				var options = Type( request.options, Object, () => request.options, () => Object.create({}) );
-				
+				if( Type( request, Object ) )
+				{
+					var url = Type( request.url, String, () => request.url, () => "" );
+					var method = Type( request.method, String, () => request.method, () => "GET" );
+					var options = Type( request.options, Object, () => request.options, () => Object.create({}) );
+				}
+				else {
+					var url = request;
+					var method = "GET";
+					var options = {};
+				}
 				return( await Request( method, url, options ) );
 			}
 		);

@@ -6,7 +6,6 @@
 	
 	// Import Scripts.
 	import Datime from "/src/scripts/Datime.js";
-	import Type from "/src/scripts/Type.js";
 	
 	// Import Widgets.
 	import Avatar from "/src/widgets/Avatar.vue";
@@ -303,29 +302,17 @@
 		background: #282d32;
 		flex-direction: column;
 	}
-		.footer a {
-			color: #a4d1f5;
-		}
-		.footer i {
-			color: #7a8ea1;
-		}
+		.footer a { color: #a4d1f5; }
+		.footer i { color: #7a8ea1; }
 		.footer h1,
 		.footer h2,
 		.footer h3,
 		.footer h4,
 		.footer h5,
-		.footer h6 {
-			color: #ffffff;
-		}
-		.footer .text {
-			color: #cccccc;
-		}
-		.footer .title {
-			color: #ffffff;
-		}
-		.footer .sub-title {
-			color: #e5e5e5;
-		}
+		.footer h6 { color: #ffffff; }
+		.footer .text { color: #cccccc; }
+		.footer .title { color: #ffffff; }
+		.footer .sub-title { color: #e5e5e5; }
 		.footer-wrapper {
 			width: 71.4%;
 			margin: auto;
@@ -364,7 +351,7 @@
 	
 	/*
 	 * -------------------------------------------------------------------------------------------------------------------------------------------
-	 * Main Styleing
+	 * Main Styling
 	 * -------------------------------------------------------------------------------------------------------------------------------------------
 	 *
 	 */
