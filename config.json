@@ -8,7 +8,7 @@
             "postcode": 35673,
             "province": "Lampung",
             "regency": "Pringsewu",
-            "universe": "Milky Way"
+            "universe": "Self"
         },
         "abouts": [
             "Hello, introduce my name is Ari Setiawan.",
@@ -16,6 +16,7 @@
             "I have been writing code from 2019 to be precise when I was in junior high school until now I like to write code, but apart from that all my family doesn't care about it.",
             "I prefer to work independently or alone but apart from that I can also work well in a team."
         ],
+		"company": "Indonesia Indicator",
         "contact": {
             "email": "hxari@proton.me",
             "phone": "+62 858-3913-6990"
@@ -23,7 +24,6 @@
         "social": {
             "instagram": "https://www.instagram.com/hx.ari",
             "linkedin": "https://www.linkedin.com/in/hxAri",
-            "twitter": "https://www.twitter.com/hxxAre",
             "github": "https://github.com/hxAri",
             "tiktok": "https://www.tiktok.com/@hxare"
         },
@@ -41,6 +41,7 @@
                 "source": "1688786479;faMyU4T43P.pdf",
                 "tumbnail": "1688786479;faMyU4T43P.png",
                 "timestamp": 1684083600,
+				"galery": [],
                 "description": [
                     "For actively participating in the \"**Career Preparation Fair**\" at Career Support Festival 2023"
                 ]
@@ -87,7 +88,17 @@
             "description": [
                 "Industrial Work Practices as Service Computer Technician in Institute Business and Informatics Darmajaya Bandar Lampung. I have had work experience doing industrial work practices at The Darmajaya Institute of Informatics and Business Campus to be precise in Bandar Lampung in the Computer Lab section as a Computer Service Technician for 4 months."
             ]
-        }
+        },
+		{
+			"title": "Backend Developer",
+			"company": "Indonesia Indicator",
+			"timestamp": {
+				"begin": 1693414800,
+				"end": 0
+			},
+			"galery": [],
+			"description": []
+		}
     ],
     "image": {
         "source": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images",
@@ -151,9 +162,11 @@
                 "json": "languages/1665972701;caaQzNm1Ut.png",
                 "php": "languages/1665938456;79H8p8g.8F.png",
                 "python": "languages/1665961949;d6aKjxhTWN.png",
+                "react": "framework/1665962130;7br.U9nm.q.png",
                 "ruby": "languages/1665961760;11VI0euxrG.png",
                 "shell": "languages/1665972209;0dDyo2s2Qz.png",
-                "sass": "languages/1665962588;adYm24GDM0.png"
+                "sass": "languages/1665962588;adYm24GDM0.png",
+                "vue": "framework/1665972404;0cHip.F6ka.png"
             },
             "projects": {},
             "technology": {
@@ -172,12 +185,12 @@
     "maintenance": {
         "about": false,
         "contact": false,
-        "home": true,
+        "home": false,
         "none": false,
         "preview": false,
         "privacy": false,
-        "project": true,
-        "projects": true,
+        "project": false,
+        "projects": false,
         "sitemap": false,
         "terminal": false
     },
@@ -189,91 +202,163 @@
         {
             "name": "Android",
             "include": true,
+			"language": "java",
             "endpoint": "hxAri/Android",
             "homepage": "https://github.com/hxAri/",
             "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1647263980;c78Y41VWj3.png",
+			"readme_url": "https://raw.githubusercontent.com/hxAri/Android/main/README.md",
             "document_url": "https://raw.githubusercontent.com/hxAri/Android/main/globals/docs/"
         },
         {
             "name": "Atarashī",
             "include": false,
+			"language": "ruby",
             "endpoint": "hxAri/Atarashi",
-            "homepage": "https://github.com/hxAri/",
+            "homepage": "https://github.com/hxAri/Atarashi",
             "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/",
+			"readme_url": "https://raw.githubusercontent.com/hxAri/Atarashi/main/README.md",
             "document_url": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/globals/docs/atarashi.json"
         },
         {
-            "name": "CIn",
-            "include": false,
-            "endpoint": "hxAri/CIn",
-            "homepage": "https://github.com/hxAri/",
-            "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/",
+            "name": "Complaints",
+            "include": true,
+			"language": "php",
+            "endpoint": "hxAri/Complaints",
+            "homepage": "https://github.com/hxAri/Complaints",
+            "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1677866924;deVw5x2Uzx.png",
+			"readme_url": "https://raw.githubusercontent.com/hxAri/Complaints/main/README.md",
             "document_url": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/globals/docs/cin.json"
         },
         {
             "name": "Ekisu",
             "include": false,
+			"language": "",
             "endpoint": "hxAri/Ekisu",
-            "homepage": "https://github.com/hxAri/",
+            "homepage": "https://github.com/hxAri/Ekisu",
             "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/",
+			"readme_url": "https://raw.githubusercontent.com/hxAri/Ekisu/main/README.md",
             "document_url": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/globals/docs/ekisu.json"
         },
         {
             "name": "Eremento",
-            "include": false,
+            "include": true,
+			"language": "javascript",
             "endpoint": "hxAri/Eremento",
-            "homepage": "https://github.com/hxAri/",
+            "homepage": "https://github.com/hxAri/Eremento",
             "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1653507202;5fe1yJwN3F.png",
+			"readme_url": "https://raw.githubusercontent.com/hxAri/Eremento/main/README.md",
             "document_url": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/globals/docs/eremento.json"
         },
         {
             "name": "Faibā",
             "include": true,
+			"language": "php",
             "endpoint": "hxAri/Tree",
-            "homepage": "https://github.com/hxAri/",
+            "homepage": "https://github.com/hxAri/Faiba",
             "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1653507345;50XUUPql.z.png",
+			"readme_url": "https://raw.githubusercontent.com/hxAri/Faiba/main/README.md",
             "document_url": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/globals/docs/faiba.json"
         },
         {
             "name": "Furasuko",
             "include": false,
+			"language": "python",
             "endpoint": "hxAri/Furasuko",
-            "homepage": "https://github.com/hxAri/",
+            "homepage": "https://github.com/hxAri/Furasuko",
             "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/",
+			"readme_url": "https://raw.githubusercontent.com/hxAri/Furasuko/main/README.md",
             "document_url": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/globals/docs/furasuko.json"
         },
         {
             "name": "Kanashī",
             "include": true,
+			"language": "python",
             "endpoint": "hxAri/Kanashi",
-            "homepage": "https://github.com/hxAri/",
+            "homepage": "https://github.com/hxAri/Kanashi",
             "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1654820424;51ydWrxRcv.png",
+			"readme_url": "https://raw.githubusercontent.com/hxAri/Kanashi/main/README.md",
             "document_url": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/globals/docs/kanashi.json"
+        },
+        {
+            "name": "KaNiaFi",
+            "include": true,
+            "language": "java",
+            "endpoint": "hxAri/KaNiaFi",
+            "homepage": "https://github.com/hxAri/KaNiaFi",
+            "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1654820424;51ydWrxRcv.png",
+            "readme_url": "https://raw.githubusercontent.com/hxAri/KaNiaFi/main/README.md",
+            "document_url": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/globals/docs/kaniafi.json"
+        },
+        {
+            "name": "Niara",
+            "include": true,
+            "language": "python",
+            "endpoint": "hxAri/Niara",
+            "homepage": "https://github.com/hxAri/Niara",
+            "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1654820424;51ydWrxRcv.png",
+            "readme_url": "https://raw.githubusercontent.com/hxAri/Niara/main/README.md",
+            "document_url": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/globals/docs/niara.json"
+        },
+		{
+            "name": "Portofolio",
+            "include": false,
+			"language": "javascript",
+            "endpoint": "hxAri/hxAri",
+            "homepage": "https://github.com/hxAri/hxAri",
+            "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1677866924;deVw5x2Uzx.png",
+			"readme_url": "https://raw.githubusercontent.com/hxAri/hxAri/main/README.md",
+            "document_url": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/globals/docs/portofolio.json"
         },
         {
             "name": "Service",
             "include": false,
+			"language": "python",
             "endpoint": "hxAri/Service",
-            "homepage": "https://github.com/hxAri/",
+            "homepage": "https://github.com/hxAri/Service",
             "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/",
+			"readme_url": "https://raw.githubusercontent.com/hxAri/Service/main/README.md",
             "document_url": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/globals/docs/service.json"
+        },
+		{
+            "name": "Services",
+            "include": true,
+			"language": "java",
+            "endpoint": "hxAri/Services",
+            "homepage": "https://github.com/hxAri/Services",
+            "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1677866924;deVw5x2Uzx.png",
+			"readme_url": "https://raw.githubusercontent.com/hxAri/Services/main/README.md",
+            "document_url": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/globals/docs/services.json"
         },
         {
             "name": "Sheyu",
             "alias": "Sheruyūtiriti",
             "include": false,
+			"language": "shell",
             "endpoint": "hxAri/Sheyu",
-            "homepage": "https://github.com/hxAri/",
+            "homepage": "https://github.com/hxAri/Sheyu",
             "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/",
+			"readme_url": "https://raw.githubusercontent.com/hxAri/Sheyu/main/README.md",
             "document_url": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/globals/docs/sheyu.json"
         },
         {
             "name": "Yume",
             "include": true,
+			"language": "php",
             "endpoint": "yfure/Yume",
-            "homepage": "https://github.com/hxAri/",
+            "homepage": "https://github.com/yfure/Yume",
             "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1653507383;6bi9u6QnWb.png",
+			"readme_url": "https://raw.githubusercontent.com/hxAri/Yume/main/README.md",
             "document_url": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/globals/docs/yume.json"
+        },
+        {
+            "name": "Yutiriti",
+            "include": true,
+			"language": "python",
+            "endpoint": "hxAri/Yutiriti",
+            "homepage": "https://github.com/hxAri/Yutiriti",
+            "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1677866924;deVw5x2Uzx.png",
+			"readme_url": "https://raw.githubusercontent.com/hxAri/Yutiriti/main/README.md",
+            "document_url": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/globals/docs/yutiriti.json"
         }
     ],
     "resume": {
@@ -358,26 +443,10 @@
         "percentage": 100,
         "skills": [
             {
-                "name": "HTML5",
-                "type": "language",
-                "image": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/languages/1665938533;bbdszyUZLM.png",
-                "values": 100,
-                "description": null,
-                "certificates": []
-            },
-            {
-                "name": "CSS3",
-                "type": "language",
-                "image": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/languages/1665938615;3eIDhLG2TO.png",
-                "values": 80,
-                "description": null,
-                "certificates": []
-            },
-            {
                 "name": "Java",
                 "type": "language",
                 "image": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/languages/1665961890;ba5MjPh.vQ.png",
-                "values": 80,
+                "values": 90,
                 "description": null,
                 "certificates": []
             },
@@ -401,7 +470,7 @@
                 "name": "Python",
                 "type": "language",
                 "image": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/languages/1665961949;d6aKjxhTWN.png",
-                "values": 80,
+                "values": 90,
                 "description": null,
                 "certificates": []
             },
