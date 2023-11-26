@@ -185,13 +185,13 @@
     },
     "maintenance": {
         "about": false,
-        "contact": false,
-        "home": false,
+        "contact": true,
+        "home": true,
         "none": false,
-        "preview": false,
+        "preview": true,
         "privacy": false,
-        "project": false,
-        "projects": false,
+        "project": true,
+        "projects": true,
         "sitemap": false,
         "terminal": false
     },
