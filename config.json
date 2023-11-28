@@ -306,7 +306,7 @@
             "language": "shell",
             "endpoint": "hxAri/Penguin",
             "homepage": "https://github.com/hxAri/Penguin",
-            "thumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1701208743;6cxkEyg82i.png",
+            "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1701208743;6cxkEyg82i.png",
             "readme_url": "https://raw.githubusercontent.com/hxAri/Penguin/main/README.md",
             "document_url": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/globals/docs/penguin.json"
         },
