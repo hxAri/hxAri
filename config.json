@@ -191,7 +191,7 @@
         "preview": true,
         "privacy": false,
         "project": true,
-        "projects": true,
+        "projects": false,
         "sitemap": false,
         "terminal": false
     },
@@ -212,11 +212,11 @@
         },
         {
             "name": "Atarash\u012b",
-            "include": false,
+            "include": true,
             "language": "ruby",
             "endpoint": "hxAri/Atarashi",
             "homepage": "https://github.com/hxAri/Atarashi",
-            "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/",
+            "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1701208940;10VEs4N8su.png",
             "readme_url": "https://raw.githubusercontent.com/hxAri/Atarashi/main/README.md",
             "document_url": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/globals/docs/atarashi.json"
         },
@@ -232,7 +232,7 @@
         },
         {
             "name": "Ekisu",
-            "include": false,
+            "include": true,
             "language": "",
             "endpoint": "hxAri/Ekisu",
             "homepage": "https://github.com/hxAri/Ekisu",
@@ -286,7 +286,7 @@
             "language": "java",
             "endpoint": "hxAri/KaNiaFi",
             "homepage": "https://github.com/hxAri/KaNiaFi",
-            "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1654820424;51ydWrxRcv.png",
+            "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1701211726;73ohvhLgpB.png",
             "readme_url": "https://raw.githubusercontent.com/hxAri/KaNiaFi/main/README.md",
             "document_url": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/globals/docs/kaniafi.json"
         },
@@ -296,9 +296,19 @@
             "language": "python",
             "endpoint": "hxAri/Niara",
             "homepage": "https://github.com/hxAri/Niara",
-            "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1654820424;51ydWrxRcv.png",
+            "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1701210146;fbGEoCftcC.png",
             "readme_url": "https://raw.githubusercontent.com/hxAri/Niara/main/README.md",
             "document_url": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/globals/docs/niara.json"
+        },
+        {
+            "name": "Penguin",
+            "include": true,
+            "language": "shell",
+            "endpoint": "hxAri/Penguin",
+            "homepage": "https://github.com/hxAri/Penguin",
+            "thumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1701208743;6cxkEyg82i.png",
+            "readme_url": "https://raw.githubusercontent.com/hxAri/Penguin/main/README.md",
+            "document_url": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/globals/docs/penguin.json"
         },
         {
             "name": "Portofolio",
