@@ -167,94 +167,238 @@ function Terminal( binding, router )
 	/*
 	 * Automatic colorize text, number, and symbols in the string.
 	 *
-	 * @params String format
+	 * @params String string
 	 *
 	 * @return String
 	 */
-	Terminal.prototype.colorable = function( format )
+	Terminal.prototype.colorable = function( string )
 	{
-		var index = 0;
-		var match = null;
-		var result = "";
-		var format = Type( format, String, () => format, () => "" );
 		var patterns = {
+			comment: {
+				pattern: "(?<comment>(?:\\/\\/[^\\n]*)|(?:\\/\\*.*?\\*\\/))",
+				styling: "var(--shell-c-38-240m)"
+			},
 			number: {
-				pattern: "(?<number>\\b(?<!\\\\(x1b|033)|\\;|\\[)(\\d+)\\b)",
-				colorize: "var(--shell-c-38-61m)"
+				pattern: "(?<number>\\b(?:\\d+)\\b)",
+				styling: "var(--shell-c-38-61m)"
 			},
 			define: {
-				pattern: "(?<define>(\\@|\\$)[a-zA-Z0-9_-]+)",
-				colorize: "var(--shell-c-38-111m"
+				pattern: "(?<define>(?:\\@|\\$)[a-zA-Z_](?:[a-zA-Z0-9_\\-\\.]*[a-zA-Z0-9_]{1})*)",
+				styling: "var(--shell-c-38-111m)",
+				rematch: [
+					"symbol"
+				]
 			},
 			symbol: {
-				pattern: "(?<symbol>(\\\\(?<!x1b)|(\\\\(?<!033)))|\\:|\\*|\\-|\\+|\\/|\\&|\\%|\\=|((?<!\\d)\;(?<!\\d))|\\,|\\.|\\?|\\!|\\<|\\>)",
-				colorize: "var(--shell-c-38-69m)"
+				pattern: "(?<symbol>\\\\|\\:|\\*|\\-|\\+|\\/|\\&|\\%|\\=|\\;|\\,|\\.|\\?|\\!|\\||\\<|\\>|\\~)",
+				styling: "var(--shell-c-38-69m)"
 			},
 			bracket: {
-				pattern: "(?<bracket>\\{|\\}|(((?<!\\\\\x1b)\\[)|\\])|\\(|\\))",
-				colorize: "var(--shell-c-38-214m)"
+				pattern: "(?<bracket>\\{|\\}|\\[|\\]|\\(|\\))",
+				styling: "var(--shell-c-38-214m)"
 			},
 			boolean: {
-				pattern: "(?<boolean>\\b(False|True)\\b)",
-				colorize: "var(--shell-c-38-199m)"
+				pattern: "(?<boolean>\\b(?:[fF]alse|[tT]rue|[nN]ull|[uU]ndefined)\\b)",
+				styling: "var(--shell-c-38-199m)"
+			},
+			hxari: {
+				pattern: "(?<hxari>\\b(?:hx[aA]ri)\\b)",
+				styling: "var(--shell-c-38-105m)"
 			},
 			type: {
-				pattern: "(?<type>\\b(Array|Date|String|Number|Bigint|Boolean|Undefined|Null|Symbol|Object)\\b)",
-				colorize: "var(--shell-c-38-213m)"
+				pattern: "(?<type>\\b(?:Array|Date|String|Number|Bigint|Boolean|Undefined|Null|Symbol|Object)\\b)",
+				styling: "var(--shell-c-38-213m)"
 			},
-			string: {
-				pattern: "(?<string>(?<!\\\\)(\"(.*?)(?<!\\\\)\")|(\'(.*?)(?<!\\\\)\')|(\`(.*?)(?<!\\\\)\`))",
-				colorize: "var(--shell-c-38-220m)",
-				handler: match => match[0].replaceAll( /(?<!\\)(\\"|\\'|\\`|\\r|\\t|\\n|\\s)/g, m => `<span style="color: var(--shell-c-38-208m)">${m}</span>` )
-			}
-		};
-		try
-		{
-			// Create regular expression.
-			var regexp = new RegExp( "(?:" + Object.values( Mapper( patterns, ( i, k, val ) => val.pattern ) ).join( "|" ) + ")", "ig" );
-			
-			while( ( match = regexp.exec( format ) ) !== null )
-			{
-				// Default color for text.
-				var color = "var(--shell-c-0-37m)";
-				
-				// Check if match has groups.
-				if( Type( match.groups, Object ) )
-				{
-					// Get all group names.
-					var groups = Object.keys( match.groups );
-					
-					for( let i in groups )
-					{
-						// Get group name.
-						var group = groups[i];
-						
-						// Check if group is available.
-						if( Type( patterns[group], Object ) &&
-							Type( match.groups[group], String ) )
-						{
-							color = patterns[group].colorize;
-							break;
-						}
-					}
-					
-					// Check group has handler.
-					if( Type( patterns[group].handler, [ Function, "handler" ] ) )
-					{
-						result += Fmt( "{}<span style=\"color: {}\">{}</span>", format.substring( index, regexp.lastIndex - match[0].length ), color, patterns[group].handler( match ) );
-						index = regexp.lastIndex;
-						continue;
+			version: {
+				pattern: "(?<version>\\b[vV][\\d]+(?:[\\d\\.]+[\\d+])*\\b)",
+				styling: "var(--shell-c-38-112m)",
+				handler: {
+					floating: {
+						pattern: "(?<floating>[\\d\\.]+)",
+						styling: "var(--shell-c-38-190m)"
 					}
 				}
-				result += Fmt( "{}<span style=\"color: {}\">{}</span>", format.substring( index, regexp.lastIndex - match[0].length ), color, match[0] );
-				index = regexp.lastIndex;
+			},
+			string: {
+				pattern: "(?<string>(?<!\\\\)(\\\".*?(?<!\\\\)\\\"|\\'.*?(?<!\\\\)\\'|\\`.*?(?<!\\\\)\\`))",
+				styling: "var(--shell-c-38-220m)",
+				handler: {
+					curly: {
+						pattern: "(?<curly>(?<!\\\\)\\{(?:(?:[^\\}\\\\]|\\.)*)\\})",
+						styling: "var(--shell-c-38-214m)",
+						handler: {
+							chars: {
+								pattern: "(?<chars>[a-zA-Z][a-zA-Z0-9\\_]*)",
+								styling: "var(--shell-c-38-11m)",
+							},
+							define: {
+								pattern: "(?<define>\\$[a-zA-Z_][a-zA-Z0-9_]*)",
+								styling: "var(--shell-c-38-111m)",
+							},
+							number: {
+								pattern: "(?<number>\\b(?:\\d+)\\b)",
+								styling: "var(--shell-c-38-61m)"
+							},
+							symbol: {
+								pattern: "(?<symbol>\\{|\\}|\\[|\\]|\\(|\\)|\\<|\\>|\\-)",
+								styling: "var(--shell-c-38-214m)"
+							},
+							bracket: {
+								pattern: "(?<bracket>\\{|\\}|\\[|\\]|\\(|\\))",
+								styling: "var(--shell-c-38-214m)"
+							},
+							mismatch: {
+								pattern: "(?<mismatch>.)",
+								styling: "var(--shell-c-38-220m)"
+							}
+						}
+					},
+					bracket: {
+						pattern: "(?<bracket>(?<!\\\\)\\[(?:(?:[^\\]\\\\]|\\.)*)\\])",
+						styling: "var(--shell-c-38-214m)",
+						handler: {
+							chars: {
+								pattern: "(?<chars>[a-zA-Z][a-zA-Z0-9\\_]*)",
+								styling: "var(--shell-c-38-11m)",
+							},
+							define: {
+								pattern: "(?<define>\\$[a-zA-Z_][a-zA-Z0-9_]*)",
+								styling: "var(--shell-c-38-111m)",
+							},
+							number: {
+								pattern: "(?<number>\\b(?:\\d+)\\b)",
+								styling: "var(--shell-c-38-61m)"
+							},
+							symbol: {
+								pattern: "(?<symbol>\\{|\\}|\\[|\\]|\\(|\\)|\\<|\\>|\\-)",
+								styling: "var(--shell-c-38-214m)"
+							},
+							mismatch: {
+								pattern: "(?<mismatch>.)",
+								styling: "var(--shell-c-38-220m)"
+							}
+						}
+					},
+					hexadec: {
+						pattern: "(?<hexadec>\\\\x[a-fA-F0-9]{2})",
+						styling: "var(--shell-c-38-85m)"
+					},
+					escape: {
+						pattern: "(?<escape>\\\\(?:040|40|7|11|011|0113|113|377|81|[aA]|[bB]|cx|[dD]|ddd|e|f|g|[hH]|k|n|[pP]|[rR]|[sS]|t|[vV]|[wW]|xhh|Z))",
+						styling: "var(--shell-c-38-208m)"
+					},
+					define: {
+						pattern: "(?<define>\\$[a-zA-Z_][a-zA-Z0-9_]*)",
+						styling: "var(--shell-c-38-111m)",
+					}
+				}
+			}
+		};
+
+		var handler = function( match, escape, patterns )
+		{
+			// Check if match has groups.
+			if( Type( match.groups, Object ) )
+			{
+				// Get all group names.
+				var groups = Object.keys( match.groups );
+				var group = null;
+				
+				for( let i in groups )
+				{
+					// Get group name.
+					group = groups[i];
+					
+					// Check if group is available.
+					if( Type( patterns[group], Object ) &&
+						Type( match.groups[group], String ) )
+					{
+						// escape = patterns[group].styling;
+						break;
+					}
+				}
+
+				var chars = match.groups[group];
+				var color = patterns[group].styling;
+
+				if( Type( patterns[group].handler, [ Function, "handler", Object ] ) )
+				{
+					if( Type( patterns[group].handler, Object ) )
+					{
+						var regexps = [];
+
+						for( let i in patterns[group].handler )
+						{
+							if( Type( patterns[group].handler[i], Window ) )
+							{
+								chars = patterns[group].handler[i].call( chars );
+							}
+							else {
+								regexps.push( patterns[group].handler[i] );
+							}
+						}
+						if( regexps.length >= 1 )
+						{
+							var result = "";
+							var reindex = 0;
+							var rematch = null;
+							var pattern = new RegExp( Fmt( "(?:{})", regexps.map( r => r.pattern ).join( "|" ) ), "gms" );
+							
+							while( ( rematch = pattern.exec( chars ) ) !== null )
+							{
+								result += chars.substring( reindex, pattern.lastIndex - rematch[0].length );
+								result += Fmt( "<span style=\"color: {}\" data-group=\"{}\">{}</span>", color, group, handler( rematch, color, patterns[group].handler ) );
+								reindex = pattern.lastIndex;
+							}
+							chars = result + chars.substring( reindex );
+						}
+					}
+					else {
+						chars = patterns[group].handler( chars );
+					}
+				}
+
+				if( Type( patterns[group].rematch, Array ) )
+				{
+					var result = "";
+					var reindex = 0;
+					var rematch = null;
+					var pattern = new RegExp( Fmt( "(?:{})", patterns[group].rematch.map( r => patterns[r].pattern ).join( "|" ) ), "gms" );
+
+					while( ( rematch = pattern.exec( chars ) ) !== null )
+					{
+						result += chars.substring( reindex, pattern.lastIndex - rematch[0].length );
+						result += handler( rematch, color, patterns );
+						reindex = pattern.lastIndex;
+					}
+					chars = result + chars.substring( reindex );
+				}
+				return( Fmt( "<span style=\"color: {}\" data-group=\"{}\">{}</span>", color, group, chars ) );
+			}
+			return( "" );
+		};
+
+		try
+		{
+			var index = 0;
+			var match = null;
+			var result = "";
+			var escape = "var(--shell-c-0-37m)";
+			var string = Type( string, String, () => string, () => "" );
+			var pattern = new RegExp( Fmt( "(?:{})", Object.values( Mapper( patterns, ( i, k, val ) => val.pattern ) ).join( "|" ) ), "gms" );
+			
+			while( ( match = pattern.exec( string ) ) !== null )
+			{
+				result += string.substring( index, pattern.lastIndex - match[0].length );
+				result += Fmt( "<span style=\"color: {}\" data-group=\"{}\">{}</span>", escape, "captured", handler( match, escape, patterns ) );
+				index = pattern.lastIndex;
 			}
 		}
 		catch( error )
 		{
-			this.log( "error", error );
+			console.error( "error", error );
 		}
-		return( result + format.substring( index ) );
+		return( result + string.substring( index ) );
 	};
 	
 	/*
@@ -314,6 +458,8 @@ function Terminal( binding, router )
 			}
 		};
 
+		// /((?:\\e|\\x1b|\\033)\[[0-9\\;]+m)/g
+
 		try
 		{
 			// Create regular expression.
@@ -322,7 +468,7 @@ function Terminal( binding, router )
 			while( ( match = regexp.exec( format ) ) !== null )
 			{
 				// Default color for text.
-				var color = "var(--shell-c-37m)";
+				var color = "var(--shell-c-0-37m)";
 				
 				// Check if match has groups.
 				if( Type( match.groups, Object ) )
@@ -366,7 +512,7 @@ function Terminal( binding, router )
 		}
 		catch( error )
 		{
-			this.log( "error", error );
+			console.error( "error", error );
 		}
 		return( result + format.substring( index ) );
 	};
@@ -1141,6 +1287,7 @@ function Terminal( binding, router )
 				}
 				catch( error )
 				{
+					console.error( error );
 					self.log( "error", error );
 					self.history.push({ output: self.colorableAnsi( Fmt( "{}: {}", self.shell, error ) ) });
 					//self.history.push({ output: JSON.stringify( self.parseStackTrace( error ), null, 4 ) });

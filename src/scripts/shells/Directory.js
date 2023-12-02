@@ -21,7 +21,11 @@ export default [
 	{
 		name: "bin",
 		type: "symlink",
-		from: "/usr/bin"
+		from: "/usr/bin",
+		meta: {
+			mode: 0,
+			owner: ""
+		}
 	},
 	{
 		name: "boot",
@@ -46,7 +50,25 @@ export default [
 	{
 		name: "home",
 		type: "path",
-		child: []
+		child: [
+			{
+				name: "hxari",
+				type: "path",
+				meta: {
+					owner: "hxari"
+				},
+				child: [
+					{
+						name: ".bashrc",
+						type: "bashrc"
+					},
+					{
+						name: ".bash_history",
+						type: "text"
+					}
+				]
+			}
+		]
 	},
 	{
 		name: "lib",
@@ -110,6 +132,10 @@ export default [
 	{
 		name: "tmp",
 		type: "path",
+		meta: {
+			mode: 777,
+			owner: "hxari"
+		},
 		child: []
 	},
 	{

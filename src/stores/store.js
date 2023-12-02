@@ -320,8 +320,6 @@ export default createStore({
 					
 					// Set error occured on project.
 					.catch( e => { project.error = e; } );
-				
-				console.log( "After" );
 					
 				// Disable loading request.
 				project.loading = false;

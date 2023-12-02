@@ -24,7 +24,7 @@ const isEmpty = function( value )
 		}
 		if( Type( value, String ) )
 		{
-			return( value.length !== 0 ? ( value.match( /^([\s\t\n\r]*)$/ ) ? true : false ) : true );
+			return( value.length !== 0 ? value.trim().length === 0 : true );
 		}
 		return( false );
 	}

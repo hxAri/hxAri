@@ -15,6 +15,49 @@
 				prompt: null,
 				before: null
 			},
+			// model: [
+				
+			// 	"command",
+			// 	"position",
+			// 	"-o",
+			// 	"-o=V",
+			// 	"--optional",
+			// 	"--optional=V;",
+
+			// 	"${ENV}",
+			// 	"$ENVIRONMENT",
+
+			// 	"`backtick`",
+			// 	"`backtick $(subtitution ${expansion} ${parameter:0})`",
+
+			// 	"|",
+			// 	"grep",
+			// 	"search",
+
+			// 	"&&",
+			// 	"echo",
+			// 	"\"String\";",
+
+			// 	"var=value",
+			// 	"var=\\\"value\";",
+
+			// 	"cat < file-open;",
+			// 	"cat < file-open > file-save;",
+
+			// 	"cat > file-save << EOF\n  contents\nEOF",
+			// 	"cat > file-save <<- EOF\n  contents\nEOF",
+
+			// 	"cat << EOF contents EOF;",
+			// 	"cat << EOF\ncontents\nEOF;",
+			// 	"cat << \"EOF\" contents EOF;",
+			// 	"cat << EOF > file-save  contents\nEOF;",
+			// 	"cat <<- EOF > file-save\n  contents\nEOF;",
+
+			// 	"cat > file-open >> file-save;",
+			// 	"cat >> file-save >> EOF\n  contents\nEOF;",
+			// 	"cat >> file-save >>- EOF\n  contents\nEOF;"
+
+			// ].join( "\x20" ),
 			model: "",
 			mouse: {
 				from: -1,
