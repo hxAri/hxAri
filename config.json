@@ -16,7 +16,7 @@
             "I have been writing code from 2019 to be precise when I was in junior high school until now I like to write code, but apart from that all my family doesn't care about it.",
             "I prefer to work independently or alone but apart from that I can also work well in a team."
         ],
-        "company": "I2",
+        "company": "Indonesia Indicator",
         "contact": {
             "email": "hxari@proton.me",
             "phone": "+62 858-3913-6990"
@@ -186,7 +186,7 @@
     "maintenance": {
         "about": false,
         "contact": true,
-        "home": true,
+        "home": false,
         "none": false,
         "preview": true,
         "privacy": false,
