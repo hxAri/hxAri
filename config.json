@@ -11,12 +11,14 @@
             "universe": "Self"
         },
         "abouts": [
-            "Hello, introduce my name is Ari Setiawan.",
-            "I am a Programmer from Indonesia who likes to drink Chocolate coffee while thinking of crazy ideas to build programs that can benefit everyone.",
-            "I have been writing code from 2019 to be precise when I was in junior high school until now I like to write code, but apart from that all my family doesn't care about it.",
-            "I prefer to work independently or alone but apart from that I can also work well in a team."
+            "Hello everyone, let me introduce myself, my name is Ari Setiawan (hxAri), I am a Back-End Programmer, I have written and created programs, both Web Services and Command Line Programs (Linux) since I was in the third grade of junior high school until now. According to I write code which is quite fun, although sometimes it can be very frustrating, but actually coding is something that I enjoy and am passionate about to this day, and has become my daily hobby.",
+            "Honestly, I really like working alone rather than with a team, but apart from that, that doesn't mean I can't work with a team. I am also very capable of working together with a team to solve various cases or problems that exist in a project or program development.",
+            "I am currently working as a Back-End Developer at the Indonesia Indicator Company which is under the auspices of Ebdesk, but I can also work as a freelancer if you consider me.",
+            "If you are interested in knowing about the personal projects that I have created, you can visit my Github profile, I put more documented projects there.",
+            "The level of education will not determine a person's success, but it will help you to achieve something someday, and it will all depend on how you use it, and remember never depend on other people because it will bring you down slowly, even without until you realize it.",
+            "Self expansion infinite void;"
         ],
-        "company": "Indonesia Indicator",
+        "company": "I2",
         "contact": {
             "email": "hxari@proton.me",
             "phone": "+62 858-3913-6990"
@@ -186,7 +188,7 @@
     "maintenance": {
         "about": false,
         "contact": true,
-        "home": false,
+        "home": true,
         "none": false,
         "preview": true,
         "privacy": false,
