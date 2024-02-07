@@ -188,7 +188,7 @@
     "maintenance": {
         "about": false,
         "contact": true,
-        "home": true,
+        "home": false,
         "none": false,
         "preview": true,
         "privacy": false,
