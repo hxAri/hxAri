@@ -11,10 +11,14 @@
 	export default {
 		data: () => ({
 			label: {
-				after: null,
-				prompt: null,
-				before: null
+				after: "",
+				prompt: "",
+				before: ""
 			},
+			model: "",
+			model: "echo -e \"Hello World\"; cat <<- \"EOF\" >\ncontents\nEOF",
+			// model: "echo -e \"Hello World\"; cat <<- EOF > $source/$folder/root/.bash_profile contents\nEOF",
+			// model: "echo -e \"Hello World\"; cat <<- \"EOF\" > $source/$folder/root/.bash_profile\ncontents\nEOF",
 			// model: [
 				
 			// 	"command",
@@ -58,15 +62,6 @@
 			// 	"cat >> file-save >>- EOF\n  contents\nEOF;"
 
 			// ].join( "\x20" ),
-			model: "",
-			mouse: {
-				from: -1,
-				to: -1
-			},
-			range: {
-				begin: -1,
-				end: -1
-			},
 			shortcuts: [
 				{
 					name: "",
@@ -142,8 +137,7 @@
 		watch: {
 			title: {
 				immediate: true,
-				handler: function()
-				{
+				handler: function() {
 					document.title = "hxAri · Terminal";
 				}
 			}
@@ -151,39 +145,27 @@
 		computed: mapState([
 			"terminal"
 		]),
-		created: function()
-		{
+		created: function() {
 			this.terminal.binding = this;
 			this.terminal.router = this.$router;
-			try
-			{
-				// Check if current route path is main terminal view path.
-				if( this.terminal.pwd() === "/" )
-				{
-					// Push route to home directory.
+			try {
+				if( this.terminal.pwd() === "/" ) {
 					this.terminal.router.push( Fmt( "/terminal{}", this.terminal.exports.HOME ) );
 				}
 				else {
 					this.terminal.ls( this.terminal.pwd() );
 				}
 			}
-			catch( error )
-			{
+			catch( error ) {
 				this.terminal.history.push({ output: [ Fmt( "{}: {}", this.terminal.shell, error ) ] });
 			}
-		},
-		mounted: function()
-		{
 			this.endrange();
-			this.mouse.from = this.$refs.input.selectionStart;
+		},
+		mounted: function() {
+			this.endrange();
 		},
 		methods: {
 			
-			pointer: function( e )
-			{
-				console.log( e )
-			},
-
 			/*
 			 * Set input text selection to end.
 			 *
@@ -191,35 +173,42 @@
 			 *
 			 * @return Void
 			 */
-			endrange: function( e )
-			{
+			endrange: function( e ) {
+
 				// Resolve terminal prompt display.
 				this.label.prompt = this.terminal.loading === false ? this.terminal.prompt( this.terminal.exports.PS1 ) : null;
 
-				// ...
-				if( Type( this.$refs.input, HTMLInputElement ) )
-				{
-					var after = "";
-					var before = "";
+				if( Type( this.$refs.input, HTMLInputElement ) ) {
+					var codes = [ 37, 38, 39, 40 ];
 					var model = this.model;
 					var input = this.$refs.input;
-						// input.style.color = input.selectionStart !== model.length ? "var(--shell-c-0-30m)" : "transparent";
-					
-					if( this.mouse.from < 0 )
-					{
-						this.mouse.from = model.length;
-						this.mouse.to = model.length -1;
+					var index = input.selectionStart;
+					if( Type( e, KeyboardEvent ) ) {
+						if( e.keyCode in codes ) {
+							if( e.keyCode !== 38 ) {
+								if( e.keyCode === 40 ) {
+								}
+								else {
+									this.label.before = this.terminal.colorable( model.substring( 0, index ) );
+									this.label.split = model.substring( index, index+1 );
+									this.label.after = this.terminal.colorable( model.substring( index+1 ) );
+								}
+							}
+							else {
+								// Up
+							}
+						}
+						else {
+							this.label.before = this.terminal.colorable( model.substring( 0, index ) );
+							this.label.split = model.substring( index, index+1 );
+							this.label.after = this.terminal.colorable( model.substring( index+1 ) );
+						}
 					}
-					else {
-						this.mouse.from = this.mouse.to;
-						this.mouse.to = input.selectionStart;
-					}
-					this.label.after = this.terminal.colorable( model.substring( this.mouse.to, model.length ) );
-					this.label.before = this.terminal.colorable( model.substring( 0, this.mouse.to ) );
 					this.trigger();
 				}
 				else {
-					this.label.after = null;
+					this.label.after = "";
+					this.label.split = "";
 					this.label.before = this.terminal.colorable( this.model );
 				}
 			},
@@ -231,14 +220,9 @@
 			 *
 			 * @return Promise
 			 */
-			executor: async function( e )
-			{
-				// Focusable.
+			executor: async function( e ) {
 				this.trigger();
-				
-				// Check if key is enter.
-				if( e.key === "Enter" )
-				{
+				if( e.key === "Enter" ) {
 					await this.terminal.run( this.model )
 						.then( x => console.log( x ) )
 						.catch( e => console.error( e ) );
@@ -253,10 +237,8 @@
 			 *
 			 * @return Void
 			 */
-			keyboard: function( e, shortcut )
-			{
-				if( Type( shortcut, Object ) )
-				{}
+			keyboard: function( e, shortcut ) {
+				if( Type( shortcut, Object ) ) {}
 				else {
 				}
 			},
@@ -266,8 +248,7 @@
 			 *
 			 * @return String
 			 */
-			onrender: function()
-			{
+			onrender: function() {
 				var self = this;
 					self.trigger();
 				
@@ -284,13 +265,12 @@
 						 *
 						 * @return String
 						 */
-						function( i, history )
-						{
+						function( i, history ) {
 							var stack = [];
 							
 							// Check if history has prompt.
-							if( Type( history.prompt, String ) )
-							{
+							if( Type( history.prompt, String ) ) {
+								
 								// Create opening tag.
 								stack.push( "<label class=\"terminal-line-prompt dp-block\">" );
 								
@@ -298,22 +278,19 @@
 								stack.push( history.prompt );
 								
 								// Check if history has input commands.
-								if( Type( history.inputs, String ) )
-								{
+								if( Type( history.inputs, String ) ) {
 									stack.push( history.inputs.trim() );
 								}
 								stack.push( "</label>" );
 							}
 							
 							// Check if history has multiple outputs.
-							if( Type( history.output, Array ) )
-							{
+							if( Type( history.output, Array ) ) {
 								stack.push( ...Mapper( history.output, ( i, output ) => Fmt( "<label class=\"terminal-line-output dp-block\">{}</label>", self.terminal.format( `${output}`.replaceAll( /\<|\>/g, m => m === "<" ? "&lt" : "&gt" ) ) ) ) );
 							}
 							
 							// Check if history has single outputs.
-							else if( Type( history.output, [ Number, String ] ) )
-							{
+							else if( Type( history.output, [ Number, String ] ) ) {
 								stack.push( Fmt( "<label class=\"terminal-line-output dp-block\">{}</label>", self.terminal.format( `${history.output}`.replaceAll( /\<|\>/g, m => m === "<" ? "&lt" : "&gt" ) ) ) );
 							}
 							return( stack.join( "" ) );
@@ -329,10 +306,8 @@
 			 *
 			 * @return Void
 			 */
-			trigger: function( e )
-			{
-				try
-				{
+			trigger: function( e ) {
+				try {
 					this.$refs.input.focus();
 				}
 				catch( e ) {
@@ -348,13 +323,20 @@
 		<div class="terminal-screen">
 			<div class="terminal-output" @click="trigger">
 				<div class="terminal-line" v-html="onrender()"></div>
-			
-			<div class="terminal-form" @click="trigger">
-				<label class="terminal-prompt" v-html="label.prompt"></label>
-				<label class="terminal-label" v-html="label.before"></label>
-				<input class="terminal-input" type="text" v-model="model" autocapitalize="off" ref="input" @click="endrange" @keyup="endrange" @focus="endrange" @input="endrange" @change="endrange" @keypress="endrange" @keydown="executor" />
-				<label class="terminal-label" v-html="label.after"></label>
-			</div>
+				<div class="terminal-form" @click="trigger">
+					<label class="terminal-prompt" v-html="label.prompt"></label>
+					<label class="terminal-label" v-html="label.before"></label>
+					<label class="terminal-label" v-html="label.split" :style="{ backgroundColor: 'white', width: '9px', color: 'black' }"></label>
+					<label class="terminal-label" v-html="label.after"></label>
+					<input class="terminal-input" :style="{ borderRight: this.label.split === '' && this.model !== '' || this.model === '' ? '9px solid white' : 'none', transition: 'none' }" autocapitalize="off" ref="input" type="text" v-model="model"
+						@click="endrange"
+						@keyup="endrange"
+						@focus="endrange"
+						@input="endrange"
+						@change="endrange"
+						@keypress="endrange"
+						@keydown="executor" />
+				</div>
 			</div>
 			<div class="terminal-shortcut dp-none">
 				<div class="terminal-shortcut-key flex flex-center" v-for="shortcut in shortcuts" @click="keyboard( $event, shortcut )">
@@ -426,7 +408,7 @@
 					width: auto;
 				}
 				.terminal-input {
-					width: 9px;
+					width: 0px;
 					border: 0;
 					outline: 0;
 					white-space: -moz-pre-wrap !important;
