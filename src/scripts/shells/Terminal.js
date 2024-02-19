@@ -296,14 +296,12 @@ function Terminal( binding, router ) {
 				var group = null;
 				
 				for( let i in groups ) {
+					group = groups[i];
 					if( Type( patterns[groups[i]], Object ) &&
 						Type( match.groups[groups[i]], String ) ) {
 						// escape = patterns[group].styling;
 						break;
 					}
-				}
-				if( group === null ) {
-					return;
 				}
 				var chars = match.groups[group];
 				var color = patterns[group].styling;
@@ -323,7 +321,6 @@ function Terminal( binding, router ) {
 							var reindex = 0;
 							var rematch = null;
 							var pattern = new RegExp( Fmt( "(?:{})", regexps.map( r => r.pattern ).join( "|" ) ), "gms" );
-							
 							while( ( rematch = pattern.exec( chars ) ) !== null ) {
 								result += chars.substring( reindex, pattern.lastIndex - rematch[0].length );
 								result += Fmt( "<span style=\"color: {}\" data-group=\"{}\">{}</span>", color, group, handler( rematch, color, patterns[group].handler ) );
@@ -435,30 +432,17 @@ function Terminal( binding, router ) {
 		try {
 			var regexp = new RegExp( "(?:" + Object.values( Mapper( patterns, ( i, k, val ) => val.pattern ) ).join( "|" ) + ")", "ig" );
 			while( ( match = regexp.exec( format ) ) !== null ) {
-
-				// Default color for text.
 				var color = "var(--shell-c-0-37m)";
-				
-				// Check if match has groups.
 				if( Type( match.groups, Object ) ) {
-
-					// Get all group names.
 					var groups = Object.keys( match.groups );
-					
 					for( let i in groups ) {
-
-						// Get group name.
 						var group = groups[i];
-						
-						// Check if group is available.
 						if( Type( patterns[group], Object ) &&
 							Type( match.groups[group], String ) ) {
 							color = patterns[group].colorize;
 							break;
 						}
 					}
-					
-					// Check group has handler.
 					if( Type( patterns[group].handler, [ Function, "handler" ] ) ) {
 						//result += Fmt( "{}<span style=\"color: {}\">{}</span>", format.substring( index, regexp.lastIndex - match[0].length ), color, patterns[group].handler( match ) );
 						result += format.substring( index, regexp.lastIndex - match[0].length );
@@ -1167,9 +1151,9 @@ function Terminal( binding, router ) {
 				self.history.push({
 					prompt: self.prompt( self.exports.PS1 ),
 					inputs: self.colorable( argument ),
-					output: []
+					output: [],
+					raw: argument
 				});
-				
 				try {
 					var shell = self.commands.find( shell => shell.name === self.shell );
 					if( shell ) {
@@ -1194,7 +1178,6 @@ function Terminal( binding, router ) {
 					console.error( error );
 					self.log( "error", error );
 					self.history.push({ output: self.colorableAnsi( Fmt( "{}: {}", self.shell, error ) ) });
-					//self.history.push({ output: JSON.stringify( self.parseStackTrace( error ), null, 4 ) });
 				}
 				self.loading = false;
 			}
