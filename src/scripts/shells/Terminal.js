@@ -18,8 +18,7 @@ import Value from "/src/scripts/logics/Value.js";
  *
  * @return Terminal
  */
-function Terminal( binding, router )
-{
+function Terminal( binding, router ) {
 
 	/*
 	 * Terminal command builder.
@@ -42,8 +41,8 @@ function Terminal( binding, router )
 	 *
 	 * @return Object
 	 */
-	Terminal.prototype.builder = function( shell, { argv, args })
-	{
+	Terminal.prototype.builder = function( shell, { argv, args }) {
+		
 		var built = {};
 		
 		/*
@@ -53,8 +52,7 @@ function Terminal( binding, router )
 		 *
 		 * @return Void
 		 */
-		var map = function( prototypes )
-		{
+		var map = function( prototypes ) {
 			Mapper( prototypes,
 				
 				/*
@@ -66,14 +64,9 @@ function Terminal( binding, router )
 				 *
 				 * @return Void
 				 */
-				function( i, name, value )
-				{
-					// Set prototype.
+				function( i, name, value ) {
 					built.prototype[name] = value;
-					
-					// If prototype type is Function.
-					if( Type( value, name ) )
-					{
+					if( Type( value, name ) ) {
 						built.prototype[name].bind(
 							built
 						);
@@ -82,8 +75,8 @@ function Terminal( binding, router )
 			);
 		};
 		
-		if( Type( shell, Object ) )
-		{
+		if( Type( shell, Object ) ) {
+
 			// Resolve shell data.
 			shell.data = Type( shell.data, Object, () => shell.data, () => Object.create({}) );
 			
@@ -107,18 +100,17 @@ function Terminal( binding, router )
 			 *
 			 * @return Mixed
 			 */
-			built.prototype.$exec = function( argument )
-			{
+			built.prototype.$exec = function( argument ) {
+
 				// Find command line shell.
 				var shell = this.$root.commands.find( shell => shell.name === this.$root.shell );
 				var result = [];
 				
 				// If shell is available.
-				if( shell )
-				{
+				if( shell ) {
+
 					// Check if shell has previous instance.
-					if( this.$root.built[shell.name] )
-					{
+					if( this.$root.built[shell.name] ) {
 						var built = this.$root.builder( [ shell, this.$root.built[shell.name] ], { argv: null, args: null } );
 					}
 					else {
@@ -171,8 +163,7 @@ function Terminal( binding, router )
 	 *
 	 * @return String
 	 */
-	Terminal.prototype.colorable = function( string )
-	{
+	Terminal.prototype.colorable = function( string ) {
 		var patterns = {
 			comment: {
 				pattern: "(?<comment>(?:\\/\\/[^\\n]*)|(?:\\/\\*.*?\\*\\/))",
@@ -295,57 +286,45 @@ function Terminal( binding, router )
 			}
 		};
 
-		var handler = function( match, escape, patterns )
-		{
+		var handler = function( match, escape, patterns ) {
+
 			// Check if match has groups.
-			if( Type( match.groups, Object ) )
-			{
+			if( Type( match.groups, Object ) ) {
+
 				// Get all group names.
 				var groups = Object.keys( match.groups );
 				var group = null;
 				
-				for( let i in groups )
-				{
-					// Get group name.
-					group = groups[i];
-					
-					// Check if group is available.
-					if( Type( patterns[group], Object ) &&
-						Type( match.groups[group], String ) )
-					{
+				for( let i in groups ) {
+					if( Type( patterns[groups[i]], Object ) &&
+						Type( match.groups[groups[i]], String ) ) {
 						// escape = patterns[group].styling;
 						break;
 					}
 				}
-
+				if( group === null ) {
+					return;
+				}
 				var chars = match.groups[group];
 				var color = patterns[group].styling;
-
-				if( Type( patterns[group].handler, [ Function, "handler", Object ] ) )
-				{
-					if( Type( patterns[group].handler, Object ) )
-					{
+				if( Type( patterns[group].handler, [ Function, "handler", Object ] ) ) {
+					if( Type( patterns[group].handler, Object ) ) {
 						var regexps = [];
-
-						for( let i in patterns[group].handler )
-						{
-							if( Type( patterns[group].handler[i], Window ) )
-							{
+						for( let i in patterns[group].handler ) {
+							if( Type( patterns[group].handler[i], Window ) ) {
 								chars = patterns[group].handler[i].call( chars );
 							}
 							else {
 								regexps.push( patterns[group].handler[i] );
 							}
 						}
-						if( regexps.length >= 1 )
-						{
+						if( regexps.length >= 1 ) {
 							var result = "";
 							var reindex = 0;
 							var rematch = null;
 							var pattern = new RegExp( Fmt( "(?:{})", regexps.map( r => r.pattern ).join( "|" ) ), "gms" );
 							
-							while( ( rematch = pattern.exec( chars ) ) !== null )
-							{
+							while( ( rematch = pattern.exec( chars ) ) !== null ) {
 								result += chars.substring( reindex, pattern.lastIndex - rematch[0].length );
 								result += Fmt( "<span style=\"color: {}\" data-group=\"{}\">{}</span>", color, group, handler( rematch, color, patterns[group].handler ) );
 								reindex = pattern.lastIndex;
@@ -358,15 +337,12 @@ function Terminal( binding, router )
 					}
 				}
 
-				if( Type( patterns[group].rematch, Array ) )
-				{
+				if( Type( patterns[group].rematch, Array ) ) {
 					var result = "";
 					var reindex = 0;
 					var rematch = null;
 					var pattern = new RegExp( Fmt( "(?:{})", patterns[group].rematch.map( r => patterns[r].pattern ).join( "|" ) ), "gms" );
-
-					while( ( rematch = pattern.exec( chars ) ) !== null )
-					{
+					while( ( rematch = pattern.exec( chars ) ) !== null ) {
 						result += chars.substring( reindex, pattern.lastIndex - rematch[0].length );
 						result += handler( rematch, color, patterns );
 						reindex = pattern.lastIndex;
@@ -378,26 +354,22 @@ function Terminal( binding, router )
 			return( "" );
 		};
 
-		try
-		{
+		// try {
 			var index = 0;
 			var match = null;
 			var result = "";
 			var escape = "var(--shell-c-0-37m)";
 			var string = Type( string, String, () => string, () => "" );
 			var pattern = new RegExp( Fmt( "(?:{})", Object.values( Mapper( patterns, ( i, k, val ) => val.pattern ) ).join( "|" ) ), "gms" );
-			
-			while( ( match = pattern.exec( string ) ) !== null )
-			{
+			while( ( match = pattern.exec( string ) ) !== null ) {
 				result += string.substring( index, pattern.lastIndex - match[0].length );
 				result += Fmt( "<span style=\"color: {}\" data-group=\"{}\">{}</span>", escape, "captured", handler( match, escape, patterns ) );
 				index = pattern.lastIndex;
 			}
-		}
-		catch( error )
-		{
-			console.error( "error", error );
-		}
+		// }
+		// catch( error ) {
+		// 	console.error( "error", error );
+		// }
 		return( result + string.substring( index ) );
 	};
 	
@@ -410,8 +382,8 @@ function Terminal( binding, router )
 	 *
 	 * @return String
 	 */
-	Terminal.prototype.colorableAnsi = function( format, base )
-	{
+	Terminal.prototype.colorableAnsi = function( format, base ) {
+
 		// Avoid empty base color.
 		var basec = Type( base, String, () => base, () => "\x1b[37m" );
 		
@@ -460,39 +432,34 @@ function Terminal( binding, router )
 
 		// /((?:\\e|\\x1b|\\033)\[[0-9\\;]+m)/g
 
-		try
-		{
-			// Create regular expression.
+		try {
 			var regexp = new RegExp( "(?:" + Object.values( Mapper( patterns, ( i, k, val ) => val.pattern ) ).join( "|" ) + ")", "ig" );
-			
-			while( ( match = regexp.exec( format ) ) !== null )
-			{
+			while( ( match = regexp.exec( format ) ) !== null ) {
+
 				// Default color for text.
 				var color = "var(--shell-c-0-37m)";
 				
 				// Check if match has groups.
-				if( Type( match.groups, Object ) )
-				{
+				if( Type( match.groups, Object ) ) {
+
 					// Get all group names.
 					var groups = Object.keys( match.groups );
 					
-					for( let i in groups )
-					{
+					for( let i in groups ) {
+
 						// Get group name.
 						var group = groups[i];
 						
 						// Check if group is available.
 						if( Type( patterns[group], Object ) &&
-							Type( match.groups[group], String ) )
-						{
+							Type( match.groups[group], String ) ) {
 							color = patterns[group].colorize;
 							break;
 						}
 					}
 					
 					// Check group has handler.
-					if( Type( patterns[group].handler, [ Function, "handler" ] ) )
-					{
+					if( Type( patterns[group].handler, [ Function, "handler" ] ) ) {
 						//result += Fmt( "{}<span style=\"color: {}\">{}</span>", format.substring( index, regexp.lastIndex - match[0].length ), color, patterns[group].handler( match ) );
 						result += format.substring( index, regexp.lastIndex - match[0].length );
 						result += color;
@@ -510,8 +477,7 @@ function Terminal( binding, router )
 				index = regexp.lastIndex;
 			}
 		}
-		catch( error )
-		{
+		catch( error ) {
 			console.error( "error", error );
 		}
 		return( result + format.substring( index ) );
@@ -590,30 +556,28 @@ function Terminal( binding, router )
 	 *
 	 * @return String
 	 */
-	Terminal.prototype.format = function( format )
-	{
+	Terminal.prototype.format = function( format ) {
+
 		// Regex for match escape sequence.
 		var regexp = /(?<format>\x1b|\\x1b|\\e|((\0|\\0)33))((?:\[|\\\[)(?<code>.*?)(?<type>m)(?<text>[^\n]*))/g;
 		var string = format.replaceAll( /\!\[(bx|bxl|bxs)\]\(([a-zA-Z0-9\-\s]+)\)/g, `<i class="bx $1-$2"></i>` )
 		var match = regexp.exec( string );
 		
-		if( match !== null )
-		{
-			// Defaulf text is blank for avoid error.
+		if( match !== null ) {
+
+			// Default text is blank for avoid error.
 			var text = "";
 			
 			// Get format style.
 			var style = this.formatStyle( match.groups.code );
 			
 			// If format has text will be 
-			if( Type( match.groups.text, String ) )
-			{
+			if( Type( match.groups.text, String ) ) {
 				text = this.format( match.groups.text );
 			}
 			
 			// Check if format has style.
-			if( style )
-			{
+			if( style ) {
 				return( Fmt( "{}<span class=\"terminal-text text\" style=\"{}\">{}</span>", string.substring( 0, regexp.lastIndex - match[0].length ), style, text ) );
 			}
 			return( string.substring( 0, regexp.lastIndex - match[0].length ) + text );
@@ -628,45 +592,37 @@ function Terminal( binding, router )
 	 *
 	 * @return False|String
 	 */
-	Terminal.prototype.formatStyle = function( code )
-	{
+	Terminal.prototype.formatStyle = function( code ) {
+
 		var self = this;
 		var pattern = /^(?:\d{1,2}|[01]\d|2[0-4])(;(?:\d|[0-5]\d)(?:;(?:\d{1,3})){0,2})*$/;
-	
-		if( pattern.test( code ) )
-		{
+		if( pattern.test( code ) ) {
+
 			// Split code with semicolon symbol.
 			var codes = code.split( ";" ).map( part => parseInt( part ) );
 			var color = null;
 			var format = null;
 	
-			switch( codes.length )
-			{
+			switch( codes.length ) {
 				case 1:
-					if( codes[0] >= 0 && codes[0] <= 9 )
-					{
+					if( codes[0] >= 0 && codes[0] <= 9 ) {
 						format = self.formatStyleValue[codes[0]];
 					}
-					else if( codes[0] >= 30 && codes[0] <= 37 )
-					{
+					else if( codes[0] >= 30 && codes[0] <= 37 ) {
 						format = self.formatStyleColorValue.e0gte30lte37[codes[0]]
 					}
-					else if( codes[0] >= 40 && codes[0] <= 47 )
-					{
+					else if( codes[0] >= 40 && codes[0] <= 47 ) {
 						format = self.formatStyleColorValue.e0gte40lte47[codes[0]]
 					}
 					break
 				case 2:
-					if( codes[0] >= 0 && codes[0] <= 9 )
-					{
+					if( codes[0] >= 0 && codes[0] <= 9 ) {
 						format = self.formatStyleValue[codes[0]];
 	
-						if( codes[1] >= 30 && codes[1] <= 37 )
-						{
+						if( codes[1] >= 30 && codes[1] <= 37 ) {
 							color = self.formatStyleColorValue.e0gte30lte37[codes[1]]
 						}
-						else if( codes[1] >= 40 && codes[1] <= 47 )
-						{
+						else if( codes[1] >= 40 && codes[1] <= 47 ) {
 							color = self.formatStyleColorValue.e0gte40lte47[codes[1]]
 						}
 					}
@@ -674,20 +630,15 @@ function Terminal( binding, router )
 				case 3:
 					break
 				case 4:
-					if( codes[0] >= 0 && codes[0] <= 9 )
-					{
+					if( codes[0] >= 0 && codes[0] <= 9 ) {
 						format = self.formatStyleValue[codes[0]];
 					}
-					if( codes[1] === 38 )
-					{
-						if( codes[2] >= 0 && codes[2] <= 7 )
-						{
-							if( codes[2] === 5 )
-							{
+					if( codes[1] === 38 ) {
+						if( codes[2] >= 0 && codes[2] <= 7 ) {
+							if( codes[2] === 5 ) {
 								color = Fmt( self.formatStyleColorValue.e38e5, codes[3] );
 							}
-							else if( codes[2] === 7 )
-							{
+							else if( codes[2] === 7 ) {
 								color = Fmt( self.formatStyleColorValue.e38e7, codes[3] );
 							}
 							else {
@@ -807,17 +758,16 @@ function Terminal( binding, router )
 	 *
 	 * @return Void
 	 */
-	Terminal.prototype.log = function( level, message )
-	{
+	Terminal.prototype.log = function( level, message ) {
+
 		// If message is instance of Error.
-		if( message instanceof Error )
-		{
+		if( message instanceof Error ) {
+
 			// Parse error stack traces.
 			var stack = this.parseStackTrace( message );
 			
 			// Push error.
-			for( let i in stack )
-			{
+			for( let i in stack ) {
 				this.logs.push({
 					level: level,
 					message: `${message}`,
@@ -853,8 +803,8 @@ function Terminal( binding, router )
 	 * @throws Error
 	 *  Throw when the directory not found.
 	 */
-	Terminal.prototype.ls = function( path )
-	{
+	Terminal.prototype.ls = function( path ) {
+
 		var npath = "";
 		var index = 0;
 		var match = null;
@@ -864,17 +814,12 @@ function Terminal( binding, router )
 		var work = this.pwd();
 		
 		// Resolve pathname with special character.
-		if( path.match( /^\*+$/ ) !== null )
-		{
+		if( path.match( /^\*+$/ ) !== null ) {
 			npath = work;
 		}
 		else {
-			while( ( match = regex.exec( path ) ) !== null )
-			{
-				// If path has star characters.
-				if( Type( match.groups.repeat, String ) )
-				{
-					// Avoid error no repeating.
+			while( ( match = regex.exec( path ) ) !== null ) {
+				if( Type( match.groups.repeat, String ) ) {
 					var value = ".*";
 				}
 				else {
@@ -887,8 +832,7 @@ function Terminal( binding, router )
 		}
 		
 		// Check if pathname has no slash in prefix.
-		if( npath[0] !== "/" )
-		{
+		if( npath[0] !== "/" ) {
 			npath = work + "/" + npath;
 		}
 		
@@ -897,17 +841,16 @@ function Terminal( binding, router )
 		let dir = this.directory;
 		
 		// Mapping parts of pathname.
-		for( let i in parts )
-		{
+		for( let i in parts ) {
+
 			// Get part name.
 			var part = parts[i];
 			
 			// Check if part name is double dot (..)
-			if( part === ".." )
-			{
+			if( part === ".." ) {
+
 				// If previous part name is available.
-				if( Type( parts[( i -1 )], String ) )
-				{
+				if( Type( parts[( i -1 )], String ) ) {
 					part = parts[( i -1 )];
 				}
 				else {
@@ -916,17 +859,15 @@ function Terminal( binding, router )
 			}
 			
 			// Check if directory value is Object.
-			if( Type( dir, Object ) )
-			{
+			if( Type( dir, Object ) ) {
+
 				// Check if directory has children.
-				if( Type( dir.child, Array ) )
-				{
+				if( Type( dir.child, Array ) ) {
 					dir = dir.child;
 				}
 				
 				// Check if directory is symlink.
-				else if( dir.type === "symlink" )
-				{
+				else if( dir.type === "symlink" ) {
 					return( Fmt( "{}/{}", this.ls( dir.from ), part ) );
 				}
 				else {
@@ -935,20 +876,16 @@ function Terminal( binding, router )
 			}
 			
 			// Check id directory value is Array.
-			if( Type( dir, Array ) )
-			{
+			if( Type( dir, Array ) ) {
 				var regexp = null;
 				var special = /(?<!\\)((?<bracket>\[(?:[^\]\\]|\\.)*\](\+)*)|(?<wildcard>\*)|(?<or>\|))/g;
 				
 				// Check if part name have special caharacters.
-				if( special.test( part ) )
-				{
-					try
-					{
+				if( special.test( part ) ) {
+					try {
 						regexp = new RegExp( Fmt( "^{}$", part.replaceAll( /(?:\/)|(?:\.(?!\*))/g, m => m === "/" ? "\\/" : "\\." ) ) );
 					}
-					catch( error )
-					{
+					catch( error ) {
 						this.log( "error", error );
 					}
 				}
@@ -963,11 +900,8 @@ function Terminal( binding, router )
 					 *
 					 * @return Boolean
 					 */
-					function( d )
-					{
-						// If part has regular expression,
-						if( regexp !== null )
-						{
+					function( d ) {
+						if( regexp !== null ) {
 							return( regexp.test( d.name ) );
 						}
 						return( part === d.name );
@@ -975,8 +909,7 @@ function Terminal( binding, router )
 				);
 				
 				// Check if directory not found.
-				if( Type( dir, [ Array, Object ] ) === false )
-				{
+				if( Type( dir, [ Array, Object ] ) === false ) {
 					throw Fmt( "{}: No such file or directory", path );
 				}
 			}
@@ -986,8 +919,7 @@ function Terminal( binding, router )
 		}
 		
 		// Check if directory is path.
-		if( dir.type === "path" )
-		{
+		if( dir.type === "path" ) {
 			return( dir.child );
 		}
 		return( dir.type === "symlink" ? this.ls( dir.from ) : dir );
@@ -1001,8 +933,8 @@ function Terminal( binding, router )
 	 *
 	 * @return Array<Object>
 	 */
-	Terminal.prototype.parseStackTrace = function( error )
-	{
+	Terminal.prototype.parseStackTrace = function( error ) {
+
 		/*
 		 * Split the stack trace string into an array of lines and
 		 * remove the first line (which contains the error message).
@@ -1015,12 +947,10 @@ function Terminal( binding, router )
 		 * each function call using a regular expression.
 		 *
 		 */
-		return( lines.map( line =>
-		{
+		return( lines.map( line => {
 			const match = line.match( /^\s*at\s+(.*)\s+\((.*):(\d+):(\d+)\)$/ );
 			
-			if( match )
-			{
+			if( match ) {
 				/*
 				 * If the line matches the regular expression, extract the function name,
 				 * file name, line number, and column number into an object.
@@ -1051,32 +981,25 @@ function Terminal( binding, router )
 	 * 
 	 * @return String
 	 */
-	Terminal.prototype.pathResolver = function( path, pwdold = false )
-	{
+	Terminal.prototype.pathResolver = function( path, pwdold = false ) {
+
 		var path = Type( path, String, () => path.trim(), () => "" );
 		var index = 0;
 		var match = null;
 		var results = "";
 		var regexp = /(?<dpoint>\/*\.\.\/*)|(?:^(?:(?<alpha>[a-zA-Z0-9]+)|(?<squiggle>\~\/*)|(?<point>\.\/*)))|(?<hyphen>^\-$)/g;
 
-		while( ( match = regexp.exec( path ) ) !== null )
-		{
+		while( ( match = regexp.exec( path ) ) !== null ) {
 			var replace = null;
 			var keys = Object.keys( match.groups );
-
-			for( let i in keys )
-			{
+			for( let i in keys ) {
 				var key = keys[i];
 				var cap = match.groups[key];
-
-				if( Type( cap, String ) )
-				{
-					switch( key )
-					{
+				if( Type( cap, String ) ) {
+					switch( key ) {
 						case "squiggle":
 							if( cap.length === 1 && path.substring( cap.length ) === "" ||
-								cap.length === 2 )
-							{
+								cap.length === 2 ) {
 								replace = this.exports['HOME'];
 								replace += cap[1] === "/" ? "/" : "";
 							}
@@ -1085,10 +1008,8 @@ function Terminal( binding, router )
 							}
 							break;
 						case "hyphen":
-							if( pwdold === true )
-							{
-								if( Type( this.exports['PWD-OLD'], "Undefined" ) )
-								{
+							if( pwdold === true ) {
+								if( Type( this.exports['PWD-OLD'], "Undefined" ) ) {
 									throw new Error( "PWD-OLD not set" );
 								}
 								replace = this.exports['PWD-OLD'];
@@ -1098,8 +1019,7 @@ function Terminal( binding, router )
 							}
 							break;
 						case "dpoint":
-							if( index === 0 )
-							{
+							if( index === 0 ) {
 								var source = this.pwd();
 							}
 							else {
@@ -1135,20 +1055,16 @@ function Terminal( binding, router )
 	 *
 	 * @return String
 	 */
-	Terminal.prototype.prompt = function( format )
-	{
+	Terminal.prototype.prompt = function( format ) {
+
 		var index = 0;
 		var match = null;
 		var prompt = "";
 		var regexp = /(?<backslash>\\)(?!(e|x1b|033))(?<format>[^\s]{0,1})/g;
 		
-		while( ( match = regexp.exec( format ) ) !== null )
-		{
-			// When the escape is not supported.
+		while( ( match = regexp.exec( format ) ) !== null ) {
 			var value = "";
-			
-			switch( match.groups.format )
-			{
+			switch( match.groups.format ) {
 				// The date in "Weekday Month Date" format (e.g., "Tue May 26")
 				case "d": value = this.date.format( "%a %b %d" ); break;
 				
@@ -1199,15 +1115,13 @@ function Terminal( binding, router )
 	 *
 	 * @return String
 	 */
-	Terminal.prototype.pwd = function( base = false )
-	{
+	Terminal.prototype.pwd = function( base = false ) {
+
 		// Get current working directory.
 		var path = this.exports.PWD.path;
 		
 		// If current path has no defined in vue router.
-		if( Type( path, "Undefined" ) )
-		{
-			// Get pathname.
+		if( Type( path, "Undefined" ) ) {
 			path = this.exports.PWD._value.path;
 		}
 		
@@ -1219,8 +1133,7 @@ function Terminal( binding, router )
 		path = path === "" ? "/" : path;
 		
 		// Check if just get base pathname.
-		if( base )
-		{
+		if( base ) {
 			return( path.split( "/" ) ).pop();
 		}
 		return( path );
@@ -1233,8 +1146,8 @@ function Terminal( binding, router )
 	 *
 	 * @return Promise
 	 */
-	Terminal.prototype.run = async function( argument )
-	{
+	Terminal.prototype.run = async function( argument ) {
+
 		// Copy current object instance.
 		var self = this;
 		
@@ -1248,8 +1161,7 @@ function Terminal( binding, router )
 			 *
 			 * @return Void
 			 */
-			function( resolve, reject )
-			{
+			function( resolve, reject ) {
 				self.loading = true;
 				self.binding.model = "";
 				self.history.push({
@@ -1258,17 +1170,10 @@ function Terminal( binding, router )
 					output: []
 				});
 				
-				try
-				{
-					// Find command line shell.
+				try {
 					var shell = self.commands.find( shell => shell.name === self.shell );
-					
-					// If shell is available.
-					if( shell )
-					{
-						// Check if shell has previous instance.
-						if( self.built[self.shell] )
-						{
+					if( shell ) {
+						if( self.built[self.shell] ) {
 							var built = self.builder( [ shell, self.built[shell.name] ], { argv: null, args: null } );
 						}
 						else {
@@ -1285,8 +1190,7 @@ function Terminal( binding, router )
 						throw new Error( Fmt( "{}: Shells not available", self.shell ) );
 					}
 				}
-				catch( error )
-				{
+				catch( error ) {
 					console.error( error );
 					self.log( "error", error );
 					self.history.push({ output: self.colorableAnsi( Fmt( "{}: {}", self.shell, error ) ) });
@@ -1377,20 +1281,15 @@ function Terminal( binding, router )
 	 */
 	Terminal.prototype.router = router;
 	
-	try
-	{
-		// Check if current route path is main terminal view path.
-		if( this.pwd() === "/" )
-		{
-			// Push route to home directory.
+	try {
+		if( this.pwd() === "/" ) {
 			this.router.push( Fmt( "/terminal{}", this.exports.HOME ) );
 		}
 		else {
 			this.ls( this.pwd() );
 		}
 	}
-	catch( error )
-	{
+	catch( error ) {
 		this.history.push({ output: [ Fmt( "{}: {}", this.shell, error ) ] });
 	}
 };
