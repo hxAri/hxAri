@@ -16,7 +16,7 @@
 				before: ""
 			},
 			model: "",
-			model: "echo -e \"Hello World\"; cat <<- \"EOF\" >\ncontents\nEOF",
+			model: "echo -e \"Hello World\"; cat <<- \"EOF\" >\ncontents\nEOF>>",
 			// model: "echo -e \"Hello World\"; cat <<- EOF > $source/$folder/root/.bash_profile contents\nEOF",
 			// model: "echo -e \"Hello World\"; cat <<- \"EOF\" > $source/$folder/root/.bash_profile\ncontents\nEOF",
 			// model: [
