@@ -5,6 +5,7 @@ import { split as ShlexSplit, quote } from "shlex"
 // Import Scripts
 import Author from "/src/scripts/Author.js";
 import Fmt from "/src/scripts/Fmt.js";
+import Not from "/src/scripts/logics/Not.js"
 import Type from "/src/scripts/Type.js";
 import Value from "/src/scripts/logics/Value.js";
 
@@ -13,7 +14,7 @@ export default {
 	type: "binary",
 	data: {
 		patterns: {
-			argument: "(?<backslash>\\\\{0,})(?<search>(?<backticks>[\\`]{1})|(?:(?<doubleQuote>[\"]{1})|(?<singleQuote>[']{1}))|(?:\\$((?<arithmeticOperation>[\\(]{2})|(?<parameterExpansion>[\\{]{1})|(?<subtitutionExpansion>[\\(]{1})))|(?<variable>\\$[a-z]+))",
+			argument: "(?<backslash>\\\\{0,})(?<search>(?<backticks>[\\`]{1})|(?:(?<doubleQuote>[\"]{1})|(?<singleQuote>[']{1}))|(?:\\$((?<arithmeticOperation>[\\(]{2})|(?<parameterExpansion>[\\{]{1})|(?<subtitutionExpansion>[\\(]{1})|(?<variable>[a-zA-Z_\\x7f-\\xff][a-zA-Z0-9_\\x7f-\\xff]*))|(?<bracket>\\()|(?<curlyBracket>\\[)))",
 			options: "gms",
 			tokenizer: {
 				arithmeticOperation: {
@@ -24,7 +25,8 @@ export default {
 						begin: "$((",
 						end: "))"
 					},
-					handler: function() {
+					handler: function( self, expression ) {
+						console.log( "arithmatic-expression: " + expression );
 					}
 				},
 				backticks: {
@@ -35,7 +37,68 @@ export default {
 						begin: "`",
 						end: "`"
 					},
-					handler: function() {
+					handler: function( self, backticks ) {
+						console.log( "backticks: " + backticks );
+					}
+				},
+				bracket: {
+					name: "bracket",
+					group: "bracket",
+					nested: true,
+					terminator: {
+						begin: "(",
+						end: ")"
+					},
+					handler: function( self, bracket ) {
+						console.log( "bracket: " + bracket );
+					}
+				},
+				curlyBracket: {
+					name: "curly bracket",
+					group: "bracket",
+					nested: true,
+					terminator: {
+						begin: "{",
+						end: "}"
+					},
+					handler: function( self, bracket ) {
+						console.log( "curly-bracket: " + bracket );
+					}
+				},
+				doubleCurlyBracket: {
+					name: "double curly bracket",
+					group: "bracket",
+					nested: true,
+					terminator: {
+						begin: "{",
+						end: "}"
+					},
+					handler: function( self, bracket ) {
+						console.log( "double-curly-bracket: " + bracket );
+					}
+				},
+				squareBracket: {
+					name: "square bracket",
+					group: "bracket",
+					nested: false,
+					terminator: {
+						begin: "[",
+						end: "]"
+					},
+					handler: function( self, bracket ) {
+						console.log( "square-bracket: " + bracket );
+					}
+				},
+				doubleSquareBracket: {
+					name: "double square bracket",
+					group: "bracket",
+					nested: false,
+					terminator: {
+						begin: "[[",
+						end: "]]"
+					},
+					handler: function( self, bracket ) {
+						console.log( "double-square-bracket: " + bracket );
 					}
 				},
 				parameterExpansion: {
@@ -46,7 +109,8 @@ export default {
 						begin: "${",
 						end: "}"
 					},
-					handler: function() {
+					handler: function( self, expansion ) {
+						console.log( "parameter-expansion: " + expansion );
 					}
 				},
 				doubleQuote: {
@@ -57,7 +121,8 @@ export default {
 						begin: "\"",
 						end: "\""
 					},
-					handler: function() {
+					handler: function( self, quoted ) {
+						console.log( "double-quoted: " + quoted );
 					}
 				},
 				singleQuote: {
@@ -68,7 +133,8 @@ export default {
 						begin: "'",
 						end: "'"
 					},
-					handler: function() {
+					handler: function( self, quoted ) {
+						console.log( "single-quoted: " + quoted );
 					}
 				},
 				subtitutionExpansion: {
@@ -79,12 +145,29 @@ export default {
 						begin: "$(",
 						end: ")"
 					},
-					handler: function() {
+					handler: function( self, expansion ) {
+						console.log( "subtitution-expansion: " + expansion );
 					}
 				},
 				variable: {
 					terminator: null,
-					handler: function( variable ) {
+					handler: function( self, variable ) {
+						if( Value.isNotEmpty( variable ) ) {
+							if( variable.charAt( 0 ) === "\x24" ) {
+								variable = variable.slice( 1 );
+							}
+							if( Not( self.$vars[variable], "Undefined" ) ) {
+								return self.$vars[variable];
+							}
+							else if( Not( self.$envs[variable], "Undefined" ) ) {
+								if( variable === "PWD" ) {
+									return self.$envs.PWD.path ?? "";
+								}
+								return self.$envs[variable];
+							}
+						}
+						console.log( "variable: " + variable );
+						return "";
 					}
 				}
 			}
@@ -120,7 +203,9 @@ export default {
 	},
 	methods: {
 		parser: function( stdin ) {
+			var self = this;
 			var tokenizer = this.patterns.tokenizer;
+			var prototypes = this.prototypes;
 			var pattern = new RegExp( this.patterns.argument, this.patterns.options );
 			var matches = null;
 			var results = "";
@@ -148,18 +233,23 @@ export default {
 				}
 				var group = null;
 				var token = null;
+				var handler = null;
 				for( let keyset of groups ) {
 					if( [ "backslash", "search" ].indexOf( keyset ) >= 0 ) {
 						continue;
 					}
 					if( Type( matches.groups[keyset], String ) && Type( tokenizer[keyset], Object ) ) {
+						handler = () => tokenizer[keyset].handler( self, ...arguments );
 						token = tokenizer[keyset];
 						group = keyset;
 						break;
 					}
 				}
+				console.log( matches.groups );
+				console.log( "matched-group: " + group );
+				console.log( "matched-value: " + matches.groups[group] );
 				if( Type( token.terminator, Object ) === false ) {
-					results+= token.handler( matches.groups[group] );
+					results+= handler( matches.groups[group] );
 					continue;
 				}
 				var terminatorBegin = token.terminator.begin;
@@ -170,6 +260,7 @@ export default {
 				var terminatorEnd = token.terminator.end;
 				var terminatorEndIndex = -1;
 				var terminatorExploded = null;
+				var terminatorExplodedParts = [];
 				var terminatorExplodedIndex = pattern.lastIndex;
 				var terminatorExplodedLength = 0;
 				var terminatorResult = null;
@@ -218,12 +309,15 @@ export default {
 				position+= terminatorExplodedLength;
 				if( token.nested === true ) {
 					if( terminatorExploded.indexOf( terminatorBegin ) >= 0 ) {
+						var terminatorBeginIndexPrev = [ 0, 0 ];
 						var terminatorBeginLength = 1;
 						var terminatorEndLength = 1;
 						var terminatorEndPost = position;
+							console.log( "terminator-begin-index-prev: " + JSON.stringify( terminatorBeginIndexPrev, null, 4 ) );
 						console.log( "found: " + position );
 						console.log( "terminator-begin-post: " + terminatorBeginPost );
-						console.log( "terminator-begin-post-exploded: " + terminatorExploded );
+						console.log( "terminator-begin-post-exploded: " + terminatorExploded.substring( terminatorExploded.indexOf( terminatorBegin ) + terminatorBegin.length ) );
+						console.log( "terminator-begin-post-exploded-length: " + ( terminatorExploded.length + terminatorBegin.length ) );
 						i = 0;
 						while( ( terminatorBeginIndex = terminatorExploded.indexOf( terminatorBegin, terminatorBeginIndex ) ) >= 0 ) {
 							if( i >= 10 ) {
@@ -232,6 +326,7 @@ export default {
 							}
 							i++;
 							console.log( "begin: " + i );
+							console.log( "terminator-begin-post-exploded: " + terminatorExploded.substring( terminatorBeginIndex + terminatorBegin.length ) );
 							terminatorBeginEscapedIndex = terminatorBeginIndex;
 							terminatorBeginEscapedLength = 0;
 							terminatorBeginIndex+= terminatorBegin.length;
@@ -244,6 +339,12 @@ export default {
 									console.log( "backslash: " + "\\".repeat( terminatorBeginEscapedLength ) );
 									continue;
 								}
+								terminatorBeginIndexPrev = [ terminatorBeginIndexPrev[0], terminatorBeginIndex-terminatorBegin.length ];
+								console.log( "terminator-begin-index-prev-" + i + ": " + JSON.stringify( terminatorBeginIndexPrev, null, 4 ) );
+								terminatorExplodedParts.push( terminatorExploded.substring( terminatorBeginIndexPrev[0], terminatorBeginIndexPrev[1] ) );
+								terminatorBeginIndexPrev[0] = terminatorBeginIndexPrev[1];
+								terminatorBeginIndexPrev[0]+= terminatorBegin.length;
+								terminatorBeginIndexPrev[1] = terminatorBeginIndexPrev[0];
 								terminatorBeginLength++;
 							}
 							else {
@@ -251,6 +352,8 @@ export default {
 								continue;
 							}
 						}
+						console.log( "terminator-begin-index-prev: " + JSON.stringify( terminatorBeginIndexPrev, null, 4 ) );
+						terminatorExplodedParts.push( terminatorExploded.substring( terminatorBeginIndexPrev[0] ) );
 						console.log( "terminator-begin-length: " + terminatorBeginLength );
 						i = 0;
 						while( ( terminatorEndIndex = stdin.indexOf( terminatorEnd, terminatorEndPost + terminatorEnd.length ) ) >= 0 ) {
@@ -286,17 +389,17 @@ export default {
 						position = terminatorEndPost
 					}
 					else {
-						terminatorResult = token.handler( terminatorExploded );
+						terminatorExplodedParts.push( terminatorExploded.substring( 0, terminatorBeginIndexPrev ) );
 					}
-					terminatorResult = token.handler( terminatorExploded );
 				}
 				else {
-					terminatorResult = token.handler( terminatorExploded );
+					// ...
 				}
+				console.log( "terminator-exploded-parts: " + JSON.stringify( terminatorExplodedParts, null, 4 ) );
 				position+= terminatorEnd.length;
 				pattern.lastIndex = position;
 				console.log( "position: " + position );
-				token.handler( terminatorResult );
+				results+= handler( terminatorResult );
 			}
 			return results + stdin.substring( position );
 		}
