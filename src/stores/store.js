@@ -78,8 +78,7 @@ export default createStore({
 		 *
 		 * @return Boolean
 		 */
-		hasConfig: state =>
-		{
+		hasConfig: state => {
 			return Type( state.configs, Object ) &&
 				   Type( state.targets.configs.request, XMLHttpRequest ) &&
 				   		 state.targets.configs.error === false;
@@ -92,8 +91,7 @@ export default createStore({
 		 *
 		 * @return Boolean
 		 */
-		hasProfile: state =>
-		{
+		hasProfile: state => {
 			return Type( state.profile, Object ) &&
 				   Type( state.targets.profile.request, XMLHttpRequest ) &&
 				   		 state.targets.profile.error === false;
@@ -119,11 +117,11 @@ export default createStore({
 		 *
 		 * @return Promise
 		 */
-		document: async function({ state }, project )
-		{
+		document: async function({ state }, project ) {
+			
 			// Check if project name is String type.
-			if( Type( project, String ) )
-			{
+			if( Type( project, String ) ) {
+				
 				// Check if project is exists.
 				if( project = finder( state, project ) )
 				{
@@ -150,8 +148,8 @@ export default createStore({
 			await project.document_loading 
 				
 				// Handle request response.
-				.then( request =>
-				{
+				.then( request => {
+					
 					// Save previous response.
 					state.documents[project.endpoint ? project.endpoint : project.name] = request.response;
 					
@@ -173,27 +171,22 @@ export default createStore({
 		 *
 		 * @return Promise
 		 */
-		organization: async function({ state, dispatch, getters, commit })
-		{
+		organization: async function({ state, dispatch, getters, commit }) {
+			
 			// Check if priority requests does not made.
-			if( getters.hasConfig === false &&
-				state.loading === false )
-			{
-				// Dispatch priority requests.
+			if( getters.hasConfig === false && state.loading === false ) {
 				await dispatch( "priority" );
 			}
 			
 			// Check if something wrongs.
-			if( state.error ||
-				state.loading )
-			{
+			if( state.error || state.loading ) {
 				return;
 			}
-			for( let u in state.configs.organizations )
-			{
+			for( let u in state.configs.organizations ) {
+				
 				// Get all organization profile.
 				await Request( "GET", Fmt( "https://api.github.com/orgs/{}", state.configs.organizations[u] ) )
-						
+					
 					// Handle request response.
 					.then( request => commit( "organization", request.response ) )
 					
@@ -201,8 +194,7 @@ export default createStore({
 					.catch( e => { state.configs.organizations[u] = e; } );
 				
 				// If request succesfull created.
-				if( Type( state.configs.organizations[u], String ) )
-				{
+				if( Type( state.configs.organizations[u], String ) ) {
 					continue;
 				}
 				break;
@@ -216,10 +208,9 @@ export default createStore({
 		 *
 		 * @return Promise
 		 */
-		priority: async function({ state })
-		{
-			try
-			{
+		priority: async function({ state }) {
+			try {
+				
 				// Remove previous error.
 				state.error = false;
 				
@@ -260,8 +251,8 @@ export default createStore({
 				// execution of the next request.
 				.catch( e => { throw e; });
 			}
-			catch( error )
-			{
+			catch( error ) {
+				
 				// Set throwned error.
 				state.error = error;
 			}
@@ -278,11 +269,11 @@ export default createStore({
 		 *
 		 * @return Promise
 		 */
-		project: async function({ state, dispatch }, project )
-		{
+		project: async function({ state, dispatch }, project ) {
+			
 			// Check if project name is String type.
-			if( Type( project, String ) )
-			{
+			if( Type( project, String ) ) {
+				
 				// Check if project is exists.
 				if( project = finder( state, project ) )
 				{
@@ -304,8 +295,8 @@ export default createStore({
 			];
 
 			// If project has readme file documentation.
-			if( Type( project.readme_url, String ) )
-			{
+			if( Type( project.readme_url, String ) ) {
+				
 				// Create multiple requests.
 				project.loading = Requests([
 					Fmt( "https://api.github.com/repos/{}", project.endpoint ? project.endpoint : project.name ),
@@ -354,8 +345,8 @@ export default createStore({
 		 *
 		 * @return Void
 		 */
-		organization: function( state, organization )
-		{
+		organization: function( state, organization ) {
+			
 			// Change organizations as Array.
 			if( Type( state.organizations, Array ) === false ) state.organizations = [];
 			

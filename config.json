@@ -24,10 +24,12 @@
             "phone": "+62 858-3913-6990"
         },
         "social": {
-            "instagram": "https://www.instagram.com/hx.ari",
-            "linkedin": "https://www.linkedin.com/in/hxAri",
+            "facebook": "https://facebook.com/heksari",
+            "instagram": "https://instagram.com/hx.dev",
+            "linkedin": "https://linkedin.com/in/hxAri",
             "github": "https://github.com/hxAri",
-            "tiktok": "https://www.tiktok.com/@hxare"
+            "telegram": "https://t.me/hxare",
+            "tiktok": "https://tiktok.com/@hxare"
         },
         "status": {}
     },
@@ -496,5 +498,8 @@
                 "certificates": []
             }
         ]
+    },
+    "terminal": {
+        "issues": "https://hxari.github.io/issues"
     }
 }

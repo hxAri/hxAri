@@ -124,13 +124,15 @@ function Terminal( binding, router ) {
 				else {
 					throw new Error( Fmt( "{}: Shells not available", this.$root.shell ) );
 				}
-				return( result.join( "\x20" ) );
+				return result.join( "\x20" );
 			};
 			
 			/*
 			 * @inherit /src/scripts/shells/Helper
 			 */
-			built.prototype.$help = function() { return( Helper( this, shell ) ); };
+			built.prototype.$help = function() {
+				return Helper( this, shell );
+			};
 			
 			// Mapping program/ command data and methods.
 			map({ ...shell.data, ...shell.methods });
@@ -146,7 +148,7 @@ function Terminal( binding, router ) {
 		built.prototype.$argv = argv;
 		built.prototype.$args = args;
 		
-		return( built );
+		return built;
 	};
 	
 	/*
@@ -346,9 +348,9 @@ function Terminal( binding, router ) {
 					}
 					chars = result + chars.substring( reindex );
 				}
-				return( Fmt( "<span style=\"color: {}\" data-group=\"{}\">{}</span>", color, group, chars ) );
+				return Fmt( "<span style=\"color: {}\" data-group=\"{}\">{}</span>", color, group, chars );
 			}
-			return( "" );
+			return "";
 		};
 
 		// try {
@@ -367,7 +369,7 @@ function Terminal( binding, router ) {
 		// catch( error ) {
 		// 	console.error( "error", error );
 		// }
-		return( result + string.substring( index ) );
+		return result + string.substring( index );
 	};
 	
 	/*
@@ -464,7 +466,7 @@ function Terminal( binding, router ) {
 		catch( error ) {
 			console.error( "error", error );
 		}
-		return( result + format.substring( index ) );
+		return result + format.substring( index );
 	};
 	
 	/*
@@ -562,11 +564,11 @@ function Terminal( binding, router ) {
 			
 			// Check if format has style.
 			if( style ) {
-				return( Fmt( "{}<span class=\"terminal-text text\" style=\"{}\">{}</span>", string.substring( 0, regexp.lastIndex - match[0].length ), style, text ) );
+				return Fmt( "{}<span class=\"terminal-text text\" style=\"{}\">{}</span>", string.substring( 0, regexp.lastIndex - match[0].length ), style, text );
 			}
-			return( string.substring( 0, regexp.lastIndex - match[0].length ) + text );
+			return string.substring( 0, regexp.lastIndex - match[0].length ) + text;
 		}
-		return( string );
+		return string;
 	};
 	
 	/*
@@ -633,8 +635,7 @@ function Terminal( binding, router ) {
 					}
 					break
 			}
-			return(
-				color !== null && color !== false &&
+			return color !== null && color !== false &&
 				format !== null && format !== false ?
 					Fmt( "{}; {}", format, color ) :
 					(
@@ -646,9 +647,9 @@ function Terminal( binding, router ) {
 							false
 						)
 					)
-			);
+			;
 		}
-		return( false );
+		return false;
 	};
 	
 	Terminal.prototype.formatStyleColorValue = {
@@ -715,9 +716,9 @@ function Terminal( binding, router ) {
 	 * @values Array
 	 */
 	Terminal.prototype.history = Terminal.prototype.history ?? [{
-		output: [
-			...Banner, "\x20", "Type \x1b[0;38;7;153m\x1b[1;38;5;32m help \x1b[0;40m \x1b[37mfor available commands", "\x20"
-		]
+		output: Banner,
+		replaced: false,
+		typing: "banner"
 	}];
 	
 	/*
@@ -725,7 +726,7 @@ function Terminal( binding, router ) {
 	 *
 	 * @values String
 	 */
-	Terminal.prototype.hostname = Terminal.prototype.hostname ?? "hxari";
+	Terminal.prototype.hostname = Terminal.prototype.hostname ?? window.location.host?.split( "\x3a" )[0] ?? "hxari";
 	
 	/*
 	 * Terminal Loading.
@@ -852,7 +853,7 @@ function Terminal( binding, router ) {
 				
 				// Check if directory is symlink.
 				else if( dir.type === "symlink" ) {
-					return( Fmt( "{}/{}", this.ls( dir.from ), part ) );
+					return Fmt( "{}/{}", this.ls( dir.from ), part );
 				}
 				else {
 					dir = false;
@@ -886,9 +887,9 @@ function Terminal( binding, router ) {
 					 */
 					function( d ) {
 						if( regexp !== null ) {
-							return( regexp.test( d.name ) );
+							return regexp.test( d.name );
 						}
-						return( part === d.name );
+						return part === d.name;
 					}
 				);
 				
@@ -904,9 +905,9 @@ function Terminal( binding, router ) {
 		
 		// Check if directory is path.
 		if( dir.type === "path" ) {
-			return( dir.child );
+			return dir.child;
 		}
-		return( dir.type === "symlink" ? this.ls( dir.from ) : dir );
+		return dir.type === "symlink" ? this.ls( dir.from ) : dir;
 	};
 	
 	/*
@@ -925,36 +926,36 @@ function Terminal( binding, router ) {
 		 *
 		 */
 		const lines = error.stack.split( "\n" ).slice( 1 );
-	
-		/*
-		 * Map over the array of lines and extract information about
-		 * each function call using a regular expression.
-		 *
-		 */
-		return( lines.map( line => {
-			const match = line.match( /^\s*at\s+(.*)\s+\((.*):(\d+):(\d+)\)$/ );
+		return lines
 			
-			if( match ) {
+		/*
+			 * Map over the array of lines and extract information about
+			 * each function call using a regular expression.
+			 *
+			 */
+			.map( line => {
+				const match = line.match( /^\s*at\s+(.*)\s+\((.*):(\d+):(\d+)\)$/ );
+				
 				/*
 				 * If the line matches the regular expression, extract the function name,
 				 * file name, line number, and column number into an object.
 				 *
 				 */
-				return({
-					function: match[1],
-					file: match[2],
-					line: parseInt( match[3], 10 ),
-					column: parseInt( match[4], 10 ),
-				});
-			}
+				if( match ) {
+					return {
+						function: match[1],
+						file: match[2],
+						line: parseInt( match[3], 10 ),
+						column: parseInt( match[4], 10 ),
+					};
+				}
+				
+				// If the line does not match the regular expression.
+				return null;
+			})
 			
-			// If the line does not match the regular expression.
-			else {
-				return( null );
-			}
-			
-		// Filter out any null values from the array.
-		}).filter( item => !!item ) );
+			// Filter out any null values from the array.
+			.filter( item => !!item );
 	};
 
 	/*
@@ -1029,7 +1030,7 @@ function Terminal( binding, router ) {
 			results += replace.replace( /\/\/+/g, "/" );
 			index = regexp.lastIndex;
 		}
-		return( results + path.substring( index ) );
+		return results + path.substring( index );
 	};
 	
 	/*
@@ -1088,7 +1089,7 @@ function Terminal( binding, router ) {
 			prompt += format.substring( index, regexp.lastIndex - match[0].length ) + value;
 			index = regexp.lastIndex;
 		}
-		return( this.format( prompt + format.substring( index ) ) );
+		return this.format( prompt + format.substring( index ) );
 	};
 	
 	/*
@@ -1118,9 +1119,9 @@ function Terminal( binding, router ) {
 		
 		// Check if just get base pathname.
 		if( base ) {
-			return( path.split( "/" ) ).pop();
+			return path.split( "/" ).pop();
 		}
-		return( path );
+		return path;
 	};
 	
 	/*
@@ -1135,7 +1136,7 @@ function Terminal( binding, router ) {
 		// Copy current object instance.
 		var self = this;
 		
-		return( await new Promise(
+		return await new Promise(
 			
 			/*
 			 * Command runner.
@@ -1181,8 +1182,10 @@ function Terminal( binding, router ) {
 				}
 				self.loading = false;
 			}
-		));
+		);
 	};
+	
+	Terminal.prototype.stdin = "";
 	
 	/*
 	 * Terminal shell name.
@@ -1225,7 +1228,7 @@ function Terminal( binding, router ) {
 	 * @values Array
 	 */
 	Terminal.prototype.aliases = {
-		"\x63\x68\x69\x6e\x74\x79\x61": "\x65\x63\x68\x6f\x20\x2d\x65\x20\x22\x63\x68\x69\x6e\x74\x79\x61\x3a\x20\x59\x6f\x75\x20\x61\x72\x65\x20\x62\x65\x61\x75\x74\x69\x66\x75\x6c\x2c\x20\x63\x75\x74\x65\x2c\x20\x6b\x69\x6e\x64\x2c\x20\x77\x68\x69\x74\x65\x2c\x20\x72\x65\x64\x64\x69\x73\x68\x2c\x20\x73\x6d\x6f\x6f\x74\x68\x2c\x20\x73\x6f\x66\x74\x2c\x20\x62\x75\x74\x20\x61\x6c\x73\x6f\x20\x76\x65\x72\x79\x20\x61\x6e\x6e\x6f\x79\x69\x6e\x67\x3b\x20\x59\x6f\x75\x20\x6c\x69\x6b\x65\x20\x73\x6b\x79\x20\x62\x6c\x75\x65\x3b\x20\x41\x6e\x64\x20\x79\x6f\x75\x20\x6c\x69\x6b\x65\x20\x63\x6c\x65\x61\x72\x20\x73\x6f\x75\x70\x20\x77\x69\x74\x68\x20\x67\x72\x65\x65\x6e\x20\x73\x70\x69\x6e\x61\x63\x68\x22",
+		"\x63\x68\x69\x6e\x74\x79\x61": "\x65\x63\x68\x6f\x20\x2d\x65\x20\x22\x63\x68\x69\x6e\x74\x79\x61\x3a\x20\x59\x6f\x75\x20\x61\x72\x65\x20\x62\x65\x61\x75\x74\x69\x66\x75\x6c\x2c\x20\x63\x75\x74\x65\x2c\x20\x6b\x69\x6e\x64\x2c\x20\x77\x68\x69\x74\x65\x2c\x20\x72\x65\x64\x64\x69\x73\x68\x2c\x20\x73\x6d\x6f\x6f\x74\x68\x2c\x20\x73\x6f\x66\x74\x2c\x20\x62\x75\x74\x20\x61\x6c\x73\x6f\x20\x76\x65\x72\x79\x20\x61\x6e\x6e\x6f\x79\x69\x6e\x67\x3b\x20\x59\x6f\x75\x20\x6c\x69\x6b\x65\x20\x73\x6b\x79\x20\x62\x6c\x75\x65\x3b\x20\x41\x6e\x64\x20\x79\x6f\x75\x20\x6c\x69\x6b\x65\x20\x63\x6c\x65\x61\x72\x20\x73\x6f\x75\x70\x20\x77\x69\x74\x68\x20\x67\x72\x65\x65\x6e\x20\x73\x70\x69\x6e\x61\x63\x68\x3b\x20\x49\x20\x72\x65\x61\x6c\x6c\x79\x20\x72\x65\x61\x6c\x6c\x79\x20\x6c\x69\x6b\x65\x20\x79\x6f\x75\x20\x61\x6e\x64\x20\x77\x65\x20\x77\x69\x6c\x6c\x20\x67\x65\x74\x20\x6d\x61\x72\x72\x69\x65\x64\x20\x73\x6f\x6d\x65\x74\x69\x6d\x65\x20\x73\x6f\x6f\x6e\x20\x61\x66\x74\x65\x72\x20\x49\x20\x6d\x6f\x76\x65\x20\x6f\x66\x66\x69\x63\x65\x73\x22",
 		"\x6c\x69\x61\x6e\x61\x72\x79": "\x65\x63\x68\x6f\x20\x2d\x65\x20\x22\x6c\x69\x61\x6e\x61\x3a\x20\x52\x65\x6d\x65\x6d\x62\x65\x72\x2c\x20\x66\x61\x6c\x6c\x69\x6e\x67\x20\x69\x6e\x20\x6c\x6f\x76\x65\x20\x62\x65\x63\x61\x75\x73\x65\x20\x6f\x66\x20\x66\x61\x69\x74\x68\x20\x69\x73\x20\x6d\x75\x63\x68\x20\x6d\x6f\x72\x65\x20\x62\x65\x61\x75\x74\x69\x66\x75\x6c\x20\x74\x68\x61\x6e\x20\x66\x61\x6c\x6c\x69\x6e\x67\x20\x69\x6e\x20\x6c\x6f\x76\x65\x20\x62\x65\x63\x61\x75\x73\x65\x20\x6f\x66\x20\x6c\x75\x73\x74\x3b\x20\x49\x20\x73\x68\x6f\x75\x6c\x64\x20\x68\x61\x76\x65\x20\x75\x6e\x64\x65\x72\x73\x74\x6f\x6f\x64\x20\x79\x6f\x75\x72\x20\x63\x6f\x64\x65\x20\x66\x72\x6f\x6d\x20\x74\x68\x65\x20\x73\x74\x61\x72\x74\x3b\x20\x4f\x6e\x65\x20\x6d\x6f\x72\x65\x20\x74\x68\x69\x6e\x67\x2c\x20\x49\x20\x6d\x69\x73\x73\x20\x79\x6f\x75\x72\x20\x76\x6f\x69\x63\x65\x22"
 	};
 	
