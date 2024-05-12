@@ -344,7 +344,7 @@ export default {
 						while( stdin.substring( terminatorBeginEscapedIndex-1, terminatorBeginEscapedIndex ) === "\\" ) {
 							terminatorBeginEscapedLength++;
 							terminatorBeginEscapedIndex--;
-						}
+						}x
 						if( terminatorBeginEscapedLength !== 1 ) {
 							if( terminatorBeginEscapedLength % 2 !== 0 ) {
 								console.log( "backslash: " + "\\".repeat( terminatorBeginEscapedLength ) );
