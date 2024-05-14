@@ -1,5 +1,13 @@
 
-// 720 Hours wasted here!
+/*
+ * 
+ * Not all implemented here, you can see this complex official documentation,
+ * I'm very tired working this, 720 hours wasted here, thankyou! I love Linux :)
+ * 
+ * @see subtitution parameter
+ *  https://www.gnu.org/software/bash/manual/html_node/Shell-Parameter-Expansion.html
+ * 
+ */
 
 // Import Shlex
 import { split as ShlexSplit, quote } from "shlex"
@@ -111,11 +119,67 @@ export default {
 						begin: "${",
 						end: "}"
 					},
-					handler: function( self, expansion ) { /** https://www.gnu.org/software/bash/manual/html_node/Shell-Parameter-Expansion.html */
+					handler: function( self, expansion ) {
 						if( Value.isNotEmpty( expansion ) ) {
-							var pattern = /^(?<prefix>\!|\#)?(?<name>(?:[a-zA-Z0-9]+|\?|\@))(?:(?:\-(?<unsetOrNull>unset))|(?:\:\=(?<unsetOrNullAndSet>[^\n]+))|(?:\:\?(?<unsetOrNullAndErrorWhenUnset>[^\n]+))|(?:\:\+(?<definedAndNotNull>[^\n]+))|(?<substringExpansion>(?<array>\[(?:(?<count>\#)|(?<join>\@)|(?<index>[0-9]+)|(?<keyset>[a-zA-Z0-9]+))\])))?$/i;
-							console.log( pattern.exec( expansion ) );
-							return expansion;
+							var keysets = [
+								"unsetOrNull",
+								"unsetOrNullAndSet",
+								"unsetOrNullAndErrorWhenUnset",
+								"definedAndNotNull",
+								"substringExpansion"
+							];
+							var pattern = /^(?<prefix>\!|\#)?(?<name>(?:[a-zA-Z0-9]+|\?|\@))(?:(?:\-(?<unsetOrNull>[^\n]+))|(?:\:\=(?<unsetOrNullAndSet>[^\n]+))|(?:\:\?(?<unsetOrNullAndErrorWhenUnset>[^\n]+))|(?:\:\+(?<definedAndNotNull>[^\n]+))|(?<substringExpansion>(?<array>\[(?:(?<count>\#)|(?<join>\@)|(?<index>[0-9]+)|(?<keyset>[a-zA-Z0-9]+))\])))?$/i;
+							var matches = pattern.exec( expansion );
+							if( Value.isNotEmpty( matches ) || Value.isNotEmpty( matches.groups.name ) ) {
+								var variable = matches.groups.name;
+								var variablePrefix = matches.groups.prefix;
+								var variableValue = self.patterns.tokenizer.variable.handler( self, variable );
+								var variableValueMod = variableValue;
+								for( let keyset of keysets ) {
+									if( Value.isNotEmpty( matches.groups[keyset] ) ) {
+										switch( keyset ) {
+											case "unsetOrNull":
+												if( variableValue === null ) {
+													variableValueMod = matches.groups[keyset];
+												}
+												else if( variablePrefix === "\x21" ) {
+													throw new SyntaxError( Fmt( "{}: invalid indirect expansion", variable ) );
+												}
+												break;
+											case "unsetOrNullAndSet":
+												if( variableValue === null ) {
+													variableValueMod = matches.groups[keyset];
+													self.$vars[variable] = variableValueMod;
+												}
+												else if( variablePrefix === "\x21" ) {
+													throw new SyntaxError( Fmt( "{}: invalid indirect expansion", variable ) );
+												}
+												break;
+											case "unsetOrNullAndErrorWhenUnset":
+												break;
+											case "definedAndNotNull":
+												break;
+											case "substringExpansion":
+												break;
+										}
+									}
+								}
+								if( Value.isNotEmpty( variablePrefix ) ) {
+									if( variablePrefix === "\x21" ) {
+										if( variableValue === variableValueMod ) {
+											return "";
+										}
+									}
+									if( variablePrefix === "\x23" ) {
+										if( variableValue !== variableValueMod ) {
+											variableValue = variableValueMod;
+										}
+										return new String( variableValue ?? "" ).length;
+									}
+								}
+								return variableValue;
+							}
+							throw new SyntaxError( "Bad subtitution" );
 						}
 						return "";
 					}
@@ -173,8 +237,7 @@ export default {
 								return self.$envs[variable];
 							}
 						}
-						console.log( "variable: " + variable );
-						return "";
+						return null;
 					}
 				}
 			},
@@ -502,6 +565,9 @@ export default {
 						}
 						for( let parameters of terminatorParameters.reverse() ) {
 							terminatorResultExecution = handler( [ parameters[0], terminatorResultExecution ?? "", parameters[1] ?? "" ].join( "" ) );
+							if( Type( terminatorResultExecution, [ "Null", "Undefined" ] ) ) {
+								terminatorResultExecution = "";
+							}
 						}
 						console.log( "terminator-end-length: " + terminatorEndLength );
 						console.log( "parameters: " + JSON.stringify( terminatorParameters, null, 4 ) );
@@ -510,14 +576,15 @@ export default {
 							throw new SyntaxError( Fmt( "Unterminated {0}, missing '{2}' after {1}", token.name, token.group, terminatorEnd ) );
 						}
 						position = terminatorEndPost
+						results+= terminatorResultExecution ?? "";
 					}
 					else {
-						terminatorExplodedParts.push( terminatorExploded.substring( 0, terminatorBeginIndexPrev ) );
+						results+= handler( terminatorExploded.substring( 0, terminatorBeginIndexPrev ) ) ?? "";
 					}
 					// ....
 				}
 				else {
-					results+= handler( terminatorExploded );
+					results+= handler( terminatorExploded ) ?? "";
 				}
 				console.log( "terminator-exploded-parts: " + JSON.stringify( terminatorExplodedParts, null, 4 ) );
 				position+= terminatorEnd.length;
