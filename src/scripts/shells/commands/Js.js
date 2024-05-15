@@ -128,9 +128,10 @@ export default {
 								"definedAndNotNull",
 								"substringExpansion"
 							];
-							var pattern = /^(?<prefix>\!|\#)?(?<name>(?:[a-zA-Z0-9]+|\?|\@))(?:(?:\-(?<unsetOrNull>[^\n]+))|(?:\:\=(?<unsetOrNullAndSet>[^\n]+))|(?:\:\?(?<unsetOrNullAndErrorWhenUnset>[^\n]+))|(?:\:\+(?<definedAndNotNull>[^\n]+))|(?<substringExpansion>(?<array>\[(?:(?<count>\#)|(?<join>\@)|(?<index>[0-9]+)|(?<keyset>[a-zA-Z0-9]+))\])))?$/i;
+							var pattern = /^(?<prefix>\!|\#)?(?<name>(?:[a-zA-Z0-9_]+)|(?:\?|\@))(?:(?:\-(?<unsetOrNull>[^\n]+))|(?:\:\=(?<unsetOrNullAndSet>[^\n]+))|(?:\:\?(?<unsetOrNullAndErrorWhenUnset>[^\n]+))|(?:\:\+(?<definedAndNotNull>[^\n]+))|(?<substringExpansion>(?:\[(?<array>[^\n]+)\])?(?:\:(?<substring>[0-9]+))?))$/i;
 							var matches = pattern.exec( expansion );
-							if( Value.isNotEmpty( matches ) || Value.isNotEmpty( matches.groups.name ) ) {
+							console.log( matches );
+							if( Type( matches, Array ) && Value.isNotEmpty( matches.groups.name ) ) {
 								var variable = matches.groups.name;
 								var variablePrefix = matches.groups.prefix;
 								var variableValue = self.patterns.tokenizer.variable.handler( self, variable );
@@ -148,8 +149,7 @@ export default {
 												break;
 											case "unsetOrNullAndSet":
 												if( variableValue === null ) {
-													variableValueMod = matches.groups[keyset];
-													self.$vars[variable] = variableValueMod;
+													self.$vars[variable] = matches.groups[keyset];
 												}
 												else if( variablePrefix === "\x21" ) {
 													throw new SyntaxError( Fmt( "{}: invalid indirect expansion", variable ) );
