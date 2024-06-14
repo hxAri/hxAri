@@ -1,65 +1,61 @@
 
 // Import Scripts.
+import { registerRuntimeCompiler } from "vue";
 import Callable from "/src/scripts/types/Callable.js";
 
 /*
  * Get value type.
  *
  * @params Mixed argv
- * @params Function type
+ * @params Function|Array<Function> type
+ *  The array of function identified if value type is optional
  * @params Function handler
  * @params Function catcher
  *
  * @return Mixed
  */
-export default function Type( argv, type, handler, catcher )
-{
-	// Get name type of type.
+export default function Type( argv, type, handler, catcher ) {
+	
+	// // Get name type of type.
 	var typeName = typeof type;
+	var typeObjectName = Object.prototype.toString.call( type ).replace( /\[object\s*(.*?)\]/, `$1` );
 	
-	// Get name type of argument value.
-	var argvName = typeof argv === "function" ? ( argv.name !== "" ? argv.name : "Window" ) : Object.prototype.toString.call( argv ).replace( /\[object\s*(.*?)\]/, `$1` );
+	// // Get name type of argument value.
+	var argvTypeName = typeof argv === "function" ? ( argv.name !== "" ? argv.name : "Window" ) : Object.prototype.toString.call( argv ).replace( /\[object\s*(.*?)\]/, `$1` );
 	
-	// Callbacks.
-	var callbackHandler = () => typeof handler === "function" ? handler() : true;
-	var callbackCatcher = () => typeof catcher === "function" ? catcher() : false;
+	// // Callbacks.
+	var callbackHandler = () => typeof handler === "function" ? handler( argv, type ) : true;
+	var callbackCatcher = () => typeof catcher === "function" ? catcher( argv, type ) : false;
 	
-	// If `type` is Function type.
-	if( typeName === "function" )
-	{
-		// Get function name.
-		var funcName = type.name !== "" ? type.name : "Window";
-		
-		// If `argv` is equal Function name.
-		return( Callable( argvName === funcName ? callbackHandler : callbackCatcher, argv ) );
-	}
-	
-	// If `type` is Object type.
-	else if( typeName === "object" )
-	{
-		// Get object name.
-		var objName = Object.prototype.toString.call( type ).replace( /\[object\s*(.*?)\]/, `$1` );
-		
-		// If object type is Array.
-		if( objName === "Array" )
-		{
-			for( let i in type )
-			{
-				// If `argv` is equals `type[i]`.
-				if( Type( argv, type[i] ) )
-				{
-					return( Callable( callbackHandler, argv ) );
+	if( typeName !== "undefined" ) {
+		if( typeName === "function" ) {
+			var functionTypeName = type.name;
+				functionTypeName = functionTypeName === "" ? "Window" : functionTypeName;
+			if( functionTypeName === argvTypeName ) {
+				return callbackHandler();
+			}
+			return callbackCatcher();
+		}
+		if( typeName === "object" ) {
+			if( typeObjectName === "Array" ) {
+				for( let i in type ) {
+					if( Type( argv, type[i] ) ) {
+						return callbackHandler();
+					}
 				}
+				return callbackCatcher();
+			}
+			if( typeObjectName === argvTypeName ) {
+				return callbackHandler();
+			}
+			return callbackCatcher();
+		}
+		if( typeName === "string" ) {
+			if( type === argvTypeName ) {
+				return callbackHandler();
 			}
 		}
-		return( Callable( argvName === objName ? callbackHandler : callbackCatcher, argv ) );
+		return callbackCatcher()
 	}
-	
-	// If `object` is String type.
-	else if( typeName === "string" )
-	{
-		// If `argv` is equal String value.
-		return( Callable( argvName === type ? callbackHandler : callbackCatcher, argv ) );
-	}
-	return( argvName );
+	return argvTypeName;
 };
