@@ -6,6 +6,7 @@
 	// Import Scripts
 	import Choice from "/src/scripts/Choice.js";
 	import Fmt from "/src/scripts/Fmt.js";
+	import Image from "/src/scripts/Image.js";
 	import Mapper from "/src/scripts/Mapper.js";
 	import Request from "/src/scripts/Request.js";
 	import Type from "/src/scripts/Type.js";
@@ -81,8 +82,7 @@
 		computed: mapState([
 			"configs"
 		]),
-		created: function()
-		{
+		created: function() {
 			this.detail = [
 				{
 					icon: [ "bx", "bxs-map" ],
@@ -113,62 +113,59 @@
 		},
 		methods: {
 			
-			/*
+			/**
 			 * Enable all form inputs.
 			 *
 			 * @params Boolean allow
 			 *
 			 * @return Void
 			 */
-			allow: function( allow )
-			{
-				for( let i in this.models )
-				{
+			allow: function( allow ) {
+				for( let i in this.models ) {
 					this.$refs[this.models[i].name].disabled = allow;
 				}
 			},
 			
-			/*
+			/**
 			 * Return randomize background image.
 			 *
 			 * @return Object
 			 *  Ovject style of background image
 			 */
-			choice: function()
-			{
-				return({ backgroundImage: Fmt( "url({}/{})", this.configs.image.source, Choice( this.configs.image.images.animes ) ) });
+			choice: function() {
+				return {
+					backgroundImage: Fmt( "url({})", Image.search( this.configs.image, "anime", Choice( Object.keys( this.configs.image.images.anime ) ) ) )
+				};
 			},
 			
-			/*
+			/**
 			 * Reset all value of form inputs.
 			 *
 			 * @return Void
 			 */
-			reset: function()
-			{
-				for( let i in this.models )
-				{
+			reset: function() {
+				for( let i in this.models ) {
 					this.models[i].value = null;
 				}
 			},
 			
-			/*
+			/**
 			 * Handle form submit.
 			 *
 			 * @params Event e
 			 *
 			 * @return Promise
 			 */
-			submit: async function( e )
-			{
+			submit: async function( e ) {
+				
 				// Copy object instance.
 				var self = this;
 				
 				// Disable form event.
 				e.preventDefault();
 				
-				try
-				{
+				try {
+					
 					// Disable form inputs.
 					self.allow( false );
 					
@@ -176,17 +173,16 @@
 					self.sending = true;
 					
 					// Mapping models.
-					Mapper( self.models, function( i, model )
-					{
+					Mapper( self.models, function( i, model ) {
+						
 						// Reset model error.
 						model.error = false;
 						
 						// Check if value is not empty.
-						if( Value.isNotEmpty( model.value ) )
-						{
+						if( Value.isNotEmpty( model.value ) ) {
+							
 							// Check if model has regex.
-							if( Type( model.regex, RegExp ) && model.regex.test( model.value ) === false )
-							{
+							if( Type( model.regex, RegExp ) && model.regex.test( model.value ) === false ) {
 								model.error = true;
 								throw new Error( Fmt( "Invalid value for {}", model.label ) );
 							}
@@ -202,11 +198,10 @@
 					await Request( ...Object.values( self.request ) )
 						
 						// Handle email response.
-						.then( r =>
-						{
+						.then( r => {
+							
 							// Check if request is succesfull sent.
-							if( r.status === 200 )
-							{
+							if( r.status === 200 ) {
 								self.reset();
 								self.trigger = {
 									text: "Email has been sent successfully",
@@ -222,16 +217,14 @@
 						})
 						
 						// When something wrong.
-						.catch( e =>
-						{
+						.catch( e => {
 							self.trigger = {
 								text: Type( e, XMLHttpRequest, () => "No Internet Connection", () => e ),
 								type: "error"
 							};
 						});
 				}
-				catch( e )
-				{
+				catch( e ) {
 					self.trigger = {
 						text: e,
 						type: "error"

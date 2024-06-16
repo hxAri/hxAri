@@ -26,17 +26,15 @@
 		}),
 		watch: {
 			
-			/*
+			/**
 			 * Watch for handle when route has changed.
 			 *
 			 * @params String to,
 			 *
 			 * @return Void
 			 */
-			"$route.path": async function( to )
-			{
-				if( this.isDocument() )
-				{
+			"$route.path": async function( to ) {
+				if( this.isDocument() ) {
 					this.project = null;
 					this.document = null;
 					this.component = null;
@@ -54,15 +52,14 @@
 				"documents",
 			]),
 			
-			/*
+			/**
 			 * Component binding.
 			 *
 			 * @return Object
 			 *  Component object
 			 */
-			binding: function()
-			{
-				return({
+			binding: function() {
+				return {
 					data: () => ({
 						images: {},
 						project: this.project,
@@ -82,7 +79,7 @@
 					{},
 					methods: {
 						
-						/*
+						/**
 						 * Image url source formater.
 						 *
 						 * @params String source
@@ -97,16 +94,15 @@
 					template: Eremento.arrange(
 						this.component.template
 					)
-				});
+				};
 			}
 		},
-		created: async function()
-		{
+		created: async function() {
 			await this.request();
 		},
 		methods: {
 			
-			/*
+			/**
 			 * Find route component by current route path.
 			 *
 			 * @params Array routes
@@ -116,13 +112,11 @@
 			 * @return Object
 			 *  Object of component
 			 */
-			finder: function( routes, prefix = null )
-			{
+			finder: function( routes, prefix = null ) {
+				
 				// Check if routes is iterable.
-				if( Type( routes, Array ) )
-				{
-					for( let i in routes )
-					{
+				if( Type( routes, Array ) ) {
+					for( let i in routes ) {
 						var path = routes[i].path;
 						var route = routes[i];
 						
@@ -130,46 +124,42 @@
 						if( Type( prefix, String ) ) path = Fmt( "{}/{}", prefix, path.trim( "/" ) );
 						
 						// Check if current route is match.
-						if( this.$route.path.toLowerCase() === path.toLowerCase() ) return( route.component );
+						if( this.$route.path.toLowerCase() === path.toLowerCase() ) return route.component;
 						
 						// Check if current route has children.
-						if( Type( route.children, Array ) )
-						{
+						if( Type( route.children, Array ) ) {
 							var find = null;
 							
 							// If route found on children of current route iteration.
-							if( Type( find = this.finder( route.children, path ), Object ) )
-							{
+							if( Type( find = this.finder( route.children, path ), Object ) ) {
+								
 								// Return returns.
-								return( find );
+								return find;
 							}
 						}
 					}
 				}
 			},
 			
-			/*
+			/**
 			 * Return if current path is project documentation.
 			 *
 			 * @return Boolean
 			 */
-			isDocument: function()
-			{
-				return( Value.isNotEmpty( this.$route.params.project ) );
+			isDocument: function() {
+				return Value.isNotEmpty( this.$route.params.project );
 			},
 			
-			/*
+			/**
 			 * Get current project documentation.
 			 *
 			 * @return Promise
 			 */
-			request: async function()
-			{
+			request: async function() {
 				var name = this.$route.params.project.toLowerCase();
 				var project = null;
-				
-				for( let i in this.configs.projects )
-				{
+				for( let i in this.configs.projects ) {
+					
 					project = this.configs.projects[i];
 					
 					// Skip if project is not include.
@@ -177,8 +167,8 @@
 					
 					// If project name or project endpoint is equals with param.
 					if( name === project.name.toLowerCase() ||
-						name === project.endpoint.split( "/" ).pop().toLowerCase() )
-					{
+						name === project.endpoint.split( "/" ).pop().toLowerCase() ) {
+						
 						// Set current project.
 						this.project = project;
 						
@@ -189,8 +179,7 @@
 						if( Not( this.documents[project.endpoint], Object ) ) await this.$store.dispatch( "document", project );
 						
 						// If there are no error occured.
-						if( project.document_error === false )
-						{
+						if( project.document_error === false ) {
 							this.document = this.documents[project.endpoint];
 							this.component = this.finder( this.document.routes );
 						}

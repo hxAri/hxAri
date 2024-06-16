@@ -15,12 +15,15 @@
 				prompt: "",
 				before: ""
 			},
-			model: "",
-			model: "echo -e \"Hello World\"; cat <<- \"EOF\" >\ncontents\nEOF>>",
-			// model: "echo -e \"Hello World\"; cat <<- EOF > $source/$folder/root/.bash_profile contents\nEOF",
+			// model: "${x${y[${z}a]}b}",
+			// model: "echo list \\| grep metasploit | grep \"\\|$PWD\"",
+			model: "cookie -x",
+			// model: "${\"}\"\"}\"",
+			// model: "${\"}\"x",
+			// model: "cat <<- EOF > $source/$folder/root/.bash_profile contents\nEOF\n",
 			// model: "echo -e \"Hello World\"; cat <<- \"EOF\" > $source/$folder/root/.bash_profile\ncontents\nEOF",
 			// model: [
-				
+			
 			// 	"command",
 			// 	"position",
 			// 	"-o",
@@ -140,14 +143,76 @@
 				handler: function() {
 					document.title = "hxAri · Terminal";
 				}
+			},
+			"$route.path": function( to, from ) {
+				if( this.terminal ) {
+					this.terminal.exports['PWD']['path'] = to
+					this.terminal.exports['PWD-OLD'] = from
+				}
 			}
 		},
-		computed: mapState([
-			"terminal"
-		]),
+		computed: {
+			...mapState([
+				"configs",
+				"profile",
+				"terminal"
+			])
+		},
 		created: function() {
 			this.terminal.binding = this;
 			this.terminal.router = this.$router;
+			var contacts = [];
+				contacts.push( Fmt( "\x1b[0;37m * Email          : \x1b[4;37m{}", this.configs.author.contact.email ?? this.profile.email ?? "hxari@proton.me" ) );
+			if( Type( this.configs.author.social.telegram, String ) ) {
+				contacts.push( Fmt( "\x1b[0;37m * Telegram       : \x1b[4;37m{}", this.configs.author.social.telegram ) );
+			}
+			var socials = [];
+			for( let social in this.configs.author.social ) {
+				if( [ "telegram" ].indexOf( social.toLowerCase() ) <= -1 ) {
+					socials.push( Fmt( "\x1b[0;37m * {}{}: \x1b[4;37m{}", social.charAt( 0 ).toUpperCase() + social.slice( 1 ), "\x20".repeat( 15 - social.length ), this.configs.author.social[social] ) );
+				}
+			}
+			var params = [
+				"\x20",
+				"\x1b[0;37mWelcome to Virtual Terminal!",
+				"\x20",
+				"\x1b[0;37mSocials           :",
+				"\x20",
+				...socials,
+				"\x20",
+				"\x1b[0;37mContact           :",
+				"\x20",
+				...contacts,
+				"\x20",
+				Fmt( "\x1b[0;37mReport issues at : \x1b[4;37m{}", this.configs.terminal.issues ),
+				"\x1b[0;37mType \x1b[1;38;5;32mhelp\x1b[0;40m \x1b[37mif you are confused",
+				"\x20"
+			];
+			if( this.isMobile( false ) ) {
+				this.terminal.banner = Fmt( this.terminal.banner.join( "\x0a" ), ...params );
+			}
+			else {
+				this.terminal.banner = Fmt(
+					[
+						...this.terminal.banner,
+						...params.slice( 0, params.length -2 ),
+						...[
+							"Please open this page in desktop/landscape mode"
+						],
+						...params.slice( params.length -2 )
+					].join( "\x0a" )
+				);
+			}
+			this.terminal.banner = this.terminal.banner.split( "\x0a" );
+			if( this.terminal.history.length >= 1 ) {
+				for( let i in this.terminal.history ) {
+					if( Type( this.terminal.history[i].typing, String ) && this.terminal.history[i].replaced === false ) {
+						
+						this.terminal.history[i].stdout = this.terminal.banner;
+						this.terminal.history[i].replaced = true;
+					}
+				}
+			}
 			try {
 				if( this.terminal.pwd() === "/" ) {
 					this.terminal.router.push( Fmt( "/terminal{}", this.terminal.exports.HOME ) );
@@ -157,7 +222,7 @@
 				}
 			}
 			catch( error ) {
-				this.terminal.history.push({ output: [ Fmt( "{}: {}", this.terminal.shell, error ) ] });
+				this.terminal.history.push({ stdout: [ Fmt( "{}: {}", this.terminal.shell, error ) ] });
 			}
 			this.endrange();
 		},
@@ -166,7 +231,7 @@
 		},
 		methods: {
 			
-			/*
+			/**
 			 * Set input text selection to end.
 			 *
 			 * @params InputEvent e
@@ -174,10 +239,7 @@
 			 * @return Void
 			 */
 			endrange: function( e ) {
-
-				// Resolve terminal prompt display.
-				this.label.prompt = this.terminal.loading === false ? this.terminal.prompt( this.terminal.exports.PS1 ) : null;
-
+				
 				if( Type( this.$refs.input, HTMLInputElement ) ) {
 					var codes = [ 37, 38, 39, 40 ];
 					var model = this.model;
@@ -213,7 +275,7 @@
 				}
 			},
 			
-			/*
+			/**
 			 * Execute input command.
 			 *
 			 * @params InputEvent e
@@ -227,9 +289,24 @@
 						.then( x => console.log( x ) )
 						.catch( e => console.error( e ) );
 				}
+				this.terminal.binding = this;
+				this.terminal.router = this.$router;
 			},
 			
-			/*
+			isMobile: function( optional ) {
+				const searchs = [
+					/Android/i,
+					/webOS/i,
+					/iPhone/i,
+					/iPad/i,
+					/iPod/i,
+					/BlackBerry/i,
+					/Windows Phone/i
+				];
+				return Type( optional, Boolean ) ? this.isMobile() === optional : searchs.some( device => navigator.userAgent.match( device ) );
+			},
+			
+			/**
 			 * Handle keyboard event.
 			 *
 			 * @params Event e
@@ -243,7 +320,7 @@
 				}
 			},
 			
-			/*
+			/**
 			 * Render Terminal command input and output.
 			 *
 			 * @return String
@@ -252,54 +329,60 @@
 				var self = this;
 					self.trigger();
 				
-				return(
+				// Mapping Terminal Histories.
+				return Mapper( self.terminal.history,
 					
-					// Mapping Terminal Histories.
-					Mapper( self.terminal.history,
+					/**
+					 * Handle history.
+					 *
+					 * @params Number i
+					 * @params Object history
+					 *
+					 * @return String
+					 */
+					function( i, history ) {
+						var stack = [];
 						
-						/*
-						 * Handle history.
-						 *
-						 * @params Number i
-						 * @params Object history
-						 *
-						 * @return String
-						 */
-						function( i, history ) {
-							var stack = [];
+						// Check if history has prompt.
+						if( Type( history.prompt, String ) ) {
 							
-							// Check if history has prompt.
-							if( Type( history.prompt, String ) ) {
-								
-								// Create opening tag.
-								stack.push( "<label class=\"terminal-line-prompt dp-block\">" );
-								
-								// Create terminal prompt.
-								stack.push( history.prompt );
-								
-								// Check if history has input commands.
-								if( Type( history.inputs, String ) ) {
-									stack.push( history.inputs.trim() );
-								}
-								stack.push( "</label>" );
-							}
+							// Create opening tag.
+							stack.push( "<label class=\"terminal-line-prompt dp-block\">" );
 							
-							// Check if history has multiple outputs.
-							if( Type( history.output, Array ) ) {
-								stack.push( ...Mapper( history.output, ( i, output ) => Fmt( "<label class=\"terminal-line-output dp-block\">{}</label>", self.terminal.format( `${output}`.replaceAll( /\<|\>/g, m => m === "<" ? "&lt" : "&gt" ) ) ) ) );
-							}
+							// Create terminal prompt.
+							stack.push( history.prompt );
 							
-							// Check if history has single outputs.
-							else if( Type( history.output, [ Number, String ] ) ) {
-								stack.push( Fmt( "<label class=\"terminal-line-output dp-block\">{}</label>", self.terminal.format( `${history.output}`.replaceAll( /\<|\>/g, m => m === "<" ? "&lt" : "&gt" ) ) ) );
+							// Check if history has input commands.
+							if( Type( history.inputs, String ) ) {
+								stack.push( history.inputs.trim() );
 							}
-							return( stack.join( "" ) );
+							stack.push( "</label>" );
 						}
-					).join( "" )
-				);
+						
+						if( Type( history.stderr, Array ) ) {
+							stack.push( ...Mapper( history.stderr, ( i, error ) => Fmt( "<label class=\"terminal-line-output dp-block\">{}</label>", self.terminal.format( `${error}`.replaceAll( /\<|\>/g, m => m === "<" ? "&lt" : "&gt" ) ) ) ) );
+						}
+						else if( Type( history.stderr, [ Number, String ] ) ) {
+							stack.push( Fmt( "<label class=\"terminal-line-output dp-block\">{}</label>", self.terminal.format( `${history.stderr}`.replaceAll( /\<|\>/g, m => m === "<" ? "&lt" : "&gt" ) ) ) );
+						}
+						
+						
+						// Check if history has multiple outputs.
+						if( Type( history.stdout, Array ) ) {
+							stack.push( ...Mapper( history.stdout, ( i, output ) => Fmt( "<label class=\"terminal-line-output dp-block\">{}</label>", self.terminal.format( `${output}`.replaceAll( /\<|\>/g, m => m === "<" ? "&lt" : "&gt" ) ) ) ) );
+						}
+						
+						// Check if history has single outputs.
+						else if( Type( history.stdout, [ Number, String ] ) ) {
+							stack.push( Fmt( "<label class=\"terminal-line-output dp-block\">{}</label>", self.terminal.format( `${history.stdout}`.replaceAll( /\<|\>/g, m => m === "<" ? "&lt" : "&gt" ) ) ) );
+						}
+						
+						return stack.join( "" );
+					}
+				).join( "" );
 			},
 			
-			/*
+			/**
 			 * Trigger android soft keyboard.
 			 *
 			 * @params InputEvent e
@@ -313,6 +396,9 @@
 				catch( e ) {
 				}
 			}
+		},
+		beforeRouteLeave: function( to, from ) {
+			return true;
 		}
 	};
 	
@@ -324,7 +410,9 @@
 			<div class="terminal-output" @click="trigger">
 				<div class="terminal-line" v-html="onrender()"></div>
 				<div class="terminal-form" @click="trigger">
-					<label class="terminal-prompt" v-html="label.prompt"></label>
+					<label class="terminal-prompt" v-if="terminal.loading">
+					</label>
+					<label class="terminal-prompt" v-html="terminal.prompt( terminal.exports.PS1 )" v-else></label>
 					<label class="terminal-label" v-html="label.before"></label>
 					<label class="terminal-label" v-html="label.split" :style="{ backgroundColor: 'white', width: '9px', color: 'black' }"></label>
 					<label class="terminal-label" v-html="label.after"></label>
