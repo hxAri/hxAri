@@ -7,8 +7,7 @@
 		watch: {
 			title: {
 				immediate: true,
-				handler: function()
-				{
+				handler: function() {
 					document.title = "Page Not Found";
 				}
 			}

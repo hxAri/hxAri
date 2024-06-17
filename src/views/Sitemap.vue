@@ -30,46 +30,45 @@
 				"configs"
 			]),
 			
-			/*
+			/**
 			 * Return component binding.
 			 *
 			 * @return Object
 			 */
-			binding: function()
-			{
-				return({
+			binding: function() {
+				return {
 					template: Fmt( "<ul class=\"sitemap-ul\">{}</ul>", this.iterator( Routes ) )
-				});
+				};
 			}
 		},
 		methods: {
 			
-			/*
+			/**
 			 * Create object to arrange with Eremento.
 			 *
 			 * @params Array<Object|String> contents
 			 *
 			 * @return Array<Object>
 			 */
-			create: function( contents )
-			{
+			create: function( contents ) {
+				
 				var result = [];
 				
-				// Mapping contents.
-				for( let content of contents )
-				{
+				for( let content of contents ) {
+					
 					// If content has option.
-					if( Type( content, Object ) )
-					{
-						// If content is subtitle.
-						// Multiline contents does not
-						// Work with sub-title contents.
-						if( content.subtitle )
-						{
+					if( Type( content, Object ) ) {
+						
+						/**
+						 * If content is subtitle.
+						 * Multiline contents does not
+						 * Work with sub-title contents.
+						 */
+						if( content.subtitle ) {
 							result.push({
 								name: "p",
 								attributes: {
-									class: "sub-title mg-bottom-14 mg-lc-bottom",
+									class: "fs-16 fb-45 sub-title mg-bottom-10 mg-lc-bottom",
 									innerHTML: this.paragraph( String( content.contents ) )
 								}
 							});
@@ -77,8 +76,7 @@
 						}
 						
 						// Normalize if value is Not Array.
-						if( Not( content.contents, Array ) )
-						{
+						if( Not( content.contents, Array ) ) {
 							content.contents = [
 								String( content.contents )
 							];
@@ -98,18 +96,18 @@
 						});
 					}
 				}
-				return( result );
+				return result;
 			},
 			
-			/*
+			/**
 			 * Create sitemap lists.
 			 *
 			 * @params Array lists
 			 *
 			 * @return String
 			 */
-			iterator: function( routes )
-			{
+			iterator: function( routes ) {
+				
 				var self = this;
 				var stack = "";
 				var format = [
@@ -125,8 +123,8 @@
 				];
 				
 				// Mapping routes.
-				Mapper( routes, function( i, route )
-				{
+				Mapper( routes, function( i, route ) {
+					
 					// Check if route is not visible.
 					if( Type( route.visible, Boolean ) && route.visible === false ) return;
 					
@@ -138,12 +136,12 @@
 					
 					// Check if route has children paths.
 					// And if path is readable.
-					if( Type( route.children, Array ) && route.readable )
-					{
+					if( Type( route.children, Array ) && route.readable ) {
+						
 						// Mapping children routes.
 						stack += self.iterator( Mapper( route.children,
 							
-							/*
+							/**
 							 * Resolve children route.
 							 *
 							 * @params Number u
@@ -151,37 +149,36 @@
 							 *
 							 * @return Object
 							 */
-							function( u, child )
-							{
-								return({
+							function( u, child ) {
+								return {
 									path: Fmt( "{}/{}", route.path, child.path ),
 									name: child.name,
 									children: child.children,
 									component: child.component
-								});
+								};
 							}
 						))
 					}
 				});
-				return( stack );
+				return stack;
 			},
 			
-			/*
+			/**
 			 * HTML Paragraph replacer.
 			 *
 			 * @params String paragraph
 			 *
 			 * @return String
 			 */
-			paragraph: function( paragraph )
-			{
+			paragraph: function( paragraph ) {
+				
 				var regexp = /((?<bold>\*{1,2})|(?<underline>\b\_{1,2})|(?<italic>\~{1,2}))(?<value>[^\1]*)(\1)/gm;
 				var string = "";
 				var index = 0;
 				var match;
 				
-				while( ( match = regexp.exec( paragraph ) ) !== null )
-				{
+				while( ( match = regexp.exec( paragraph ) ) !== null ) {
+					
 					// Get regex group name.
 					var kind = Object.keys( match.groups ).find( group => Type( match.groups[group], String ) );
 						kind = kind === "bold" ? "fb-45" : `text-${kind}`;
@@ -193,22 +190,19 @@
 					string += value;
 					index = regexp.lastIndex;
 				}
-				return( string + paragraph.substring( index ) );
+				return string + paragraph.substring( index );
 			},
 			
-			/*
+			/**
 			 * Rendering element.
 			 *
 			 * @return String
 			 *  HTML Raw element
 			 */
-			render: function()
-			{
-				return(
-					Eremento.arrange(
-						this.create(
-							this.configs.routes.sitemap
-						)
+			render: function() {
+				return Eremento.arrange(
+					this.create(
+						this.configs.routes.sitemap
 					)
 				);
 			}

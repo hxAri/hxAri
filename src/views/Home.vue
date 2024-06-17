@@ -61,8 +61,7 @@
 		watch: {
 			title: {
 				immediate: true,
-				handler: function()
-				{
+				handler: function() {
 					document.title = "hxAri";
 				}
 			}
@@ -81,60 +80,54 @@
 				"hasOrganization"
 			])
 		},
-		created: async function()
-		{
+		created: async function() {
+			
 			// Send request if the request has not been sent,
 			// Or if something wrong when sending request.
 			if( this.hasConfig === false ||
 				this.hasProfile === false ||
-				this.error )
-			{
+				this.error ) {
+				
 				// Dispatch for priority targets.
 				await this.$store.dispatch( "priority" );
 			}
 			
 			// Send request if the organization doest not available.
 			if( this.hasOrganization === false &&
-				this.error === false )
-			{
+				this.error === false ) {
+				
 				// Dispatch for organization.
 				await this.$store.dispatch( "organization" );
 			}
 		},
 		methods: {
 			
-			/*
+			/**
 			 * Return if hash is active for tab.
 			 *
 			 * @params String hash
 			 *
 			 * @return Array|String
 			 */
-			active: function( hash )
-			{
-				// Check  if current route has hash.
-				if( Value.isNotEmpty( this.$route.hash ) )
-				{
-					return( this.$route.hash === hash ? [ "tab-single", "active" ] : "tab-single" );
+			active: function( hash ) {
+				if( Value.isNotEmpty( this.$route.hash ) ) {
+					return this.$route.hash === hash ? [ "tab-single", "active" ] : "tab-single";
 				}
-				return( hash === this.tabs[0].hash ? [ "tab-single", "active" ] : "tab-single" );
+				return hash === this.tabs[0].hash ? [ "tab-single", "active" ] : "tab-single";
 			},
 			
-			/*
+			/**
 			 * Return icon class for tab.
 			 *
 			 * @params Object tab
 			 *
 			 * @return Array
 			 */
-			iconic: function( tab )
-			{
-				// Check if current route hash is valid.
-				if( Type( this.active( tab.hash ), Array ) )
-				{
-					return([ "tab-icon", "mg-right-14", ...Type( tab.icon.active, Array, () => tab.icon.active, () => tab.icon.default ) ]);
+			iconic: function( tab ) {
+				if( Type( this.active( tab.hash ), Array ) ) {
+					return [ "tab-icon", "mg-right-14", ...Type( tab.icon.active, Array, () => tab.icon.active, () => tab.icon.default ) ];
 				}
-				return([ "tab-icon", "mg-right-14", ...tab.icon.default ]);
+				return [ "tab-icon", "mg-right-14", ...tab.icon.default ];
 			}
 		},
 		components: {
@@ -242,7 +235,8 @@
 				<div class="content-single pd-14" id="about" v-scroll-reveal="{ delay: 650 }">
 					<h2 class="title">
 						<RouterLink class="title flex flex-left" to="#about">
-							<i class="bx bxs-info-circle mg-right-14"></i>Abouts
+							<i class="bx bxs-info-circle mg-right-14"></i>
+							<span class="text-wrap">Abouts</span>
 						</RouterLink>
 					</h2>
 					<hr class="hr mg-top-14 mg-bottom-14" />
@@ -251,7 +245,8 @@
 				<div class="content-single pd-14" id="skill" v-scroll-reveal="{ delay: 650 }">
 					<h2 class="title">
 						<RouterLink class="title flex flex-left" to="#skill">
-							<i class="bx bxs-hot mg-right-14"></i>Skills
+							<i class="bx bxs-hot mg-right-14"></i>
+							<span class="text-wrap">Skills</span>
 						</RouterLink>
 					</h2>
 					<hr class="hr mg-top-14 mg-bottom-14" />
@@ -261,7 +256,8 @@
 				<div class="content-single pd-14" id="project" v-scroll-reveal="{ delay: 650 }">
 					<h2 class="title">
 						<RouterLink class="title flex flex-left" to="#project">
-							<i class="bx bxs-flag mg-right-14"></i>Projects
+							<i class="bx bxs-flag mg-right-14"></i>
+							<span class="text-wrap">Projects</span>
 						</RouterLink>
 					</h2>
 					<hr class="hr mg-top-14 mg-bottom-14" />
@@ -271,7 +267,8 @@
 				<div class="content-single pd-14" id="experience" v-scroll-reveal="{ delay: 650 }">
 					<h2 class="title">
 						<RouterLink class="title flex flex-left" to="#experience">
-							<i class="bx bxs-star mg-right-14"></i>Experiences
+							<i class="bx bxs-star mg-right-14"></i>
+							<span class="text-wrap">Experiences</span>
 						</RouterLink>
 					</h2>
 					<hr class="hr mg-top-14 mg-bottom-14" />
@@ -281,7 +278,8 @@
 				<div class="content-single pd-14" id="certificate" v-scroll-reveal="{ delay: 650 }">
 					<h2 class="title">
 						<RouterLink class="title flex flex-left" to="#certificate">
-							<i class="bx bx-check-double mg-right-14"></i>Certificates
+							<i class="bx bx-check-double mg-right-14"></i>
+							<span class="text-wrap">Certificates</span>
 						</RouterLink>
 					</h2>
 					<hr class="hr mg-top-14 mg-bottom-14" />
@@ -330,12 +328,28 @@
 			[data-theme="dark"] .banner-cover {
 				background: rgba(0,0,0,.2);
 			}
-	@media( max-width: 1080px ) {
+	@media( max-width: 1920px ) {
 		.banner {
-			height: 250px;
+			height: 420px;
 		}
 			.banner-album {
-				width: 100%;
+				width: 70%;
+			}
+	}
+	@media( max-width: 1080px ) {
+		.banner {
+			height: 400px;
+		}
+			.banner-album {
+				width: 70%;
+			}
+	}
+	@media( max-width: 850px ) {
+		.banner {
+			height: 292px;
+		}
+			.banner-album {
+				width: 72%;
 			}
 	}
 	@media( max-width: 750px ) {
@@ -462,6 +476,12 @@
 				.content-single:last-child {
 					border-bottom: 0;
 				}
+	@media( max-width: 850px ) {
+		.profile-avatar-wrapper {
+			width: 200px;
+			height: 200px;
+		}
+	}
 	@media( max-width: 750px ) {
 		.home {
 			display: block;
@@ -528,6 +548,11 @@
 						margin-bottom: 0;
 						border: 1px solid transparent;
 					}
+	}
+	@media( max-width: 150px ) {
+		.profile-common {
+			display: block;
+		}
 	}
 	.profile-about .hr,
 	.home-contents .hr {

@@ -14,7 +14,10 @@ import { split as ShlexSplit, quote } from "shlex"
 
 // Import Scripts
 import Author from "/src/scripts/Author.js";
+import Difference from "/src/scripts/Difference";
 import Fmt from "/src/scripts/Fmt.js";
+import Match from "/src/scripts/Match.js";
+import Mapper from "/src/scripts/Mapper.js";
 import Not from "/src/scripts/logics/Not.js"
 import Type from "/src/scripts/Type.js";
 import Value from "/src/scripts/logics/Value.js";
@@ -24,7 +27,10 @@ export default {
 	type: "binary",
 	data: {
 		patterns: {
-			argument: "(?<backslash>\\\\{0,})(?<search>(?<backticks>[\\`]{1})|(?:(?<doubleQuote>[\"]{1})|(?<singleQuote>[']{1}))|(?:\\$((?<arithmeticOperation>[\\(]{2})|(?<parameterExpansion>[\\{]{1})|(?<subtitutionExpansion>[\\(]{1})|(?<variable>[a-zA-Z_\\x7f-\\xff][a-zA-Z0-9_\\x7f-\\xff]*))|(?<bracket>\\()|(?<curlyBracket>\\[)))",
+			datetime: /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d{3})?Z)?$/,
+			numeric: /^-?\d+(\.\d+)?$/,
+			filename: "^(\\/?([^\\/\\\:\\*\\?\"<>\\|]+\\/)*[^\\/\\\:\*\\?\"<>\\|]+)$",
+			argument: "(?<backslash>\\\\{0,})(?<search>(?<backticks>[\\`]{1})|(?:(?<doubleQuote>[\"]{1})|(?<singleQuote>[']{1}))|(?:\\$((?<arithmeticOperation>[\\(]{2})|(?<parameterExpansion>[\\{]{1})|(?<subtitutionExpansion>[\\(]{1})|(?<variable>[a-zA-Z_\\x7f-\\xff][a-zA-Z0-9_\\x7f-\\xff]*))|(?<bracket>\\()|(?<curlyBracket>\\{))|(?<doubleSquareBracket>\\[{2})|(?<squareBracket>\\[))",
 			options: "gms",
 			tokenizer: {
 				arithmeticOperation: {
@@ -194,6 +200,7 @@ export default {
 					},
 					handler: function( self, quoted ) {
 						console.log( "double-quoted: " + quoted );
+						return Fmt( "\"{}\"", quoted );
 					}
 				},
 				singleQuote: {
@@ -217,7 +224,7 @@ export default {
 						end: ")"
 					},
 					handler: function( self, expansion ) {
-						console.log( "subtitution-expansion: " + expansion );
+						return self.$exec( expansion );
 					}
 				},
 				variable: {
@@ -282,6 +289,233 @@ export default {
 		}
 	},
 	methods: {
+		
+		/**
+		 * Parse argument value into object.
+		 *
+		 * @params Array argv
+		 *
+		 * @return Object
+		 */
+		argparse: function( argv ) {
+			
+			var args = {};
+			
+			// Check if argument value is Array.
+			if( Type( argv, Array ) ) {
+				
+				var post = 0;
+				var length = argv.length;
+				
+				// Copy argument values.
+				argv = [ ...argv ];
+				
+				// Remove filename from argument values.
+				delete argv[0];
+				
+				// Counting argument based on argument values length.
+				for( let i = 0; i < length; i++ ) {
+					
+					// Get argument value.
+					var arg = argv[i] ?? null;
+					
+					// Index number.
+					let idx = i +1;
+					
+					// Skip if argument value has unset.
+					if( arg === null ) continue;
+					
+					/*
+					 * Check if the option of the argument is
+					 * not an empty string enclosed in single
+					 * or double quotes.
+					 *
+					 */
+					if( Value.isNotEmpty( arg ) ) {
+						
+						// If argument value is long option.
+						if( arg.slice( 0, 2 ) === "--" ) {
+							
+							// Get position equal symbol position.
+							var index = arg.indexOf( "=" );
+							
+							// If argument has equal symbol.
+							if( index >= 0 ) {
+								var key = arg.slice( 2, index );
+								var val = arg.slice( index +2 );
+									val = Value.isNotEmpty( val ) ? val.trim() : null;
+							}
+							else {
+								
+								var key = arg.slice( 2 );
+								var val = argv[idx] ?? null;
+								
+								// If argument value is not enclosed empty string.
+								if( val !== null ) {
+
+									// If doesn't minus symbol.
+									if( idx < length && val.length !== 0 && val[0] !== "-" ) {
+										i++;
+									}
+									else {
+										
+										// If argument is not exists.
+										if( Type( args[key], [ "Null", "Undefined" ] ) ) val = true;
+									}
+								}
+								else {
+									
+									/*
+									 * Since empty values will still be added to
+									 * named options so that empty strings enclosed
+									 * by single or double quotes are not registered
+									 * again to the argument we unset them
+									 * from the $argv list.
+									 *
+									 */
+									delete argv[idx];
+								}
+							}
+							
+							/*
+							 * If the argument option is given like
+							 * this --= then it will not be considered.
+							 *
+							 */
+							if( Value.isNotEmpty( key ) ) {
+								args[key] = this.convert( val = val !== null ? val : true );
+							}
+							continue;
+						}
+						
+						// If argument value is short option.
+						else if( arg.slice( 0, 1 ) === "-" ) {
+
+							// If position 2 has equal symbol.
+							if( arg.slice( 2, 3 ) === "=" ) {
+								var key = arg.slice( 1, 2 );
+								var val = arg.slice( 3 );
+								
+								args[key] = this.convert( Value.isEmpty( val ) ? args[key] ?? true : val );
+							}
+							else {
+								
+								// Split arg like -xyz into Array.
+								var chars = arg.slice( 1 );
+									chars = chars.split( "" );
+								
+								// Mapping chars.
+								for( let u in chars ) {
+
+									// If option has value.
+									if( u >= 1 && chars[u] === "=" ) {
+										var key = chars[( u -1 )];
+										var val = arg.slice( arg.indexOf( "=" ) +1 );
+										
+										args[key] = this.convert( Value.isEmpty( val ) ? args[key] ?? true: val );
+										break;
+									}
+									args[chars[u]] = this.convert( args[chars[u]] ?? true );
+								}
+							}
+							continue;
+						}
+					}
+					args[post++] = this.convert( arg.trim() );
+				}
+			}
+			return args;
+		},
+		
+		/**
+		 * Convert the string to the appropriate data value.
+		 *
+		 * @params Mixed value
+		 *
+		 * @return Mixed
+		 */
+		convert: function( value ) {
+			if( Not( value, [ "Null", "Undefined" ] ) ) {
+				if( Type( value, String ) ) {
+					value = value.trim();
+					try {
+						if( [ "true", "false" ].indexOf( value ) >= 0 ) {
+							return value === "true"
+						};
+						if( this.patterns.numeric.test( value ) ) {
+							return parseFloat( value )
+						};
+						if( value.startsWith( "{" ) &&
+							value.endsWith( "}" ) ) {
+							return JSON.parse( value );
+						}
+						if( this.patterns.datetime.test( value ) ) {
+							return new Date( value );
+						}
+					}
+					catch( error ) {
+					}
+				}
+				return value;
+			}
+			return null;
+		},
+		
+		/**
+		 * Execute raw string javascript.
+		 *
+		 * @params String raw
+		 *
+		 * @return Object
+		 */
+		execute: function( argv ) {
+			var stdout = [];
+			for( let i in argv ) {
+				var argc = [
+					"const func = new Function( \"",
+						"this.root = arguments[0];",
+						"this.name = arguments[1];",
+						"this.envs = arguments[2];",
+						"this.vars = arguments[3];",
+						"this.func = new Function( \\\"",
+							"const root = this.root;",
+							"const envs = this.envs;",
+							"const name = this.name;",
+							"const vars = this.vars;",
+							"{}",
+						"\\\" );",
+						"this.func.bind( this );",
+						"return this.func();",
+					"\");",
+					"return func( ...arguments );"
+				];
+				if( argv[i].match( /^\/\/[^\n]*$/ ) ) {
+					throw new SyntaxError( "Un-Terminate comment" );
+				}
+				var func = Fmt( argc.join( "" ), argv[i].startsWith( "return" ) ? argv : Fmt( "return {};", argv[i] ) );
+					func = new Function( func );
+					func = func( this.$root, this.$name, this.$envs, this.$vars );
+				if( Not( func, "Undefined" ) ) {
+					stdout.push( `${func}`.split( "\n" ) );
+				}
+			}
+			return {
+				stdin: null,
+				stderr: null,
+				stdout: stdout,
+				prompt: null
+			};
+		},
+		
+		/**
+		 * Escaped character matcher.
+		 * 
+		 * @params String content
+		 * @params Object terminator
+		 * @params Number start
+		 * 
+		 * @return String
+		 */
 		matcher: function( content, terminator, start ) {
 			var i = 0;
 			var results = null;
@@ -325,6 +559,64 @@ export default {
 			}
 			return results;
 		},
+		
+		/**
+		 * Parameter builder for program/command.
+		 *
+		 * @params Object command
+		 * @params Object argparse
+		 *
+		 * @return Object
+		 */
+		params: function( command, argparse ) {
+			var params = {};
+			var keysets = [];
+			if( Type( command.options, Object ) ) {
+				Mapper( command.options, function( i, name, option ) {
+					keysets.push( name );
+					if( Not( argparse[name], "Undefined" ) ) {
+						params[name] = argparse[name];
+					}
+					if( Type( option.alias, String ) ) {
+						keysets.push( option.alias );
+						if ( Not( argparse[option.alias], "Undefined" ) ) {
+							params[name] = argparse[option.alias];
+						}
+					}
+					else {
+						if( option.require === true ) {
+							throw Fmt( "{}: {}: option required", command.name, name );
+						}
+					}
+					if( Not( params[name], "Undefined" ) &&
+						Not( option.type, "Undefined" ) ) {
+						if( Not( params[name], option.type ) ) {
+							throw Fmt( "{}: {}: option must be type {}, {} given", command.name, name, option.type.name, Type( params[name] ) );
+						}
+					}
+				});
+			}
+			var differences = [];
+			var argumentKeysets = Object.keys( argparse );
+			for( let index in argumentKeysets ) {
+				if( `${index}` !== argumentKeysets[index] ) {
+					differences.push( argumentKeysets[index] );
+				}
+			}
+			var difference = Difference( differences, keysets );
+			if( Value.isEmpty( difference ) ) {
+				return params;
+			}
+			throw new Error( Fmt( "{0}: {2}{1}: option or flag doest not exists", command.name, difference[0], "\x2d".repeat( difference[0].length >= 2 ? 2 : 1 ) ) );
+		},
+		
+		/**
+		 * Command line argument parser
+		 * 
+		 * @params String stdin
+		 * 
+		 * @return String
+		 */
 		parser: function( stdin ) {
 			var self = this;
 			var tokenizer = this.patterns.tokenizer;
@@ -592,14 +884,160 @@ export default {
 				console.log( "position: " + position );
 			}
 			return results + stdin.substring( position );
+		},
+		
+		/**
+		 * Command line argument spliter.
+		 * 
+		 * @params String stdin
+		 * 
+		 * @return Array<String> 
+		 */
+		split: function( stdin ) {
+			var results = [];
+			let current = "";
+			let insideSingleQuotes = false;
+			let insideDoubleQuotes = false;
+			let escapeNext = false;
+			for( let i=0; i<stdin.length; i++ ) {
+				const char = stdin[i];
+				if( escapeNext ) {
+					current+= char;
+					escapeNext = false;
+				}
+				else if( char === "\\" ) {
+					current+= char;
+					escapeNext = true;
+				}
+				else if( char === "\"" && !insideSingleQuotes ) {
+					current+= char;
+					insideDoubleQuotes = !insideDoubleQuotes;
+				}
+				else if( char === "'" && !insideDoubleQuotes ) {
+					current += char;
+					insideSingleQuotes = !insideSingleQuotes;
+				}
+				else if( char === "|" && !insideSingleQuotes && !insideDoubleQuotes ) {
+					if( results.length >= 1 ) {
+						results.push( "|" );
+					}
+					results.push( current.trim() );
+					current = "";
+				}
+				else {
+					current+= char;
+				}
+			}
+			if( results.length >= 1 ) {
+				results.push( "|" );
+			}
+			return Value.isNotEmpty( current ) ? [ ...results, current.trim() ] : results;
 		}
 	},
 	mounted: function({ argument } = {}) {
-		const results = [];
+		if( this.$root.built.js !== this ) {
+			this.$root.built.js = this;
+		}
+		var results = [];
 		try {
+			if( Value.isNotEmpty( argument.length ) ) {
+				var self = this;
+				var pattern = new RegExp( this.patterns.filename );
+				var splited = this.split( argument );
+					splited = splited.map( part => {
+						var parts = part.split( "\x20" );
+						var alias = parts[0];
+						if( Value.isNotEmpty( self.$name[alias] ) ) {
+							return self.parser( [ self.$name[alias], parts.slice( 1 ).join( "\x20" ) ].join( "\x20" ) );
+						}
+						return self.parser( part );
+					});
+				Mapper( splited, function( position ) {
+					if( Value.isEmpty( arguments[1] ) ) {
+						return;
+					}
+					var exploded = arguments[1];
+					var argvalue = ShlexSplit( exploded );
+					if( argvalue.length >= 1 ) {
+						var name = null;
+						for( let i in argvalue ) {
+							if( Value.isEmpty( argvalue[i] ) ) {
+								continue;
+							}
+							name = argvalue[i];
+							argvalue = argvalue.slice( i );
+							break;
+						}
+						if( Value.isNotEmpty( name ) ) {
+							var argparse = self.argparse( argvalue );
+							Match( name, [
+								{
+									case: "\x7c",
+									call: () => {
+										if( exploded.length === 1 && results.length === 0 || position === splited.length ) {
+											throw new SyntaxError( "syntax error near unexpected token '|'" );
+										}
+										var execution = results.pop();
+										// passed as buffer here!
+									}
+								},
+								{
+									case: "js",
+									call: () => {
+										results.push( argparse.help ? self.$help() : self.execute( argvalue.slice( 1 ) ) );
+									}
+								},
+								{
+									case: name,
+									call: () => {
+										var command = self.$root.commands.find( command => command.name === name );
+										if( Not( command, Object ) ) {
+											throw new Error( Fmt( "{}: command not found", name ) );
+										}
+										if( self.$root.built[argvalue[0]] ) {
+											var built = self.$root.builder( [ command, self.$root.built[argvalue[0]] ], { argv: argvalue, args: argparse } );
+										}
+										else {
+											var built = self.$root.builder( command, { argv: argvalue, args: argparse } );
+										}
+										var execute = new built(
+											self.params( command, argparse )
+										);
+										if( Type( execute, Array ) ) {
+											results.push( ...execute );
+										}
+										else if( Type( execute, Object ) ) {
+											results.push( execute );
+										}
+										else {
+											self.$root.built[argvalue[0]] = execute;
+										}
+									}
+								}
+							]);
+						}
+					}
+				});
+			}
 		}
 		catch( e ) {
+			console.log( e );
+			results.push({
+				stdin: {
+					handler: e => {
+						return {
+							closed: Boolean,
+							prompt: String
+						};
+					}
+				},
+				stderr: Fmt( "js: {}", e.message ?? e ),
+				stdout: [
+				],
+				prompt: null //<= this must be normalized
+			});
 		}
-		return [ this.parser( argument ) ];
+		console.log( JSON.stringify( results, null, 4 ) );
+		return results;
 	}
 }
