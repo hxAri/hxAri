@@ -1,9 +1,6 @@
 
 <script>
 	
-	// Import Scripts
-	import Type from "/src/scripts/Type.js";
-	
 	export default {
 		data: () => ({
 			index: 0,
@@ -20,22 +17,21 @@
 				require: true
 			}
 		},
-		mounted: function()
-		{
+		mounted: function() {
 			this.typing();
 		},
 		methods: {
-
-			/*
+			
+			/**
 			 * Typing text.
 			 *
 			 * @return Void
 			 */
-			typing: function()
-			{
+			typing: function() {
+				
 				// Check if current index less than text length.
-				if( this.index <= this.text.length )
-				{
+				if( this.index <= this.text.length ) {
+					
 					// Substring text.
 					this.write = this.text.substring( 0, this.index++ );
 					
