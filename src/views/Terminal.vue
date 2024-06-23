@@ -12,59 +12,9 @@
 		data: () => ({
 			label: {
 				after: "",
-				prompt: "",
 				before: ""
 			},
-			// model: "${x${y[${z}a]}b}",
-			// model: "echo list \\| grep metasploit | grep \"\\|$PWD\"",
-			model: "cookie -x",
-			// model: "${\"}\"\"}\"",
-			// model: "${\"}\"x",
-			// model: "cat <<- EOF > $source/$folder/root/.bash_profile contents\nEOF\n",
-			// model: "echo -e \"Hello World\"; cat <<- \"EOF\" > $source/$folder/root/.bash_profile\ncontents\nEOF",
-			// model: [
-			
-			// 	"command",
-			// 	"position",
-			// 	"-o",
-			// 	"-o=V",
-			// 	"--optional",
-			// 	"--optional=V;",
-
-			// 	"${ENV}",
-			// 	"$ENVIRONMENT",
-
-			// 	"`backtick`",
-			// 	"`backtick $(subtitution ${expansion} ${parameter:0})`",
-
-			// 	"|",
-			// 	"grep",
-			// 	"search",
-
-			// 	"&&",
-			// 	"echo",
-			// 	"\"String\";",
-
-			// 	"var=value",
-			// 	"var=\\\"value\";",
-
-			// 	"cat < file-open;",
-			// 	"cat < file-open > file-save;",
-
-			// 	"cat > file-save << EOF\n  contents\nEOF",
-			// 	"cat > file-save <<- EOF\n  contents\nEOF",
-
-			// 	"cat << EOF contents EOF;",
-			// 	"cat << EOF\ncontents\nEOF;",
-			// 	"cat << \"EOF\" contents EOF;",
-			// 	"cat << EOF > file-save  contents\nEOF;",
-			// 	"cat <<- EOF > file-save\n  contents\nEOF;",
-
-			// 	"cat > file-open >> file-save;",
-			// 	"cat >> file-save >> EOF\n  contents\nEOF;",
-			// 	"cat >> file-save >>- EOF\n  contents\nEOF;"
-
-			// ].join( "\x20" ),
+			model: "",
 			shortcuts: [
 				{
 					name: "",
