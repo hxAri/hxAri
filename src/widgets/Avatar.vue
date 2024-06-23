@@ -79,27 +79,26 @@
 		},
 		computed: {
 			
-			/*
+			/**
 			 * Return component binding.
 			 *
 			 * @return Object
 			 */
-			binding: function()
-			{
-				return( this.building() );
+			binding: function() {
+				return this.building();
 			}
 		},
 		methods: {
 			
-			/*
+			/**
 			 * Avatar component builder.
 			 *
 			 * @params Object component
 			 *
 			 * @return Object
 			 */
-			building: function()
-			{
+			building: function() {
+				
 				// Copy object instance.
 				var self = this;
 				
@@ -139,15 +138,14 @@
 				};
 				
 				// Check if avatar has route.
-				if( Type( this.route, [ Object, String ] ) )
-				{
+				if( Type( this.route, [ Object, String ] ) ) {
+					
 					// Push component template.
 					component.template.unshift( "<RouterLink class=\"{ route }\" to=\"{ path }\">" );
 					component.template.push( "</RouterLink>" );
 					
 					// If route is Object type.
-					if( Type( this.route, Object ) )
-					{
+					if( Type( this.route, Object ) ) {
 						var path = this.route.path;
 							path = Type( path, String, () => path, () => "/" );
 						var query = this.route.query;
@@ -161,8 +159,7 @@
 				}
 				
 				// Check if avatar has link.
-				if( Type( this.link, [ Object, String ] ) )
-				{
+				if( Type( this.link, [ Object, String ] ) ) {
 					var target = this.target;
 					
 					// Push component template.
@@ -170,8 +167,7 @@
 					component.template.push( "</a>" );
 					
 					// If link is Object type.
-					if( Type( this.link, Object ) )
-					{
+					if( Type( this.link, Object ) ) {
 						var url = this.link.url;
 							url = Type( url, String, () => url, () => "" );
 						var query = this.link.query;
@@ -186,17 +182,16 @@
 				}
 				
 				// Check if avatar has injection attributes.
-				if( Type( this.attrs, Object ) )
-				{
+				if( Type( this.attrs, Object ) ) {
+					
 					// Mapping avatar attributes.
-					Mapper( this.attrs, function( i, attr, value )
-					{
+					Mapper( this.attrs, function( i, attr, value ) {
+						
 						// Check if class injection is available.
-						if( Type( values[attr], Array ) )
-						{
+						if( Type( values[attr], Array ) ) {
+							
 							// If class has more than one additional class.
-							if( Type( value, Array ) )
-							{
+							if( Type( value, Array ) ) {
 								values[attr] = [
 									...values[attr],
 									...value
@@ -210,12 +205,12 @@
 				}
 				
 				// Check if avatar has injection properties.
-				if( Type( this.inject, Object ) )
-				{
+				if( Type( this.inject, Object ) ) {
+					
 					// Mapping injections.
 					Mapper( this.inject,
 						
-						/*
+						/**
 						 * Handle component injection.
 						 *
 						 * @params Int i
@@ -224,11 +219,8 @@
 						 *
 						 * @return Void
 						 */
-						function( i, key, val )
-						{
-							if( key === "slot" ||
-								key === "template" )
-							{
+						function( i, key, val ) {
+							if( key === "slot" || key === "template" ) {
 								values.slot = Callable( val );
 								values.slot = Type( values.slot, Array, () => values.slot.join( "" ), () => values.slot );
 							}
@@ -242,7 +234,7 @@
 				// Mapping for resolve class names.
 				new Mapper( values,
 					
-					/*
+					/**
 					 * Handle value mapping.
 					 *
 					 * @params Int i
@@ -251,10 +243,8 @@
 					 *
 					 * @return Void
 					 */
-					function( i, key, value )
-					{
-						if( Type( value, Array ) )
-						{
+					function( i, key, value ) {
+						if( Type( value, Array ) ) {
 							values[key] = value.join( "\x20" );
 						}
 					}
@@ -273,7 +263,7 @@
 				component.template = Fmt( component.template.join( "" ), values );
 				
 				// Return Component Object.
-				return( component );
+				return component;
 			}
 		},
 		template: "<template v-bind:is=\"binding\"></template>"

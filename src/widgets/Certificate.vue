@@ -28,7 +28,7 @@
 		},
 		methods: {
 			
-			/*
+			/**
 			 * Return new Datime instance.
 			 *
 			 * @params Number|String datetime
@@ -37,80 +37,62 @@
 			 */
 			 datetime: datetime => new Datime( datetime ),
 			
-			/*
+			/**
 			 * HTML Paragraph replacer.
 			 *
 			 * @params String paragraph
-			 * @params Boolean<False>|Number
 			 *
 			 * @return String
 			 */
-			paragraph: function( paragraph, shortable = false )
-			{
+			 paragraph: function( paragraph ) {
+				
+				var regexp = /((?<bold>\*{1,2})|(?<underline>\b\_{1,2})|(?<italic>\~{1,2}))(?<value>[^\1]*)(\1)/gm;
 				var string = "";
 				var index = 0;
 				var match;
 				
-				if( shortable )
-				{
-					var regexp = /(\*{1,2}|\_{1,2}|\~)(?<value>[^\1]*)(\1)/gm;
+				while( ( match = regexp.exec( paragraph ) ) !== null ) {
 					
-					while( ( match = regexp.exec( paragraph ) ) !== null )
-					{
-						string += paragraph.substring( index, regexp.lastIndex - match[0].length );
-						string += match.groups.value;
-						index = regexp.lastIndex;
-					}
-					return( this.shorttext( string + paragraph.substring( index ), shortable ) );
-				}
-				else {
-					var regexp = /((?<bold>\*{1,2})|(?<underline>\b\_{1,2})|(?<italic>\~{1,2}))(?<value>[^\1]*)(\1)/gm;
+					// Get regex group name.
+					var kind = Object.keys( match.groups ).find( group => Type( match.groups[group], String ) );
+						kind = kind === "bold" ? "fb-45" : `text-${kind}`;
 					
-					while( ( match = regexp.exec( paragraph ) ) !== null )
-					{
-						// Get regex group name.
-						var kind = Object.keys( match.groups ).find( group => Type( match.groups[group], String ) );
-							kind = kind === "bold" ? "fb-45" : `text-${kind}`;
-						
-						// Format captured character.
-						var value = `<span class="${kind}">${match.groups.value}</span>`;
-						
-						string += paragraph.substring( index, regexp.lastIndex - match[0].length );
-						string += value;
-						index = regexp.lastIndex;
-					}
-					return( string + paragraph.substring( index ) );
+					// Format captured character.
+					var value = `<span class="${kind}">${match.groups.value}</span>`;
+					
+					string += paragraph.substring( index, regexp.lastIndex - match[0].length );
+					string += value;
+					index = regexp.lastIndex;
 				}
+				return string + paragraph.substring( index );
 			},
 			
-			/*
+			/**
 			 * @inherit Shorttext
 			 *
 			 */
 			shorttext: ( strings, length ) => Shorttext( strings, length ),
 			
-			/*
+			/**
 			 * Return formated url for certificate origin source.
 			 *
 			 * @params String target
 			 *
 			 * @return String
 			 */
-			source: function( target )
-			{
-				return( Fmt( "{}/{}", this.configs.certificate.source.origin, target ) );
+			source: function( target ) {
+				return Fmt( "{}/{}", this.configs.certificate.source.origin, target );
 			},
 			
-			/*
-			 * Return formated url for certificate tumbnail.
+			/**
+			 * Return formated url for certificate thumbnail.
 			 *
 			 * @params String target
 			 *
 			 * @return String
 			 */
-			tumbnail: function( target )
-			{
-				return( Fmt( "{}/{}", this.configs.certificate.source.tumbnail, target ) );
+			thumbnail: function( target ) {
+				return Fmt( "{}/{}", this.configs.certificate.source.thumbnail, target );
 			}
 		}
 	};
@@ -128,7 +110,7 @@
 							<div class="certificate-modal-single pd-14">
 								<div class="certificate-modal-avatar-fixed flex flex-center mg-bottom-14">
 									<div class="certificate-modal-avatar-wrapper avatar-wrapper rd-square">
-										<img class="avatar-image lazy" :data-src="tumbnail( preview.tumbnail )" :alt="preview.title" title="Certificate Preview Image" v-lazyload />
+										<img class="avatar-image lazy" :data-src="thumbnail( preview.thumbnail )" :alt="preview.title" title="Certificate Preview Image" v-lazyload />
 										<div class="avatar-cover"></div>
 									</div>
 								</div>
@@ -145,7 +127,7 @@
 									</p>
 								</div>
 								<div class="text mg-bottom cert">
-									<a class="sub-title bg-3 dp-block title center mg-bottom-14 pd-14 rd-square fb-4" :href="tumbnail( preview.tumbnail )" target="_blank" rel="noopener noreferrer">Preview</a>
+									<a class="sub-title bg-3 dp-block title center mg-bottom-14 pd-14 rd-square fb-4" :href="thumbnail( preview.thumbnail )" target="_blank" rel="noopener noreferrer">Preview</a>
 									<a class="sub-title bg-4 dp-block title center pd-14 rd-square fb-4" :href="source( preview.source )" target="_blank" rel="noopener noreferrer">Original</a>
 								</div>
 							</div>
@@ -164,7 +146,7 @@
 			<div class="certificate rd-square" v-for="certificate in certificates" v-scroll-reveal="{ delay: 600 }">
 				<div class="certificate-body" v-scroll-reveal="{ delay: 600 }">
 					<div class="certificate-avatar avatar-wrapper" @click="preview = certificate">
-						<img class="avatar-image lazy" :data-src="tumbnail( certificate.tumbnail )" :alt="certificate.title" title="Certificate Preview Image" v-lazyload />
+						<img class="avatar-image lazy" :data-src="thumbnail( certificate.thumbnail )" :alt="certificate.title" title="Certificate Preview Image" v-lazyload />
 						<div class="avatar-cover"></div>
 					</div>
 					<div class="certificate-label fb-45 flex flex-left pd-14">

@@ -13,13 +13,12 @@
 		computed: mapState([
 			"configs"
 		]),
-		created: function()
-		{
+		created: function() {
 			this.experiences = this.configs.experiences;
 		},
 		methods: {
 			
-			/*
+			/**
 			 * @inherit Datime
 			 *
 			 */
