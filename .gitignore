@@ -1,2 +1,12 @@
 
-node_modules/*
+# Local Github Api.
+github/**
+
+# Locked Packages.
+package-lock.json
+
+# Node Package Manager Directories.
+node_modules/**
+
+# Backup codes
+**-backup**

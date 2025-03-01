@@ -1,20 +1,25 @@
 {
     "name": "hxari",
-    "author": "hxAri",
-    "version": "4.2.0",
+    "author": "hxari",
+    "version": "4.2.2",
     "license": "MIT",
     "private": false,
     "main": "dist/js/hxari.js",
     "unpkg": "dist/js/hxari.js",
     "scripts": {
-        "dev": "vite",
+        "dev": "vite --host",
         "build": "vite build",
         "preview": "vite preview",
         "test:unit": "vitest"
     },
     "dependencies": {
+    	"eruda": "^3.2.3",
         "highlight.js": "^11.8.0",
+        "jsonpath": "^1.1.1",
+        "markdown-it": "^13.0.2",
         "scrollreveal": "^4.0.9",
+        "shlex": "^2.1.2",
+        "swiper": "^11.1.4",
         "vue": "^3.2.47",
         "vue-router": "^4.1.6",
         "vuex": "^4.1.0"
