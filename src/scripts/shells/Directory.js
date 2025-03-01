@@ -6,13 +6,17 @@ import Clear from "/src/scripts/shells/commands/Clear.js";
 import Cookie from "/src/scripts/shells/commands/Cookie.js";
 import Echo from "/src/scripts/shells/commands/Echo.js";
 import Exit from "/src/scripts/shells/commands/Exit.js";
+import Export from "/src/scripts/shells/commands/Export";
 import Help from "/src/scripts/shells/commands/Help.js";
 import Js from "/src/scripts/shells/commands/Js.js";
+import Kanashi from "/src/scripts/shells/commands/Kanashi.js";
 import Ls from "/src/scripts/shells/commands/Ls.js";
+import Pwd from "/src/scripts/shells/commands/Pwd.js";
+import Society from "/src/scripts/shells/commands/Society.js";
 import Theme from "/src/scripts/shells/commands/Theme.js";
 import Unalias from "/src/scripts/shells/commands/Unalias.js";
 
-/*
+/**
  * Terminal Directory Structure.
  *
  * @values Array
@@ -45,7 +49,18 @@ export default [
 	{
 		name: "etc",
 		type: "path",
-		child: []
+		child: [
+			{
+				name: "profile.d",
+				type: "path",
+				child: [
+					{
+						name: "env.js",
+						type: "file"
+					}
+				]
+			}
+		]
 	},
 	{
 		name: "home",
@@ -146,7 +161,7 @@ export default [
 				name: "bin",
 				type: "path",
 				
-				/*
+				/**
 				 * Terminal Commands.
 				 *
 				 * @include alias +
@@ -159,20 +174,22 @@ export default [
 				 * @include date
 				 * @include echo +
 				 * @include exit +
-				 * @include export
+				 * @include export +
 				 * @include help +
 				 * @include hostname
 				 * @include js +
+				 * @include kanashi +
 				 * @include ls +
 				 * @include mkdir
 				 * @include mv
+				 * @include pwd +
 				 * @include request
 				 * @include rmdir
+				 * @include society +
 				 * @include test
 				 * @include theme +
 				 * @include tree
 				 * @include unalias +
-				 * @include unexport
 				 */
 				child: [
 					Alias,
@@ -181,9 +198,13 @@ export default [
 					Cookie,
 					Echo,
 					Exit,
+					Export,
 					Help,
 					Js,
+					Kanashi,
 					Ls,
+					Pwd,
+					Society,
 					Theme,
 					Unalias
 				]
