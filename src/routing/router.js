@@ -14,7 +14,7 @@ const router = createRouter({
 	// Each route should map to a component.
 	routes: Routes,
 	
-	/*
+	/**
 	 * Scroll Behavior.
 	 *
 	 * @params Mixed to
@@ -23,37 +23,28 @@ const router = createRouter({
 	 *
 	 * @return Mixed
 	 */
-	scrollBehavior: function( to, from, save )
-	{
-		// If target has hash.
-		if( to.hash )
-		{
-			return({
+	scrollBehavior: function( to, from, save ) {
+		if( to.hash ) {
+			return {
 				el: to.hash,
 				behavior: "smooth"
-			});
+			};
 		}
-		
-		// If target has query tab.
-		else if( to.query.tab )
-		{
-			return({
+		else if( to.query.tab ) {
+			return {
 				el: to.query.tab,
 				behavior: "smooth"
-			});
+			};
 		}
 		else {
-			
-			// If previous position is available.
-			if( save )
-			{
-				return( save );
+			if( save ) {
+				return save;
 			}
 		}
-		return({
+		return {
 			top: 0,
 			behavior: "smooth"
-		});
+		};
 	}
 })
 

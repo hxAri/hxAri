@@ -4,7 +4,7 @@ import Cookie from "/src/scripts/Cookie.js";
 import Null from "/src/scripts/types/Null.js";
 import Type from "/src/scripts/Type.js";
 
-/*
+/**
  * Theme utility
  *
  * Preference themes that support
@@ -12,112 +12,104 @@ import Type from "/src/scripts/Type.js";
  *
  * @version 1.0.8
  */
-const Theme = function({ set } = {})
-{
+const Theme = function({ set } = {}) {
 	this.theme = {
 		dark: {
 			color: "#202521",
-			token: "7a51da870ccc24c22518717d3cf56d29"
+			token: "\x37\x61\x35\x31\x64\x61\x38\x37\x30\x63\x63\x63\x32\x34\x63\x32\x32\x35\x31\x38\x37\x31\x37\x64\x33\x63\x66\x35\x36\x64\x32\x39"
 		},
 		light: {
 			color: "#eeeeee",
-			token: "73fe8a55fee50b1e4b81af2e2446ea04"
+			token: "\x37\x33\x66\x65\x38\x61\x35\x35\x66\x65\x65\x35\x30\x62\x31\x65\x34\x62\x38\x31\x61\x66\x32\x65\x32\x34\x34\x36\x65\x61\x30\x34"
 		}
 	};
-	try
-	{
+	try {
 		var self = this;
 		var color = set;
 			color = Type( color, "Undefined", () => self.get(), () => color );
 		
 		self.set( color );
 	}
-	catch( error )
-	{
+	catch( error ) {
 		console.warn( `Theme:\x20${error}` );
 	}
 };
 
-/*
+/**
  * Theme alias name.
  *
  * @values String
  */
-Theme.prototype.name = "dGhlbWU";
+Theme.prototype.name = "\x64\x47\x68\x6c\x62\x57\x55";
 
-/*
+/**
  * Theme contructor results.
  *
  * @value Mixed
  */
 Theme.prototype.result = null;
 
-/*
+/**
  * Theme default color.
  *
  * @values String
  */
-Theme.prototype.default = "light";
+Theme.prototype.default = "\x6c\x69\x67\x68\x74";
 
-/*
+/**
  * Current theme color.
  *
  * @values String
  */
-Theme.prototype.color = "light";
+Theme.prototype.color = "\x6c\x69\x67\x68\x74";
 
-/*
+/**
  * Get current theme token.
  *
  * @return String
  */
-Theme.prototype.get = function()
-{
-	try
-	{
+Theme.prototype.get = function() {
+	try {
+		
 		// Get current theme color from cookie.
 		var token = Cookie.prototype.get( this.name );
 		
 		// If token value is String type.
-		if( Type( token, String ) )
-		{
+		if( Type( token, String ) ) {
+			
 			// If token value equals with dark.
-			if( token === this.theme.dark.token )
-			{
-				return( "dark" );
+			if( token === this.theme.dark.token ) {
+				return "\x64\x61\x72\x6b";
 			}
 		}
 		else {
 			
 			// If device supported dark mode.
-			if( window.matchMedia )
-			{
+			if( window.matchMedia ) {
+				
 				// Check if dark.mode is activated.
-				if( window.matchMedia( "(prefers-color-scheme:dark)" ).matches )
-				{
-					return( "dark" );
+				if( window.matchMedia( "(prefers-color-scheme:dark)" ).matches ) {
+					return "\x64\x61\x72\x6b";
 				}
 			}
 		}
 	}
-	catch( error )
-	{
+	catch( error ) {
 		console.warn( `Theme.prototype.get:\x20${error}` );
 	}
-	return( "light" );
+	return "\x6c\x69\x67\x68\x74";
 };
 
-/*
+/**
  * Set theme color.
  *
  * @params String color
  *
  * @return Void
  */
-Theme.prototype.set = function( color )
-{
-	try
-	{
+Theme.prototype.set = function( color ) {
+	try {
+		
 		// Get token value from cookie.
 		var cookie = Cookie.prototype.get( this.name );
 		var defaultColor = this.default;
@@ -126,8 +118,8 @@ Theme.prototype.set = function( color )
 		color = Type( color, String, () => color, () => defaultColor );
 		
 		// If current cookie value does not equals.
-		if( cookie !== this.theme[color].token )
-		{
+		if( cookie !== this.theme[color].token ) {
+			
 			// Set current color.
 			this.color = color;
 			
@@ -142,13 +134,12 @@ Theme.prototype.set = function( color )
 		this.setHtml( color );
 		this.setMeta( color );
 	}
-	catch( error )
-	{
+	catch( error ) {
 		console.warn( `Theme.prototype.set:\x20${error}` );
 	}
 };
 
-/*
+/**
  * Set theme color to HTMLHeadElement.
  *
  * @params String color
@@ -157,31 +148,27 @@ Theme.prototype.set = function( color )
  */
 Theme.prototype.setHtml = color => document.documentElement.dataset.theme = color;
 
-/*
+/**
  * Set theme color to HTMLMetaElement.
  *
  * @params String color
  *
  * @return Void
  */
-Theme.prototype.setMeta = function( color )
-{
+Theme.prototype.setMeta = function( color ) {
+	
 	var meta = null;
 	
 	// Check if HTMLMetaElement has been created.
-	if( Type( meta = document.querySelector( "meta[name=\"theme-color\"]" ), Null ) )
-	{
+	if( Type( meta = document.querySelector( "meta[name=\"theme-color\"]" ), Null ) ) {
+		
 		// Create new HTMLMetaElement.
 		meta = document.createElement( "meta" );
-		
-		// Set meta attribute.
 		meta.setAttribute( "name", "theme-color" );
 		
 		// Append HTMLMetaElement to HTMLHeadElement.
 		document.head.appendChild( meta );
 	}
-	
-	// Set meta attribute content value.
 	meta.setAttribute( "content", this.theme[color].color );
 };
 

@@ -9,5 +9,5 @@
  *
  * @return String
  */
-export default function Syntax( lang, contents )
-{};
+export default function Syntax( lang, contents ) {
+};

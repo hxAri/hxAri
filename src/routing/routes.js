@@ -3,12 +3,16 @@
 import About from "/src/views/About.vue";
 import Contact from "/src/views/Contact.vue";
 import Document from "/src/views/Document.vue";
+import Editor from "/src/views/Editor.vue";
 import Home from "/src/views/Home.vue";
+import Issues from "/src/views/Issues.vue";
 import None from "/src/views/None.vue";
 import Privacy from "/src/views/Privacy.vue";
 import Project from "/src/views/Project.vue";
+import Service from "/src/views/Service.vue";
 import Sitemap from "/src/views/Sitemap.vue";
 import Terminal from "/src/views/Terminal.vue";
+import Testing from "/src/views/Testing.vue";
 
 export default [
 	{
@@ -39,6 +43,24 @@ export default [
 		component: Contact
 	},
 	{
+		path: "/editor",
+		name: "editor",
+		icon: {
+			active: [ "bx", "bxs-edit" ],
+			default: [ "bx", "bx-edit" ]
+		},
+		component: Editor
+	},
+	{
+		path: "/issues",
+		name: "issues",
+		icon: {
+			active: [ "bx", "bxs-bug" ],
+			default: [ "bx", "bx-bug" ]
+		},
+		component: Issues
+	},
+	{
 		path: "/privacy",
 		name: "privacy",
 		icon: {
@@ -46,6 +68,15 @@ export default [
 			default: [ "bx", "bx-lock" ]
 		},
 		component: Privacy
+	},
+	{
+		path: "/service",
+		name: "service",
+		icon: {
+			active: [ "bx", "bxs-wrench" ],
+			default: [ "bx", "bx-wrench" ]
+		},
+		component: Service
 	},
 	{
 		path: "/sitemap",
@@ -92,6 +123,17 @@ export default [
 				component: {}
 			}
 		]
+	},
+	{
+		path: "/testing",
+		name: "testing",
+		icon: {
+			active: [ "bx", "bxs-wrench" ],
+			default: [ "bx", "bx-wrench" ]
+		},
+		readable: true,
+		sensitive: true,
+		component: Testing
 	},
 	{
 		path: "/:none(.*?)*",

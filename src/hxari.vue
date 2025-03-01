@@ -6,6 +6,7 @@
 	
 	// Import Scripts.
 	import Datime from "/src/scripts/Datime.js";
+	import Value from "/src/scripts/logics/Value.js";
 	
 	// Import Widgets.
 	import Avatar from "/src/widgets/Avatar.vue";
@@ -43,6 +44,7 @@
 				instagram: "bx bxl-instagram",
 				facebook: "bx bxl-facebook",
 				linkedin: "bx bxl-linkedin",
+				telegram: "bx bxl-telegram",
 				twitter: "bx bxl-twitter",
 				github: "bx bxl-github",
 				tiktok: "bx bxl-tiktok"
@@ -59,39 +61,51 @@
 				"hasConfig"
 			])
 		},
-		created: async function()
-		{
-			// Check if configuration does not requested.
-			if( this.hasConfig === false )
-			{
-				// Trying to get configuration.
-				await this.$store.dispatch( "priority" );
+		created: async function() {
+			if( this.hasConfig === false ) {
+				await this.$store.dispatch( "initialize" );
 			}
-			this.dateFormat = this.date.format( "2021 - %Y" );
+			this.dateFormat = this.date.format( "[ 2021, %Y ]" );
 			this.themeColor = this.theme.get();
 		},
 		methods: {
 			
-			/*
+			/**
 			 * Show/ hidden sidebar menu.
 			 *
 			 * @return Void
 			 */
-			buttonBurgerHandle: function()
-			{
+			buttonBurgerHandle: function() {
 				this.$refs.burger.classList.toggle( "burger-active" );
 				this.$refs.sidebar.classList.toggle( "sidebar-active" );
 				this.$refs.sidebarMain.classList.toggle( "sidebar-active" );
 			},
 			
-			/*
+			/**
 			 * Switch theme color.
 			 *
 			 * @return Void
 			 */
-			buttonSwitchTheme: function()
-			{
+			buttonSwitchTheme: function() {
 				this.theme.set( this.themeColor = this.themeColor !== "dark" ? "dark" : "light" );
+			},
+			
+			/**
+			 * Return if current path is project documentation.
+			 *
+			 * @return Boolean
+			 */
+			isDocument: function() {
+				return Value.isNotEmpty( this.$route.params.project );
+			},
+			
+			/**
+			 * Return previous route path.
+			 *
+			 * @return String
+			 */
+			previous: function() {
+				return this.$router.options.history.state?.back ?? "/projects";
 			}
 		},
 		components: {
@@ -121,22 +135,29 @@
 			<div class="sidebar sidebar-main" ref="sidebarMain">
 				<div class="sidebar-header flex flex-left">
 					<h5 class="sidebar-title mg-0">
-						<RouterLink to="/">
-							hxAri
-						</RouterLink>
+						<RouterLink :to="$route.path" v-if="isDocument()">{{ $route.params.project }}</RouterLink>
+						<RouterLink to="/" v-else>hxAri</RouterLink>
 					</h5>
-					<button class="button sidebar-switch" @click="buttonSwitchTheme">
-						<i :class="[ 'bx', 'fs-20', themeColor === 'dark' ? 'bx-sun' : 'bx-moon' ]"></i>
-					</button>
+					<div class="sidebar-tools flex flex-center">
+						<RouterLink class="fb-55" :to="previous()" v-if="isDocument()">&lt;&lt;-</RouterLink>
+						<button class="button sidebar-switch" @click="buttonSwitchTheme">
+							<i :class="[ 'bx', 'fs-20', themeColor === 'dark' ? 'bx-sun' : 'bx-moon' ]"></i>
+						</button>
+					</div>
 				</div>
-				<div class="sidebar-body scroll-x">
-					<div class="list-group">
+				<div class="sidebar-body scroll-hidden">
+					<div class="list-group scroll-x scroll-hidden">
 						<div class="pd-14 blinking" v-if="loading">
 							<div class="pd-16 rd-square bg-4 mg-bottom-14 mg-lc-bottom" v-for="i in 6"></div>
 						</div>
 						<div class="" v-else-if="error">
 						</div>
 						<Sidebar @close="buttonBurgerHandle" v-else />
+					</div>
+				</div>
+				<div class="sidebar-footer flex flex-center">
+					<div class="dp-block">
+						<p class="title fb-35">&copy Ari Setiawan (hxAri) {{ dateFormat }}</p>
 					</div>
 				</div>
 			</div>
@@ -180,7 +201,7 @@
 				</div>
 			</div>
 			<div class="footer-single">
-				<p class="title">&copy Ari Setiawan (hxAri) {{ dateFormat }}</p>
+				<p class="title">Copyright &copy Ari Setiawan (hxAri) - {{ dateFormat }}</p>
 			</div>
 		</div>
 	</footer>
@@ -257,19 +278,43 @@
 				.sidebar-title a {
 					color: var(--color-1);
 				}
-				.sidebar-switch {
-					right: 14px;
+				.sidebar-tools {
+					gap: 14px;
 					position: absolute;
+					right: 14px;
 				}
-				.sidebar-switch,
-				.sidebar-switch:focus,
-				.sidebar-switch:hover {
-					border: 0;
-					background: transparent;
-				}
+					.sidebar-tools a {
+						color: var(--color-2);
+					}
+					.sidebar-switch,
+					.sidebar-switch:focus,
+					.sidebar-switch:hover {
+						border: 0;
+						background: transparent;
+					}
 			.sidebar-body {
-				height: 100%;
-				overflow: scroll;
+				background: var(--background-2);
+				height: 92%;
+				overflow: auto;
+			}
+			@media screen and (max-width: 750px) {
+				.sidebar-body {
+					/** height: 82.8%; */
+					height: 91%;
+				}
+			}
+			@media screen and (max-width: 460px) {
+				.sidebar-body {
+					height: 92.4%;
+				}
+			}
+			.sidebar-footer {
+				background: var(--background-3);
+				bottom: 0;
+				display: none;
+				padding: 14px;
+				position: absolute;
+				width: 100%;
 			}
 	.sidebar.sidebar-active {
 		left: 0 !Important;
@@ -319,8 +364,8 @@
 			margin-top: 140px;
 			margin-bottom: 140px;
 		}
-			.footer-content {
-			}
+			/* .footer-content { */
+			/* } */
 				.footer-group {
 					width: 100%;
 				}
@@ -355,7 +400,7 @@
 	 * -------------------------------------------------------------------------------------------------------------------------------------------
 	 *
 	 */
-	.main {
-	}
+	/* .main { */
+	/* } */
 	
 </style>

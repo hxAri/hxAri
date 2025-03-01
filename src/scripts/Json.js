@@ -1,5 +1,5 @@
 
-/*
+/**
  * Shorthand for JSON Stringify and parse.
  *
  * @method encode

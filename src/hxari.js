@@ -11,7 +11,7 @@ import "/src/styles/hxari.md.css";
 import "/src/styles/hxari.css";
 
 // Import Application
-import App from "/src/App.vue";
+import hxAri from "/src/hxari.vue";
 
 // Import Directives
 import LazyLoad from "/src/directives/LazyLoad.js";
@@ -24,7 +24,7 @@ import Store from "/src/stores/store.js";
 import Router from "/src/routing/router.js";
 
 // The application instance.
-const app = createApp( App );
+const app = createApp( hxAri );
 
 // Register vue directives.
 app.directive( "lazyload", LazyLoad );
