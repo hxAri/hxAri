@@ -4,7 +4,7 @@ import Value from "/src/scripts/logics/Value.js";
 import Not from "/src/scripts/logics/Not.js"
 import Type from "/src/scripts/Type.js";
 
-/*
+/**
  * Request
  *
  * Send asynchronous requests using XMLHttpRequest.
@@ -15,10 +15,9 @@ import Type from "/src/scripts/Type.js";
  *
  * @return Promise
  */
-const Request = async function( method, url, options = {} )
-{
-	return( new Promise( await function( resolve, reject )
-	{
+const Request = async function( method, url, options = {} ) {
+	return new Promise( await function( resolve, reject ) {
+		
 		// The constructor initializes.
 		var xhr = new XMLHttpRequest();
 		
@@ -26,51 +25,34 @@ const Request = async function( method, url, options = {} )
 		xhr.open( method, url );
 		
 		// If headers is Object type.
-		if( Type( options.headers, Object ) )
-		{
-			for( let header in options.headers )
-			{
-				// Sets the value of an HTTP request header.
+		if( Type( options.headers, Object ) ) {
+			for( let header in options.headers ) {
 				xhr.setRequestHeader( header, options.headers[header] );
 			}
 		}
 		
 		// If data is Object type.
-		if( Type( options.data, Object ) )
-		{
-			// Data pairs.
+		if( Type( options.data, Object ) ) {
 			var data = [];
-			
-			for( let key in options.data )
-			{
-				// Encode URI Commponent.
+			for( let key in options.data ) {
 				data.push( encodeURIComponent( key ) + "=" + encodeURIComponent( options.data[key] ) );
 			}
-			
-			// Sends the request with data.
 			xhr.send( data.join( "&" ) );
 		}
-		
-		// If data is FormData type.
-		else if( Type( options.data, FormData ) )
-		{
-			// Sends the request with FormData.
+		else if( Type( options.data, FormData ) ) {
 			xhr.send( options.data );
 		}
-		
-		// Sends the request without data.
 		else {
 			xhr.send();
 		}
 		
 		// If request has events.
-		if( Type( options.events, Object ) )
-		{
-			for( let i in options.events )
-			{
+		if( Type( options.events, Object ) ) {
+			for( let i in options.events ) {
+				
 				// Allow set events except loaded & error.
-				if( i !== "loaded" && i !== "error" )
-				{
+				if( i !== "loaded" && i !== "error" ) {
+					
 					// Sets up a function that will be called whenever
 					// The specified event is delivered to the target.
 					xhr.addEventListener( i, ( e ) => Callable( options.events[i], e, xhr ) );
@@ -79,14 +61,13 @@ const Request = async function( method, url, options = {} )
 		}
 		
 		// Fired when an XMLHttpRequest transaction completes successfully.
-		xhr.onload = evt =>
-		{
+		xhr.onload = evt => {
+			
 			// If request is failed.
-			if( xhr.status !== 200 )
-			{
+			if( xhr.status !== 200 ) {
 				var message = null;
-				try
-				{
+				try {
+					
 					// Trying to parse json response.
 					// This only works if response is json type.
 					var resp = xhr.response;
@@ -94,13 +75,12 @@ const Request = async function( method, url, options = {} )
 						resp = Json.decode( resp );
 					
 					// Check if response has message.
-					if( Type( resp.message, String ) && Value.isNotEmpty( resp.message ) )
-					{
+					if( Type( resp.message, String ) && Value.isNotEmpty( resp.message ) ) {
 						message = resp.message;
 					}
 				}
-				catch( e )
-				{}
+				catch( e ) {
+				}
 				return reject( new Error( message ? message : Request.StatusText( xhr.status ) ), xhr );
 			}
 			return resolve( xhr );
@@ -108,10 +88,10 @@ const Request = async function( method, url, options = {} )
 		
 		// Fired when the request encountered an error.
 		xhr.onerror = evt => reject( "Connection Error", xhr );
-	}));
+	});
 };
 
-/*
+/**
  * Returns the status text for a given HTTP status code.
  *
  * @params Number statusCode
@@ -120,10 +100,8 @@ const Request = async function( method, url, options = {} )
  * @return String
  *  The corresponding status text for the given status code.
  */
-Request.StatusText = function( statusCode )
-{
-	switch( statusCode )
-	{
+Request.StatusText = function( statusCode ) {
+	switch( statusCode ) {
 		case 100:
 			return "Continue";
 		case 101:
@@ -165,22 +143,20 @@ Request.StatusText = function( statusCode )
 	}
 }
 
-/*
+/**
  * Header normalization.
  *
  * @params Array|String raw
  */
-Request.Header = function( raw )
-{
+Request.Header = function( raw ) {
+	
 	// Copy object instance.
 	var self = this;
 		self.name = [];
 		self.value = null;
 	
 	// Check if the raw header has not been split.
-	if( Type( raw, String ) )
-	{
-		// Separate header name with value.
+	if( Type( raw, String ) ) {
 		raw = raw.split( ":\x20" );
 	}
 	
@@ -194,19 +170,19 @@ Request.Header = function( raw )
 	self.value = decodeURIComponent( raw[1] );
 };
 
-/*
+/**
  * Response Content Type.
  *
  * @params Array|String content
  */
-Request.ContentType = function( content )
-{
+Request.ContentType = function( content ) {
+	
 	// Check if the raw is not undefined type.
-	if( Not( content, "Undefined" ) )
-	{
+	if( Not( content, "Undefined" ) ) {
+		
 		// Check if the raw type has not been split.
-		if( Type( content, String ) )
-		{
+		if( Type( content, String ) ) {
+			
 			// Separate content type with charset.
 			content = content.split( "; " );
 		}
@@ -215,14 +191,12 @@ Request.ContentType = function( content )
 		if( Type( content[1], String ) ) this.charset = content[1].split( "=" )[1];
 		
 		// Mapping content types.
-		switch( content[0] )
-		{
+		switch( content[0] ) {
 			case "application/json": this.type = "json"; break;
 			case "application/xml": this.type = "xml"; break;
 			case "text/javascript": this.type = "js"; break;
 			case "text/html": this.type = "html"; break;
 			case "text/css": this.type = "css"; break;
-			
 			default: this.type = content[0]; break;
 		}
 	}
