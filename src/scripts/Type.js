@@ -3,7 +3,7 @@
 import { registerRuntimeCompiler } from "vue";
 import Callable from "/src/scripts/types/Callable.js";
 
-/*
+/**
  * Get value type.
  *
  * @params Mixed argv
