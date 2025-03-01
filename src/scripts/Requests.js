@@ -5,7 +5,7 @@ import Mapper from "/src/scripts/Mapper.js";
 import Request from "/src/scripts/Request.js";
 import Type from "/src/scripts/Type.js";
 
-/*
+/**
  * Send multiple requests.
  *
  * @params Array requests
@@ -14,14 +14,13 @@ import Type from "/src/scripts/Type.js";
  *
  * @throws TypeError
  */
-export default async function MultiRequest( requests )
-{
-	if( Type( requests, Array ) )
-	{
+export default async function MultiRequest( requests ) {
+	if( Type( requests, Array ) ) {
+		
 		// Mapping all requests.
 		requests = Mapper( requests,
 			
-			/*
+			/**
 			 * Handle mapping.
 			 *
 			 * @params Number i
@@ -29,10 +28,8 @@ export default async function MultiRequest( requests )
 			 *
 			 * @return Void
 			 */
-			async function( i, request )
-			{
-				if( Type( request, Object ) )
-				{
+			async function( i, request ) {
+				if( Type( request, Object ) ) {
 					var url = Type( request.url, String, () => request.url, () => "" );
 					var method = Type( request.method, String, () => request.method, () => "GET" );
 					var options = Type( request.options, Object, () => request.options, () => Object.create({}) );
@@ -42,10 +39,10 @@ export default async function MultiRequest( requests )
 					var method = "GET";
 					var options = {};
 				}
-				return( await Request( method, url, options ) );
+				return await Request( method, url, options );
 			}
 		);
-		return( await Promise.all( requests ) );
+		return await Promise.all( requests );
 	}
 	else {
 		throw new TypeError( Fmt( "Parameter $requests must be type Array, {} given", Type( requests ) ) );
