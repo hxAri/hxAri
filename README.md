@@ -4,6 +4,8 @@
 
 self expansion infinite void
 
+[![Check out hxAri's profile on stardev.io](https://stardev.io/developers/hxAri/badge/languages/global.svg)](https://stardev.io/developers/hxAri)
+
 | ![stats] | ![language] |
 | ------------- | ------------- |
 
