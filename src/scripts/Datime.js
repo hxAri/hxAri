@@ -3,53 +3,50 @@
 import Fmt from "/src/scripts/Fmt.js";
 import Type from "/src/scripts/Type.js";
 
-/*
+/**
  * Date utility.
  *
  */
-const Datime = function( datetime )
-{
-	/*
+const Datime = function( datetime ) {
+	
+	/**
 	 * Date instance.
 	 *
 	 * @values Date
 	 */
 	this.date = null;
 	
-	if( Type( datetime, Number ) )
-	{
+	if( Type( datetime, Number ) ) {
 		this.date = new Date( datetime * 1000 );
 	}
-	else if( Type( datetime, String ) )
-	{
+	else if( Type( datetime, String ) ) {
 		this.date = new Date( datetime );
 	}
 	else {
 		this.date = new Date();
 	}
 	
-	/*
+	/**
 	 * Date day with format.
 	 *
 	 * @params String $f
 	 *
 	 * @return String
 	 */
-	this.day = function( f )
-	{
-		if( Type( f, String ) )
-		{
-			switch( f )
-			{
+	this.day = function( f ) {
+		if( Type( f, String ) ) {
+			switch( f ) {
 				
 				// Display date as mm/dd/yy
-				case "D": return( Fmt( "{}/{}/{}", this.month( "m" ), this.day( "d" ), this.years( "y" ) ) );
+				case "D": return Fmt( "{}/{}/{}", this.month( "m" ), this.day( "d" ), this.years( "y" ) );
 				
 				// Day of week.
-				case "u": return( this.date.getDay() );
+				case "u": return this.date.getDay();
 				
 				// Day of month.
-				case "d": return( this.date.getDate() );
+				case "d":
+					var day = new String( this.date.getDate() );
+					return day.length === 1 ? Fmt( "0{}", day ) : day;
 				
 				// Day of year.
 				case "j":
@@ -66,120 +63,103 @@ const Datime = function( datetime )
 					// Calculate one day.
 					var o = 1000 * 60 * 60 * 24;
 					
-					return( Math.floor( d / o ) );
+					return Math.floor( d / o );
 				
 				// Full weekday name.
-				case "A": return( ([ "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" ])[this.date.getDay()] );
+				case "A": return ([ "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" ][this.date.getDay()] );
 				
 				// Short weekday name.
-				case "a": return( ([ "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" ])[this.date.getDay()] );
+				case "a": return ([ "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" ][this.date.getDay()] );
 			}
 			throw new TypeError( Fmt( "Invalid format day {}", f ) );
 		}
-		return( this.date.getDate() );
+		return this.date.getDate();
 	};
 	
-	/*
+	/**
 	 * Date month with format.
 	 *
 	 * @params String $f
 	 *
 	 * @return String
 	 */
-	this.month = function( f )
-	{
-		if( Type( f, String ) )
-		{
-			switch( f )
-			{
-				// Month.
-				case "m": return( this.month() );
-				
-				// Long month.
-				case "B": return([ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ])[this.date.getMonth()];
-				
-				// Short month.
-				case "b": return([ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ])[this.date.getMonth()];
+	this.month = function( f ) {
+		if( Type( f, String ) ) {
+			switch( f ) {
+				case "m": return this.month();
+				case "B": return [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ][this.date.getMonth()];
+				case "b": return [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ][this.date.getMonth()];
 			}
 			throw new TypeError( Fmt( "Invalid format month {}", f ) );
 		}
-		return( String( this.date.getMonth() +1 ).length === 1 ? Fmt( "0{}", this.date.getMonth() +1 ) : this.date.getMonth() +1 );
+		return String( this.date.getMonth() +1 ).length === 1 ? Fmt( "0{}", this.date.getMonth() +1 ) : this.date.getMonth() +1;
 	};
 	
-	/*
+	/**
 	 * Date year with format.
 	 *
 	 * @params String $f
 	 *
 	 * @return String
 	 */
-	this.years = function( f )
-	{
-		if( Type( f, String ) )
-		{
-			switch( f )
-			{
-				// Fullyear.
-				case "Y": return( this.date.getFullYear() );
-				
-				// Shortyear.
-				case "y": return( this.years() );
+	this.years = function( f ) {
+		if( Type( f, String ) ) {
+			switch( f ) {
+				case "Y": return this.date.getFullYear();
+				case "y": return this.years();
 			}
 			throw new TypeError( Fmt( "Invalid format year {}", f ) );
 		}
-		return( String( this.date.getFullYear() ).slice( 2 ) );
+		return String( this.date.getFullYear() ).slice( 2 );
 	};
 	
-	/*
+	/**
 	 * Date hours with format.
 	 *
 	 * @params String $f
 	 *
 	 * @return String
 	 */
-	this.hours = function( f )
-	{
-		if( Type( f, String ) )
-		{
-			switch( f )
-			{
-				case "H": return( this.date.getHours() );
-				case "I": return( this.date.getHours() +11 ) % 12 + 1;
+	this.hours = function( f ) {
+		if( Type( f, String ) ) {
+			switch( f ) {
+				case "H":
+					var hours = new String( this.date.getHours() );
+					return hours.length === 1 ? Fmt( "0{}", hours ) : hours;
+				case "I": return ( this.date.getHours() +11 ) % 12 + 1;
 			}
 			throw new TypeError( Fmt( "Invalid format hours {}", f ) );
 		}
-		return( this.date.getHours() );
+		return this.date.getHours();
 	};
 	
-	/*
+	/**
 	 * Date minute without format.
 	 *
 	 * @return String
 	 */
-	this.minute = function()
-	{
-		return( this.date.getMinutes() );
+	this.minute = function() {
+		return this.date.getMinutes();
 	};
 	
-	/*
+	/**
 	 * Date second without format.
 	 *
 	 * @return String
 	 */
-	this.second = function()
-	{
-		return( this.date.getSeconds() );
+	this.second = function() {
+		return this.date.getSeconds();
 	};
 	
-	/*
+	/**
 	 * Date format.
 	 *
 	 * @params String $string
 	 *
 	 * @return String
 	 */
-	this.format = function( string )
-	{
+	this.format = function( string ) {
+		
 		// Self instance.
 		var self = this;
 		
@@ -187,21 +167,20 @@ const Datime = function( datetime )
 		var format = this.format;
 		
 		// Return string replaced.
-		return( string.replace( /(?<!\\)\%([a-zA-Z])/g, matched =>
-		{
+		return string.replace( /(?<!\\)\%([a-zA-Z])/g, matched => {
+			
 			// String sliced.
 			var sliced = matched.slice( 1 );
 			
 			// Check if.format is supported.
-			if( Type( format.formats[sliced], [ Function, Window, sliced ] ) )
-			{
-				return( format.formats[sliced]( self ) );
+			if( Type( format.formats[sliced], [ Function, Window, sliced ] ) ) {
+				return format.formats[sliced]( self );
 			}
-			return( Fmt( "Invalid format date \"{}\"", matched ) );
-		}));
+			return Fmt( "Invalid format date \"{}\"", matched );
+		});
 	};
 	
-	/*
+	/**
 	 * Datetime format supported.
 	 *
 	 */
@@ -250,7 +229,22 @@ const Datime = function( datetime )
 		/// Second (00..60)
 		S: self => self.second()
 	};
-	return( this );
+	
+	/**
+	 * Return datetime timestamp.
+	 *
+	 * @params Boolean epoch
+	 *
+	 * @return Number
+	 */
+	this.timestamp = function( epoch ) {
+		if( epoch ) {
+			return this.date.getTime();
+		}
+		return parseInt( this.timestamp( true ) / 1000 );
+	};
+	
+	return this;
 };
 
 export default Datime;
