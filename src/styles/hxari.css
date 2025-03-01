@@ -334,8 +334,9 @@ a.tc-ac-4 {
  * -------------------------------------------------------------------------------------------------------------------------------------------
  *
  */
-/* .avatar { */
-/* } */
+.avatar {
+	overflow: hidden;
+}
 	.avatar-wrapper {
 		width: 40px;
 		height: 40px;
@@ -355,6 +356,7 @@ a.tc-ac-4 {
 		.avatar-image {
 			width: 100%;
 			height: auto;
+			pointer-events: none;
 		}
 		.avatar-cover {
 			top: 0;
@@ -391,12 +393,15 @@ a.tc-ac-4 {
 .blinking {
 	animation: blinking 2s linear infinite;
 }
+.blinking-1x {
+	animation: blinking 1s linear infinite;
+}
 	@keyframes blinking {
 		0% {
-			opacity: .8;
+			opacity: .1;
 		}
 		20% {
-			opacity: .6;
+			opacity: .2;
 		}
 		40% {
 			opacity: .4;
@@ -614,7 +619,7 @@ a.tc-ac-4 {
 		max-height: 0px;
 		opacity: 0;
 		overflow: hidden;
-		transition: .4s all ease-in-out;
+		transition: all .4s ease-in-out;
 	}
 	.dropdown-display.active {
 		height: auto;
@@ -748,7 +753,7 @@ a.tc-ac-4 {
 			position: absolute;
 			background: var(--background-1);
 			font-size: 14px;
-			font-family: "Poppins", sans-serif;
+			font-family: var(--font-poppins);
 		}
 		.form-group .form-input {
 			width: 100%;
@@ -759,7 +764,7 @@ a.tc-ac-4 {
 			background: var(--background-1);
 			color: var(--color-2);
 			font-size: 14px;
-			font-family: "Poppins", sans-serif;
+			font-family: var(--font-poppins);
 			transition: all .3s;
 		}
 		.form-group .form-input:focus {
@@ -1015,21 +1020,43 @@ span.ic-4 {
 		position: fixed;
 		transition: all .3s;
 		background: var(--background-2);
-		/** border: 1px solid var(--border-1); **/
+		/* border: 1px solid var(--border-1); */
 	}
 	.modal-main.active {
 		bottom: 5% !important;
 	}
-	@media( max-width: 1080px ) {
+	/* @media screen and ( max-width: 1080px ) {
 		.modal-main {
 			width: 86vw;
-			height: 50vh;
+			height: 500vh;
 		}
 		.modal-main.active {
 			bottom: 25% !important;
 		}
+	} */
+	@media screen and ( max-width: 1000px ) {
+		.modal-main {
+			width: 91.4vw;
+			height: 79.4vh;
+			border-bottom: 0;
+			border-radius: 7px 7px 0 0;
+		}
+		.modal-main.active {
+			bottom: 8% !Important;
+		}
 	}
-	@media( max-width: 750px ) {
+	@media screen and ( max-width: 850px ) {
+		.modal-main {
+			width: 91.4vw;
+			height: 79.4vh;
+			border-bottom: 0;
+			border-radius: 7px 7px 0 0;
+		}
+		.modal-main.active {
+			bottom: 10% !Important;
+		}
+	}
+	@media screen and ( max-width: 750px ) {
 		.modal-main {
 			width: 91.4vw;
 			height: 79.4vh;
@@ -1170,13 +1197,53 @@ span.ic-4 {
 
 /*
  * -------------------------------------------------------------------------------------------------------------------------------------------
+ * Progress
+ * -------------------------------------------------------------------------------------------------------------------------------------------
+ *
+ */
+.progress {
+	border-radius: 10px;
+}
+.progress::-webkit-progress-bar {
+	background-color: var(--background-4);
+}
+.progress::-webkit-progress-value {
+	background-color: var(--shell-c-38-68m);
+}
+.progress::-moz-progress-bar {
+	background-color: #007BFF;
+}
+
+/*
+ * -------------------------------------------------------------------------------------------------------------------------------------------
  * Border Radiuses
  * -------------------------------------------------------------------------------------------------------------------------------------------
  *
  */
 .rd-circle { border-radius: 100%; }
 .rd-square { border-radius: 4px; }
+.rd-square-v2 { border-radius: 22px; }
 .rd-none { border-radius: 0; }
+
+/*
+ * -------------------------------------------------------------------------------------------------------------------------------------------
+ * Scroll Styling
+ * -------------------------------------------------------------------------------------------------------------------------------------------
+ *
+ */
+ .scroll-x {
+	overflow-x: scroll;
+}
+.scroll-y {
+	overflow-y: scroll;
+}
+.scroll-x::-webkit-scrollbar,
+.scroll-y::-webkit-scrollbar,
+.scroll-hidden::-webkit-scrollbar {
+	width: 0;
+	height: 0;
+	display: none;
+}
 
 /*
  * -------------------------------------------------------------------------------------------------------------------------------------------
@@ -1281,26 +1348,6 @@ span.ic-4 {
 
 /*
  * -------------------------------------------------------------------------------------------------------------------------------------------
- * Scroll Styling
- * -------------------------------------------------------------------------------------------------------------------------------------------
- *
- */
-.scroll-x {
-	overflow-x: scroll;
-}
-.scroll-y {
-	overflow-y: scroll;
-}
-.scroll-x::-webkit-scrollbar,
-.scroll-y::-webkit-scrollbar,
-.scroll-hidden::-webkit-scrollbar {
-	width: 0;
-	height: 0;
-	display: none;
-}
-
-/*
- * -------------------------------------------------------------------------------------------------------------------------------------------
  * Title Styles
  * -------------------------------------------------------------------------------------------------------------------------------------------
  *
@@ -1315,6 +1362,9 @@ span.ic-4 {
  * -------------------------------------------------------------------------------------------------------------------------------------------
  *
  */
+.text-center {
+	text-align: center;
+}
 .text-italic {
 	font-style: italic;
 }
@@ -1327,3 +1377,9 @@ span.ic-4 {
 .text-underline-wavy {
 	text-decoration: underline wavy;
 }
+.text-white-space-pre {
+	white-space: pre;
+}
+.text-wrap {
+	text-wrap: wrap;
+  }
