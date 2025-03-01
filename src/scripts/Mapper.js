@@ -3,7 +3,7 @@
 import Match from "/src/scripts/Match.js";
 import Type from "/src/scripts/Type.js";
 
-/*
+/**
  * Array, Object, and String Mapper.
  *
  * @params Array|Object|String $data
@@ -11,12 +11,10 @@ import Type from "/src/scripts/Type.js";
  *
  * @return Array|Object
  */
-export default function Mapper( data, call )
-{
-	// Starting matching.
+export default function Mapper( data, call ) {
 	var results = Match( data, [
 		
-		/*
+		/**
 		 * Array|String Mapper.
 		 *
 		 * @params Array|String $data
@@ -25,23 +23,20 @@ export default function Mapper( data, call )
 		 */
 		{
 			case: [ Array, String ],
-			call: () =>
-			{
+			call: () => {
+				
 				// Collected data.
 				var stack = [];
 				
 				// For loop as much as the amount of data.
-				for( let i = 0; i < data.length; i++ )
-				{
+				for( let i = 0; i < data.length; i++ ) {
 					stack[i] = call( i, data[i], data.length );
 				}
-				
-				// Return data stack.
-				return( stack );
+				return stack;
 			}
 		},
 		
-		/*
+		/**
 		 * Object Mapper.
 		 *
 		 * @params Object $data
@@ -50,8 +45,8 @@ export default function Mapper( data, call )
 		 */
 		{
 			case: Object,
-			call: () =>
-			{
+			call: () => {
+				
 				// Collected data.
 				var stack = {};
 				
@@ -60,23 +55,19 @@ export default function Mapper( data, call )
 				var vals = Object.values( data );
 				
 				// Repeat data until it runs out.
-				for( let i in keys )
-				{
+				for( let i in keys ) {
 					stack[keys[i]] = call( i, keys[i], vals[i], vals.length );
 				}
-				
-				// Return data stack.
-				return( stack );
+				return stack;
 			}
 		}
 	]);
 	
 	// Resolve for constructor.
-	if( Type( this, [ Mapper, Object, Window ] ) )
-	{
+	if( Type( this, [ Mapper, Object, Window ] ) ) {
 		this.data = data;
 		this.callback = call;
 		this.results = results;
 	}
-	return( results );
+	return results;
 };
