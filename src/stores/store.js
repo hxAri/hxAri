@@ -5,6 +5,8 @@ import { createStore } from "vuex";
 import Router from "/src/routing/router.js";
 
 // Import Scripts
+import Common from "/src/scripts/Common.js";
+import Cookie from "/src/scripts/Cookie.js";
 import Fmt from "/src/scripts/Fmt.js";
 import Json from "/src/scripts/Json.js";
 import Mapper from "/src/scripts/Mapper.js";
@@ -13,28 +15,26 @@ import Requests from "/src/scripts/Requests.js";
 import Terminal from  "/src/scripts/shells/Terminal.js";
 import Theme from "/src/scripts/Theme.js";
 import Type from "/src/scripts/Type.js";
+import Value from "/src/scripts/logics/Value.js";
 
-/*
+/**
  * Find project by name or endpoint.
  *
- * @params Object state
- * @params String project
+ * @param Object state
+ * @param String project
  *
  * @return Object|Undefined
  */
-function finder( state, project )
-{
+function finder( state, project ) {
+	
 	// Normalize project name.
 	project = project.toLowerCase();
 	
 	// Find project by name.
-	for( let i in state.configs.projects )
-	{
-		// Check if project name is Valid.
+	for( let i in state.configs.projects ) {
 		if( project === state.configs.projects[i].name.toLowerCase() ||
-			project === state.configs.projects[i].endpoint.toLowerCase().split( "/" ).pop() )
-		{
-			return( state.configs.projects[i] );
+			project === state.configs.projects[i].endpoint.toLowerCase().split( "/" ).pop() ) {
+			return state.configs.projects[i];
 		}
 	}
 }
@@ -44,7 +44,11 @@ export default createStore({
 	state: () => ({
 		error: false,
 		configs: null,
+		cookie: new Cookie(),
 		documents: {},
+		keysets: [
+			"profile"
+		],
 		loading: false,
 		organizations: null,
 		profile: null,
@@ -54,66 +58,82 @@ export default createStore({
 		request: [],
 		targets: {
 			configs: {
+				url: process.env.NODE_ENV === "production" ? "https://raw.githubusercontent.com/hxAri/hxAri/main/config.json" : "/config.json",
 				error: false,
 				request: null,
 				method: "GET",
-				url: process.env.NODE_ENV === "production" ? "https://raw.githubusercontent.com/hxAri/hxAri/main/config.json" : "/config.json"
+				handler: configs => {
+					if( process.env.NODE_ENV == "development" ) {
+						configs.image.source = "/public/images"
+					}
+					return configs;
+				}
 			},
 			profile: {
+				url: process.env.NODE_ENV === "production" ? "https://api.github.com/users/hxAri" : "/github/hxari.json",
+				url: "https://api.github.com/users/hxAri",
 				error: false,
 				request: null,
-				method: "GET",
-				url: "https://api.github.com/users/hxAri"
+				method: "GET"
 			}
 		},
 		terminal: new Terminal( null, Router ),
-		theme: new Theme()
+		theme: new Theme(),
+		vector: {
+			base64: {
+				error: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDUwNS43NiA1NDkuMzgiPgo8cG9seWdvbiBmaWxsPSJub25lIiBzdHJva2U9IiM4NDkwZmYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludHM9Ijg2LjgsMTQyIDE0LjIsMTgyLjQgMTUsMTM1LjIgODEuMSw4NCIvPgo8cG9seWdvbiBmaWxsPSJub25lIiBzdHJva2U9IiM4NDkwZmYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludHM9IjcuMSw4LjEgNjIuMSw5NCA4MS4yLDc5LjciLz4KPHBvbHlnb24gZmlsbD0ibm9uZSIgc3Ryb2tlPSIjODQ5MGZmIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRzPSI4NC4yLDgxLjcgOTAuNywxNDIuMyA3OC45LDMwMS45IDEzNi4yLDI3MS4zIDE2Mi44LDE3Mi45IDEyNC45LDk4LjciLz4KPHBvbHlnb24gZmlsbD0ibm9uZSIgc3Ryb2tlPSIjODQ5MGZmIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRzPSIxNjksMjUyLjMgMTM5LjYsMjY5LjEgMTY1LjQsMTc0LjMgMjAyLjMsMTc3LjciLz4KPHBvbHlnb24gZmlsbD0ibm9uZSIgc3Ryb2tlPSIjODQ5MGZmIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRzPSIxNjUuOCwyNTguNyA3OC45LDMwNy43IDExNS45LDMyNi40IDM2LjMsNTQyIDIwMC4zLDM3OS43IDE2OC42LDM4Mi40Ii8+Cjxwb2x5Z29uIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzg0OTBmZiIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50cz0iMTc0LjQsMzc3LjggMTg5LjksMzYzIDIwMS43LDM3NS44Ii8+Cjxwb2x5Z29uIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzg0OTBmZiIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50cz0iMTY5LjksMjU5LjMgMTcyLjQsMzc0IDIyMS4yLDMyOS4zIi8+Cjxwb2x5Z29uIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzg0OTBmZiIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50cz0iMTcxLjQsMjU1LjUgMjA0LjQsMjI3LjUgMjIxLjIsMzIzLjgiLz4KPHBvbHlnb24gZmlsbD0ibm9uZSIgc3Ryb2tlPSIjODQ5MGZmIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRzPSIyMDcuOSwyMjkgMjIxLjcsMzAzLjkgMjU1LjIsMjc5LjUiLz4KPHBvbHlnb24gZmlsbD0ibm9uZSIgc3Ryb2tlPSIjODQ5MGZmIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRzPSIyMjIuNCwzMDcuNSAyMjYuMiwzMjkuMyAxOTMuMiwzNjAuMyAxOTYuNiwzNjQgMjM0LjcsMzM2LjggMzYzLjQsMzI5LjkgMjQ4LjIsMjY2LjUgMjYwLjQsMjc5LjgiLz4KPHBvbHlnb24gZmlsbD0ibm9uZSIgc3Ryb2tlPSIjODQ5MGZmIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRzPSIxOTguMywzNjYgMjA1LjIsMzc0LjMgMzUyLjQsMzMzLjcgMjM1LjksMzM5LjgiLz4KPHBvbHlnb24gZmlsbD0ibm9uZSIgc3Ryb2tlPSIjODQ5MGZmIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRzPSIyMjYuMiwyNDMuOCAyNDAuOSwyNTkuMyAzNjMuNCwzMjYuOSAyNDguNywyMzQiLz4KPHBvbHlnb24gZmlsbD0ibm9uZSIgc3Ryb2tlPSIjODQ5MGZmIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRzPSIyNzkuMSwyNTQuNSAzNTkuNCwzMjAuMyAzMTIuNywyNTQuNSIvPgo8cG9seWdvbiBmaWxsPSJub25lIiBzdHJva2U9IiM4NDkwZmYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludHM9IjMxNi45LDI1NC41IDM3MS42LDMzMi40IDI3MC45LDM1OS43IDMxMC4zLDQxNy43IDM4My42LDQwMi40IDM3Ny42LDM1NC40IDUwMC45LDM5OCAzNzAuNiwyNjIuNyIvPgo8cG9seWdvbiBmaWxsPSJub25lIiBzdHJva2U9IiM4NDkwZmYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludHM9IjMxNi42LDQxOS43IDM5OC4zLDU0MiAzODIuMyw0MDYuNCIvPgo8L3N2Zz4="
+			}
+		}
 	}),
 	getters: {
 		
-		/*
+		/**
 		 * Return if config has requested.
 		 *
-		 * @params Object state
+		 * @param Object state
 		 *
 		 * @return Boolean
 		 */
 		hasConfig: state => {
-			return Type( state.configs, Object ) &&
-				   Type( state.targets.configs.request, XMLHttpRequest ) &&
-				   		 state.targets.configs.error === false;
+			if( Type( state.configs, Object ) &&
+				Type( state.targets.configs.request, XMLHttpRequest ) ) {
+					return state.targets.configs.error === false;
+			}
+			return Type( state.configs, Object ) && state.targets.configs.error === false;
 		},
 		
-		/*
+		/**
 		 * Return if profile has requested.
 		 *
-		 * @params Object state
+		 * @param Object state
 		 *
 		 * @return Boolean
 		 */
 		hasProfile: state => {
-			return Type( state.profile, Object ) &&
-				   Type( state.targets.profile.request, XMLHttpRequest ) &&
-				   		 state.targets.profile.error === false;
+			if( Type( state.profile, Object ) &&
+				Type( state.targets.profile.request, XMLHttpRequest ) ) {
+				return state.targets.profile.error === false;
+			}
+			return Type( state.profile, Object ) && state.targets.profile.error === false;
 		},
 		
-		/*
+		/**
 		 * Return if organization has requested.
 		 *
-		 * @params Object state
+		 * @param Object state
 		 *
 		 * @return Boolean
 		 */
-		hasOrganization: state => Type( state.organizations, Array )
+		hasOrganization: state => Type( state.organizations, Array ) && Value.isNotEmpty( state.organizations )
 		
 	},
 	actions: {
 		
-		/*
+		/**
 		 * Get project json documentation.
 		 *
-		 * @params Object state
-		 * @params Object|String project
+		 * @param Object state
+		 * @param Object|String project
 		 *
 		 * @return Promise
 		 */
@@ -121,11 +141,8 @@ export default createStore({
 			
 			// Check if project name is String type.
 			if( Type( project, String ) ) {
-				
-				// Check if project is exists.
-				if( project = finder( state, project ) )
-				{
-					return( await dispatch( "project", project ) );
+				if( project = finder( state, project ) ) {
+					return await dispatch( "project", project );
 				}
 				return;
 			}
@@ -142,7 +159,7 @@ export default createStore({
 			
 			// Enable loading request.
 			// And trying get project info.
-			project.document_loading = Request( "GET", project.document_url );
+			project.document_loading = Request( "GET", Fmt( "{}/{}", process.env.NODE_ENV === "production" ? "https://raw.githubusercontent.com/hxAri/hxAri/main/public/globals/docs" : "", project.document_url ) );
 			
 			// Awaiting request.
 			await project.document_loading 
@@ -163,15 +180,49 @@ export default createStore({
 			// Disable loading request.
 			project.document_loading = false;
 		},
-
-		/*
+		
+		/**
+		 * Initialize before sent request.
+		 *
+		 * @param Object state, dispatch, getters, commit
+		 *
+		 * @return Promise
+		 */
+		initialize: async function({ state, dispatch, getters, commit }) {
+			for( let i in state.keysets ) {
+				var keyset = Fmt( "\x78\x7b\x7d", Common.bin2hex( state.keysets[i] ) );
+				var value = state.cookie.get( keyset );
+				if( Value.isNotEmpty( value ) ) {
+					try {
+						var decoded = atob( value );
+							value = decoded;
+					}
+					catch( e ) {
+					}
+					switch( state.keysets[i] ) {
+						case "profile":
+							state.profile = Json.decode( value );
+							state.targets.profile.response = value;
+							break;
+					}
+				}
+			}
+			await dispatch( "priority" );
+		},
+		
+		/**
 		 * Get all organization informations.
 		 *
-		 * @params Object state, dispatch
+		 * @param Object state, dispatch, getters, commit })
 		 *
 		 * @return Promise
 		 */
 		organization: async function({ state, dispatch, getters, commit }) {
+			
+			var url = process.env.NODE_ENV === "production" ? "https://api.github.com/orgs/{}" : "/github/{}.json";
+			var cookie = Fmt( "\x78\x7b\x7d", Common.bin2hex( "organizations" ) );
+			var values = state.cookie.get( cookie );
+			var organizations = [];
 			
 			// Check if priority requests does not made.
 			if( getters.hasConfig === false && state.loading === false ) {
@@ -182,10 +233,34 @@ export default createStore({
 			if( state.error || state.loading ) {
 				return;
 			}
+			
+			if( Value.isNotEmpty( values ) ) {
+				try {
+					try {
+						var decoded = atob( values );
+							values = decoded;
+					}
+					catch( e ) {
+					}
+					values = Json.decode( values );
+					if( Type( values, Array ) && Value.isNotEmpty( values ) ) {
+						for( let organization of values ) {
+							if( state.configs.organizations.indexOf( organization.login ) >= 0 ) {
+								commit( "organization", organization );
+								organizations.push( organization.login );
+							}
+						}
+					}
+				}
+				catch( e ) {
+				}
+			}
+			
 			for( let u in state.configs.organizations ) {
-				
-				// Get all organization profile.
-				await Request( "GET", Fmt( "https://api.github.com/orgs/{}", state.configs.organizations[u] ) )
+				if( organizations.indexOf( state.configs.organizations[u] ) >= 0 ) {
+					continue;
+				}
+				await Request( "GET", Fmt( url, state.configs.organizations[u] ) )
 					
 					// Handle request response.
 					.then( request => commit( "organization", request.response ) )
@@ -195,20 +270,25 @@ export default createStore({
 				
 				// If request succesfull created.
 				if( Type( state.configs.organizations[u], String ) ) {
+					try {
+						state.cookie.set( cookie, btoa( Json.encode( state.organizations ) ), { expires: 1, path: "/" } );
+					}
+					catch( e ) {
+					}
 					continue;
 				}
 				break;
 			}
 		},
 		
-		/*
+		/**
 		 * Get profile and configuration application.
 		 *
-		 * @params Object state
+		 * @param Object state, getters
 		 *
 		 * @return Promise
 		 */
-		priority: async function({ state }) {
+		priority: async function({ state, getters }) {
 			try {
 				
 				// Remove previous error.
@@ -217,25 +297,34 @@ export default createStore({
 				// Enable loading request.
 				state.loading = true;
 				
-				// Get object keys.
-				var keys = Object.keys( state.targets );
+				var keys = [];
+				var targets = [];
+				
+				for( let target of Object.keys( state.targets ) ) {
+					var getter = Fmt( "has{}{}", target.charAt( 0 ).toUpperCase(), target.slice( 1 ) );
+					if( getters[getter] ) {
+						continue;
+					}
+					keys.push( target );
+					targets.push( state.targets[target] );
+				}
 				
 				// Create multiple requests.
-				await Requests( Object.values( state.targets ) )
+				await Requests( targets )
 				
 				// Handle all request responses.
 				.then( r => Mapper( r,
 					
-					/*
+					/**
 					 * Mapping request reponses.
 					 *
-					 * @params Number i
-					 * @params XMLHttpRequest request
+					 * @param Number i
+					 * @param XMLHttpRequest request
 					 *
 					 * @return Void
 					 */
-					function( i, request )
-					{
+					function( i, request ) {
+						
 						// Parse request response and update
 						// state data based on key iteration.
 						state[keys[i]] = Json.decode( request.response );
@@ -244,6 +333,25 @@ export default createStore({
 						state.targets[keys[i]].error = false;
 						state.targets[keys[i]].request = request;
 						state.targets[keys[i]].response = request.response;
+						
+						// Check if request target has interceptor for handle response.
+						if( Type( state.targets[keys[i]].handler, "handler" ) ) {
+							state[keys[i]] = state.targets[keys[i]].handler( state[keys[i]] );
+						}
+						
+						// Save request response into cookies.
+						if( state.keysets.indexOf( keys[i] ) >= 0 ) {
+							try {
+								state.cookie.set( Fmt( "x{}", Common.bin2hex( keys[i] ) ), btoa( Json.encode( state[keys[i]] ) ), { expires: 1, path: "/" } );
+							}
+							catch( e ) {
+								try {
+									state.cookie.set( Fmt( "x{}", Common.bin2hex( keys[i] ) ), Json.encode( state[keys[i]] ), { expires: 1, path: "/" } );
+								}
+								catch( e ) {
+								}
+							}
+						}
 					}
 				))
 				
@@ -252,20 +360,16 @@ export default createStore({
 				.catch( e => { throw e; });
 			}
 			catch( error ) {
-				
-				// Set throwned error.
 				state.error = error;
 			}
-			
-			// Disable loading.
 			state.loading = false;
 		},
 		
-		/*
+		/**
 		 * Get project informations.
 		 *
-		 * @params Object state, dispatch
-		 * @params String project
+		 * @param Object state, dispatch
+		 * @param String project
 		 *
 		 * @return Promise
 		 */
@@ -273,11 +377,8 @@ export default createStore({
 			
 			// Check if project name is String type.
 			if( Type( project, String ) ) {
-				
-				// Check if project is exists.
-				if( project = finder( state, project ) )
-				{
-					return( await dispatch( "project", project ) );
+				if( project = finder( state, project ) ) {
+					return await dispatch( "project", project );
 				}
 				return;
 			}
@@ -293,54 +394,31 @@ export default createStore({
 				request => state.projects[project.endpoint ? project.endpoint : project.name] = Json.decode( request.response ),
 				request => state.readmes[project.endpoint ? project.endpoint : project.name] = request.response
 			];
-
+			
 			// If project has readme file documentation.
 			if( Type( project.readme_url, String ) ) {
-				
-				// Create multiple requests.
-				project.loading = Requests([
-					Fmt( "https://api.github.com/repos/{}", project.endpoint ? project.endpoint : project.name ),
-					project.readme_url
-				]);
-
-				// A waiting request.
+				project.loading = Requests([ Fmt( "https://api.github.com/repos/{}", project.endpoint ? project.endpoint : project.name ), project.readme_url ]);
 				await project.loading
-
-					// Handle all requests response.
 					.then( r => Mapper( r, ( i, request ) => project.handler[i]( request ) ) )
-					
-					// Set error occured on project.
-					.catch( e => { project.error = e; } );
-					
-				// Disable loading request.
-				project.loading = false;
+					.catch( e => { project.error = e; } )
+					.finally( () => { project.loading = false; } );
 			}
 			else {
-
-				// Just get project information.
 				project.loading = Request( "GET", Fmt( "https://api.github.com/repos/{}", project.endpoint ? project.endpoint : project.name ) );
-
-				// A waiting request.
 				await project.loading
-
-					// Handle request response.
 					.then( request => state.projects[project.endpoint ? project.endpoint : project.name] = Json.decode( request.response ) )
-					
-					// Set error occured on project.
-					.catch( e => { project.error = e; } );
-					
-				// Disable loading request.
-				project.loading = false;
+					.catch( e => { project.error = e; } )
+					.finally( () => { project.loading = false; } );
 			}
 		}
 	},
 	mutations: {
 		
-		/*
+		/**
 		 * Organization mutation.
 		 *
-		 * @params Object state
-		 * @params Object organization
+		 * @param Object state
+		 * @param Object|String organization
 		 *  Parsed json organization from API.
 		 *
 		 * @return Void
@@ -351,9 +429,9 @@ export default createStore({
 			if( Type( state.organizations, Array ) === false ) state.organizations = [];
 			
 			// Parse request response.
-			if( Type( organization, String ) ) organization = Json.decode( organization );
-			
-			// Push organization.
+			if( Type( organization, String ) ) {
+				organization = Json.decode( organization );
+			}
 			state.organizations.push( organization );
 		}
 	}
