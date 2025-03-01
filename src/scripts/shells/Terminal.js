@@ -10,7 +10,7 @@ import Mapper from "/src/scripts/Mapper.js";
 import Type from "/src/scripts/Type.js";
 import Value from "/src/scripts/logics/Value.js";
 
-/*
+/**
  * Virtual Terminal.
  *
  * @params Object binding
@@ -19,8 +19,10 @@ import Value from "/src/scripts/logics/Value.js";
  * @return Terminal
  */
 function Terminal( binding, router ) {
-
-	/*
+	
+	Terminal.prototype.banner = Banner;
+	
+	/**
 	 * Terminal command builder.
 	 *
 	 * Before the program is executed, the program must be made
@@ -45,7 +47,7 @@ function Terminal( binding, router ) {
 		
 		var built = {};
 		
-		/*
+		/**
 		 * Prototype setter.
 		 *
 		 * @params Object prototypes
@@ -55,7 +57,7 @@ function Terminal( binding, router ) {
 		var map = function( prototypes ) {
 			Mapper( prototypes,
 				
-				/*
+				/**
 				 * Set program/ command prototype.
 				 *
 				 * @params Number i
@@ -93,7 +95,25 @@ function Terminal( binding, router ) {
 			built.prototype.$envs = this.exports;
 			built.prototype.$vars = this.declare;
 			
-			/*
+			// Check if program/ command has version.
+			if( Value.isNotEmpty( shell.version, String ) ) {
+				built.prototype.$version = shell.version;
+			}
+			
+			/**
+			 * Allow program/ command for print output into terminal screeen.
+			 * 
+			 * @params Array<String> stdout
+			 * 
+			 * @return Void
+			 */
+			built.prototype.$echo = function( ...stdout ) {
+				this.$root.history.push({
+					stdout: stdout
+				})
+			};
+			
+			/**
 			 * Allow program/ command for call another.
 			 *
 			 * @params String argument
@@ -104,7 +124,7 @@ function Terminal( binding, router ) {
 
 				// Find command line shell.
 				var shell = this.$root.commands.find( shell => shell.name === this.$root.shell );
-				var result = [];
+				var results = [];
 				
 				// If shell is available.
 				if( shell ) {
@@ -117,17 +137,32 @@ function Terminal( binding, router ) {
 						var built = this.$root.builder( shell, { argv: null, args: null } );
 					}
 					var exec = new built({ argument });
-						exec.forEach( output => 
-							result.push( output.join( "\x20" ) )
-						);
+						exec.forEach( execution => {
+							if( Value.isNotEmpty( execution.stdout ) ) {
+								if( Type( execution.stdout, Array ) ) {
+									results = results.concat( execution.stdout );
+								}
+								else {
+									results.push( execution.stdout );
+								}
+							}
+							if( Value.isNotEmpty( execution.stderr ) ) {
+								if( Type( execution.stderr, Array ) ) {
+									results = results.concat( execution.stderr );
+								}
+								else {
+									results.push( execution.stderr );
+								}
+							}
+						});
 				}
 				else {
 					throw new Error( Fmt( "{}: Shells not available", this.$root.shell ) );
 				}
-				return result.join( "\x20" );
+				return results.join( "\x20" );
 			};
 			
-			/*
+			/**
 			 * @inherit /src/scripts/shells/Helper
 			 */
 			built.prototype.$help = function() {
@@ -151,14 +186,14 @@ function Terminal( binding, router ) {
 		return built;
 	};
 	
-	/*
+	/**
 	 * Terminal command instances.
 	 *
 	 * @values Object
 	 */
 	Terminal.prototype.built = Terminal.prototype.built ?? {};
 	
-	/*
+	/**
 	 * Automatic colorize text, number, and symbols in the string.
 	 *
 	 * @params String string
@@ -168,7 +203,7 @@ function Terminal( binding, router ) {
 	Terminal.prototype.colorable = function( string ) {
 		var patterns = {
 			comment: {
-				pattern: "(?<comment>(?:\\/\\/[^\\n]*)|(?:\\/\\*.*?\\*\\/))",
+				pattern: "(?<comment>(?:\\/\\/[^\\x0a]*)|(?:\\/\\*.*?\\*\\/))",
 				styling: "var(--shell-c-38-240m)"
 			},
 			number: {
@@ -335,7 +370,6 @@ function Terminal( binding, router ) {
 						chars = patterns[group].handler( chars );
 					}
 				}
-
 				if( Type( patterns[group].rematch, Array ) ) {
 					var result = "";
 					var reindex = 0;
@@ -352,27 +386,21 @@ function Terminal( binding, router ) {
 			}
 			return "";
 		};
-
-		// try {
-			var index = 0;
-			var match = null;
-			var result = "";
-			var escape = "var(--shell-c-0-37m)";
-			var string = Type( string, String, () => string, () => "" );
-			var pattern = new RegExp( Fmt( "(?:{})", Object.values( Mapper( patterns, ( i, k, val ) => val.pattern ) ).join( "|" ) ), "gms" );
-			while( ( match = pattern.exec( string ) ) !== null ) {
-				result += string.substring( index, pattern.lastIndex - match[0].length );
-				result += Fmt( "<span style=\"color: {}\" data-group=\"{}\">{}</span>", escape, "captured", handler( match, escape, patterns ) );
-				index = pattern.lastIndex;
-			}
-		// }
-		// catch( error ) {
-		// 	console.error( "error", error );
-		// }
+		var index = 0;
+		var match = null;
+		var result = "";
+		var escape = "var(--shell-c-0-37m)";
+		var string = Type( string, String, () => string, () => "" );
+		var pattern = new RegExp( Fmt( "(?:{})", Object.values( Mapper( patterns, ( i, k, val ) => val.pattern ) ).join( "|" ) ), "gms" );
+		while( ( match = pattern.exec( string ) ) !== null ) {
+			result += string.substring( index, pattern.lastIndex - match[0].length );
+			result += Fmt( "<span style=\"color: {}\" data-group=\"{}\">{}</span>", escape, "captured", handler( match, escape, patterns ) );
+			index = pattern.lastIndex;
+		}
 		return result + string.substring( index );
 	};
 	
-	/*
+	/**
 	 * Automatic colorize text, number, and symbols in the string with ansi color.
 	 *
 	 * @params String format
@@ -469,56 +497,63 @@ function Terminal( binding, router ) {
 		return result + format.substring( index );
 	};
 	
-	/*
+	/**
 	 * Container for the entire available commands.
 	 *
 	 * @values Array
 	 */
 	Terminal.prototype.commands = [];
 	
-	/*
+	/**
 	 * Date instance.
 	 *
 	 * @values Datime
 	 */
 	Terminal.prototype.date = new Datime();
 	
-	/*
+	/**
 	 * All declared variables.
 	 *
 	 * @values Object
 	 */
 	Terminal.prototype.declare = {};
 	
-	/*
+	/**
 	 * Container for the entire terminal directoies.
 	 *
 	 * @values Array
 	 */
 	Terminal.prototype.directory = Directory;
 	
-	/*
+	/**
 	 * Container for the entire environment names.
 	 *
 	 * @values Object
 	 */
 	Terminal.prototype.exports = {
 		
-		/*
+		/**
+		 * Terminal paths.
+		 *
+		 * @values String
+		 */
+		PATH: "/bin:/usr/bin",
+		
+		/**
 		 * Terminal root directory.
 		 *
 		 * @values String
 		 */
 		ROOT: "/terminal",
 		
-		/*
+		/**
 		 * Terminal home directory.
 		 *
 		 * @values String
 		 */
-		HOME: "/root",
+		HOME: "/home/hxari",
 		
-		/*
+		/**
 		 * Current terminal working directory info.
 		 *
 		 * @values Object
@@ -527,7 +562,7 @@ function Terminal( binding, router ) {
 			path: "/terminal"
 		},
 		
-		/*
+		/**
 		 * Terminal prompt.
 		 *
 		 * @values String
@@ -535,7 +570,7 @@ function Terminal( binding, router ) {
 		PS1: "\\[\\e[1;38;5;112m\\]\\u\\[\\e[1;38;5;190m\\]@\\h\\[\\e[1;38;5;214m\\]:\x20\\[\\e[1;32m\\]\\w\\[\\e[1;37m\\]\x20$\x20"
 	};
 	
-	/*
+	/**
 	 * String formater.
 	 *
 	 * @params String format
@@ -571,7 +606,7 @@ function Terminal( binding, router ) {
 		return string;
 	};
 	
-	/*
+	/**
 	 * Terminal format styling.
 	 *
 	 * @params String code
@@ -710,32 +745,35 @@ function Terminal( binding, router ) {
 		9: "text-decoration-line: line-through",
 	};
 	
-	/*
+	/**
 	 * Terminal History.
 	 *
 	 * @values Array
 	 */
 	Terminal.prototype.history = Terminal.prototype.history ?? [{
-		output: Banner,
+		stdin: null,
+		stderr: null,
+		stdout: this.banner,
+		prompt: null,
 		replaced: false,
 		typing: "banner"
 	}];
 	
-	/*
+	/**
 	 * Terminal Hostname.
 	 *
 	 * @values String
 	 */
 	Terminal.prototype.hostname = Terminal.prototype.hostname ?? window.location.host?.split( "\x3a" )[0] ?? "hxari";
 	
-	/*
+	/**
 	 * Terminal Loading.
 	 *
 	 * @values Boolean
 	 */
 	Terminal.prototype.loading = false;
 	
-	/*
+	/**
 	 * Push new log.
 	 *
 	 * @params String level
@@ -769,14 +807,14 @@ function Terminal( binding, router ) {
 		});
 	};
 	
-	/*
+	/**
 	 * Container for the entire logs.
 	 *
 	 * @values Array<Object>
 	 */
 	Terminal.prototype.logs = [];
 	
-	/*
+	/**
 	 * Terminal directory scanner.
 	 *
 	 * @params String path
@@ -878,7 +916,7 @@ function Terminal( binding, router ) {
 				// Find directory part name.
 				dir = dir.find(
 					
-					/*
+					/**
 					 * Find directory part name by regex or part name.
 					 *
 					 * @params Object d
@@ -910,7 +948,13 @@ function Terminal( binding, router ) {
 		return dir.type === "symlink" ? this.ls( dir.from ) : dir;
 	};
 	
-	/*
+	Terminal.prototype.mkdir = function( pathname ) {
+	};
+	
+	Terminal.prototype.mvdir = function( source, target ) {
+	};
+	
+	/**
 	 * Parses a stack trace from an Error object and returns an array of objects
 	 * containing information about each function call in the stack trace.
 	 *
@@ -920,15 +964,15 @@ function Terminal( binding, router ) {
 	 */
 	Terminal.prototype.parseStackTrace = function( error ) {
 
-		/*
+		/**
 		 * Split the stack trace string into an array of lines and
 		 * remove the first line (which contains the error message).
 		 *
 		 */
-		const lines = error.stack.split( "\n" ).slice( 1 );
+		const lines = error.stack.split( "\x0a" ).slice( 1 );
 		return lines
 			
-		/*
+		/**
 			 * Map over the array of lines and extract information about
 			 * each function call using a regular expression.
 			 *
@@ -936,7 +980,7 @@ function Terminal( binding, router ) {
 			.map( line => {
 				const match = line.match( /^\s*at\s+(.*)\s+\((.*):(\d+):(\d+)\)$/ );
 				
-				/*
+				/**
 				 * If the line matches the regular expression, extract the function name,
 				 * file name, line number, and column number into an object.
 				 *
@@ -958,7 +1002,7 @@ function Terminal( binding, router ) {
 			.filter( item => !!item );
 	};
 
-	/*
+	/**
 	 * Path destination name resolver.
 	 *
 	 * @params String path
@@ -1033,7 +1077,7 @@ function Terminal( binding, router ) {
 		return results + path.substring( index );
 	};
 	
-	/*
+	/**
 	 * Prompt formater.
 	 *
 	 * @params String format
@@ -1092,7 +1136,7 @@ function Terminal( binding, router ) {
 		return this.format( prompt + format.substring( index ) );
 	};
 	
-	/*
+	/**
 	 * Return Terminal current working directory.
 	 *
 	 * @params Boolean base
@@ -1124,7 +1168,7 @@ function Terminal( binding, router ) {
 		return path;
 	};
 	
-	/*
+	/**
 	 * Run terminal with command.
 	 *
 	 * @params String argument
@@ -1132,13 +1176,10 @@ function Terminal( binding, router ) {
 	 * @return Promise
 	 */
 	Terminal.prototype.run = async function( argument ) {
-
-		// Copy current object instance.
 		var self = this;
-		
 		return await new Promise(
 			
-			/*
+			/**
 			 * Command runner.
 			 *
 			 * @params Function resolve
@@ -1146,13 +1187,15 @@ function Terminal( binding, router ) {
 			 *
 			 * @return Void
 			 */
-			function( resolve, reject ) {
+			async function( resolve, reject ) {
 				self.loading = true;
 				self.binding.model = "";
 				self.history.push({
+					stdin: null,
+					stderr: null,
+					stdout: [],
 					prompt: self.prompt( self.exports.PS1 ),
 					inputs: self.colorable( argument ),
-					output: [],
 					raw: argument
 				});
 				try {
@@ -1164,21 +1207,16 @@ function Terminal( binding, router ) {
 						else {
 							var built = self.builder( shell, { argv: null, args: null } );
 						}
-						var exec = new built({ argument });
-							exec.forEach( output => 
-								self.history.push({
-									output: output
-								})
-							);
+						var executes = new built({ argument });
+							executes.map( executed => self.history.push( executed ) );
 					}
 					else {
 						throw new Error( Fmt( "{}: Shells not available", self.shell ) );
 					}
 				}
 				catch( error ) {
-					console.error( error );
 					self.log( "error", error );
-					self.history.push({ output: self.colorableAnsi( Fmt( "{}: {}", self.shell, error ) ) });
+					self.history.push({ stdout: self.colorableAnsi( Fmt( "{}: {}", self.shell, error ) ) });
 				}
 				self.loading = false;
 			}
@@ -1187,80 +1225,80 @@ function Terminal( binding, router ) {
 	
 	Terminal.prototype.stdin = "";
 	
-	/*
+	/**
 	 * Terminal shell name.
 	 *
 	 * @values String
 	 */
 	Terminal.prototype.shell = "js";
 	
-	/*
+	/**
 	 * Terminal style.
 	 *
 	 * @values String
 	 */
 	Terminal.prototype.style = "font-weight: normal; font-style: normal; text-decoration: none; text-decoration-line: none; color: var(--shell-c-37m); opacity: 1";
 	
-	/*
+	/**
 	 * Terminal username.
 	 *
 	 * @values String
 	 */
-	Terminal.prototype.user = "root";
+	Terminal.prototype.user = "hxari";
 	
-	/*
+	/**
 	 * Terminal version.
 	 *
 	 * @values String
 	 */
 	Terminal.prototype.version = "4.0";
 	
-	/*
+	/**
 	 * Terminal version release.
 	 *
 	 * @values String
 	 */
 	Terminal.prototype.versionRelease = "4.0.0";
 
-	/*
+	/**
 	 * Container for the entire alias name.
 	 *
 	 * @values Array
 	 */
 	Terminal.prototype.aliases = {
 		"\x63\x68\x69\x6e\x74\x79\x61": "\x65\x63\x68\x6f\x20\x2d\x65\x20\x22\x63\x68\x69\x6e\x74\x79\x61\x3a\x20\x59\x6f\x75\x20\x61\x72\x65\x20\x62\x65\x61\x75\x74\x69\x66\x75\x6c\x2c\x20\x63\x75\x74\x65\x2c\x20\x6b\x69\x6e\x64\x2c\x20\x77\x68\x69\x74\x65\x2c\x20\x72\x65\x64\x64\x69\x73\x68\x2c\x20\x73\x6d\x6f\x6f\x74\x68\x2c\x20\x73\x6f\x66\x74\x2c\x20\x62\x75\x74\x20\x61\x6c\x73\x6f\x20\x76\x65\x72\x79\x20\x61\x6e\x6e\x6f\x79\x69\x6e\x67\x3b\x20\x59\x6f\x75\x20\x6c\x69\x6b\x65\x20\x73\x6b\x79\x20\x62\x6c\x75\x65\x3b\x20\x41\x6e\x64\x20\x79\x6f\x75\x20\x6c\x69\x6b\x65\x20\x63\x6c\x65\x61\x72\x20\x73\x6f\x75\x70\x20\x77\x69\x74\x68\x20\x67\x72\x65\x65\x6e\x20\x73\x70\x69\x6e\x61\x63\x68\x3b\x20\x49\x20\x72\x65\x61\x6c\x6c\x79\x20\x72\x65\x61\x6c\x6c\x79\x20\x6c\x69\x6b\x65\x20\x79\x6f\x75\x20\x61\x6e\x64\x20\x77\x65\x20\x77\x69\x6c\x6c\x20\x67\x65\x74\x20\x6d\x61\x72\x72\x69\x65\x64\x20\x73\x6f\x6d\x65\x74\x69\x6d\x65\x20\x73\x6f\x6f\x6e\x20\x61\x66\x74\x65\x72\x20\x49\x20\x6d\x6f\x76\x65\x20\x6f\x66\x66\x69\x63\x65\x73\x22",
-		"\x6c\x69\x61\x6e\x61\x72\x79": "\x65\x63\x68\x6f\x20\x2d\x65\x20\x22\x6c\x69\x61\x6e\x61\x3a\x20\x52\x65\x6d\x65\x6d\x62\x65\x72\x2c\x20\x66\x61\x6c\x6c\x69\x6e\x67\x20\x69\x6e\x20\x6c\x6f\x76\x65\x20\x62\x65\x63\x61\x75\x73\x65\x20\x6f\x66\x20\x66\x61\x69\x74\x68\x20\x69\x73\x20\x6d\x75\x63\x68\x20\x6d\x6f\x72\x65\x20\x62\x65\x61\x75\x74\x69\x66\x75\x6c\x20\x74\x68\x61\x6e\x20\x66\x61\x6c\x6c\x69\x6e\x67\x20\x69\x6e\x20\x6c\x6f\x76\x65\x20\x62\x65\x63\x61\x75\x73\x65\x20\x6f\x66\x20\x6c\x75\x73\x74\x3b\x20\x49\x20\x73\x68\x6f\x75\x6c\x64\x20\x68\x61\x76\x65\x20\x75\x6e\x64\x65\x72\x73\x74\x6f\x6f\x64\x20\x79\x6f\x75\x72\x20\x63\x6f\x64\x65\x20\x66\x72\x6f\x6d\x20\x74\x68\x65\x20\x73\x74\x61\x72\x74\x3b\x20\x4f\x6e\x65\x20\x6d\x6f\x72\x65\x20\x74\x68\x69\x6e\x67\x2c\x20\x49\x20\x6d\x69\x73\x73\x20\x79\x6f\x75\x72\x20\x76\x6f\x69\x63\x65\x22"
+		"\x6c\x69\x61\x6e\x61": "\x65\x63\x68\x6f\x20\x2d\x65\x20\x22\x6c\x69\x61\x6e\x61\x3a\x20\x52\x65\x6d\x65\x6d\x62\x65\x72\x2c\x20\x66\x61\x6c\x6c\x69\x6e\x67\x20\x69\x6e\x20\x6c\x6f\x76\x65\x20\x62\x65\x63\x61\x75\x73\x65\x20\x6f\x66\x20\x66\x61\x69\x74\x68\x20\x69\x73\x20\x6d\x75\x63\x68\x20\x6d\x6f\x72\x65\x20\x62\x65\x61\x75\x74\x69\x66\x75\x6c\x20\x74\x68\x61\x6e\x20\x66\x61\x6c\x6c\x69\x6e\x67\x20\x69\x6e\x20\x6c\x6f\x76\x65\x20\x62\x65\x63\x61\x75\x73\x65\x20\x6f\x66\x20\x6c\x75\x73\x74\x3b\x20\x49\x20\x73\x68\x6f\x75\x6c\x64\x20\x68\x61\x76\x65\x20\x75\x6e\x64\x65\x72\x73\x74\x6f\x6f\x64\x20\x79\x6f\x75\x72\x20\x63\x6f\x64\x65\x20\x66\x72\x6f\x6d\x20\x74\x68\x65\x20\x73\x74\x61\x72\x74\x3b\x20\x4f\x6e\x65\x20\x6d\x6f\x72\x65\x20\x74\x68\x69\x6e\x67\x2c\x20\x49\x20\x6d\x69\x73\x73\x20\x79\x6f\x75\x72\x20\x76\x6f\x69\x63\x65\x22"
 	};
 	
-	/*
+	/**
 	 * Terminal author info
 	 *
 	 * @values Object
 	 */
 	Terminal.prototype.author = Author;
 	
-	/*
+	/**
 	 * Set Terminal vue component instance.
 	 *
 	 * @values Object
 	 */
 	Terminal.prototype.binding = binding;
 	
-	/*
+	/**
 	 * Set Current working directory.
 	 *
 	 * @values Object
 	 */
 	Terminal.prototype.exports.PWD = router.currentRoute;
 	
-	/*
+	/**
 	 * Get Terminal commands.
 	 *
 	 * @values Array<Object>
 	 */
 	Terminal.prototype.commands = this.ls( "/bin" );
 	
-	/*
+	/**
 	 * Set Terminal router.
 	 *
 	 * @values Router
