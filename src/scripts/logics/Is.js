@@ -2,7 +2,7 @@
 // Importing Scripts.
 import Type from "/src/scripts/Type.js";
 
-/*
+/**
  * @inherit scripts/Type
  *
  */
