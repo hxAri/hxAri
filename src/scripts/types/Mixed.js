@@ -10,8 +10,8 @@ import Type from "/src/scripts/Type.js";
  *
  * @return Mixed
  */
-export default function Mixed( value = false )
-{
+export default function Mixed( value = false ) {
+	
 	/* Set the value as well as the value type to avoid
 	 * returning errors if the function is called using
 	 * the constructor.
