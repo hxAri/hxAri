@@ -1,0 +1,18 @@
+{
+	"title": "Eremento",
+	"routes": [
+		{
+			"path": "/projects/Eremento",
+			"name": "home",
+			"readable": true,
+			"component": {
+				"template": {
+					"name": "div",
+					"attributes": {
+						"innerHTML": "Eremento"
+					}
+				}
+			}
+		}
+	]
+}
