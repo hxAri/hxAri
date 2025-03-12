@@ -2,7 +2,6 @@
 <script>
 	
 	import { mapState } from "vuex";
-	import { RouterLink } from "vue-router";
 	
 	// Import Scripts
 	import Datime from "/src/scripts/Datime.js";
@@ -62,7 +61,7 @@
 			 * @return Array
 			 */
 			filter: function() {
-				return this.configs.projects.filter( project => project.include );
+				return this.configs.project.includes.filter( project => project.include );
 			},
 			
 			/**
@@ -127,7 +126,7 @@
 							</div>
 						</div>
 					</div>
-					<div class="project-modal-single pd-14" v-else-if="active.error">
+					<div class="project-modal-single pd-14" v-else-if="( active.error && projects[active.endpoint] === undefined )">
 						<div class="alert-single error">
 							<div class="alert-slot">
 								{{ active.error }}
@@ -146,8 +145,8 @@
 										<div class="avatar-cover"></div>
 									</div>
 									<div class="project-language">
-										<div class="project-language-avatar-wrapper avatar-wrapper">
-											<img class="avatar-image" :title="active.name" alt="Language" :data-src="image.search( configs.image, 'language', projects[active.endpoint] ? ( projects[active.endpoint].language ? projects[active.endpoint].language.toLowerCase() : active.language.toLowerCase() ) : active.language.toLowerCase() )" v-lazyload />
+										<div class="project-language-avatar-wrapper avatar-wrapper rd-circle bg-3">
+											<img class="avatar-image lazy" :title="active.name" alt="Language" :data-src="image.search( configs.image, 'language', projects[active.endpoint] ? ( projects[active.endpoint].language ? projects[active.endpoint].language.toLowerCase() : active.language.toLowerCase() ) : active.language.toLowerCase() )" v-lazyload />
 											<div class="avatar-cover"></div>
 										</div>
 									</div>
@@ -158,7 +157,8 @@
 								</p>
 								<h6 class="title mg-0">License</h6>
 								<p class="sub-title mg-bottom-14">
-									{{ projects[active.endpoint].license ? projects[active.endpoint].license.name : "Unavailable" }}
+									<a class="text" :href="projects[active.endpoint].license.url" target="_blank" rel="noopener noreferrer" v-if="( projects[active.endpoint].license )">{{ projects[active.endpoint].license.name }}</a>
+									<span v-else>Unavailable</span>
 								</p>
 								<p class="text mg-bottom-14">
 									<RouterLink class="dp-block" :to="{ path: '/projects/' + active.endpoint.split( '/' ).pop(), query: {} }">
@@ -175,14 +175,21 @@
 										<i class="bx bx-check-double mg-right-12"></i>
 										Updated {{ datetime( projects[active.endpoint].updated_at ).format( "%A, %b %d %Y" ) }}
 									</p>
-									<p class="sub-title pd-14 rd-square bg-4">
+									<p class="sub-title pd-14 rd-square bg-4 mg-bottom-14">
 										<i class="bx bx-git-commit mg-right-12"></i>
 										Pushed {{ datetime( projects[active.endpoint].pushed_at ).format( "%A, %b %d %Y" ) }}
 									</p>
 								</div>
+								<div class="dp-block mg-bottom-14" v-if="( projects[active.endpoint].topics.length >= 1 )">
+									<h6 class="title mg-bottom-12" data-title="name">Topics</h6>
+									<div class="dp-flex flex-left flex-wrap" style="gap: 14px">
+										<button class="button fb-45 flex flex-center pd-top-4 pd-bottom-4 pd-left-10 pd-right-10 rd-square-v2 title" v-for="topic in projects[active.endpoint].topics">{{ topic }}</button>
+									</div>
+								</div>
 								<p class="text">
 									<span class="sub-title mg-right-6">
-										<i class="bx bxs-star"></i>
+										<i class="bx bxs-star" v-if="( projects[active.endpoint].stargazers_count >= 1 )"></i>
+										<i class="bx bx-star" v-else></i>
 										{{ projects[active.endpoint].stargazers_count }}
 									</span>
 									<span class="sub-title mg-right-6">
@@ -190,18 +197,25 @@
 										{{ projects[active.endpoint].forks_count }}
 									</span>
 									<span class="sub-title mg-right-6">
-										<i class="bx bxs-show"></i>
+										<i class="bx bxs-show" v-if="( projects[active.endpoint].watchers_count >= 1 )"></i>
+										<i class="bx bx-show" v-else></i>
 										{{ projects[active.endpoint].watchers_count }}
 									</span>
+									<span class="sub-totle mg-right-6">
+										<i class="bx bxs-bookmark-heart" v-if="( projects[active.endpoint].subscribers_count >= 1 )"></i>
+										<i class="bx bx-bookmark-heart" v-else></i>
+										{{ projects[active.endpoint].subscribers_count }}
+									</span>
 									<span class="sub-title">
-										<i class="bx bxs-bug"></i>
+										<i class="bx bxs-bug" v-if="( projects[active.endpoint].open_issues_count >= 1 )"></i>
+										<i class="bx bx-bug" v-else></i>
 										{{ projects[active.endpoint].open_issues_count }}
 									</span>
 								</p>
 							</div>
 						</div>
 						<div class="project-modal-group readme scroll-y">
-							<Markdown :content="readme()" />
+							<Markdown :content="readme()" v-if="( readmes[( active.endpoint ? active.endpoint : active.name )] !== undefined )" />
 						</div>
 					</div>
 				</div>
@@ -211,12 +225,12 @@
 			<div class="project rd-square" v-for="project in filter()" v-scroll-reveal="{ delay: 600 }">
 				<div class="project-body" v-scroll-reveal="{ delay: 600 }">
 					<div class="project-avatar avatar-wrapper flex flex-center" @click="display( project )">
-						<img class="avatar-image" :title="project.name" :alt="project.name" :data-src="project.thumbnail ? image.resolver( configs.image, project.thumbnail ) : image.search( configs.image, 'project', project.endpoint.split( '/' )[1].toLowerCase() )" v-lazyload />
+						<img class="avatar-image lazy" :title="project.name" :alt="project.name" :data-src="project.thumbnail ? image.resolver( configs.image, project.thumbnail ) : image.search( configs.image, 'project', project.endpoint.split( '/' )[1].toLowerCase() )" v-lazyload />
 						<div class="avatar-cover"></div>
 					</div>
 					<div class="project-language" v-if="$store.state.projects[project.endpoint] !== null | project.language !== null">
-						<div class="project-language-avatar-wrapper avatar-wrapper">
-							<img class="avatar-image" :title="project.name" alt="Language" :data-src="image.search( configs.image, 'language', project.language.toLowerCase() )" v-lazyload />
+						<div class="project-language-avatar-wrapper avatar-wrapper rd-circle bg-3">
+							<img class="avatar-image lazy" :title="project.name" alt="Language" :data-src="image.search( configs.image, 'language', project.language.toLowerCase() )" v-lazyload />
 							<div class="avatar-cover"></div>
 						</div>
 					</div>
@@ -337,7 +351,7 @@
 		}
 			.project-body {
 				width: auto;
-				height: 600px;
+				height: 420px;
 				position: relative;
 				background: var(--background-2);
 			}
