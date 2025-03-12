@@ -183,10 +183,20 @@
 							this.actives[uniqid] = this.actives[uniqid] === true ? false : true;
 							
 							// Set element class list toggle.
-							this.$refs[uniqid].classList.toggle( "active" );
+							this.$refs[uniqid].classList.toggle( "up" );
+							
+							// Check if element is open.
+							if( this.$refs[uniqid].className.split( "\x20" ).indexOf( "up" ) >= 0 ) {
+								this.$refs[uniqid].style.height = this.$refs[uniqid].style.maxHeight = Fmt( "{}px", this.$refs[uniqid].scrollHeight );
+								this.$refs[uniqid].style.opacity = "1";
+							}
+							else {
+								this.$refs[uniqid].style.height = this.$refs[uniqid].style.maxHeight = "0px";
+								this.$refs[uniqid].style.opacity = "0";
+							}
 						}
 					},
-					template: Fmt( "<div class=\"sidebar-group scroll-y scroll-hidden\">{}</div>", this.iterator( routes ) )
+					template: Fmt( "<div class=\"sidebar-group scroll-x scroll-hidden\">{}</div>", this.iterator( routes ) )
 				};
 			},
 			
@@ -225,7 +235,17 @@
 							this.actives[uniqid] = this.actives[uniqid] === true ? false : true;
 							
 							// Set element class list toggle.
-							this.$refs[uniqid].classList.toggle( "active" );
+							this.$refs[uniqid].classList.toggle( "up" );
+							
+							// Check if element is open.
+							if( this.$refs[uniqid].className.split( "\x20" ).indexOf( "up" ) >= 0 ) {
+								this.$refs[uniqid].style.height = this.$refs[uniqid].style.maxHeight = Fmt( "{}px", this.$refs[uniqid].scrollHeight );
+								this.$refs[uniqid].style.opacity = "1";
+							}
+							else {
+								this.$refs[uniqid].style.height = this.$refs[uniqid].style.maxHeight = "0px";
+								this.$refs[uniqid].style.opacity = "0";
+							}
 						}
 					},
 					template: "<div class=\"sidebar-group scroll-y scroll-hidden\">{}</div>"
@@ -438,6 +458,7 @@
 		padding-left: 26px;
 		padding-right: 0;
 		padding-bottom: 0;
+		transition: height .3s ease;
 	}
 		.sidebar-single {
 			position: relative;
