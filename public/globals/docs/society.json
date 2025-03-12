@@ -1,0 +1,18 @@
+{
+	"title": "Society",
+	"routes": [
+		{
+			"path": "/projects/Society",
+			"name": "home",
+			"readable": true,
+			"component": {
+				"template": {
+					"name": "div",
+					"attributes": {
+						"innerHTML": "Society"
+					}
+				}
+			}
+		}
+	]
+}
