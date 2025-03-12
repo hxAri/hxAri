@@ -20,7 +20,7 @@ export default {
 	 * @return String
 	 */
 	resolver( $config, image ) {
-		return Fmt( "{}/{}", process.env.NODE_ENV ? $config.source : "/public/images/", image );
+		return Fmt( "{}/{}", process.env.NODE_ENV === "production" ? $config.source : "/public/images/", image );
 	},
 	
 	/**
