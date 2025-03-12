@@ -1,7 +1,15 @@
 {
     "author": {
-        "name": "Ari Setiawan",
-        "alias": "hxAri",
+        "abouts": [
+            [
+                "Hello everyone, let me introduce myself.",
+                "My name is Ari Setiawan (hxAri), I am a Back-End Programmer.",
+                "I have written and created programs, both Web Services and Command Line Programs (Linux)",
+                "since I was in the third grade of junior high school until now. According to I write code",
+                "which is quite fun, although sometimes it can be very frustrating, but actually coding is",
+                "something that I enjoy and am passionate about to this day, and has become my daily hobby."
+            ]
+        ],
         "address": {
             "country": "Indonesia",
             "district": "Sukoharjo",
@@ -10,192 +18,442 @@
             "regency": "Pringsewu",
             "universe": "Self"
         },
-        "abouts": [
-            "Hello everyone, let me introduce myself, my name is Ari Setiawan (hxAri), I am a Back-End Programmer, I have written and created programs, both Web Services and Command Line Programs (Linux) since I was in the third grade of junior high school until now. According to I write code which is quite fun, although sometimes it can be very frustrating, but actually coding is something that I enjoy and am passionate about to this day, and has become my daily hobby.",
-            "Honestly, I really like working alone rather than with a team, but apart from that, that doesn't mean I can't work with a team. I am also very capable of working together with a team to solve various cases or problems that exist in a project or program development.",
-            "I am currently working as a Back-End Developer at the Indonesia Indicator Company which is under the auspices of Ebdesk, but I can also work as a freelancer if you consider me.",
-            "If you are interested in knowing about the personal projects that I have created, you can visit my Github profile, I put more documented projects there.",
-            "The level of education will not determine a person's success, but it will help you to achieve something someday, and it will all depend on how you use it, and remember never depend on other people because it will bring you down slowly, even without until you realize it.",
-            "Self expansion infinite void;"
-        ],
-        "company": "I2",
+        "alias": "hxAri",
+        "company": "EbDesk | Indonesia Indicator",
         "contact": {
             "email": "hxari@proton.me",
-            "phone": "+62 858-3913-6990"
+            "phone": "+62 856-8659-771"
         },
+        "headline": "MuLTi-3nD DEvC0d3r",
+        "name": "Ari Setiawan",
         "social": {
-            "facebook": "https://facebook.com/heksari",
-            "instagram": "https://instagram.com/hx.dev",
-            "linkedin": "https://linkedin.com/in/hxAri",
+            "facebook": "https://facebook.com/hekisari",
             "github": "https://github.com/hxAri",
+            "instagram": "https://instagram.com/hx.ari",
+            "linkedin": "https://linkedin.com/in/hxAri",
             "telegram": "https://t.me/hxare",
             "tiktok": "https://tiktok.com/@hxare"
         },
         "status": {}
     },
     "certificate": {
-        "source": {
-            "origin": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/certs",
-            "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/certificate"
-        },
         "certificates": [
             {
-                "title": "Career Preparation Fair",
-                "source": "1688786479;faMyU4T43P.pdf",
-                "tumbnail": "1688786479;faMyU4T43P.png",
-                "timestamp": 1684083600,
-                "galery": [],
                 "description": [
                     "For actively participating in the \"**Career Preparation Fair**\" at Career Support Festival 2023"
-                ]
+                ],
+                "galery": [],
+                "source": "1688786479;faMyU4T43P.pdf",
+                "thumbnail": "1688786479;faMyU4T43P.png",
+                "timestamp": 1684083600,
+                "title": "Career Preparation Fair"
             },
             {
-                "title": "Mobile Game and Programming Training",
-                "source": "1688786593;cc27c8Nw69.pdf",
-                "tumbnail": "1688786593;cc27c8Nw69.png",
-                "timestamp": 1686330000,
-                "galery": [
-                    {
-                        "image": "",
-                        "description": []
-                    }
-                ],
                 "description": [
                     "Has attended Mobile Game and Programming Training",
                     "Organized by the Computer Laboratory of the Darmajaya Institute of Informatics and Business Bandar Lampung"
-                ]
+                ],
+                "galery": [
+                    {
+                        "description": [],
+                        "image": ""
+                    }
+                ],
+                "source": "1688786593;cc27c8Nw69.pdf",
+                "thumbnail": "1688786593;cc27c8Nw69.png",
+                "timestamp": 1686330000,
+                "title": "Mobile Game and Programming Training"
             }
-        ]
+        ],
+        "source": {
+            "origin": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/certs",
+            "thumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/certificate"
+        }
+    },
+    "contact": {
+        "address": true,
+        "usermail": true,
+        "whatsapp": true
     },
     "experiences": [
         {
-            "title": "Herbal Medicine Seller",
-            "company": "Health Wealth International",
-            "timestamp": {
-                "begin": 1606669200,
-                "end": 1626800400
-            },
-            "galery": [],
-            "description": [
-                "Online Business Herbal Medicine Seller at Health Wealth International Company"
-            ]
-        },
-        {
-            "title": "Industrial Work",
-            "company": "Institute Business and Informatics",
-            "timestamp": {
-                "begin": 1642957200,
-                "end": 1652374800
-            },
-            "galery": [],
-            "description": [
-                "Industrial Work Practices as Service Computer Technician in Institute Business and Informatics Darmajaya Bandar Lampung. I have had work experience doing industrial work practices at The Darmajaya Institute of Informatics and Business Campus to be precise in Bandar Lampung in the Computer Lab section as a Computer Service Technician for 4 months."
-            ]
-        },
-        {
-            "title": "Freelance Backend Developer",
+            "address": "Jl. H. Rasam No.96, Parigi Baru, Kec. Pd. Aren, Kota Tangerang Selatan, Banten 15228",
+            "certificates": [],
             "company": "Indonesia Indicator",
+            "description": [
+                [
+                    "As a freelance backend developer, I manage Java-based projects using Gradle and Maven for build and maintenance. I build and maintain fast and reliable web services, and manage databases using Elasticsearch for optimal performance in big data searches. I process big data using Apache Spark and manage real-time data streams with Apache Kafka.",
+                    " ",
+                    "In addition, I utilize Apache NiFi for data processing, including building custom processors and Groovy-based scripts, and creating efficient NiFi flows. I am experienced in data crawling on various platforms, ranging from e-commerce such as Gojek, Shopee, and Tokopedia to social media such as Facebook, Instagram, and Twitter. In server management, I use Crontab for program scheduling and Supervisord for web service setup and deployment, ensuring that applications always run smoothly."
+                ]
+            ],
+            "details": [
+                "Big Data and Artificial Intelligence (AI) research institute to analyze political, economic and social phenomena in Indonesia."
+            ],
+            "galery": [],
+            "gmaplink": "https://maps.app.goo.gl/Litmz9b4aLHSdNgh7",
+            "logo": "indonesia-indicator",
+            "position": "Staff",
+            "projects": [
+                {
+                    "description": [],
+                    "name": "PLN | Dasboard KPI",
+                    "skills": [
+                        "API Development",
+                        "Apache Maven",
+                        "Apache Poi",
+                        "CRUD",
+                        "Elasticsearch",
+                        "Excell",
+                        "Java",
+                        "Linux",
+                        "Shell",
+                        "REST APIs",
+                        "Spring Boot",
+                        "Spring Security",
+                        "Web Services"
+                    ],
+                    "timestamp": {
+                        "begin": 1727715600,
+                        "end": 1793466000
+                    }
+                },
+                {
+                    "description": [
+                        "NiFi flow includes processing of Crawling results from various Social Media such as Twitter, Facebook, TikTok, Instagram, YouTube, Threads, and Online News such as Dark Web. Each Flow Process is designed to parse, group, and transform data according to Realtime Analytic needs. Utilizing Flow File-based architecture on NiFi, large-scale data flow management is carried out efficiently with the support of features such as back-pressure, data priority, and parallel processing to maintain optimal performance."
+                    ],
+                    "name": "RTA | NiFi Process",
+                    "skills": [
+                        "Apache Kafka",
+                        "Apache Maven",
+                        "Apache NiFi",
+                        "Concurrency",
+                        "Elasticsearch",
+                        "Extract",
+                        "Transform",
+                        "Load (ETL)",
+                        "Groovy",
+                        "Java",
+                        "Problem Solving",
+                        "Regular Expressions",
+                        "Web Services"
+                    ],
+                    "timestamp": {
+                        "begin": 1727715600,
+                        "end": 1793466000
+                    }
+                },
+                {
+                    "description": [
+                        "This Twitter crawler is a dedicated engine for collecting tweets, replies, quotes, and retweets in real-time. Built using Python3, this crawler efficiently fetches data directly from Twitter, allowing instant access to the latest information ready for further processing for analytics purposes. With support for private and multiple third-party APIs, this tool offers flexibility in integrating data from various external sources. Focusing on efficiency and accuracy in data retrieval, this crawler ensures seamless integration into data systems and is capable of handling high data volumes without any issues."
+                    ],
+                    "name": "RTA | Crawler Twitter",
+                    "skills": [
+                        "Apache Kafka",
+                        "Crawling",
+                        "Elasticsearch",
+                        "Linux",
+                        "Multithreading",
+                        "Problem Solving",
+                        "Python",
+                        "Shell",
+                        "Web Services"
+                    ],
+                    "timestamp": {
+                        "begin": 1722445200,
+                        "end": 1793466000
+                    }
+                },
+                {
+                    "description": [
+                        "This YouTube crawler is a dedicated engine for collecting video data, comments, and metadata in real-time. Built using Python3, this crawler ensures smooth and efficient data retrieval. With the ability to handle large volumes of data, this tool is designed to be easily integrated into analytics systems without any hassle."
+                    ],
+                    "name": "RTA | Crawler YouTube",
+                    "skills": [
+                        "Apache Kafka",
+                        "Crawling",
+                        "Elasticsearch",
+                        "Linux",
+                        "Multithreading",
+                        "Problem Solving",
+                        "Python",
+                        "Shell"
+                    ],
+                    "timestamp": {
+                        "begin": 1722445200,
+                        "end": 1793466000
+                    }
+                },
+                {
+                    "description": [
+                        "This TikTok crawler is a dedicated engine for collecting video data, comments, and metadata in real-time. Built using Python3, this crawler comes with TOR support and the ability to change IP addresses to bypass access restrictions, ensuring smooth data retrieval. With high flexibility to handle large data volumes and support for customizing data collection parameters, this tool is designed to be easily integrated into analytics systems without any hassle."
+                    ],
+                    "name": "RTA | Crawler TikTok",
+                    "skills": [
+                        "Apache Kafka",
+                        "Elasticsearch",
+                        "Crawling",
+                        "Linux",
+                        "Multithreading",
+                        "Problem Solving",
+                        "Python",
+                        "Shell",
+                        "Tor"
+                    ],
+                    "timestamp": {
+                        "begin": 1704042000,
+                        "end": 1793466000
+                    }
+                },
+                {
+                    "description": [
+                        "This Facebook crawler is a dedicated engine for collecting real-time post and comment data. Built using Python3, this crawler effectively pulls post and comment data directly from Facebook, allowing instant access to the latest data ready for further processing as per the analytical needs. Focusing on efficiency and accuracy in data retrieval, this tool ensures seamless integration into data systems with the flexibility to handle high data volumes without any constraints."
+                    ],
+                    "name": "RTA | Crawler Facebook",
+                    "skills": [
+                        "Apache Kafka",
+                        "Crawling",
+                        "Elasticsearch",
+                        "Linux",
+                        "Multithreading",
+                        "Problem Solving",
+                        "Python",
+                        "Shell"
+                    ],
+                    "timestamp": {
+                        "begin": 1698771600,
+                        "end": 1793466000
+                    }
+                }
+            ],
+            "status": "Contract",
+            "timestamp": {
+                "begin": 1698771600,
+                "end": 1793466000
+            },
+            "title": "Backend Developer"
+        },
+        {
+            "address": "Jl. H. Rasam No.96, Parigi Baru, Kec. Pd. Aren, Kota Tangerang Selatan, Banten 15228",
+            "certificates": [],
+            "company": "Indonesia Indicator",
+            "description": [
+                [
+                    "As a freelance backend developer, I build scalable web services with Spring Boot, manage big data using Elasticsearch for fast search, and process large amounts of data with Apache Spark. With Apache Kafka, I handle real-time data streams, both in sending (produce) and receiving (consume) data. I use these technologies to create responsive and reliable backend systems."
+                ]
+            ],
+            "details": [
+                "Big Data and Artificial Intelligence (AI) research institute to analyze political, economic and social phenomena in Indonesia."
+            ],
+            "galery": [],
+            "gmaplink": "https://maps.app.goo.gl/Litmz9b4aLHSdNgh7",
+            "logo": "indonesia-indicator",
+            "position": null,
+            "projects": [],
+            "status": "Freelance",
             "timestamp": {
                 "begin": 1693414800,
                 "end": 1698685200
             },
-            "galery": [],
+            "title": "Backend Developer"
+        },
+        {
+            "address": "Jl. ZA. Pagar Alam No.93, Gedong Meneng, Kec. Rajabasa, Kota Bandar Lampung, Lampung 35141",
+            "certificates": [],
+            "company": "Darmajaya Institute of Informatics and Business",
             "description": [
-                ""
-            ]
+                [
+                    "Industrial Work Practices as Service Computer Technician in Institute Business and Informatics Darmajaya Bandar Lampung. I have had work experience doing industrial work practices at The Darmajaya Institute of Informatics and Business Campus to be precise in Bandar Lampung in the Computer Lab section as a Computer Service Technician for 4 months."
+                ]
+            ],
+            "details": [
+                "Darmajaya Informatics and Business Institute is one of the private universities in Bandar Lampung City, Lampung Province. The name \"DARMAJAYA\" is an acronym for \"Dharma Bhakti and Jasa Yoenidar Alfian\"."
+            ],
+            "galery": [],
+            "gmaplink": "https://g.co/kgs/UFnD22g",
+            "logo": "institute-business-informatics",
+            "position": null,
+            "projects": [],
+            "status": "Practice",
+            "timestamp": {
+                "begin": 1642957200,
+                "end": 1652374800
+            },
+            "title": "Industrial Work"
+        },
+        {
+            "address": null,
+            "certificates": [],
+            "company": "Health Wealth International",
+            "description": [
+                [
+                    "Online Business Herbal Medicine Seller at Health Wealth International Company"
+                ]
+            ],
+            "details": [],
+            "galery": [],
+            "gmaplink": null,
+            "logo": "health-wealth-international",
+            "position": null,
+            "projects": [],
+            "status": "Part-Time",
+            "timestamp": {
+                "begin": 1606669200,
+                "end": 1626800400
+            },
+            "title": "Herbal Medicine Seller"
         }
     ],
+    "home": {
+        "about": true,
+        "certificate": true,
+        "experience": true,
+        "project": true,
+        "programming": true,
+        "technology": true
+    },
     "image": {
-        "source": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images",
         "images": {
-            "animes": {
-                "anya": "animes/1688279305;faDUy.5qBI.png",
-                "chitoge": "animes/1688279325;b8HHSrMkjX.png",
-                "daki": "animes/1679790488;e8vB3VRArc.png",
-                "hiyori": "animes/1688279338;69Pd5HHpyI.png",
-                "ichigiyoururi": "animes/1679790473;8awC2VZFr2.png",
-                "iwamura": "animes/1688279350;deNMK25Vag.png",
-                "kohaku": "animes/1688279368;d7uAlY4A14.png",
-                "kosaki": "animes/1688279381;e5glk07waf.png",
-                "kugisaki": "animes/1688279407;95sVg5JKS4.png",
-                "marika": "animes/1688279419;64.7fJ1vXO.png",
-                "mitsuha": "animes/1688279430;8eDaRCoRR3.png",
-                "miyamoto": "animes/1688279442;c4wbmgmV6G.png",
-                "nakime": "animes/1679790638;7bJ3k6IQYK.png",
-                "nazuna": "animes/1679790502;aeklVNfU.8.png",
-                "nezuko": "animes/1688279478;cf0CraJt1D.png",
-                "rikka": "animes/1688279288;53rDAXzTQo.png",
-                "saya": "animes/1679790519;23ctpzKlx8.png",
-                "shinka": "animes/",
-                "susamaru": "animes/1688279568;a3.IUmc5Z7.png",
-                "tamayo": "animes/1688279497;bdoro2q.wx.png",
-                "touka": "animes/",
-                "tsugumi": "animes/1688279508;a2qHWFuRVW.png",
-                "yusaki": "animes/1679790537;b2MtUlRvVA.png",
-                "yuzuriha": "animes/1688279518;f5f1sEadU9.png"
+            "anime": {
+                "anya": "1701255136;f1vv6Fgb.f3Cg.png",
+                "chitoge": "1701255136;60GHO8USkVyC2.png",
+                "daki": "1701255136;a9UmfTXqwNAhU.png",
+                "erna": "1718037978;1dH4ZmVi1ArEw.png",
+                "grete": "1718037990;88flxPnLyxNxA.png",
+                "hiyori": "1701255136;5d8gik4zKsQzs.png",
+                "ichigiyoururi": "1701255136;b31AQ740ce3vw.png",
+                "iwamura": "1701255136;0a0BkqneL95Jk.png",
+                "katagaki": "1718037520;ebPUXDxOXsUus.png",
+                "kohaku": "1701255136;85iH5CBTMK8NY.png",
+                "kosaki": "1701255136;ca35C5rftvAqE.png",
+                "kugisaki": "1701255136;c5UJDAexDIXBE.png",
+                "kuryama": "1718037881;d7j2.5P0Oi67M.png",
+                "lily": "1718037816;d3v34HVAghVKY.png",
+                "marika": "1701255136;b9iU8rMaxaABU.png",
+                "mitsuha": "1701255136;80rnQBo1sqY0M.png",
+                "miyamoto": "1701255136;2ehXrE7uQn3pQ.png",
+                "nakime": "1701255136;29h.3mdvcmjHc.png",
+                "nazuna": "1701255136;feqAaentzH14g.png",
+                "nezuko": "1701255136;ddrO0faRYdYtg.png",
+                "rikka": "1701255136;eaj3sKej5i80w.png",
+                "sawako": "1718037503;60dTHa07ao64o.png",
+                "saya": "1701255136;64JBHOqRCOolY.png",
+                "shinka": "1718037749;70xNj6uuY4ylE.png",
+                "susamaru": "1701255136;b9lJC2uS3PMjU.png",
+                "sybilla": "1718038136;cd28fV7hgtHuI.png",
+                "tamayo": "1701255136;31KxrA4Bf6z9U.png",
+                "thea": "1718038194;49svT1r1nADuE.png",
+                "touka": "1718037725;90Z84HgIreQF..png",
+                "tsugumi": "1701255136;50GJ1VzAfQBdQ.png",
+                "yusaki": "1701255136;0aX6cwdzRa5Dc.png",
+                "yuzuriha": "1701255136;c6esObjml7mgY.png"
             },
             "banner": {},
+            "company": {
+                "health-wealth-international": "1733073537;9cFshWCDJw0pg.png",
+                "indonesia-indicator": "1733073422;bayJDdkbGIMMk.jpg",
+                "institute-business-informatics": ""
+            },
             "framework": {
-                "aura": "framework/1665939026;9eq2QiuOjt.png",
-                "cake": "framework/1679780625;f4I004yGjm.png",
-                "ci": "framework/1665962721;13qeKKNBUO.png",
-                "bootstrap": "framework/1665972372;bctUyBhCQf.png",
-                "flask": "framework/1665972839;9ax1yGkAzb.png",
-                "fuel": "framework/1665962246;beuCcVbYqh.png",
-                "django": "framework/1665972605;adlUDwbhAb.png",
-                "jquery": "framework/1665961991;a5FUwrnf.s.png",
-                "laravel": "framework/1665962108;a5PBxfVpsA.png",
-                "phalcon": "framework/1665938776;09.UC4s6ez.png",
-                "rails": "framework/1665961813;60eYD.WAYM.png",
-                "react": "framework/1665962130;7br.U9nm.q.png",
-                "slim": "framework/1665962661;03.aeUh8zh.png",
-                "symfony": "framework/1665962379;39VYgmi0o9.png",
-                "vue": "framework/1665972404;0cHip.F6ka.png",
-                "yii": "framework/1665962324;adJGgXJz.z.png",
-                "yume": "framework/1653507383;6bi9u6QnWb.png",
-                "zend": "framework/1665962273;76i.QEIxMB.png"
+                "aura": "1720952881;07qUeVVLkMd8I.png",
+                "bootstrap": "1720953148;692Y7wAHjgj4g.png",
+                "cake": "1720952625;2ba83c7ol755Y.png",
+                "ci": "1720952486;6cX0FW96zzKbQ.png",
+                "django": "1720952536;0cfSVXHJeQYeE.png",
+                "flask": "1720953256;b8JK9Cet8RMrU.png",
+                "fuel": "1720953117;91Kd22i1IFrxY.png",
+                "jquery": "1720953223;58jwuO8Pj6gDM.png",
+                "laravel": "1720952586;a29GwrsGJ.tt6.png",
+                "phalcon": "1720952820;2eqmR3isfAcJQ.png",
+                "rails": "1720952660;a1YvjkSvjrkFc.png",
+                "react": "1720952731;56OYJPHj35f5M.png",
+                "slim": "1720953083;c8vuykGwijZTA.png",
+                "spring-boot": "1720952395;76UdEAg0t55L2.png",
+                "symfony": "1720953050;12.QbynyxY4uA.png",
+                "vue": "1720952972;07EUJ5iYHLEOk.png",
+                "yii": "1720952927;a0Rzy8BnrZVP2.png",
+                "yume": "1720952881;07qUeVVLkMd8I.png",
+                "zend": "1720953190;71apJIRBGN662.png"
             },
             "language": {
-                "c": "languages/1665939161;73ubvXTML..png",
-                "csharp": "languages/1665939141;a799bPWAk3.png",
-                "cpp": "languages/1665939108;95qK.MVhw7.png",
-                "css": "languages/1665938615;3eIDhLG2TO.png",
-                "html": "languages/1665938533;bbdszyUZLM.png",
-                "java": "languages/1665961890;ba5MjPh.vQ.png",
-                "javascript": "languages/1665962019;485GG2Rcrx.png",
-                "js": "languages/1665962019;485GG2Rcrx.png",
-                "json": "languages/1665972701;caaQzNm1Ut.png",
-                "php": "languages/1665938456;79H8p8g.8F.png",
-                "python": "languages/1665961949;d6aKjxhTWN.png",
-                "react": "framework/1665962130;7br.U9nm.q.png",
-                "ruby": "languages/1665961760;11VI0euxrG.png",
-                "shell": "languages/1665972209;0dDyo2s2Qz.png",
-                "sass": "languages/1665962588;adYm24GDM0.png",
-                "vue": "framework/1665972404;0cHip.F6ka.png"
+                "c": "1720953483;07qSuudjtdfjg.png",
+                "cpp": "1720953517;50IywUt9Ydyig.png",
+                "csharp": "1720953505;219C.AWb3H.7A.png",
+                "css": "1720953660;0avcglJ1xRzKg.png",
+                "html": "1720953639;bdfHk2QTRBlco.png",
+                "java": "1720954140;c1QZSsAeyuwII.png",
+                "javascript": "1720953688;860bPgW8A6sUM.png",
+                "js": "1720953688;860bPgW8A6sUM.png",
+                "json": "1720953836;bfKVGBrj2zr3..png",
+                "php": "1720953972;9akmMh3r4iliQ.png",
+                "python": "1720953356;cenI32qBghyzA.png",
+                "react": "1720952731;56OYJPHj35f5M.png",
+                "ruby": "1720954079;9dOVbpAEAMGC..png",
+                "sass": "1720954251;98jogR7YDA2w2.png",
+                "shell": "1720954193;ceuSVE.eS1z4k.png",
+                "vue": "1720952972;07EUJ5iYHLEOk.png"
             },
-            "projects": {},
+            "project": {
+                "android": "1701255136;da5bQ1MYJ0Ojg.png",
+                "atarashi": "1701255136;aela1LCKsEh0g.png",
+                "eremento": "1701255136;870xbghIllhKM.png",
+                "faiba": "1701255136;50ZTfD57Cfg9Y.png",
+                "kanashi": "1701255136;e3chzfnp8o5Kc.png",
+                "kaniafi": "1701255136;5bSmS1AAUHmDw.png",
+                "niara": "1701255136;a3BCTNUdIjghs.png",
+                "penguin": "1701255136;4byi3oSoEEAjE.png",
+                "society": "",
+                "syntax": "1701255136;efKeWAdFQFFpU.png",
+                "yume": "1701255136;dda59nWb0O4gE.png"
+            },
             "technology": {
-                "android": "technology/1665972799;358kg0wVCn.png",
-                "git": "technology/1665938747;27YqAP6v.C.png",
-                "github": "technology/1665938408;68ZQFVnqY7.png",
-                "gitlab": "technology/1665972439;fdU94C3pDR.png",
-                "linux": "technology/1665938703;6eS3rI4P.I.png",
-                "nodejs": "technology/1665962561;29NbGg267g.png",
-                "npm": "technology/1665972871;bb531rSfmN.png",
-                "tor": "technology/1665938892;b8DAigRdrg.png",
-                "vsc": "technology/1665972474;68z9QiE7w5.png"
+                "adminer": "",
+                "android": "1720952083;aejMjRA3krHsE.png",
+                "android-v2": "1720952049;4cBYaAtBrrC82.png",
+                "crawling": "1720952169;84J5iCsEOqScY.png",
+                "elasticsearch": "1720950736;f67Ir2feFrHV2.png",
+                "flink": "1733073538;b3fmt7W86jPRk.png",
+                "git": "1720951820;83pAWak9WfO1..png",
+                "github": "1720951363;5bRfJJBQ4E4Mo.png",
+                "github-v2": "1720951561;3cU1UWwt8SqU2.png",
+                "gitlab": "1720951872;e3oEBy..NKneU.png",
+                "gradle": "1720951075;f7yXhyEZtfzbY.png",
+                "kafka": "1720951903;85TFFA4IZGDtY.png",
+                "kafka-v2": "1720951974;12Yv4vIAfTGA..png",
+                "kali": "1720971870;edrAevnoFtRAM.png",
+                "kibana": "1720950687;32PaYcRXh1rqE.png",
+                "linux": "1720951126;7dNwS2IWG5UIk.png",
+                "linux-v2": "1720951243;88HJoH3kAkalw.png",
+                "maven": "1720950828;388A2n6H641SI.png",
+                "mysql": "1720951316;70zdDKBQfcEGY.png",
+                "nifi": "1720950524;62oURQ6vgn3lo.png",
+                "nifi-v2": "1720950612;devvSyjBPYUlo.png",
+                "nodejs": "1720952255;10Kn8HjwWOJjE.png",
+                "npm": "1720952203;ccSCATnuddcBw.png",
+                "parrot": "1720973358;c63A7jECt6bqY.png",
+                "parrot-v2": "1720972106;7aM.FpDYnTs7E.png",
+                "spark": "1720950913;71J7VNjIHl3.o.png",
+                "tails": "1720971753;80e6CqJC1BAZs.png",
+                "tails-v2": "1720971788;9cHh0pmVbNoxE.png",
+                "termux": "1720972137;68rEq7eTmvPR2.png",
+                "tor": "1720951731;8akvmlfx03crM.png",
+                "ubuntu": "1720971826;6cDFM93dqghmQ.png",
+                "vsc": "1720952119;fbu8sREA0.C2A.png"
             }
-        }
+        },
+        "source": "/public/images"
     },
     "maintenance": {
         "about": false,
         "contact": false,
+        "editor": false,
         "home": false,
         "none": false,
         "preview": true,
         "privacy": false,
-        "project": true,
+        "project": false,
         "projects": false,
+        "service": false,
         "sitemap": false,
         "terminal": false
     },
@@ -203,179 +461,229 @@
         "octancle",
         "yfure"
     ],
-    "projects": [
-        {
-            "name": "Android",
-            "include": true,
-            "language": "java",
-            "endpoint": "hxAri/Android",
-            "homepage": "https://github.com/hxAri/",
-            "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1647263980;c78Y41VWj3.png",
-            "readme_url": "https://raw.githubusercontent.com/hxAri/Android/main/README.md",
-            "document_url": "https://raw.githubusercontent.com/hxAri/Android/main/globals/docs/"
-        },
-        {
-            "name": "Atarash\u012b",
-            "include": true,
-            "language": "ruby",
-            "endpoint": "hxAri/Atarashi",
-            "homepage": "https://github.com/hxAri/Atarashi",
-            "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1701208940;10VEs4N8su.png",
-            "readme_url": "https://raw.githubusercontent.com/hxAri/Atarashi/main/README.md",
-            "document_url": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/globals/docs/atarashi.json"
-        },
-        {
-            "name": "Complaints",
-            "include": true,
-            "language": "php",
-            "endpoint": "hxAri/Complaints",
-            "homepage": "https://github.com/hxAri/Complaints",
-            "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1677866924;deVw5x2Uzx.png",
-            "readme_url": "https://raw.githubusercontent.com/hxAri/Complaints/main/README.md",
-            "document_url": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/globals/docs/cin.json"
-        },
-        {
-            "name": "Ekisu",
-            "include": true,
-            "language": "",
-            "endpoint": "hxAri/Ekisu",
-            "homepage": "https://github.com/hxAri/Ekisu",
-            "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/",
-            "readme_url": "https://raw.githubusercontent.com/hxAri/Ekisu/main/README.md",
-            "document_url": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/globals/docs/ekisu.json"
-        },
-        {
-            "name": "Eremento",
-            "include": true,
-            "language": "javascript",
-            "endpoint": "hxAri/Eremento",
-            "homepage": "https://github.com/hxAri/Eremento",
-            "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1653507202;5fe1yJwN3F.png",
-            "readme_url": "https://raw.githubusercontent.com/hxAri/Eremento/main/README.md",
-            "document_url": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/globals/docs/eremento.json"
-        },
-        {
-            "name": "Faib\u0101",
-            "include": true,
-            "language": "php",
-            "endpoint": "hxAri/Tree",
-            "homepage": "https://github.com/hxAri/Faiba",
-            "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1653507345;50XUUPql.z.png",
-            "readme_url": "https://raw.githubusercontent.com/hxAri/Faiba/main/README.md",
-            "document_url": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/globals/docs/faiba.json"
-        },
-        {
-            "name": "Furasuko",
-            "include": false,
-            "language": "python",
-            "endpoint": "hxAri/Furasuko",
-            "homepage": "https://github.com/hxAri/Furasuko",
-            "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/",
-            "readme_url": "https://raw.githubusercontent.com/hxAri/Furasuko/main/README.md",
-            "document_url": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/globals/docs/furasuko.json"
-        },
-        {
-            "name": "Kanash\u012b",
-            "include": true,
-            "language": "python",
-            "endpoint": "hxAri/Kanashi",
-            "homepage": "https://github.com/hxAri/Kanashi",
-            "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1654820424;51ydWrxRcv.png",
-            "readme_url": "https://raw.githubusercontent.com/hxAri/Kanashi/main/README.md",
-            "document_url": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/globals/docs/kanashi.json"
-        },
-        {
-            "name": "KaNiaFi",
-            "include": true,
-            "language": "java",
-            "endpoint": "hxAri/KaNiaFi",
-            "homepage": "https://github.com/hxAri/KaNiaFi",
-            "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1701211726;73ohvhLgpB.png",
-            "readme_url": "https://raw.githubusercontent.com/hxAri/KaNiaFi/main/README.md",
-            "document_url": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/globals/docs/kaniafi.json"
-        },
-        {
-            "name": "Niara",
-            "include": true,
-            "language": "python",
-            "endpoint": "hxAri/Niara",
-            "homepage": "https://github.com/hxAri/Niara",
-            "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1701210146;fbGEoCftcC.png",
-            "readme_url": "https://raw.githubusercontent.com/hxAri/Niara/main/README.md",
-            "document_url": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/globals/docs/niara.json"
-        },
-        {
-            "name": "Penguin",
-            "include": true,
-            "language": "shell",
-            "endpoint": "hxAri/Penguin",
-            "homepage": "https://github.com/hxAri/Penguin",
-            "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1701208743;6cxkEyg82i.png",
-            "readme_url": "https://raw.githubusercontent.com/hxAri/Penguin/main/README.md",
-            "document_url": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/globals/docs/penguin.json"
-        },
-        {
-            "name": "Portofolio",
-            "include": false,
-            "language": "javascript",
-            "endpoint": "hxAri/hxAri",
-            "homepage": "https://github.com/hxAri/hxAri",
-            "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1677866924;deVw5x2Uzx.png",
-            "readme_url": "https://raw.githubusercontent.com/hxAri/hxAri/main/README.md",
-            "document_url": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/globals/docs/portofolio.json"
-        },
-        {
-            "name": "Service",
-            "include": false,
-            "language": "python",
-            "endpoint": "hxAri/Service",
-            "homepage": "https://github.com/hxAri/Service",
-            "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/",
-            "readme_url": "https://raw.githubusercontent.com/hxAri/Service/main/README.md",
-            "document_url": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/globals/docs/service.json"
-        },
-        {
-            "name": "Services",
-            "include": true,
-            "language": "java",
-            "endpoint": "hxAri/Services",
-            "homepage": "https://github.com/hxAri/Services",
-            "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1677866924;deVw5x2Uzx.png",
-            "readme_url": "https://raw.githubusercontent.com/hxAri/Services/main/README.md",
-            "document_url": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/globals/docs/services.json"
-        },
-        {
-            "name": "Sheyu",
-            "alias": "Sheruy\u016btiriti",
-            "include": false,
-            "language": "shell",
-            "endpoint": "hxAri/Sheyu",
-            "homepage": "https://github.com/hxAri/Sheyu",
-            "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/",
-            "readme_url": "https://raw.githubusercontent.com/hxAri/Sheyu/main/README.md",
-            "document_url": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/globals/docs/sheyu.json"
-        },
-        {
-            "name": "Yume",
-            "include": true,
-            "language": "php",
-            "endpoint": "yfure/Yume",
-            "homepage": "https://github.com/yfure/Yume",
-            "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1653507383;6bi9u6QnWb.png",
-            "readme_url": "https://raw.githubusercontent.com/hxAri/Yume/main/README.md",
-            "document_url": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/globals/docs/yume.json"
-        },
-        {
-            "name": "Yutiriti",
-            "include": true,
-            "language": "python",
-            "endpoint": "hxAri/Yutiriti",
-            "homepage": "https://github.com/hxAri/Yutiriti",
-            "tumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1677866924;deVw5x2Uzx.png",
-            "readme_url": "https://raw.githubusercontent.com/hxAri/Yutiriti/main/README.md",
-            "document_url": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/globals/docs/yutiriti.json"
-        }
-    ],
+    "programming": {
+        "description": [
+            "Some programming languages that I can use at the moment."
+        ],
+        "expertises": [
+            {
+                "certificates": [
+                    {
+                        "expires": 0,
+                        "name": null,
+                        "original": null,
+                        "preview": null,
+                        "source": {
+                            "name": null,
+                            "url": null
+                        }
+                    }
+                ],
+                "descriptions": [],
+                "logo": "css",
+                "name": "CSS"
+            },
+            {
+                "certificates": [],
+                "descriptions": [],
+                "logo": "cpp",
+                "name": "C++"
+            },
+            {
+                "certificates": [],
+                "descriptions": [],
+                "logo": "html",
+                "name": "HTML"
+            },
+            {
+                "certificates": [],
+                "descriptions": [],
+                "logo": "js",
+                "name": "JavaScript"
+            },
+            {
+                "certificates": [],
+                "descriptions": [],
+                "logo": "json",
+                "name": "JSON"
+            },
+            {
+                "certificates": [],
+                "descriptions": [],
+                "logo": "java",
+                "name": "Java"
+            },
+            {
+                "certificates": [],
+                "descriptions": [],
+                "logo": "php",
+                "name": "PHP"
+            },
+            {
+                "certificates": [],
+                "descriptions": [],
+                "logo": "python",
+                "name": "Python"
+            },
+            {
+                "certificates": [],
+                "descriptions": [],
+                "logo": "ruby",
+                "name": "Ruby"
+            },
+            {
+                "certificates": [],
+                "descriptions": [],
+                "logo": "shell",
+                "name": "Shell"
+            }
+        ],
+        "percentage": 100
+    },
+    "project": {
+        "description": [
+            "Some personal projects I built for programming practice, or even just my free time."
+        ],
+        "includes": [
+            {
+                "document_url": "public/globals/docs/android.json",
+                "endpoint": "hxAri/Android",
+                "homepage": "https://github.com/hxAri/",
+                "include": true,
+                "language": "java",
+                "name": "Android",
+                "previews": [
+                    {
+                        "descriptions": [],
+                        "image": ""
+                    }
+                ],
+                "readme_url": "https://raw.githubusercontent.com/hxAri/Android/main/README.md",
+                "thumbnail": "project/1701255136;da5bQ1MYJ0Ojg.png"
+            },
+            {
+                "document_url": "public/globals/docs/atarashi.json",
+                "endpoint": "hxAri/Atarashi",
+                "homepage": "https://github.com/hxAri/Atarashi",
+                "include": true,
+                "language": "ruby",
+                "name": "Atarash\u012b",
+                "previews": [],
+                "readme_url": "https://raw.githubusercontent.com/hxAri/Atarashi/main/README.md",
+                "thumbnail": "project/1701255136;aela1LCKsEh0g.png"
+            },
+            {
+                "document_url": "public/globals/docs/eremento.json",
+                "endpoint": "hxAri/Eremento",
+                "homepage": "https://github.com/hxAri/Eremento",
+                "include": true,
+                "language": "javascript",
+                "name": "Eremento",
+                "previews": [],
+                "readme_url": "https://raw.githubusercontent.com/hxAri/Eremento/main/README.md",
+                "thumbnail": "project/1701255136;870xbghIllhKM.png"
+            },
+            {
+                "document_url": "public/globals/docs/kanashi.json",
+                "endpoint": "hxAri/Kanashi",
+                "homepage": "https://github.com/hxAri/Kanashi",
+                "include": true,
+                "language": "python",
+                "name": "Kanash\u012b",
+                "previews": [],
+                "readme_url": "https://raw.githubusercontent.com/hxAri/Kanashi/main/README.md",
+                "thumbnail": "project/1701255136;e3chzfnp8o5Kc.png"
+            },
+            {
+                "document_url": "public/globals/docs/kaniafi.json",
+                "endpoint": "hxAri/KaNiaFi",
+                "homepage": "https://github.com/hxAri/KaNiaFi",
+                "include": true,
+                "language": "java",
+                "name": "KaNiaFi",
+                "previews": [],
+                "readme_url": "https://raw.githubusercontent.com/hxAri/KaNiaFi/main/README.md",
+                "thumbnail": "project/1701255136;5bSmS1AAUHmDw.png"
+            },
+            {
+                "document_url": "public/globals/docs/niara.json",
+                "endpoint": "hxAri/Niara",
+                "homepage": "https://github.com/hxAri/Niara",
+                "include": true,
+                "language": "python",
+                "name": "Niara",
+                "previews": [],
+                "readme_url": "https://raw.githubusercontent.com/hxAri/Niara/main/README.md",
+                "thumbnail": "project/1701255136;a3BCTNUdIjghs.png"
+            },
+            {
+                "document_url": "public/globals/docs/penguin.json",
+                "endpoint": "hxAri/Penguin",
+                "homepage": "https://github.com/hxAri/Penguin",
+                "include": true,
+                "language": "shell",
+                "name": "Penguin",
+                "previews": [],
+                "readme_url": "https://raw.githubusercontent.com/hxAri/Penguin/main/README.md",
+                "thumbnail": "project/1701255136;4byi3oSoEEAjE.png"
+            },
+            {
+                "document_url": "public/globals/docs/portofolio.json",
+                "endpoint": "hxAri/hxAri",
+                "homepage": "https://github.com/hxAri/hxAri",
+                "include": true,
+                "language": "javascript",
+                "name": "Portofolio",
+                "previews": [],
+                "readme_url": "https://raw.githubusercontent.com/hxAri/hxAri/main/README.md",
+                "thumbnail": "1701255136;6duiesguuJBCQ.png"
+            },
+            {
+                "document_url": "public/globals/docs/rinkutoin.json",
+                "endpoint": "hxAri/Rinkutoin",
+                "homepage": "https://github.com/hxAri/Rinkutoin",
+                "include": true,
+                "language": "python",
+                "name": "Rinkutoin",
+                "previews": [],
+                "readme_url": "https://raw.githubusercontent.com/hxAri/Rinkutoin/main/README.md",
+                "thumbnail": "project/"
+            },
+            {
+                "document_url": "public/globals/docs/society.json",
+                "endpoint": "hxAri/Society",
+                "homepage": "https://github.com/hxAri/Society",
+                "include": true,
+                "language": "python",
+                "name": "Society",
+                "previews": [],
+                "readme_url": "https://raw.githubusercontent.com/hxAri/Society/main/README.md",
+                "thumbnail": "project/"
+            },
+            {
+                "document_url": "public/globals/docs/tree.json",
+                "endpoint": "hxAri/Tree",
+                "homepage": "https://github.com/hxAri/Tree",
+                "include": true,
+                "language": "php",
+                "name": "Tree",
+                "previews": [],
+                "readme_url": "https://raw.githubusercontent.com/hxAri/Tree/main/README.md",
+                "thumbnail": "project/1701255136;50ZTfD57Cfg9Y.png"
+            },
+            {
+                "document_url": "public/globals/docs/yume.json",
+                "endpoint": "yfure/Yume",
+                "homepage": "https://github.com/yfure/Yume",
+                "include": true,
+                "language": "php",
+                "name": "Yume",
+                "previews": [],
+                "readme_url": "https://raw.githubusercontent.com/hxAri/Yume/main/README.md",
+                "thumbnail": "project/1701255136;dda59nWb0O4gE.png"
+            }
+        ]
+    },
     "resume": {
         "pdf": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/resume/1679677747;81xemRE3u4.pdf",
         "png": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/resume/1679677747;81xemRE3u4.png"
@@ -383,119 +691,315 @@
     "routes": {
         "about": [
             {
-                "subtitle": false,
                 "contents": [
                     "Welcome to my portfolio website, a digital showcase of my expertise as a **Programmer**. This site serves as a hub for my latest projects and demonstrates my technical skills, creativity, and commitment to delivering exceptional web solutions.",
                     "Through my work on a variety of web development projects, including *Kanashi*, Sheyu, etc. I have honed my ability to design and develop responsive, user-friendly, and visually stunning websites. My portfolio website features a range of examples that highlight my proficiency with various programming languages, frameworks, and tools.",
                     "As you explore my portfolio, you'll see that I take a client-focused approach to web development, working closely with my clients to understand their unique needs and goals. From conceptualization to implementation, I strive to deliver customized, high-quality web solutions that exceed expectations.",
                     "I hope you find my portfolio website informative and engaging. If you have any questions or are interested in discussing a potential project, please don't hesitate to contact me. Thank you for visiting!"
-                ]
+                ],
+                "subtitle": false
             }
         ],
         "privacy": [
             {
-                "subtitle": false,
-                "contents": "Your privacy is important to me, and I am committed to protecting it. This privacy policy outlines how I collect, use, and protect any personal information that you provide when you visit my portfolio website."
+                "contents": "Your privacy is important to me, and I am committed to protecting it. This privacy policy outlines how I collect, use, and protect any personal information that you provide when you visit my portfolio website.",
+                "subtitle": false
             },
             {
-                "subtitle": true,
-                "contents": "What information do I collect?"
+                "contents": "What information do I collect?",
+                "subtitle": true
             },
             {
-                "subtitle": false,
-                "contents": "I do not collect any personal information from you when you visit my website, unless you choose to provide it to me voluntarily. If you contact me through the contact form on my website or via email, I will collect your name, email address, and any other information you choose to provide."
+                "contents": "I do not collect any personal information from you when you visit my website, unless you choose to provide it to me voluntarily. If you contact me through the contact form on my website or via email, I will collect your name, email address, and any other information you choose to provide.",
+                "subtitle": false
             },
             {
-                "subtitle": true,
-                "contents": "How do I use your information?"
+                "contents": "How do I use your information?",
+                "subtitle": true
             },
             {
-                "subtitle": false,
-                "contents": "I will only use your personal information to respond to your inquiries, provide you with information about my services, or fulfill any requests that you make. I will not share, sell, or otherwise distribute your information to any third party, unless required to do so by law."
+                "contents": "I will only use your personal information to respond to your inquiries, provide you with information about my services, or fulfill any requests that you make. I will not share, sell, or otherwise distribute your information to any third party, unless required to do so by law.",
+                "subtitle": false
             },
             {
-                "subtitle": true,
-                "contents": "How do I protect your information?"
+                "contents": "How do I protect your information?",
+                "subtitle": true
             },
             {
-                "subtitle": false,
-                "contents": "I take reasonable and appropriate measures to protect your personal information from unauthorized access, disclosure, alteration, or destruction. However, please note that no data transmission over the internet is completely secure, and I cannot guarantee the absolute security of your information."
+                "contents": "I take reasonable and appropriate measures to protect your personal information from unauthorized access, disclosure, alteration, or destruction. However, please note that no data transmission over the internet is completely secure, and I cannot guarantee the absolute security of your information.",
+                "subtitle": false
             },
             {
-                "subtitle": true,
-                "contents": "Third-party links"
+                "contents": "Third-party links",
+                "subtitle": true
             },
             {
-                "subtitle": false,
-                "contents": "My portfolio website may contain links to third-party websites that are not under my control. These links are provided for your convenience and do not imply endorsement or approval of the content, policies, or practices of these websites. Please review the privacy policies of these websites before submitting any personal information."
+                "contents": "My portfolio website may contain links to third-party websites that are not under my control. These links are provided for your convenience and do not imply endorsement or approval of the content, policies, or practices of these websites. Please review the privacy policies of these websites before submitting any personal information.",
+                "subtitle": false
             },
             {
-                "subtitle": true,
-                "contents": "Changes to this privacy policy"
+                "contents": "Changes to this privacy policy",
+                "subtitle": true
             },
             {
-                "subtitle": false,
                 "contents": [
                     "I reserve the right to modify this privacy policy at any time without prior notice. Any changes to the policy will be reflected on this page, and your continued use of my website after such modifications constitutes your acceptance of the new policy.",
                     "If you have any questions or concerns about this privacy policy or the way your personal information is handled, please feel free to contact me."
-                ]
+                ],
+                "subtitle": false
             }
         ],
         "sitemap": [
             {
-                "subtitle": false,
                 "contents": [
                     "A sitemap is a page on my portfolio website that provides an overview of the website's structure and content. It is designed to help visitors navigate the website more easily and to help search engines crawl and index the website's pages.",
                     "My portfolio website's sitemap includes links to all of the website's main pages, including the home page, about page, portfolio page, blog page, and contact page. It also includes links to any other important pages or sections of the website.",
                     "By using the sitemap, visitors can quickly find the information they are looking for without having to navigate through multiple pages. It also helps search engines understand the structure and content of the website, which can improve the website's visibility and ranking in search results.",
                     "In addition to the sitemap, my portfolio website also includes a navigation menu that allows visitors to easily access the main pages of the website from any page on the website. This provides an additional level of convenience for visitors and helps ensure that they can find the information they need quickly and easily.",
                     "I hope you find the sitemap and navigation menu on my portfolio website helpful. If you have any questions or feedback, please feel free to contact me."
-                ]
+                ],
+                "subtitle": false
             }
         ]
     },
-    "skill": {
-        "percentage": 100,
-        "skills": [
+    "service": {
+        "description": [
+            []
+        ]
+    },
+    "technology": {
+        "description": [
+            "Some technologies that I have used or even still use."
+        ],
+        "programming": {
+            "percentage": 100
+        },
+        "uses": [
             {
-                "name": "Java",
-                "type": "language",
-                "image": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/languages/1665961890;ba5MjPh.vQ.png",
-                "values": 90,
-                "description": null,
-                "certificates": []
+                "certificates": [],
+                "descriptions": [],
+                "images": [],
+                "logo": "flink",
+                "name": "Apache Flink",
+                "type": "technology"
             },
             {
-                "name": "JavaScript",
-                "type": "language",
-                "image": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/languages/1665962019;485GG2Rcrx.png",
-                "values": 100,
-                "description": null,
-                "certificates": []
+                "certificates": [],
+                "descriptions": [],
+                "images": [],
+                "logo": "kafka-v2",
+                "name": "Apache Kafka",
+                "type": "technology"
             },
             {
-                "name": "PHP",
-                "type": "language",
-                "image": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/languages/1665938456;79H8p8g.8F.png",
-                "values": 100,
-                "description": null,
-                "certificates": []
+                "certificates": [],
+                "descriptions": [],
+                "images": [],
+                "logo": "maven",
+                "name": "Apache Maven",
+                "type": "technology"
             },
             {
-                "name": "Python",
-                "type": "language",
-                "image": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/languages/1665961949;d6aKjxhTWN.png",
-                "values": 90,
-                "description": null,
-                "certificates": []
+                "certificates": [
+                    {
+                        "expires": 0,
+                        "name": null,
+                        "original": null,
+                        "preview": null,
+                        "source": {
+                            "name": null,
+                            "url": null
+                        }
+                    }
+                ],
+                "descriptions": [
+                    "Performing raw data processing from social media crawler engines for use by the Analyst Team and the Real Time Analytic Team.",
+                    "The reason for using NiFi itself is because of its processing capabilities which use easy-to-understand flows and its concurrency capabilities which are strong enough to process large amounts of data in real time."
+                ],
+                "images": [
+                    {
+                        "info": [],
+                        "url": ""
+                    }
+                ],
+                "logo": "nifi",
+                "name": "Apache NiFi",
+                "type": "technology"
             },
             {
-                "name": "Shell",
-                "type": "language",
-                "image": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/languages/1665972209;0dDyo2s2Qz.png",
-                "values": 95,
-                "description": null,
-                "certificates": []
+                "certificates": [],
+                "descriptions": [],
+                "images": [],
+                "logo": "spark",
+                "name": "Apache Spark",
+                "type": "technology"
+            },
+            {
+                "certificates": [],
+                "descriptions": [],
+                "images": [],
+                "logo": "ci",
+                "name": "CodeIgniter",
+                "type": "framework"
+            },
+            {
+                "certificates": [],
+                "descriptions": [],
+                "images": [],
+                "logo": "gradle",
+                "name": "Gradle",
+                "type": "technology"
+            },
+            {
+                "certificates": [],
+                "descriptions": [],
+                "images": [],
+                "logo": "spring-boot",
+                "name": "Spring Boot",
+                "type": "framework"
+            },
+            {
+                "certificates": [],
+                "descriptions": [],
+                "images": [],
+                "logo": "git",
+                "name": "Git",
+                "type": "technology"
+            },
+            {
+                "certificates": [],
+                "descriptions": [],
+                "images": [],
+                "logo": "gitlab",
+                "name": "Gitlab",
+                "type": "technology"
+            },
+            {
+                "certificates": [],
+                "descriptions": [],
+                "images": [],
+                "logo": "github",
+                "name": "Github",
+                "type": "technology"
+            },
+            {
+                "certificates": [],
+                "descriptions": [],
+                "images": [],
+                "logo": "elasticsearch",
+                "name": "Elasticsearch",
+                "type": "technology"
+            },
+            {
+                "certificates": [],
+                "descriptions": [],
+                "images": [],
+                "logo": "kibana",
+                "name": "Kibana",
+                "type": "technology"
+            },
+            {
+                "certificates": [],
+                "descriptions": [],
+                "images": [],
+                "logo": "mysql",
+                "name": "MySQL",
+                "type": "technology"
+            },
+            {
+                "certificates": [],
+                "descriptions": [],
+                "images": [],
+                "logo": "nodejs",
+                "name": "NodeJS",
+                "type": "technology"
+            },
+            {
+                "certificates": [],
+                "descriptions": [],
+                "images": [],
+                "logo": "npm",
+                "name": "NPM",
+                "type": "technology"
+            },
+            {
+                "certificates": [],
+                "descriptions": [],
+                "logo": "vue",
+                "name": "VueJS",
+                "type": "framework"
+            },
+            {
+                "certificates": [],
+                "descriptions": [],
+                "images": [],
+                "logo": "termux",
+                "name": "Termux",
+                "type": "technology"
+            },
+            {
+                "certificates": [],
+                "descriptions": [],
+                "images": [],
+                "logo": "linux-v2",
+                "name": "Linux",
+                "type": "technology"
+            },
+            {
+                "certificates": [],
+                "descriptions": [],
+                "images": [],
+                "logo": "ubuntu",
+                "name": "Ubuntu",
+                "type": "technology"
+            },
+            {
+                "certificates": [],
+                "descriptions": [],
+                "images": [],
+                "logo": "tor",
+                "name": "Tor",
+                "type": "technology"
+            },
+            {
+                "certificates": [],
+                "descriptions": [],
+                "images": [],
+                "logo": "tails",
+                "name": "Tails OS",
+                "type": "technology"
+            },
+            {
+                "certificates": [],
+                "descriptions": [],
+                "images": [],
+                "logo": "parrot",
+                "name": "Parrot Security OS",
+                "type": "technology"
+            },
+            {
+                "certificates": [],
+                "descriptions": [],
+                "images": [],
+                "logo": "kali",
+                "name": "Kali Linux",
+                "type": "technology"
+            },
+            {
+                "certificates": [],
+                "descriptions": [],
+                "images": [],
+                "logo": "android",
+                "name": "Android",
+                "type": "technology"
+            },
+            {
+                "certificates": [],
+                "descriptions": [],
+                "images": [],
+                "logo": "vsc",
+                "name": "Visual Studio Code",
+                "type": "technology"
             }
         ]
     },
