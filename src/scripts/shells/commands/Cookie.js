@@ -91,64 +91,69 @@ export default {
 	version: "4.1.6",
 	methods: {
 		
-		/*
+		/**
 		 * Print loaded cookies.
 		 *
 		 * @return Array
 		 */
-		print: function()
-		{
-			return( Object.values( Mapper( this.cookie.load(), ( idx, name, value ) => Fmt( "{}={}", name, value ) ) ) );
+		print: function() {
+			return Object.values( Mapper( this.cookie.load(), ( idx, name, value ) => Fmt( "{}={}", name, value ) ) );
 		}
 	},
-	mounted: function({ g, h, r, s, comment, domain, expires, httponly, maxage, path, samesite, secure, value } = {})
-	{
+	mounted: function({ g, h, r, s, comment, domain, expires, httponly, maxage, path, samesite, secure, value } = {}) {
 		if( Type( g, String ) &&
 			Type( r, String ) &&
 			Type( s, String ) &&
-			Type( h, Boolean ) )
-		{
-			throw new Error( "To many arguments" );
+			Type( h, Boolean ) ) {
+			throw new Error( "cookie: to many arguments" );
 		}
 		else {
 			
 			// Display help.
-			if( Type( h, Boolean ) ) return( this.$help() );
+			if( Type( h, Boolean ) ) {
+				return this.$help();
+			}
 			
-			// Get cookie by name.
-			if( Type( g, String ) )
-			{
-				if( this.cookie.get( g ) )
-				{
-					return([ this.cookie.get( g ) ]);
+			var outputs = [];
+			
+			if( Type( g, String ) ) {
+				if( this.cookie.get( g ) ) {
+					outputs.push( this.cookie.get( g ) );
 				}
-				throw Fmt( "cookie: No cookie named {}", g );
+				else {
+					throw Fmt( "cookie: No cookie named {}", g );
+				}
 			}
-			
-			// Remove cookie by name.
-			if( Type( r, String ) )
-			{
-				s = r;
-				value = null;
+			else if( Type( r, String ) ) {
+				outputs.push( this.cookie.set( r, null, {
+					comment: comment,
+					domain: domain,
+					expires: expires,
+					httponly: httponly,
+					maxage: maxage,
+					path: path ?? this.path,
+					samesite: samesite,
+					secure: secure
+				}));
 			}
-			
-			// Set or update cookie.
-			if( Type( s, String ) )
-			{
-				return([
-					this.cookie.set( s, value, {
-						comment: comment,
-						domain: domain,
-						expires: expires,
-						httponly: httponly,
-						maxage: maxage,
-						path: path ?? this.path,
-						samesite: samesite,
-						secure: secure
-					})
-				]);
+			else if( Type( s, String ) ) {
+				outputs.push( this.cookie.set( s, value, {
+					comment: comment,
+					domain: domain,
+					expires: expires,
+					httponly: httponly,
+					maxage: maxage,
+					path: path ?? this.path,
+					samesite: samesite,
+					secure: secure
+				}));
 			}
-			return( this.print() );
+			else {
+				outputs.push( this.print() );
+			}
+			return {
+				stdout: outputs
+			};
 		}
 	}
 };
