@@ -1,0 +1,18 @@
+{
+	"title": "Rinkutoin",
+	"routes": [
+		{
+			"path": "/projects/Rinkutoin",
+			"name": "home",
+			"readable": true,
+			"component": {
+				"template": {
+					"name": "div",
+					"attributes": {
+						"innerHTML": "Rinkutoin"
+					}
+				}
+			}
+		}
+	]
+}

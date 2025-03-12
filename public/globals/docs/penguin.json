@@ -1,0 +1,18 @@
+{
+	"title": "Penguin",
+	"routes": [
+		{
+			"path": "/projects/Penguin",
+			"name": "home",
+			"readable": true,
+			"component": {
+				"template": {
+					"name": "div",
+					"attributes": {
+						"innerHTML": "Penguin"
+					}
+				}
+			}
+		}
+	]
+}
