@@ -10,25 +10,20 @@ import Type from "/src/scripts/Type.js";
  *
  * @return Boolean
  */
-const isEmpty = function( value )
-{
-	if( Not( value, [ "Undefined", Boolean, "Null" ] ) )
-	{
-		if( Type( value, Array ) )
-		{
-			return( value.length === 0 );
+const isEmpty = function( value ) {
+	if( Not( value, [ "Undefined", Boolean, "Null" ] ) ) {
+		if( Type( value, Array ) ) {
+			return value.length === 0;
 		}
-		if( Type( value, Object ) )
-		{
-			return( Object.keys( value ).length === 0 );
+		if( Type( value, Object ) ) {
+			return Object.keys( value ).length === 0;
 		}
-		if( Type( value, String ) )
-		{
-			return( value.length !== 0 ? value.trim().length === 0 : true );
+		if( Type( value, String ) ) {
+			return value.length !== 0 ? value.trim().length === 0 : true;
 		}
-		return( false );
+		return false;
 	}
-	return( true );
+	return true;
 };
 
 /*
