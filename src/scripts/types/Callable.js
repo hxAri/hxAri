@@ -8,14 +8,12 @@
  *
  * @return Mixed
  */
-export default function Callable( ...kwargs )
-{
+export default function Callable( ...kwargs ) {
+	
 	// Check if function has argument passed.
-	if( kwargs.length > 0 )
-	{
-		// Check if first argument passed is Function type.
-		if( typeof kwargs[0] === "function" )
-		{
+	if( kwargs.length > 0 ) {
+		if( typeof kwargs[0] === "function" ) {
+			
 			// Get function passed.
 			var func = kwargs[0];
 			
@@ -23,8 +21,8 @@ export default function Callable( ...kwargs )
 			delete kwargs[0];
 			
 			// Return callback function.
-			return( func( ...kwargs ) );
+			return func( ...kwargs );
 		}
-		return( kwargs[0] );
+		return kwargs[0];
 	}
 };
