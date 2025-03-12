@@ -25,67 +25,79 @@ export default {
 		}
 	},
 	data: {
+		hidden: /^(?<naming>(?<c>\x63\x68\x69\x6e\x74\x79\x61)|(?<l>\x6c\x69\x61\x6e\x61))$/i,
 		regexp: /^(?<define>(?<name>[a-zA-Z_\x7f-\xff][a-zA-Z0-9-_\x7f-\xff]*)\=(?<value>[^\n]*))/
 	},
 	methods: {
 		
-		/*
-		 * Print all defined aliases.
+		/**
+		 * Return all defined aliases.
 		 *
 		 * @return Array
 		 */
-		print: function()
-		{
-			return( Object.values( Mapper( this.$name, ( i, name, value ) => Fmt( "{}='{}'", name, value.replace( /(?!\\)\'/g, "\\\'" ) ) ) ) );
+		prints: function() {
+			var aliases = {};
+			try {
+				for( let keyset of Object.keys( this.$name ) ) {
+					if( this.hidden.test( keyset ) ) {
+						continue;
+					}
+					aliases[keyset] = this.$name[keyset];
+				}
+			}
+			catch( e ) {
+				console.log( e )
+			}
+			return Object.values(
+				Mapper( aliases, function( i, name, value ) {
+					console.log( arguments );
+					return Fmt( "{}='{}'", name, value.replace( /(?!\\)\'/g, "\\\'" ) );
+				})
+			);
 		}
 	},
-	mounted: function({ h, p })
-	{
-		// Throw if multiple argument passed.
-		if( h === true && p === true ) throw "alias: To many arguments";
+	mounted: function({ h, p }) {
 		
-		// Display help.
-		if( h === true ) return( this.$help() );
-		
-		// Print alias by name.
-		if( p === true )
-		{
-			return( this.print() );
+		if( h === true && p === true ) {
+			throw new Error( "alias: To many arguments" );
+		}
+		if( h === true ) {
+			return this.$help();
+		}
+		if( p === true ) {
+			return {
+				stdout: this.prints()
+			};
 		}
 		
-		var keys = Object.keys( this.$args );
-		var vals = Object.values( this.$args );
-		var outs = [];
-		let iter = 0;
+		var outputs = [];
+		var defined = 0;
+		var self = this;
 		
-		// Mapping arguments.
-		for( let i in keys )
-		{
-			// If argument is position argument,
-			// And if argument value is String.
-			if( keys[i].match( /^\d+$/i ) && Type( vals[i], String ) )
-			{
-				// Match alias syntax.
-				var match = this.regexp.exec( vals[i] );
-				
-				// If alias syntax is invalid.
-				if( match === null )
-				{
-					// Check if alias is exists.
-					if( this.$name[vals[i]] )
-					{
-						outs.push( Fmt( "{}='{}'", vals[i], this.$name[vals[i]].replace( /(?!\\)\'/g, "\\\'" ) ) );
+		Mapper( self.$args, function( index, keyset, value ) {
+			if( keyset.match( /^\d+$/i ) && Type( value, String ) ) {
+				var match = self.regexp.exec( value );
+				if( match === null ) {
+					if( self.$name[value] ) {
+						if( self.hidden.test( value ) === false ) {
+							outputs.push( Fmt( "{}=\"{}\"", value, self.$name[value].replace( /(?!\\)\"/g, "\\\"" ) ) );
+						}
 					}
 					else {
-						outs.push( Fmt( "{}: alias: {}: Not found", this.$root.shell, vals[i] ) );
+						outputs.push( Fmt( "alias: {}: Not found", value ) );
 					}
-					continue;
 				}
-				
-				// Set or replace alias.
-				this.$name[match.groups.name] = match.groups.value ?? "\"\""; iter++;
+				else {
+					if( self.hidden.test( match.groups.name ) === false ) {
+						self.$name[match.groups.name] = match.groups.value ?? "\"\"";
+					}
+					defined++;
+				}
 			}
-		}
-		return( iter >= 1 ? outs : ( outs.length >= 1 ? outs : this.print() ) );
+		});
+		
+		return {
+			stdout: defined >= 1 ? outputs : ( outputs.length >= 1 ? outputs : this.prints() )
+		};
 	}
 };
