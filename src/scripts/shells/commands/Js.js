@@ -239,7 +239,7 @@ export default {
 							}
 							else if( Not( self.$envs[variable], "Undefined" ) ) {
 								if( variable === "PWD" ) {
-									return self.$envs.PWD.path ?? "";
+									return new String( self.$envs.PWD.path ?? "" ).replace( self.$envs.ROOT, "" );
 								}
 								return self.$envs[variable];
 							}
@@ -486,7 +486,7 @@ export default {
 						"\\\" );",
 						"this.func.bind( this );",
 						"return this.func();",
-					"\");",
+					"\");", 
 					"return func( ...arguments );"
 				];
 				if( argv[i].match( /^\/\/[^\n]*$/ ) ) {
@@ -496,7 +496,7 @@ export default {
 					func = new Function( func );
 					func = func( this.$root, this.$name, this.$envs, this.$vars );
 				if( Not( func, "Undefined" ) ) {
-					stdout.push( `${func}`.split( "\n" ) );
+					stdout.push( `${func}`.split( "\x0a" ) );
 				}
 			}
 			return {
@@ -1037,7 +1037,6 @@ export default {
 				prompt: null //<= this must be normalized
 			});
 		}
-		console.log( JSON.stringify( results, null, 4 ) );
 		return results;
 	}
 }
