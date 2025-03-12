@@ -57,10 +57,10 @@
 					data: {},
 					headers: {
 						"Accept": "application/json",
-						// "Authority": "https://hxari.github.io",
+						"Authority": "https://hxari.github.io",
 						"Content-Type": "application/x-www-form-urlencoded",
-						// "Origin": "https://hxari.github.io",
-						// "Referer": "https://hxari.github.io/contact"
+						"Origin": "https://hxari.github.io",
+						"Referer": "https://hxari.github.io/contact"
 					}
 				}
 			},
@@ -83,8 +83,9 @@
 			"configs"
 		]),
 		created: function() {
-			this.detail = [
-				{
+			this.detail = [];
+			if( this.configs.contact.address ) {
+				this.detail.push({
 					icon: [ "bx", "bxs-map" ],
 					text: Fmt( "{}, {} Province, {} Regency, {} District, {}", ...[
 						this.configs.author.address.country,
@@ -93,23 +94,27 @@
 						this.configs.author.address.district,
 						this.configs.author.address.postcode
 					])
-				},
-				{
-					icon: [ "bx", "bxl-whatsapp" ],
-					text: this.configs.author.contact.phone,
-					link: Fmt( "https://wa.me/{}", this.configs.author.contact.phone.replaceAll( /\-|\+|\s/g, "" ) )
-				},
-				{
+				});
+			}
+			if( this.configs.contact.usermail ) {
+				this.detail.push({
 					icon: [ "bx", "bx-mail-send" ],
 					text: this.configs.author.contact.email,
 					link: Fmt( "mailto:{}", this.configs.author.contact.email )
-				},
-				{
-					icon: [ "bx", "bx-world" ],
-					text: "https://hxari.github.io/",
-					link: "https://hxari.github.io/"
-				}
-			];
+				});
+			}
+			if( this.configs.contact.whatsapp ) {
+				this.detail.push({
+					icon: [ "bx", "bxl-whatsapp" ],
+					text: this.configs.author.contact.phone,
+					link: Fmt( "https://wa.me/{}", this.configs.author.contact.phone.replaceAll( /\-|\+|\s/g, "" ) )
+				});
+			}
+			this.detail.push({
+				icon: [ "bx", "bx-world" ],
+				text: "https://hxari.github.io/",
+				link: "https://hxari.github.io/"
+			});
 		},
 		methods: {
 			
@@ -314,12 +319,32 @@
 		width: 100vw;
 		height: 730px;
 	}
+	@media screen and ( max-width: 1920px ) {
+		.contact {
+			height: 920px;
+		}
+	}
 		.contact-wrapper {
 			width: 85%;
 			height: 80%;
 			overflow: hidden;
 			background: var(--background-1);
 			box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
+		}
+		@media screen and ( min-width: 1900px ) {
+			.contact-wrapper {
+				width: 55%;
+			}
+		}
+		@media screen and ( max-width: 1080px ) {
+			.contact-wrapper {
+				width: 55%;
+			}
+		}
+		@media screen and ( max-width: 1080px ) {
+			.contact-wrapper {
+				width: 80%;
+			}
 		}
 			.contact-info,
 			.contact-message {

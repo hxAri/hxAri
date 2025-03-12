@@ -128,7 +128,7 @@
 					template: [
 						"<div class=\"{ avatar }\">",
 							"<div class=\"{ wrapper }\">",
-								"<img class=\"{ image }\" title=\"{ title }\" alt=\"{ alt }\" data-src=\"{ src }\" v-lazyload />",
+								"<img class=\"{ image } lazy\" title=\"{ title }\" alt=\"{ alt }\" data-src=\"{ src }\" v-lazyload />",
 								"<div class=\"{ cover }\">",
 									"{ slot }",
 								"</div>",

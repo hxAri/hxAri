@@ -4,6 +4,7 @@
 	import { mapState } from "vuex";
 	
 	// Import Scripts
+	import Common from "/src/scripts/Common.js";
 	import Fmt from "/src/scripts/Fmt.js";
 	import Mapper from "/src/scripts/Mapper.js";
 	import Type from "/src/scripts/Type";
@@ -17,71 +18,71 @@
 			model: "",
 			shortcuts: [
 				{
-					name: "",
+					name: "Escape",
 					code: 27,
 					text: "ESC"
 				},
 				{
-					name: "",
+					name: "Slash",
 					text: "/"
 				},
 				{
-					name: "",
+					name: "Dash",
 					code: "",
 					text: "-"
 				},
 				{
-					name: "",
+					name: "Home",
 					code: 36,
 					text: "HOME"
 				},
 				{
-					name: "",
+					name: "ArrowUp",
 					code: 38,
 					icon: [ "bx", "bx-up-arrow-alt" ]
 				},
 				{
-					name: "",
+					name: "End",
 					code: 35,
 					text: "END"
 				},
 				{
-					name: "",
+					name: "PageUp",
 					code: 33,
 					text: "PGUP"
 				},
 				{
-					name: "",
+					name: "Control",
 					code: 17,
 					text: "CTRL"
 				},
 				{
-					name: "",
+					name: "Alternative",
 					code: 18,
 					text: "ALT"
 				},
 				{
-					name: "",
+					name: "Shift",
 					code: 16,
 					text: "SHIFT", //icon: [ "bx", "bx-sort-alt-2", "bx-rotate-90" ]
 				},
 				{
-					name: "",
+					name: "ArrowLeft",
 					code: 37,
 					icon: [ "bx", "bx-left-arrow-alt" ]
 				},
 				{
-					name: "",
+					name: "ArrowDown",
 					code: 40,
 					icon: [ "bx", "bx-down-arrow-alt" ]
 				},
 				{
-					name: "",
+					name: "ArrowRight",
 					code: 39,
 					icon: [ "bx", "bx-right-arrow-alt" ]
 				},
 				{
-					name: "",
+					name: "PageEnd",
 					code: 34,
 					text: "PGDN"
 				}
@@ -134,11 +135,11 @@
 				"\x20",
 				...contacts,
 				"\x20",
-				Fmt( "\x1b[0;37mReport issues at : \x1b[4;37m{}", this.configs.terminal.issues ),
+				Fmt( "\x1b[0;37mReport issues at  : \x1b[4;37m{}", this.configs.terminal.issues ),
 				"\x1b[0;37mType \x1b[1;38;5;32mhelp\x1b[0;40m \x1b[37mif you are confused",
 				"\x20"
 			];
-			if( this.isMobile( false ) ) {
+			if( Common.isMobileUserAgent( false ) ) {
 				this.terminal.banner = Fmt( this.terminal.banner.join( "\x0a" ), ...params );
 			}
 			else {
@@ -157,7 +158,6 @@
 			if( this.terminal.history.length >= 1 ) {
 				for( let i in this.terminal.history ) {
 					if( Type( this.terminal.history[i].typing, String ) && this.terminal.history[i].replaced === false ) {
-						
 						this.terminal.history[i].stdout = this.terminal.banner;
 						this.terminal.history[i].replaced = true;
 					}
@@ -189,34 +189,42 @@
 			 * @return Void
 			 */
 			endrange: function( e ) {
-				
 				if( Type( this.$refs.input, HTMLInputElement ) ) {
-					var codes = [ 37, 38, 39, 40 ];
-					var model = this.model;
-					var input = this.$refs.input;
-					var index = input.selectionStart;
-					if( Type( e, KeyboardEvent ) ) {
-						if( e.keyCode in codes ) {
-							if( e.keyCode !== 38 ) {
-								if( e.keyCode === 40 ) {
+					if( this.isMobile() ) {
+						this.label.after = this.terminal.colorable( this.model );
+						this.label.split = "";
+						this.label.before = "";
+						this.$refs.input.selectionEnd = this.model.length;
+						this.$refs.input.selectionStart = this.model.length;
+					}
+					else {
+						var codes = [ 37, 38, 39, 40 ];
+						var model = this.model;
+						var input = this.$refs.input;
+						var index = input.selectionStart;
+						if( Type( e, KeyboardEvent ) ) {
+							if( e.keyCode in codes ) {
+								if( e.keyCode !== 38 ) {
+									if( e.keyCode === 40 ) {
+									}
+									else {
+										this.label.before = this.terminal.colorable( model.substring( 0, index ) );
+										this.label.split = model.substring( index, index+1 );
+										this.label.after = this.terminal.colorable( model.substring( index+1 ) );
+									}
 								}
 								else {
-									this.label.before = this.terminal.colorable( model.substring( 0, index ) );
-									this.label.split = model.substring( index, index+1 );
-									this.label.after = this.terminal.colorable( model.substring( index+1 ) );
+									// Up
 								}
 							}
 							else {
-								// Up
+								this.label.before = this.terminal.colorable( model.substring( 0, index ) );
+								this.label.split = model.substring( index, index+1 );
+								this.label.after = this.terminal.colorable( model.substring( index+1 ) );
 							}
 						}
-						else {
-							this.label.before = this.terminal.colorable( model.substring( 0, index ) );
-							this.label.split = model.substring( index, index+1 );
-							this.label.after = this.terminal.colorable( model.substring( index+1 ) );
-						}
+						this.trigger();
 					}
-					this.trigger();
 				}
 				else {
 					this.label.after = "";
@@ -239,34 +247,39 @@
 						.then( x => console.log( x ) )
 						.catch( e => console.error( e ) );
 				}
+				if( e.key === "Tab" ) {
+					this.model+= "\x20".repeat( 4 );
+				}
 				this.terminal.binding = this;
 				this.terminal.router = this.$router;
 			},
 			
-			isMobile: function( optional ) {
-				const searchs = [
-					/Android/i,
-					/webOS/i,
-					/iPhone/i,
-					/iPad/i,
-					/iPod/i,
-					/BlackBerry/i,
-					/Windows Phone/i
-				];
-				return Type( optional, Boolean ) ? this.isMobile() === optional : searchs.some( device => navigator.userAgent.match( device ) );
+			/** Return if current device is mobile */
+			isMobile: optional => Common.isMobile( optional ),
+			
+			/*
+			 * Handle keyboard.
+			 *
+			 * @params String name
+			 * @params String text
+			 * @params Number code
+			 *
+			 * @return Void
+			 */
+			keyhandler: function( name, text, code ) {
 			},
 			
 			/**
-			 * Handle keyboard event.
+			 * Handle keyboard shortcut event.
 			 *
 			 * @params Event e
 			 * @params Object shortcut
 			 *
 			 * @return Void
 			 */
-			keyboard: function( e, shortcut ) {
-				if( Type( shortcut, Object ) ) {}
-				else {
+			keyshort: function( e, shortcut ) {
+				if( Type( shortcut, Object ) ) {
+					this.keyhandler( shortcut.name, shortcut.text, shortcut.code );
 				}
 			},
 			
@@ -278,58 +291,58 @@
 			onrender: function() {
 				var self = this;
 					self.trigger();
-				
-				// Mapping Terminal Histories.
 				return Mapper( self.terminal.history,
 					
 					/**
 					 * Handle history.
 					 *
-					 * @params Number i
-					 * @params Object history
+					 * @param {Number} i
+					 * @param {Object} history
 					 *
-					 * @return String
+					 * @return {String}
 					 */
 					function( i, history ) {
 						var stack = [];
-						
-						// Check if history has prompt.
 						if( Type( history.prompt, String ) ) {
-							
-							// Create opening tag.
 							stack.push( "<label class=\"terminal-line-prompt dp-block\">" );
-							
-							// Create terminal prompt.
 							stack.push( history.prompt );
-							
-							// Check if history has input commands.
 							if( Type( history.inputs, String ) ) {
 								stack.push( history.inputs.trim() );
 							}
 							stack.push( "</label>" );
 						}
-						
 						if( Type( history.stderr, Array ) ) {
 							stack.push( ...Mapper( history.stderr, ( i, error ) => Fmt( "<label class=\"terminal-line-output dp-block\">{}</label>", self.terminal.format( `${error}`.replaceAll( /\<|\>/g, m => m === "<" ? "&lt" : "&gt" ) ) ) ) );
 						}
 						else if( Type( history.stderr, [ Number, String ] ) ) {
 							stack.push( Fmt( "<label class=\"terminal-line-output dp-block\">{}</label>", self.terminal.format( `${history.stderr}`.replaceAll( /\<|\>/g, m => m === "<" ? "&lt" : "&gt" ) ) ) );
 						}
-						
-						
-						// Check if history has multiple outputs.
 						if( Type( history.stdout, Array ) ) {
-							stack.push( ...Mapper( history.stdout, ( i, output ) => Fmt( "<label class=\"terminal-line-output dp-block\">{}</label>", self.terminal.format( `${output}`.replaceAll( /\<|\>/g, m => m === "<" ? "&lt" : "&gt" ) ) ) ) );
+							for( let line in history.stdout ) {
+								stack.push( Fmt( "<label class=\"terminal-line-output dp-block\">{}</label>", self.terminal.format( `${history.stdout[line]}`.replaceAll( /\<|\>/g, m => m === "<" ? "&lt" : "&gt" ) ) ) );
+							}
 						}
-						
-						// Check if history has single outputs.
 						else if( Type( history.stdout, [ Number, String ] ) ) {
 							stack.push( Fmt( "<label class=\"terminal-line-output dp-block\">{}</label>", self.terminal.format( `${history.stdout}`.replaceAll( /\<|\>/g, m => m === "<" ? "&lt" : "&gt" ) ) ) );
 						}
-						
 						return stack.join( "" );
 					}
 				).join( "" );
+			},
+			
+			paste: function() {
+				if( this.isMobile() ) {
+					try {
+						var clipboard = window.navigator.clipboard.readText();
+						this.model = clipboard;
+					}
+					catch( NotAllowedError ) {
+						this.terminal.history.push({
+							stdout: NotAllowedError
+						});
+					}
+				}
+				this.trigger();
 			},
 			
 			/**
@@ -357,16 +370,16 @@
 <template>
 	<div class="terminal">
 		<div class="terminal-screen">
-			<div class="terminal-output" @click="trigger">
-				<div class="terminal-line" v-html="onrender()"></div>
+			<div class="terminal-output">
+				<div class="terminal-line" @dblclick="paste" v-html="onrender()"></div>
 				<div class="terminal-form" @click="trigger">
 					<label class="terminal-prompt" v-if="terminal.loading">
 					</label>
-					<label class="terminal-prompt" v-html="terminal.prompt( terminal.exports.PS1 )" v-else></label>
-					<label class="terminal-label" v-html="label.before"></label>
-					<label class="terminal-label" v-html="label.split" :style="{ backgroundColor: 'white', width: '9px', color: 'black' }"></label>
-					<label class="terminal-label" v-html="label.after"></label>
-					<input class="terminal-input" :style="{ borderRight: this.label.split === '' && this.model !== '' || this.model === '' ? '9px solid white' : 'none', transition: 'none' }" autocapitalize="off" ref="input" type="text" v-model="model"
+					<label class="terminal-prompt" data-label="$PS1" v-html="terminal.prompt( terminal.exports.PS1 )" v-else></label>
+					<label class="terminal-label" data-label="before" v-html="label.before"></label>
+					<label class="terminal-label blinking-1x" data-blink data-label="split" v-html="label.split" :style="{ backgroundColor: 'white', width: '9px', color: 'black' }"></label>
+					<label class="terminal-label" data-label="after" v-html="label.after"></label>
+					<input class="terminal-input blinking-1x" data-blink data-label="input" :style="{ borderRight: this.label.split === '' && this.model !== '' || this.model === '' ? '9px solid white' : 'none', transition: 'none' }" autocapitalize="off" ref="input" type="text" v-model="model"
 						@click="endrange"
 						@keyup="endrange"
 						@focus="endrange"
@@ -376,8 +389,8 @@
 						@keydown="executor" />
 				</div>
 			</div>
-			<div class="terminal-shortcut dp-none">
-				<div class="terminal-shortcut-key flex flex-center" v-for="shortcut in shortcuts" @click="keyboard( $event, shortcut )">
+			<div class="terminal-shortcut mg-top-10" v-if="isMobile()">
+				<div class="terminal-shortcut-key flex flex-center" v-for="shortcut in shortcuts" @click="keyshort( $event, shortcut )">
 					<p class="title flex flex-center" v-if="shortcut.text">{{ shortcut.text }}</p>
 					<p class="title flex flex-center" v-else>
 						<i :class="[ 'title', ...shortcut.icon ]"></i>
@@ -424,6 +437,14 @@
 			white-space: pre-wrap;
 			word-wrap: break-word;
 		}
+		@media (max-width: 750px) {
+			 .terminal-label,
+			 .terminal-input,
+			 .terminal-output,
+			 .terminal-screen {
+				font-size: 10px;
+			}
+		}
 			.terminal-output {
 				height: auto;
 				min-height: 420px;
@@ -436,11 +457,9 @@
 			}
 				.terminal-output p {
 					line-height: 1.2;
+					text-wrap: nowrap;
 				}
 			@media (max-width: 750px) {
-				/*.terminal-form {*/
-					/** margin-bottom: 14px; */
-				/*}*/
 			}
 				.terminal-label {
 					width: auto;
@@ -456,6 +475,7 @@
 					background: var(--shell-c-1-37m);
 				}
 		.terminal-shortcut {
+			display: grid;
 			gap: 14px;
 			grid-template-columns: repeat( 7, 1fr );
 		}
@@ -467,9 +487,6 @@
 				background: var(--background-3);
 			}
 		@media (max-width: 750px) {
-			/*.terminal-shortcut {*/
-				/** display: grid; */
-			/*}*/
 		}
 	
 </style>

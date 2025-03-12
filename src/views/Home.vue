@@ -12,30 +12,45 @@
 	import Avatar from "/src/widgets/Avatar.vue";
 	import Certificate from "/src/widgets/Certificate.vue";
 	import Experience from "/src/widgets/Experience.vue";
-	import Project from "/src/widgets/Project.vue";
 	import Skill from "/src/widgets/Skill.vue";
+	import Project from "/src/widgets/Project.vue";
+	import Technology from "/src/widgets/Technology.vue";
+import { config } from "@vue/test-utils";
 	
 	export default {
 		data: () => ({
 			tabs: [
 				{
 					hash: "#about",
-					text: "Abouts",
+					text: "About",
+					name: "about",
 					icon: {
 						active: [ "bx", "bxs-info-circle" ],
 						default: [ "bx", "bx-info-circle" ]
 					}
 				},
 				{
-					hash: "#skill",
-					text: "Skills",
+					hash: "#programming",
+					text: "Programming",
+					name: "programming",
 					icon: {
-						default: [ "bx", "bxs-hot" ]
+						active: [ "bx", "bx-code-alt" ],
+						default: [ "bx", "bx-code" ]
+					}
+				},
+				{
+					hash: "#technology",
+					text: "Technology",
+					name: "technology",
+					icon: {
+						active: [ "bx", "bxs-chip" ],
+						default: [ "bx", "bx-chip" ]
 					}
 				},
 				{
 					hash: "#project",
-					text: "Projects",
+					text: "Project",
+					name: "project",
 					icon: {
 						active: [ "bx", "bxs-flag" ],
 						default: [ "bx", "bx-flag" ]
@@ -43,7 +58,8 @@
 				},
 				{
 					hash: "#experience",
-					text: "Experiences",
+					text: "Experience",
+					name: "experience",
 					icon: {
 						active: [ "bx", "bxs-star" ],
 						default: [ "bx", "bx-star" ]
@@ -51,7 +67,8 @@
 				},
 				{
 					hash: "#certificate",
-					text: "Certificates",
+					text: "Certificate",
+					name: "certificate",
 					icon: {
 						default: [ "bx", "bx-check-double" ]
 					}
@@ -99,6 +116,7 @@
 				// Dispatch for organization.
 				await this.$store.dispatch( "organization" );
 			}
+			// alert( window.screen.width )
 		},
 		methods: {
 			
@@ -135,7 +153,8 @@
 			Certificate,
 			Experience,
 			Project,
-			Skill
+			Skill,
+			Technology
 		}
 	};
 	
@@ -145,146 +164,177 @@
 	<div class="banner">
 		<div class="banner-group">
 			<div class="banner-album"></div>
-			<div class="banner-cover"></div>
+			<div class="banner-cover flex flex-center flex-wrap">
+				<h6 class="banner-headline title center mg-0 pd-top-6 pd-bottom-6 pd-left-10 pd-right-10">{{ configs.author.headline }}</h6>
+			</div>
 		</div>
 	</div>
-	<div class="home dp-flex">
-		<div class="home-profile">
-			<div class="profile-common">
-				<div class="profile-picture flex flex-center rd-circle">
-					<div class="profile-picture-border flex flex-center rd-circle">
-						<div class="profile-picture-spaces flex flex-center rd-circle">
-							<!--<Avatar :attrs="{ avatar: 'profile-avatar', wrapper: [ 'profile-avatar-wrapper', 'rd-circle' ] }" title="Ari Setiawan" alt="Ari Setiawan (hxAri)" src="https://avatars.githubusercontent.com/u/90847846?v=4" />-->
-							<div class="avatar flex flex-center profile-avatar">
-								<div class="avatar-wrapper flex flex-center profile-avatar-wrapper rd-circle">
-									<img class="avatar-image lazy" title="Ari Setiawan" alt="Ari Setiawan (hxAri)" :data-src="profile.avatar_url" v-lazyload />
-									<div class="avatar-cover"></div>
+	<div class="home flex flex-center">
+		<div class="home-wrapper flex">
+			<div class="home-profile">
+				<div class="profile-common">
+					<div class="profile-picture flex flex-center rd-circle">
+						<div class="profile-picture-border flex flex-center rd-circle">
+							<div class="profile-picture-spaces flex flex-center rd-circle">
+								<!--<Avatar :attrs="{ avatar: 'profile-avatar', wrapper: [ 'profile-avatar-wrapper', 'rd-circle' ] }" title="Ari Setiawan" alt="Ari Setiawan (hxAri)" src="https://avatars.githubusercontent.com/u/90847846?v=4" />-->
+								<div class="avatar flex flex-center profile-avatar">
+									<div class="avatar-wrapper flex flex-center profile-avatar-wrapper rd-circle">
+										<img class="avatar-image lazy" title="Ari Setiawan" alt="Ari Setiawan (hxAri)" :data-src="profile.avatar_url" v-lazyload />
+										<div class="avatar-cover"></div>
+									</div>
 								</div>
 							</div>
 						</div>
 					</div>
-				</div>
-				<div class="profile-common-info mg-top-20">
-					<p class="title fs-20 fb-45 mg-0 fullname">{{ configs.author.name ?? profile.name }}</p>
-					<p class="text fs-14 fb-35 mg-0 biography">{{ profile.bio ?? "Self expansion infinite void" }}</p>
-				</div>
-			</div>
-			<div class="profile-about pd-20">
-				<ul class="bx-ul mg-bottom-14">
-					<li class="flex flex-left mg-bottom-4">
-						<i class="bx bx-map"></i>{{ configs.author.address.universe ?? profile.location ?? "Milky Way" }}
-					</li>
-					<li class="flex flex-left mg-bottom-4">
-						<i class="bx bx-buildings"></i>{{ configs.author.company ?? profile.company ?? "Freelance" }}
-					</li>
-					<li class="flex flex-left mg-bottom-4">
-						<i class="bx bxl-whatsapp"></i>
-						<a class="sub-title" :href="'https://wa.me/' + configs.author.contact.phone.replaceAll( /\-|\+|\s/g, '' ) " target="_blank" rel="noopener noreferrer">
-							{{ configs.author.contact.phone }}
-						</a>
-					</li>
-					<li class="flex flex-left">
-						<i class="bx bx-mail-send"></i>
-						<a class="sub-title" :href="'mailto:' + configs.author.contact.email ?? profile.email ?? 'hxari@proton.me'" target="_blank" rel="noopener noreferrer">
-							{{ configs.author.contact.email ?? profile.email ?? "hxari@proton.me" }}
-						</a>
-					</li>
-				</ul>
-				<a :href="configs.resume.png" target="_blank" rel="noopener noreferrer">
-					<button class="button button-resume mg-bottom-14 pd-14">
-						<span class="title fb-45">View Resume</span>
-					</button>
-				</a>
-				<hr class="hr mg-bottom-14" />
-				<div class="organization" v-if="hasOrganization">
-					<div class="mg-bottom-14 mg-lc-bottom flex flex-left" v-for="organization in organizations">
-						<a class="flex flex-left" :href="organization.html_url" target="_blank" rel="noopener noreferrer">
-							<div class="avatar mg-right-14">
-								<div class="avatar-wrapper flex flex-center organization-avatar-wrapper rd-circle">
-									<img class="avatar-image" :title="organization.name" :alt="organization.login" :data-src="organization.avatar_url" v-lazyload />
-									<div class="avatar-cover"></div>
-								</div>
-							</div>
-							<p class="title">{{ organization.name }}</p>
-						</a>
+					<div class="profile-common-info mg-top-20">
+						<p class="title fs-20 fb-45 mg-0 fullname">{{ configs.author.name ?? profile.name }}</p>
+						<p class="text fs-14 fb-35 mg-0 biography">{{ profile.bio ?? "Self expansion infinite void" }}</p>
 					</div>
 				</div>
-				<div class="organization" v-else>
-					<div class="organization-loading mg-bottom-14 mg-lc-bottom flex flex-left" v-for="i in configs.organizations">
-						<div class="flex flex-left">
-							<div class="avatar mg-right-14">
-								<div class="avatar-wrapper flex flex-center organization-avatar-wrapper rd-circle">
+				<div class="profile-about pd-20">
+					<ul class="bx-ul mg-bottom-14">
+						<li class="flex flex-left mg-bottom-4">
+							<i class="bx bx-map"></i>{{ profile.location ?? configs.author.address.universe ?? "Milky Way" }}
+						</li>
+						<li class="flex flex-left mg-bottom-4">
+							<i class="bx bx-buildings"></i>{{ profile.company ?? configs.author.company ?? "Freelance" }}
+						</li>
+						<li class="flex flex-left mg-bottom-4">
+							<i class="bx bxl-whatsapp"></i>
+							<a class="sub-title" :href="'https://wa.me/' + configs.author.contact.phone.replaceAll( /\-|\+|\s/g, '' ) " target="_blank" rel="noopener noreferrer">
+								{{ configs.author.contact.phone }}
+							</a>
+						</li>
+						<li class="flex flex-left">
+							<i class="bx bx-mail-send"></i>
+							<a class="sub-title" :href="'mailto:' + configs.author.contact.email ?? profile.email ?? 'hxari@proton.me'" target="_blank" rel="noopener noreferrer">
+								{{ configs.author.contact.email ?? profile.email ?? "hxari@proton.me" }}
+							</a>
+						</li>
+					</ul>
+					<a :href="configs.resume.png" target="_blank" rel="noopener noreferrer">
+						<button class="button button-resume mg-bottom-14 pd-14">
+							<span class="title fb-45">View Resume</span>
+						</button>
+					</a>
+					<hr class="hr mg-bottom-14" />
+					<div class="organization" v-if="hasOrganization">
+						<div class="mg-bottom-14 mg-lc-bottom flex flex-left" v-for="organization in organizations">
+							<a class="flex flex-left" :href="organization.html_url" target="_blank" rel="noopener noreferrer">
+								<div class="avatar mg-right-14">
+									<div class="avatar-wrapper flex flex-center organization-avatar-wrapper rd-circle">
+										<img class="avatar-image lazy" :title="organization.name" :alt="organization.login" :data-src="organization.avatar_url" v-lazyload />
+										<div class="avatar-cover"></div>
+									</div>
 								</div>
+								<p class="title">{{ organization.name }}</p>
+							</a>
+						</div>
+					</div>
+					<div class="organization" v-else>
+						<div class="organization-loading mg-bottom-14 mg-lc-bottom flex flex-left" v-for="i in configs.organizations">
+							<div class="flex flex-left">
+								<div class="avatar mg-right-14">
+									<div class="avatar-wrapper flex flex-center organization-avatar-wrapper rd-circle">
+									</div>
+								</div>
+								<p class="title"></p>
 							</div>
-							<p class="title"></p>
 						</div>
 					</div>
 				</div>
 			</div>
-		</div>
-		<div class="home-contents">
-			<div class="tabs flex flex-center scroll-hidden">
-				<div :class="active( tab.hash )" @click="$router.push({ hash: tab.hash })" v-for="tab in tabs">
-					<div class="tab-inner flex flex-center pd-left-14 pd-right-14">
-						<span :class="iconic( tab )"></span>
-						<span class="tab-text">{{ tab.text }}</span>
+			<div class="home-contents">
+				<div class="tabs flex flex-center scroll-hidden">
+					<div :class="active( tab.hash )" @click="$router.push({ hash: tab.hash })" v-for="tab in tabs">
+						<div class="tab-inner flex flex-center pd-left-14 pd-right-14"  v-if="configs.home[tab.name]">
+							<span :class="iconic( tab )"></span>
+							<span class="tab-text">{{ tab.text }}</span>
+						</div>
 					</div>
 				</div>
-			</div>
-			<div class="content-groups pd-14">
-				<div class="content-single pd-14" id="about" v-scroll-reveal="{ delay: 650 }">
-					<h2 class="title">
-						<RouterLink class="title flex flex-left" to="#about">
-							<i class="bx bxs-info-circle mg-right-14"></i>
-							<span class="text-wrap">Abouts</span>
-						</RouterLink>
-					</h2>
-					<hr class="hr mg-top-14 mg-bottom-14" />
-					<p class="text mg-bottom-14 mg-lc-bottom" v-for="about in configs.author.abouts" v-scroll-reveal="{ delay: 650 }">{{ about }}</p>
-				</div>
-				<div class="content-single pd-14" id="skill" v-scroll-reveal="{ delay: 650 }">
-					<h2 class="title">
-						<RouterLink class="title flex flex-left" to="#skill">
-							<i class="bx bxs-hot mg-right-14"></i>
-							<span class="text-wrap">Skills</span>
-						</RouterLink>
-					</h2>
-					<hr class="hr mg-top-14 mg-bottom-14" />
-					<p class="text"></p>
-					<Skill />
-				</div>
-				<div class="content-single pd-14" id="project" v-scroll-reveal="{ delay: 650 }">
-					<h2 class="title">
-						<RouterLink class="title flex flex-left" to="#project">
-							<i class="bx bxs-flag mg-right-14"></i>
-							<span class="text-wrap">Projects</span>
-						</RouterLink>
-					</h2>
-					<hr class="hr mg-top-14 mg-bottom-14" />
-					<p class="text"></p>
-					<Project />
-				</div>
-				<div class="content-single pd-14" id="experience" v-scroll-reveal="{ delay: 650 }">
-					<h2 class="title">
-						<RouterLink class="title flex flex-left" to="#experience">
-							<i class="bx bxs-star mg-right-14"></i>
-							<span class="text-wrap">Experiences</span>
-						</RouterLink>
-					</h2>
-					<hr class="hr mg-top-14 mg-bottom-14" />
-					<p class="text"></p>
-					<Experience />
-				</div>
-				<div class="content-single pd-14" id="certificate" v-scroll-reveal="{ delay: 650 }">
-					<h2 class="title">
-						<RouterLink class="title flex flex-left" to="#certificate">
-							<i class="bx bx-check-double mg-right-14"></i>
-							<span class="text-wrap">Certificates</span>
-						</RouterLink>
-					</h2>
-					<hr class="hr mg-top-14 mg-bottom-14" />
-					<p class="text"></p>
-					<Certificate />
+				<div class="content-groups pd-14">
+					<div class="content-single pd-14" id="about" v-scroll-reveal="{ delay: 650 }" v-if="configs.home.about">
+						<h2 class="title">
+							<RouterLink class="title flex flex-left" to="#about">
+								<i class="bx bxs-info-circle mg-right-14"></i>
+								<span class="text-wrap">Abouts</span>
+							</RouterLink>
+						</h2>
+						<hr class="hr mg-top-14 mg-bottom-14" />
+						<p class="text mg-bottom-14 mg-lc-bottom" v-for="abouts in configs.author.abouts" v-scroll-reveal="{ delay: 650 }">
+							<p class="text text-white-space-pre text-wrap mg-0" v-for="about in abouts">{{ about }}</p>
+						</p>
+					</div>
+					<div class="content-single pd-14" id="programming" v-scroll-reveal="{ delay: 650 }" v-if="configs.home.programming">
+						<hr class="hr mg-bottom-14" />
+						<h2 class="title">
+							<RouterLink class="title flex flex-left" to="#programming">
+								<i class="bx bx-code-alt mg-right-14"></i>
+								<span class="text-wrap">Programming</span>
+							</RouterLink>
+						</h2>
+						<hr class="hr mg-top-14 mg-bottom-14" />
+						<div class="text" v-if="this.configs.programming.description.length">
+							<p v-for="comment in this.configs.programming.description">{{ comment }}</p>
+							<hr class="hr mg-top-14 mg-bottom-14" />
+						</div>
+						<Skill />
+					</div>
+					<div class="content-single pd-14" id="technology" v-scroll-reveal="{ delay: 650 }" v-if="configs.home.technology">
+						<hr class="hr mg-bottom-14" />
+						<h2 class="title">
+							<RouterLink class="title flex flex-left" to="#technology">
+								<i class="bx bxs-chip mg-right-14"></i>
+								<span class="text-wrap">Technology</span>
+							</RouterLink>
+						</h2>
+						<hr class="hr mg-top-14 mg-bottom-14" />
+						<div class="text" v-if="this.configs.technology.description.length">
+							<p v-for="description in this.configs.technology.description">{{ description }}</p>
+							<hr class="hr mg-top-14 mg-bottom-14" />
+						</div>
+						<Technology />
+					</div>
+					<div class="content-single pd-14" id="project" v-scroll-reveal="{ delay: 650 }" v-if="configs.home.project">
+						<hr class="hr mg-bottom-14" />
+						<h2 class="title">
+							<RouterLink class="title flex flex-left" to="#project">
+								<i class="bx bxs-flag mg-right-14"></i>
+								<span class="text-wrap">Projects</span>
+							</RouterLink>
+						</h2>
+						<hr class="hr mg-top-14 mg-bottom-14" />
+						<div class="text" v-if="this.configs.project.description.length">
+							<p v-for="description in this.configs.project.description">{{ description }}</p>
+							<hr class="hr mg-top-14 mg-bottom-14" />
+						</div>
+						<Project />
+					</div>
+					<div class="content-single pd-14" id="experience" v-scroll-reveal="{ delay: 650 }" v-if="configs.home.experience">
+						<hr class="hr mg-bottom-14" />
+						<h2 class="title">
+							<RouterLink class="title flex flex-left" to="#experience">
+								<i class="bx bxs-star mg-right-14"></i>
+								<span class="text-wrap">Experiences</span>
+							</RouterLink>
+						</h2>
+						<hr class="hr mg-top-14 mg-bottom-14" />
+						<p class="text"></p>
+						<Experience />
+					</div>
+					<div class="content-single pd-14" id="certificate" v-scroll-reveal="{ delay: 650 }" v-if="configs.home.certificate">
+						<hr class="hr mg-bottom-14" />
+						<h2 class="title">
+							<RouterLink class="title flex flex-left" to="#certificate">
+								<i class="bx bx-check-double mg-right-14"></i>
+								<span class="text-wrap">Certificates</span>
+							</RouterLink>
+						</h2>
+						<hr class="hr mg-top-14 mg-bottom-14" />
+						<p class="text"></p>
+						<Certificate />
+					</div>
 				</div>
 			</div>
 		</div>
@@ -328,6 +378,16 @@
 			[data-theme="dark"] .banner-cover {
 				background: rgba(0,0,0,.2);
 			}
+				.banner-headline {
+					background: rgba(255,255,255,.8);
+					letter-spacing: 6px;
+					opacity: .8;
+					text-shadow: 1px 1px 2px rgba(0,0,0,.8);
+				}
+				[data-theme="dark"] .banner-headline {
+					background: rgba(0,0,0,.6);
+					text-shadow: 1px 1px 2px rgba(255,255,255,.6);
+				} 
 	@media( max-width: 1920px ) {
 		.banner {
 			height: 420px;
@@ -372,6 +432,18 @@
 		height: auto;
 		background: var(--background-1);
 	}
+		.home-wrapper {
+			height: inherit;
+			background: var(--background-1);
+		}
+		@media screen and ( min-width: 1400px ) {
+			.home {
+				background: var(--background-2);
+			}
+				.home-wrapper {
+					width: 70%;
+				}
+		}
 		.home-profile {
 			top: 0;
 			width: 30%;
@@ -400,6 +472,12 @@
 						.profile-avatar-wrapper {
 							width: 245px;
 							height: 245px;
+						}
+						@media( max-width: 850px ) {
+							.profile-avatar-wrapper {
+								width: 200px;
+								height: 200px;
+							}
 						}
 				.profile-common-info {
 					text-align: center;
@@ -470,21 +548,11 @@
 				background: var(--background-1);
 				border-left: 1px solid var(--border-3);
 			}
-				.content-single {
-					border-bottom: 1px solid var(--border-3);
-				}
-				.content-single:last-child {
-					border-bottom: 0;
-				}
-	@media( max-width: 850px ) {
-		.profile-avatar-wrapper {
-			width: 200px;
-			height: 200px;
-		}
-	}
+	
 	@media( max-width: 750px ) {
-		.home {
+		.home-wrapper {
 			display: block;
+			width: 100%;
 		}
 			.home-profile {
 				top: auto;

@@ -61,7 +61,9 @@
 			binding: function() {
 				return {
 					data: () => ({
+						image: {},
 						images: {},
+						source: null,
 						project: this.project,
 						document: this.document,
 						component: this.component
@@ -71,25 +73,16 @@
 						"projects",
 						"documents"
 					]),
-					created: function()
-					{
+					created: function() {
 						this.images = this.configs.image.images;
-					},
-					mounted: function()
-					{},
-					methods: {
-						
-						/**
-						 * Image url source formater.
-						 *
-						 * @params String source
-						 *
-						 * @return String
-						 */
-						isrc: function( source )
-						{
-							return([ this.configs.image.source, source ]).join( "/" );
+						this.source = this.configs.image.source;
+						if( process.env.NODE_ENV === "development" ) {
+							this.source = "/public/images";
 						}
+					},
+					mounted: function() {
+					},
+					methods: {
 					},
 					template: Eremento.arrange(
 						this.component.template
@@ -128,6 +121,7 @@
 						
 						// Check if current route has children.
 						if( Type( route.children, Array ) ) {
+							
 							var find = null;
 							
 							// If route found on children of current route iteration.
@@ -211,7 +205,9 @@
 		</div>
 		<div class="document-display" v-else>
 			<div class="document-content bg-2 pd-18" v-if="component">
-				<component v-bind:is="binding"></component>
+				<keep-alive>
+					<component :is="binding"></component>
+				</keep-alive>
 			</div>
 			<div class="document-unavailable" v-else>
 				<Error>

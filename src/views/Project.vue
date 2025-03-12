@@ -3,11 +3,6 @@
 	
 	import { mapState } from "vuex";
 	
-	// Import Scripts.
-	import Fmt from "/src/scripts/Fmt.js";
-	import Json from "/src/scripts/Json.js";
-	import Type from "/src/scripts/Type.js";
-	
 	// Import Widgets.
 	import Error from "/src/widgets/Error.vue";
 	import Project from "/src/widgets/Project.vue";
@@ -16,8 +11,7 @@
 		watch: {
 			title: {
 				immediate: true,
-				handler: function()
-				{
+				handler: function() {
 					document.title = "hxAri · Projects";
 				}
 			}
@@ -54,8 +48,10 @@
 						<i class="bx bxs-flag mg-right-14"></i>Projects
 					</h2>
 					<hr class="hr mg-top-14 mg-bottom-14" />
-					<p class="text mg-bottom-14">
-						Here are some of the projects I've created and are still developing. Every project is open source anyone can use it or contribute if interesting, don't forget to let others know if it's useful.
+					<p class="text mg-0">
+						<p class="text mg-0">Here are some of the projects I've created and are still developing.</p>
+						<p class="text mg-0">Every project is open source anyone can use it or contribute if interesting,</p>
+						<p class="text mg-bottom-14">don't forget to let others know if it's useful.</p>
 					</p>
 					<Project />
 				</div>
@@ -93,8 +89,13 @@
 		}
 	}
 		.project-wrapper {
-			width: 70%;
+			width: 50%;
 			height: fit-content;
+		}
+		@media (max-width: 1080px) {
+			.project-wrapper {
+				width: 80%;
+			}
 		}
 		@media (max-width: 750px) {
 			.project-wrapper {

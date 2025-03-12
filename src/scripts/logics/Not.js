@@ -2,7 +2,7 @@
 // Importing application scripts.
 import Type from "/src/scripts/Type.js";
 
-/*
+/**
  * Not is the negation of the function is/Type.
  *
  * @params Mixed argv
@@ -12,7 +12,6 @@ import Type from "/src/scripts/Type.js";
  *
  * @return Mixed
  */
-export default function Not( argv, type, handler = () => true, catcher = () => false )
-{
-	return( Type( argv, type, catcher, handler ) );
+export default function Not( argv, type, handler = () => true, catcher = () => false ) {
+	return Type( argv, type, catcher, handler );
 };

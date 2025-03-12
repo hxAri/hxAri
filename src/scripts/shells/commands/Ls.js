@@ -86,7 +86,7 @@ export default {
 			}
 			
 			// Display help.
-			if( Type( help, Boolean ) ) return( this.$help() );
+			if( Type( help, Boolean ) ) return this.$help();
 			
 			// Check if file is file.
 			if( Type( files, Object ) )
@@ -117,11 +117,15 @@ export default {
 					files[i] = files[i].name;
 				}
 			}
-			return( files );
+			return {
+				stdin: null,
+				stderr: null,
+				stdout: files,
+				prompt: null
+			};
 		}
-		catch( error )
-		{
-			throw Fmt( "ls: {}", error );
+		catch( error ) {
+			throw new Error( Fmt( "ls: {}", error ) );
 		}
 	}
 };

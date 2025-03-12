@@ -27,30 +27,26 @@ export default {
 			require: false
 		}
 	},
-	mounted: function({ c, h } = {})
-	{
+	mounted: function({ c, h } = {}) {
+		
 		// Throw if multiple argument passed.
 		if( Type( c, String ) && h === true ) throw "theme: To many arguments";
 		
 		// Check if set option is available 
-		if( Type( c, String ) )
-		{
-			// Check if set value is available.
+		if( Type( c, String ) ) {
 			if( c === "dark" ||
-				c === "light" )
-			{
+				c === "light" ) {
 				this.theme.set( c );
 			}
 			else {
 				throw Fmt( "theme: {}: Invalid theme color", c );
 			}
 		}
-		
-		// Display help.
-		if( h === true )
-		{
-			return( this.$help() );
+		if( h === true ) {
+			return this.$help();
 		}
-		return([ Fmt( "{}={}", this.theme.get(), this.theme.theme[this.theme.get()].token ) ]);
+		return {
+			stdout: [ Fmt( "{}={}", this.theme.get(), this.theme.theme[this.theme.get()].token ) ]
+		};
 	}
 };
