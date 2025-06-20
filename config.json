@@ -22,7 +22,7 @@
         "company": "EbDesk | Indonesia Indicator",
         "contact": {
             "email": "hxari@proton.me",
-            "phone": "+62 856-8659-771"
+            "phone": "+62 856-877-7090-7834"
         },
         "headline": "MuLTi-3nD DEvC0d3r",
         "name": "Ari Setiawan",
@@ -44,7 +44,7 @@
                 ],
                 "galery": [],
                 "source": "1688786479;faMyU4T43P.pdf",
-                "thumbnail": "1688786479;faMyU4T43P.png",
+                "thumbnail": "1701255136;beAihHKmkk6hk.png",
                 "timestamp": 1684083600,
                 "title": "Career Preparation Fair"
             },
@@ -60,7 +60,7 @@
                     }
                 ],
                 "source": "1688786593;cc27c8Nw69.pdf",
-                "thumbnail": "1688786593;cc27c8Nw69.png",
+                "thumbnail": "1701255136;f4RCWey6AJ15E.png",
                 "timestamp": 1686330000,
                 "title": "Mobile Game and Programming Training"
             }
@@ -352,7 +352,7 @@
             "company": {
                 "health-wealth-international": "1733073537;9cFshWCDJw0pg.png",
                 "indonesia-indicator": "1733073422;bayJDdkbGIMMk.jpg",
-                "institute-business-informatics": ""
+                "institute-business-informatics": "1750407578;82EGfKi5CPDkM.png"
             },
             "framework": {
                 "aura": "1720952881;07qUeVVLkMd8I.png",
@@ -441,7 +441,7 @@
                 "vsc": "1720952119;fbu8sREA0.C2A.png"
             }
         },
-        "source": "/public/images"
+        "source": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images"
     },
     "maintenance": {
         "about": false,
@@ -450,12 +450,12 @@
         "home": false,
         "none": false,
         "preview": true,
-        "privacy": false,
+        "privacy": true,
         "project": false,
         "projects": false,
         "service": false,
         "sitemap": false,
-        "terminal": false
+        "terminal": true
     },
     "organizations": [
         "octancle",
