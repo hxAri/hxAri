@@ -307,7 +307,7 @@
     "home": {
         "about": true,
         "certificate": true,
-        "experience": true,
+        "experience": false,
         "project": true,
         "programming": true,
         "technology": true
@@ -450,7 +450,7 @@
         "home": false,
         "none": false,
         "preview": true,
-        "privacy": true,
+        "privacy": false,
         "project": false,
         "projects": false,
         "service": false,
