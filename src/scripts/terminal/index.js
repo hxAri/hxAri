@@ -326,8 +326,8 @@ class ANSI {
 							var rematch = null;
 							var pattern = new RegExp( Fmt( "(?:{})", regexps.map( r => r.pattern ).join( "|" ) ), "gms" );
 							while( ( rematch = pattern.exec( chars ) ) !== null ) {
-								result += chars.substring( reindex, pattern.lastIndex - rematch[0].length );
-								result += Fmt( "<span style=\"color: {}\" data-group=\"{}\">{}</span>", color, group, handler( rematch, color, patterns[group].handler ) );
+								result+= chars.substring( reindex, pattern.lastIndex - rematch[0].length );
+								result+= Fmt( "<span style=\"color: {}\" data-group=\"{}\">{}</span>", color, group, handler( rematch, color, patterns[group].handler ) );
 								reindex = pattern.lastIndex;
 							}
 							chars = result + chars.substring( reindex );
@@ -343,8 +343,8 @@ class ANSI {
 					var rematch = null;
 					var pattern = new RegExp( Fmt( "(?:{})", patterns[group].rematch.map( r => patterns[r].pattern ).join( "|" ) ), "gms" );
 					while( ( rematch = pattern.exec( chars ) ) !== null ) {
-						result += chars.substring( reindex, pattern.lastIndex - rematch[0].length );
-						result += handler( rematch, color, patterns );
+						result+= chars.substring( reindex, pattern.lastIndex - rematch[0].length );
+						result+= handler( rematch, color, patterns );
 						reindex = pattern.lastIndex;
 					}
 					chars = result.concat( chars.substring( reindex ) );
@@ -360,8 +360,8 @@ class ANSI {
 		var string = Type( string, String, () => string, () => "" );
 		var pattern = new RegExp( Fmt( "(?:{})", Object.values( Mapper( patterns, ( i, k, val ) => val.pattern ) ).join( "|" ) ), "gms" );
 		while( ( match = pattern.exec( string ) ) !== null ) {
-			result += string.substring( index, pattern.lastIndex - match[0].length );
-			result += Fmt( "<span style=\"color: {}\" data-group=\"{}\">{}</span>", escape, "captured", handler( match, escape, patterns ) );
+			result+= string.substring( index, pattern.lastIndex - match[0].length );
+			result+= Fmt( "<span style=\"color: {}\" data-group=\"{}\">{}</span>", escape, "captured", handler( match, escape, patterns ) );
 			index = pattern.lastIndex;
 		}
 		return result.concat( string.substring( index ) );
@@ -715,6 +715,7 @@ class Kernel {
  * @example
  * >>> const lexer = new Lexer( "echo \"Hello $USER\" <<'EOF'\\nline\\nEOF" );
  * >>> const tokenized = lexer.tokenize();
+ * >>> console.debug( JSON.stringify( tokenized, null, 4 ) );
  */
 class Lexer {
 	
@@ -742,7 +743,7 @@ class Lexer {
 	/** @type {Set<String>} */
 	reservedWords;
 	
-	/** @type {Array<String>} */
+	/** @type {Array<Token>} */
 	tokens;
 	
 	/**
@@ -780,673 +781,294 @@ class Lexer {
 		]);
 		this.tokens = [];
 	}
-
-	reset() {
-		this.input = "";
-		this.position = 0;
-		this.length = 0;
-		this.tokens = [];
-		this.line = 1;
-		this.column = 1;
-		this.currentFirstWordPending = true;
+	
+	/** Advance cursor column and position */
+	advance() {
+		this.position++;
+		this.column++;
 	}
-
+	
 	/**
-	 * @returns {Array<Token>}
+	 * Consume current character
+	 * 
+	 * @returns {?String}
+	 * 
 	 */
-	tokenize() {
-		while (true) {
-			let position = this.position;
-			const ch = this.peek();
-			if (ch === null || ch === "\0") {
-				this.push(new Token(TokenGroup.MISC, "\0", [], position, TokenType.EOF));
-				if( ch === null ) {
-					break;
-				}
-			}
-
-			// newline handling
-			if (ch === '\n') {
-				this.consumeChar();
-				this.push(new Token(TokenGroup.WHITESPACE, "\n", [], position, TokenType.NEWLINE));
-				this.currentFirstWordPending = true;
-				this.line++;
-				this.column = 1;
-				continue;
-			}
-
-			// skip whitespace (non-newline)
-			if (this.isWhitespace(ch)) {
-				this.consumeChar();
-				continue;
-			}
-
-			// comment
-			if (ch === '#' && this.commentIsValid()) {
-				this.readComment();
-				this.currentFirstWordPending = true;
-				continue;
-			}
-
-			// operators / redirections / control operators
-			if (this.isOperatorStart(ch)) {
-				if ((ch === '<' || ch === '>') && this.peekAhead(1) === '(') {
-					// process substitution as a word piece
-					const proc = this.readProcessSubstitution();
-					this.pushWordPiece(proc);
-					continue;
-				}
-				const opTok = this.readOperatorOrRedir();
-				this.push(opTok);
-				// if operator is delimiter, next word is first word
-				if (this.isCommandDelimiter(opTok.lexeme)) {
-					this.currentFirstWordPending = true;
-				}
-				continue;
-			}
-
-			// line continuation backslash-newline
-			if (ch === '\\' && this.peekAhead(1) === '\n') {
-				this.consumeChar(); // '\'
-				this.consumeChar(); // '\n'
-				this.line++;
-				this.column = 1;
-				continue;
-			}
-
-			// quoted token starts (including $' and $" and subshell-start $( not arithmetic)
-			if (
-				ch === "'" || ch === '"' ||
-				(ch === '$' && this.peekAhead(1) === "'") ||
-				(ch === '$' && this.peekAhead(1) === '"') ||
-				(ch === '$' && this.peekAhead(1) === '(' && this.peekAhead(2) !== '(')
-			) {
-				const piece = this.readQuotedOrDollarQuote();
-				this.pushWordPiece(piece);
-				continue;
-			}
-
-			// substitution/variable/arithmetic/backtick
-			if (ch === '$' || ch === '`') {
-				const piece = this.readDollarOrBacktick();
-				this.pushWordPiece(piece);
-				continue;
-			}
-
-			// redundant check for process substitution start (kept parity with original)
-			if ((ch === '<' || ch === '>') && this.peekAhead(1) === '(') {
-				const proc = this.readProcessSubstitution();
-				this.pushWordPiece(proc);
-				continue;
-			}
-
-			// here-string <<< special case
-			if (ch === '<' && this.peekAhead(1) === '<' && this.peekAhead(2) === '<') {
-				const t = this.readOperatorOrRedir(); // will capture '<<<'
-				this.push(t);
-				this.currentFirstWordPending = false;
-				continue;
-			}
-
-			// default: word piece
-			const wordPiece = this.readWordPiece();
-			this.pushWordPiece(wordPiece);
-		}
-
-		// merge pieces into WORD tokens, process heredocs
-		return this.mergeWordPieces(this.tokens);
-	}
-
-	// ------------------------
-	// Low-level helpers
-	// ------------------------
-	peek() {
-		if (this.position >= this.length) return null;
-		return this.input[this.position];
-	}
-
-	peekAhead(n) {
-		const p = this.position + n;
-		if (p >= this.length) return null;
-		return this.input[p];
-	}
-
-	consumeChar() {
+	consume() {
 		const ch = this.peek();
 		this.position++;
 		this.column++;
 		return ch;
 	}
-
-	push(token) {
-		// keep as-is; debug logging removed to focus pada fungsional
-		this.tokens.push(token);
+	
+	/**
+	 * Returns error message from lexer
+	 * 
+	 * @param {String} message 
+	 * 
+	 * @returns {SyntaxError}
+	 * 
+	 */
+	error( message ) {
+		return new SyntaxError( Fmt( "${} at line ${}, col ${}", message, this.line, this.column ) );
 	}
-
-	isWhitespace(ch) {
-		return ch === ' ' || ch === '\t' || ch === '\r' || ch === '\v' || ch === '\f';
+	
+	/**
+	 * Returns whether operator is dommand delimiter
+	 * 
+	 * @param {String} operator
+	 * 
+	 * @returns {Boolean}
+	 * 
+	 */
+	isCommandDelimiter( operator ) {
+		var delimiters = new Set([
+			";", 
+			"&", 
+			"&&", 
+			"||", 
+			"|", 
+			"\n"
+		]);
+		return delimiters.has( operator );
 	}
-
-	commentIsValid() {
+	
+	/**
+	 * Returns whether comment is valid
+	 * 
+	 * @returns {Boolean}
+	 * 
+	 */
+	isCommentValid() {
 		// valid if at start, after whitespace/newline, or last non-space token is operator/redirection
-		if (this.position === 0) return true;
-		const prevChar = this.input[this.position - 1];
-		if (prevChar === '\n' || this.isWhitespace(prevChar)) return true;
-		const lastTok = this.lastNonSpaceToken();
-		if (!lastTok) return true;
+		if( this.position === 0 ) {
+			return true;
+		}
+		var prevChar = this.input[this.position - 1];
+		if( prevChar === "\n" || this.isWhitespace( prevChar ) ) {
+			return true;
+		}
+		var lastTok = this.lastNonSpaceToken();
+		if( lastTok === null ) {
+			return true;
+		}
 		// check grouped categories rather than legacy string names
-		if (lastTok.grouped === TokenGroup.OPERATOR || lastTok.grouped === TokenGroup.REDIRECTION) return true;
+		if( lastTok.grouped === TokenGroup.OPERATOR || 
+			lastTok.grouped === TokenGroup.REDIRECTION ) {
+			return true;
+		}
 		return false;
 	}
-
+	
+	/**
+	 * Returns whether character is start operator
+	 * 
+	 * @param {String} char
+	 * 
+	 * @returns {Boolean}
+	 * 
+	 */
+	isOperatorStart( char ) {
+		var operators = new Set([
+			"|",
+			"&",
+			";",
+			"<",
+			">",
+			"(",
+			")"
+		]);
+		return operators.has( char );
+	}
+	
+	/**
+	 * Returns whether character is whitespace
+	 * 
+	 * @param {String} char 
+	 * 
+	 * @returns {Boolean}
+	 * 
+	 */
+	isWhitespace( char ) {
+		var whitespaces = new Set([
+			"\x20",
+			"\t",
+			"\r",
+			"\v",
+			"\f"
+		]);
+		return whitespaces.has( char );
+	}
+	
+	/**
+	 * Returns whether token is piece word token
+	 * 
+	 * @param {Token} token
+	 * 
+	 * @returns {Boolean}
+	 * 
+	 */
+	isWordPieceToken( token ) {
+		const allowed = new Set([
+			TokenType.ANSI_C_QUOTED,
+			TokenType.ARITHMETIC_EXPANSION,
+			TokenType.BACKTICK,
+			TokenType.COMMAND_SUBSTITUTION,
+			TokenType.COMPOSITE,
+			TokenType.DOUBLE_QUOTED,
+			TokenType.LOCALE_QUOTED,
+			TokenType.PARAM_EXPANSION,
+			TokenType.PROCESS_SUBSTITUTION,
+			TokenType.SINGLE_QUOTED,
+			TokenType.VARIABLE_EXPANSION,
+			TokenType.WORD_PIECE,
+		]);
+		return allowed.has( token?.typed );
+	}
+	
+	/**
+	 * Returns last non-space token
+	 * 
+	 * @returns {?Token}
+	 * 
+	 */
 	lastNonSpaceToken() {
-		for (let i = this.tokens.length - 1; i >= 0; i--) {
-			const t = this.tokens[i];
-			if (t && t.typed !== TokenType.WHITESPACE) return t;
+		for( let i=this.tokens.length-1; i>=0; i-- ) {
+			var token = this.tokens[i];
+			if( token && token.typed !== TokenType.WHITESPACE ) {
+				return token;
+			}
 		}
 		return null;
 	}
-
-	// ------------------------
-	// Reading components
-	// ------------------------
-	readComment() {
-		let position = this.position;
-		let s = '';
-		while (true) {
-			const ch = this.peek();
-			if (ch == null || ch === '\n') break;
-			s += this.consumeChar();
-		}
-		if (s.length >= 3 && s[1] === "!") {
-			this.push(new Token(TokenGroup.COMMENT, s, [], position, TokenType.SHEBANG));
-		} else {
-			this.push(new Token(TokenGroup.COMMENT, s, [], position, TokenType.COMMENT));
-		}
-	}
-
-	isOperatorStart(ch) {
-		return ch === '|' || ch === '&' || ch === ';' || ch === '<' || ch === '>' || ch === '(' || ch === ')';
-	}
-
-	isCommandDelimiter(op) {
-		const delims = new Set([';', '&', '&&', '||', '|', '\n']);
-		return delims.has(op);
-	}
-
-	readOperatorOrRedir() {
-		let position = this.position;
-		const start = this.consumeChar();
-		let v = start;
-		const a = this.peek();
-		if (!a) return new Token(TokenGroup.OPERATOR, v, [], position, this.operatorTokenType(v));
-
-		// combinations
-		if ((start === '>' || start === '<') && a === '>') {
-			v += this.consumeChar();
-			if (this.peek() === '&') {
-				v += this.consumeChar();
-				return new Token(TokenGroup.OPERATOR, v, [], position, TokenType.REDIR_DUP_OUTPUT);
-			}
-			if (start === '>') return new Token(TokenGroup.OPERATOR, v, [], TokenType.REDIR_APPEND);
-			return new Token(TokenGroup.OPERATOR, v, [], position, TokenType.LESS_GREATER);
-		}
-
-		if ((start === '>' || start === '<') && a === '&') {
-			v += this.consumeChar();
-			if (start === '>') return new Token(TokenGroup.OPERATOR, v, [], position, TokenType.REDIR_DUP_OUTPUT);
-			return new Token(TokenGroup.OPERATOR, v, [], TokenType.REDIR_DUP_INPUT);
-		}
-
-		if (start === '<' && a === '<') {
-			v += this.consumeChar();
-			if (this.peek() === '-') {
-				v += this.consumeChar();
-				return new Token(TokenGroup.OPERATOR, v, [], position, TokenType.REDIR_HEREDOC_STRIP);
-			}
-			if (this.peek() === '<') {
-				v += this.consumeChar();
-				return new Token(TokenGroup.OPERATOR, v, [], position, TokenType.HERE_STRING);
-			}
-			return new Token(TokenGroup.OPERATOR, v, [], position, TokenType.REDIR_HEREDOC);
-		}
-
-		if ((start === '|' || start === '&') && a === start) {
-			v += this.consumeChar();
-			return new Token(TokenGroup.OPERATOR, v, [], position, start === '|' ? TokenType.DOUBLE_PIPE : TokenType.DOUBLE_AMPERSAND);
-		}
-
-		if (start === '|' && a === '&') {
-			v += this.consumeChar();
-			return new Token(TokenGroup.OPERATOR, v, [], position, TokenType.PIPE_AND);
-		}
-
-		if (start === ';' && a === ';') {
-			v += this.consumeChar();
-			if (this.peek() === '&') {
-				v += this.consumeChar();
-				return new Token(TokenGroup.OPERATOR, v, [], position, TokenType.SEMI_SEMI_AMP);
-			}
-			return new Token(TokenGroup.OPERATOR, v, [], position, TokenType.SEMI_SEMI);
-		}
-
-		// parentheses single tokens
-		if (start === '(') return new Token(TokenGroup.OPERATOR, v, [], position, TokenType.SUBSHELL_START);
-		if (start === ')') return new Token(TokenGroup.OPERATOR, v, [], position, TokenType.SUBSHELL_END);
-
-		switch (start) {
-			case '|': return new Token(TokenGroup.OPERATOR, v, [], position, TokenType.PIPE);
-			case '&': return new Token(TokenGroup.OPERATOR, v, [], position, TokenType.AMPERSAND);
-			case ';': return new Token(TokenGroup.OPERATOR, v, [], position, TokenType.SEMICOLON);
-			case '<': return new Token(TokenGroup.OPERATOR, v, [], position, TokenType.REDIR_IN);
-			case '>': return new Token(TokenGroup.OPERATOR, v, [], position, TokenType.REDIR_OUT);
-		}
-
-		return new Token(TokenGroup.MISC, v, [], position, TokenType.UNKNOWN);
-	}
-
-	operatorTokenType(opChar) {
-		if (opChar === '>') return TokenType.REDIR_OUT;
-		if (opChar === '<') return TokenType.REDIR_IN;
-		if (opChar === '|') return TokenType.PIPE;
-		return TokenType.UNKNOWN;
-	}
-
-	// read a quoted piece or dollar-quote ($'..' or $"..")
-	readQuotedOrDollarQuote() {
-		let position = this.position;
-		const ch = this.peek();
-		if (ch === "'") return this.readSingleQuoted();
-		if (ch === '"') return this.readDoubleQuoted();
-		if (ch === '$' && this.peekAhead(1) === "'") return this.readAnsiCQuoted();
-		if (ch === '$' && this.peekAhead(1) === '"') return this.readLocaleQuoted();
-		if (ch === '$' && this.peekAhead(1) === '(') return this.readDollarOrBacktick();
-		// fallback
-		this.position++;
-		return new Token(TokenGroup.WORD, "", [], position, TokenType.WORD_PIECE);
-	}
-
-	readSingleQuoted() {
-		let position = this.position;
-		this.consumeChar(); // skip '
-		let v = '';
-		while (true) {
-			const ch = this.peek();
-			if (ch == null) throw this.error("Unterminated single quote");
-			if (ch === "'") { this.consumeChar(); break; }
-			v += this.consumeChar();
-		}
-		return new Token(TokenGroup.QUOTED, v, [], position, TokenType.SINGLE_QUOTED);
-	}
-
-	readDoubleQuoted() {
-		let position = this.position;
-		this.consumeChar(); // skip "
-		let v = '';
-		const pieces = [];
-		while (true) {
-			const ch = this.peek();
-			if (ch == null) throw this.error("Unterminated double quote");
-			if (ch === '"') { this.consumeChar(); break; }
-			if (ch === '\\') {
-				this.consumeChar();
-				const next = this.peek();
-				if (next == null) break;
-				if (next === '$' || next === '`' || next === '"' || next === '\\' || next === '\n') {
-					v += this.consumeChar();
-				} else {
-					v += '\\' + this.consumeChar();
-				}
-				continue;
-			}
-			if (ch === '$') {
-				if (v.length > 0) {
-					pieces.push(new Token(TokenGroup.QUOTED, v, [], position, TokenType.DOUBLE_QUOTED));
-					v = '';
-				}
-				const d = this.readDollarOrBacktick();
-				pieces.push(d);
-				continue;
-			}
-			v += this.consumeChar();
-		}
-		if (v.length > 0) pieces.push(new Token(TokenGroup.QUOTED, v, [], position, TokenType.DOUBLE_QUOTED));
-		if (pieces.length === 1) return pieces[0];
-		// composite -> use TokenGroup.MISC with null lexeme per instruksi
-		return new Token(TokenGroup.MISC, null, pieces, position, TokenType.COMPOSITE);
-	}
-
-	readAnsiCQuoted() {
-		// $'...'
-		let position = this.position;
-		this.consumeChar(); // $
-		this.consumeChar(); // '
-		let v = '';
-		while (true) {
-			const ch = this.peek();
-			if (ch == null) throw this.error("Unterminated ANSI-C quote");
-			if (ch === "'") { this.consumeChar(); break; }
-			if (ch === '\\') {
-				this.consumeChar();
-				v += this.readAnsiCEscape();
-				continue;
-			}
-			v += this.consumeChar();
-		}
-		return new Token(TokenGroup.QUOTED, v, [], position, TokenType.ANSI_C_QUOTED);
-	}
-
-	readAnsiCEscape() {
-		const c = this.consumeChar();
-		if (c === 'n') return '\n';
-		if (c === 't') return '\t';
-		if (c === 'r') return '\r';
-		if (c === '0') {
-			let digs = '';
-			for (let i = 0; i < 2 && /[0-7]/.test(this.peek()); i++) digs += this.consumeChar();
-			const code = parseInt(digs, 8);
-			return String.fromCharCode(code || 0);
-		}
-		if (c === 'x') {
-			let hex = '';
-			for (let i = 0; i < 2 && /[0-9A-Fa-f]/.test(this.peek()); i++) hex += this.consumeChar();
-			return String.fromCharCode(parseInt(hex || '0', 16));
-		}
-		return c;
-	}
-
-	readLocaleQuoted() {
-		// $"..." - similar to double quotes but different token type for parts
-		let position = this.position;
-		this.consumeChar(); // $
-		this.consumeChar(); // "
-		let v = '';
-		const pieces = [];
-		while (true) {
-			const ch = this.peek();
-			if (ch == null) throw this.error("Unterminated $\" quote");
-			if (ch === '"') { this.consumeChar(); break; }
-			if (ch === '\\') {
-				this.consumeChar();
-				const next = this.peek();
-				if (next == null) break;
-				if (next === '$' || next === '`' || next === '"' || next === '\\' || next === '\n') {
-					v += this.consumeChar();
-				} else {
-					v += '\\' + this.consumeChar();
-				}
-				continue;
-			}
-			if (ch === '$') {
-				if (v.length > 0) { pieces.push(new Token(TokenGroup.QUOTED, v, [], position, TokenType.LOCALE_QUOTED)); v = ''; }
-				pieces.push(this.readDollarOrBacktick());
-				continue;
-			}
-			v += this.consumeChar();
-		}
-		if (v.length > 0) pieces.push(new Token(TokenGroup.QUOTED, v, [], position, TokenType.LOCALE_QUOTED));
-		if (pieces.length === 1) return pieces[0];
-		return new Token(TokenGroup.MISC, null, pieces, position, TokenType.COMPOSITE);
-	}
-
-	readDollarOrBacktick() {
-		let position = this.position;
-		const ch = this.peek();
-		if (ch === '`') {
-			return this.readBacktick();
-		}
-
-		// starts with $
-		this.consumeChar(); // skip $
-		const next = this.peek();
-
-		// parameter expansion ${...}
-		if (next === '{') {
-			this.consumeChar(); // skip {
-			let body = '';
-			let depth = 1;
-			while (true) {
-				const c = this.peek();
-				if (c == null) throw this.error("Unterminated ${");
-				if (c === '{') { depth++; body += this.consumeChar(); continue; }
-				if (c === '}') { depth--; if (depth === 0) { this.consumeChar(); break; } else { body += this.consumeChar(); continue; } }
-				body += this.consumeChar();
-			}
-			return new Token(TokenGroup.EXPANSION, body, [], position, TokenType.PARAM_EXPANSION);
-		}
-
-		// arithmetic $(( ... ))
-		if (next === '(' && this.peekAhead(1) === '(') {
-			this.consumeChar(); // (
-			this.consumeChar(); // (
-			let depth = 1;
-			let body = '';
-			while (true) {
-				const c = this.peek();
-				if (c == null) throw this.error("Unterminated $(( ");
-				if (c === '(') { depth++; body += this.consumeChar(); continue; }
-				if (c === ')') {
-					if (this.peekAhead(1) === ')') {
-						this.consumeChar(); // )
-						this.consumeChar(); // )
-						break;
-					} else { body += this.consumeChar(); continue; }
-				}
-				body += this.consumeChar();
-			}
-			return new Token(TokenGroup.EXPANSION, body, [], position, TokenType.ARITHMETIC_EXPANSION);
-		}
-
-		// subshell $( ... )
-		if (next === '(') {
-			this.consumeChar(); // '('
-			let depth = 1;
-			let body = '';
-			while (true) {
-				const c = this.peek();
-				if (c == null) throw this.error("Unterminated $( ");
-				if (c === '(') { depth++; body += this.consumeChar(); continue; }
-				if (c === ')') { depth--; if (depth === 0) { this.consumeChar(); break; } else { body += this.consumeChar(); continue; } }
-				// nested quotes inside subshell handled conservatively: embed raw with delimiters
-				if (c === "'" || c === '"') {
-					const q = this.readQuotedOrDollarQuote();
-					// q is Token instance; compare typed then embed lexeme or flatten children
-					if (q.typed === TokenType.SINGLE_QUOTED) {
-						body += `'${q.lexeme}'`;
-						continue;
-					}
-					if (q.typed === TokenType.DOUBLE_QUOTED) {
-						body += `"${q.lexeme}"`;
-						continue;
-					}
-					if (q.typed === TokenType.ANSI_C_QUOTED || q.typed === TokenType.LOCALE_QUOTED) {
-						// keep as original string form (no deep parsing)
-						body += q.lexeme;
-						continue;
-					}
-					// composite flatten
-					if (q.typed === TokenType.COMPOSITE) {
-						for (const p of q.pieces) body += (p.lexeme || '');
-						continue;
-					}
-				}
-				body += this.consumeChar();
-			}
-			return new Token(TokenGroup.EXPANSION, body, [], position, TokenType.COMMAND_SUBSTITUTION);
-		}
-
-		// variable name, positional or special
-		if (next != null && /[A-Za-z0-9_@*!#?$\-]/.test(next)) {
-			let name = '';
-			while (this.peek() != null && /[A-Za-z0-9_@*!#?$\-]/.test(this.peek())) {
-				name += this.consumeChar();
-			}
-			return new Token(TokenGroup.EXPANSION, name, [], position, TokenType.VARIABLE_EXPANSION);
-		}
-
-		// nothing matched: literal $
-		return new Token(TokenGroup.WORD, "$", [], position, TokenType.WORD_PIECE);
-	}
-
-	readBacktick() {
-		let position = this.position;
-		this.consumeChar(); // skip `
-		let body = '';
-		while (true) {
-			const ch = this.peek();
-			if (ch == null) throw this.error("Unterminated backtick");
-			if (ch === '`') { this.consumeChar(); break; }
-			if (ch === '\\') {
-				body += this.consumeChar();
-				if (this.peek() != null) body += this.consumeChar();
-				continue;
-			}
-			body += this.consumeChar();
-		}
-		return new Token(TokenGroup.EXPANSION, body, [], position, TokenType.BACKTICK);
-	}
-
-	readProcessSubstitution() {
-		// consume <( or >(
-		let position = this.position;
-		const sign = this.consumeChar(); // '<' or '>'
-		this.consumeChar(); // '('
-		let depth = 1;
-		let body = '';
-		while (true) {
-			const c = this.peek();
-			if (c == null) throw this.error("Unterminated process substitution");
-			if (c === '(') { depth++; body += this.consumeChar(); continue; }
-			if (c === ')') { depth--; if (depth === 0) { this.consumeChar(); break; } else { body += this.consumeChar(); continue; } }
-			body += this.consumeChar();
-		}
-		return new TokenProcessSubtitution(TokenGroup.EXPANSION, body, [], position, sign, TokenType.PROCESS_SUBSTITUTION);
-	}
-
-	readWordPiece() {
-		let position = this.position;
-		let s = '';
-		while (true) {
-			const ch = this.peek();
-			if (ch == null) break;
-			if (ch === '\n' || this.isWhitespace(ch) || this.isOperatorStart(ch)) break;
-
-			if (ch === '\\') {
-				this.consumeChar();
-				const next = this.peek();
-				if (next == null) break;
-				s += this.consumeChar();
-				continue;
-			}
-
-			if (ch === "'" || ch === '"') {
-				const q = (ch === "'") ? this.readSingleQuoted() : this.readDoubleQuoted();
-				// append quoted lexeme into current chunk (caller will treat as piece)
-				if (q.typed === TokenType.SINGLE_QUOTED || q.typed === TokenType.DOUBLE_QUOTED) {
-					s += q.lexeme;
-					continue;
-				}
-			}
-
-			// stop at $ to produce piece boundary
-			if (ch === '$') break;
-
-			// stop on process substitution start
-			if ((ch === '<' || ch === '>') && this.peekAhead(1) === '(') break;
-
-			s += this.consumeChar();
-		}
-		return new Token(TokenGroup.WORD, s, [], position, TokenType.WORD_PIECE);
-	}
-
-	// ------------------------
-	// Token merging: compose sequences of pieces into WORD
-	// ------------------------
-	pushWordPiece(piece) {
-		this.push(piece);
-		this.currentFirstWordPending = false;
-	}
-
-	mergeWordPieces(tokens) {
-		const out = [];
+	
+	/**
+	 * Returns merged tokens
+	 * 
+	 * @param {Array<Token>} tokens 
+	 * 
+	 * @returns {Array<Token>}
+	 * 
+	 */
+	mergeWordPieces( tokens ) {
+		const results = [];
 		let i = 0;
-		while (i < tokens.length) {
-			const t = tokens[i];
-			// merge contiguous pieces that form a word
-			if (this.isWordPieceToken(t)) {
+		while( i<tokens.length ) {
+			const token = tokens[i];
+			if( this.isWordPieceToken( token ) ) {
 				var position = 0;
 				const pieces = [];
-				while (i < tokens.length && this.isWordPieceToken(tokens[i])) {
-					const p = tokens[i++];
-					// if composite, flatten child pieces
-					if (p.typed === TokenType.COMPOSITE) {
-						for (const sp of p.pieces) pieces.push(sp);
+				while( i<tokens.length && this.isWordPieceToken( tokens[i] ) ) {
+					var piece = tokens[i++];
+					if( piece.typed === TokenType.COMPOSITE ) {
+						for( const element of piece.pieces ) {
+							pieces.push( element );
+						}
 						continue;
 					}
-					pieces.push(p);
+					pieces.push( piece );
 				}
 				if( pieces.length >= 1 ) {
 					position = pieces[0].position;
 				}
-				// flatten to raw string using piece types
-				const raw = pieces.map(p => {
-					if (p.typed === TokenType.WORD_PIECE) return p.lexeme;
-					if (p.typed === TokenType.SINGLE_QUOTED) return p.lexeme;
-					if (p.typed === TokenType.DOUBLE_QUOTED) return p.lexeme;
-					if (p.typed === TokenType.ANSI_C_QUOTED) return p.lexeme;
-					if (p.typed === TokenType.LOCALE_QUOTED) return p.lexeme;
-					if (p.typed === TokenType.VARIABLE_EXPANSION) return '$' + p.lexeme;
-					if (p.typed === TokenType.PARAM_EXPANSION) return '${' + p.lexeme + '}';
-					if (p.typed === TokenType.COMMAND_SUBSTITUTION) return '$(' + p.lexeme + ')';
-					if (p.typed === TokenType.BACKTICK) return '`' + p.lexeme + '`';
-					if (p.typed === TokenType.ARITHMETIC_EXPANSION) return '$((' + p.lexeme + '))';
-					if (p.typed === TokenType.PROCESS_SUBSTITUTION) return (p.sign === '<' ? '<(' : '>(') + p.lexeme + ')';
-					// fallback
-					return p.lexeme || '';
-				}).join('');
-
+				const flatten = pieces.map( piece => {
+					switch( piece.typed ) {
+						case TokenType.WORD_PIECE:
+						case TokenType.SINGLE_QUOTED:
+						case TokenType.DOUBLE_QUOTED:
+						case TokenType.ANSI_C_QUOTED:
+						case TokenType.LOCALE_QUOTED:
+							return piece.lexeme;
+						case TokenType.VARIABLE_EXPANSION:
+							return Fmt( "${}", piece.lexeme );
+						case TokenType.PARAM_EXPANSION:
+							return Fmt( "$\\{{}\\}", piece.lexeme )
+						case TokenType.COMMAND_SUBSTITUTION:
+							return Fmt( "$({})", piece.lexeme );
+						case TokenType.BACKTICK:
+							return Fmt( "$`{}`", piece.lexeme );
+						case TokenType.ARITHMETIC_EXPANSION:
+							return Fmt( "$(({}))", piece.lexeme );
+						case TokenType.PROCESS_SUBSTITUTION:
+							if( piece.sign === ">" ) {
+								return Fmt( ">({})", piece.lexeme );
+							}
+							return "<(";
+						default:
+							return piece.lexeme || "";
+					}
+				});
+				const raw = flatten.join( "" );
 				const structured = pieces;
-				const firstWordCandidate = raw.split(/\s+/)[0];
+				const firstWordCandidate = raw.split( /\s+/ )[0];
 				const wordToken = new Token(TokenGroup.WORD, raw, structured, position, TokenType.WORD);
-				if (this.currentFirstWordPending && this.reservedWords.has(firstWordCandidate)) {
-					wordToken.reserved = true;
+				if( this.currentFirstWordPending && this.reservedWords.has( firstWordCandidate ) ) {
 					this.currentFirstWordPending = false;
-				} else {
+					wordToken.reserved = true;
+				}
+				else {
 					this.currentFirstWordPending = false;
 				}
-				out.push(wordToken);
+				results.push( wordToken );
 				continue;
 			}
-
-			// passthrough: OP, REDIR, COMMENT, NEWLINE, EOF
-			out.push(t);
+			results.push( token );
 			i++;
 		}
-
+		
 		// detect heredoc starts and extract bodies
-		return this.processHeredocs(out);
-	}
-
-	isWordPieceToken(t) {
-		if (!t) return false;
-		const ok = new Set([
-			TokenType.WORD_PIECE,
-			TokenType.SINGLE_QUOTED,
-			TokenType.DOUBLE_QUOTED,
-			TokenType.ANSI_C_QUOTED,
-			TokenType.LOCALE_QUOTED,
-			TokenType.VARIABLE_EXPANSION,
-			TokenType.PARAM_EXPANSION,
-			TokenType.COMMAND_SUBSTITUTION,
-			TokenType.BACKTICK,
-			TokenType.ARITHMETIC_EXPANSION,
-			TokenType.PROCESS_SUBSTITUTION,
-			TokenType.COMPOSITE
-		]);
-		return ok.has(t.typed);
+		return this.processHeredocs( results );
 	}
 	
 	/**
+	 * Return token type by operator character given
+	 * 
+	 * @param {String} character 
+	 * 
+	 * @returns 
+	 */
+	operatorTokenType( character ) {
+		switch( character ) {
+			case ">":
+				return TokenType.REDIR_OUT;
+			case "<":
+				return TokenType.REDIR_IN;
+			case "|":
+				return TokenType.PIPE;
+		}
+		return TokenType.UNKNOWN;
+	}
+	
+	/**
+	 * Peek current character 
+	 * 
+	 * @returns {?String}
+	 * 
+	 */
+	peek() {
+		if( this.position >= this.length ) {
+			return null;
+		}
+		return this.input[this.position];
+	}
+	
+	/**
+	 * Peek ahead character
+	 * 
+	 * @param {Number} n 
+	 * 
+	 * @returns {?String}
+	 */
+	peekAhead( n ) {
+		var position = this.position + n;
+		if( position >= this.length ) {
+			return null;
+		}
+		return this.input[position];
+	}
+	
+	/**
+	 * Process heredocs tokens.
 	 * 
 	 * @param {Array<Token>} tokens 
 	 * 
@@ -1467,13 +1089,13 @@ class Lexer {
 						continue;
 					}
 					var pieces = [];
-					var quoted = tokens[j].pieces.some( part =>
-						part.typed === TokenType.SINGLE_QUOTED ||
-						part.typed === TokenType.DOUBLE_QUOTED ||
-						part.typed === TokenType.ANSI_C_QUOTED ||
-						part.typed === TokenType.LOCALE_QUOTED
-					);
-					var position = tokens[j].position;
+					// var quoted = tokens[j].pieces.some( part =>
+					// 	part.typed === TokenType.SINGLE_QUOTED ||
+					// 	part.typed === TokenType.DOUBLE_QUOTED ||
+					// 	part.typed === TokenType.ANSI_C_QUOTED ||
+					// 	part.typed === TokenType.LOCALE_QUOTED
+					// );
+					// var position = tokens[j].position;
 					var tokenDelimiterEnd = null;
 					var tokenDelimiterStart = tokens[j];
 					let u = j+1;
@@ -1494,6 +1116,7 @@ class Lexer {
 						results.push( new Token( TokenGroup.HEREDOC, tokenDelimiterEnd.lexeme, tokenDelimiterEnd.pieces, tokenDelimiterEnd.position, TokenType.HEREDOC_END ) );
 					}
 					else {
+						console.debug( JSON.stringify( tokens, null, 4 ) );
 						throw new SyntaxError( "Unterminated heredoc string" );
 					}
 					i = u+1;
@@ -1503,72 +1126,753 @@ class Lexer {
 			results.push( token );
 		}
 		return results;
-		// const out = [];
-		// for (let i = 0; i < tokens.length; i++) {
-		// 	const tk = tokens[i];
-		// 	out.push(tk);
-
-		// 	if (tk.typed === TokenType.REDIR_HEREDOC || tk.typed === TokenType.REDIR_HEREDOC_STRIP) {
-		// 		// next non-space token is delimiter word
-		// 		let j = i + 1;
-		// 		while (j < tokens.length && tokens[j].typed === TokenType.COMMENT) j++;
-		// 		if (j >= tokens.length || tokens[j].typed !== TokenType.WORD) {
-		// 			// malformed: skip
-		// 			continue;
-		// 		}
-		// 		const delimTok = tokens[j];
-		// 		var position = delimTok.position;
-		// 		// check if delimiter contained quoted pieces
-		// 		const quoted = delimTok.pieces.some(p =>
-		// 			p.typed === TokenType.SINGLE_QUOTED ||
-		// 			p.typed === TokenType.DOUBLE_QUOTED ||
-		// 			p.typed === TokenType.ANSI_C_QUOTED ||
-		// 			p.typed === TokenType.LOCALE_QUOTED
-		// 		);
-		// 		const delim = delimTok.lexeme;
-		// 		// extract rest of input from current lexer position
-		// 		const remainder = this.input.substring( this.input.indexOf( tk.lexeme ) + tk.lexeme.length + delim.length );
-		// 		console.debug( "Remainder:\"", this.position, ":", remainder, "\"" );
-		// 		const lines = remainder.split(/\n/g);
-		// 		let bodyLines = [];
-		// 		let found = false;
-		// 		let compareLine = null;
-		// 		for (let k = 0; k < lines.length; k++) {
-		// 			let line = lines[k];
-		// 			compareLine = line;
-		// 			if (tk.typed === TokenType.REDIR_HEREDOC_STRIP ) {
-		// 				compareLine = line.replace(/^\t+/, '');
-		// 			}
-		// 			if (compareLine === delim) {
-		// 				// advance this.position by length up to and including delimiter line + newline
-		// 				let advanceLen = 0;
-		// 				for (let m = 0; m <= k; m++) {
-		// 					advanceLen += lines[m].length;
-		// 					advanceLen += 1; // account for newline split
-		// 				}
-		// 				this.position += advanceLen;
-		// 				found = true;
-		// 				break;
-		// 			} else {
-		// 				bodyLines.push(line);
-		// 			}
-		// 		}
-		// 		const body = bodyLines.join('\n');
-		// 		// push heredoc body token
-		// 		out.push(new Token(TokenGroup.HEREDOC, delim, [], position, TokenType.HEREDOC_START ) );
-		// 		out.push(new Token(TokenGroup.HEREDOC, body, [], position, TokenType.HEREDOC_BODY ) );
-		// 		out.push(new Token(TokenGroup.HEREDOC, compareLine, [], position, TokenType.HEREDOC_END ) );
-		// 		// continue loop (lexer position already advanced)
-		// 	}
-		// }
-		// return out;
 	}
-
-	error(msg) {
-		const e = new Error(`LexerError: ${msg} at line ${this.line}, col ${this.column}`);
-		e.name = "LexerError";
-		return e;
+	
+	/**
+	 * Push token
+	 * 
+	 * @param {Token} token 
+	 * 
+	 */
+	push( token ) {
+		// keep as-is; debug logging removed to focus pada fungsional
+		this.tokens.push( token );
 	}
+	
+	/**
+	 * Push word piece tokens
+	 * 
+	 * @param {Token} piece 
+	 * 
+	 */
+	pushWordPiece( piece ) {
+		this.push( piece );
+		this.currentFirstWordPending = false;
+	}
+	
+	/**
+	 * Tokenize syntax
+	 * 
+	 * @returns {Array<Token>}
+	 */
+	tokenize() {
+		while (true) {
+			let position = this.position;
+			const ch = this.peek();
+			if (ch === null || ch === "\0") {
+				this.push(new Token(TokenGroup.MISC, "\0", [], position, TokenType.EOF));
+				if( ch === null ) {
+					break;
+				}
+			}
+
+			// newline handling
+			if (ch === '\n') {
+				this.consume();
+				this.push(new Token(TokenGroup.WHITESPACE, "\n", [], position, TokenType.NEWLINE));
+				this.currentFirstWordPending = true;
+				this.line++;
+				this.column = 1;
+				continue;
+			}
+
+			// skip whitespace (non-newline)
+			if (this.isWhitespace(ch)) {
+				this.consume();
+				continue;
+			}
+
+			// comment
+			if (ch === '#' && this.isCommentValid()) {
+				this.tokenizeComment();
+				this.currentFirstWordPending = true;
+				continue;
+			}
+
+			// operators / redirections / control operators
+			if (this.isOperatorStart(ch)) {
+				if ((ch === '<' || ch === '>') && this.peekAhead(1) === '(') {
+					// process substitution as a word piece
+					const proc = this.tokenizeProcessSubstitution();
+					this.pushWordPiece(proc);
+					continue;
+				}
+				const opTok = this.tokenizeOperatorOrRedir();
+				this.push(opTok);
+				// if operator is delimiter, next word is first word
+				if (this.isCommandDelimiter(opTok.lexeme)) {
+					this.currentFirstWordPending = true;
+				}
+				continue;
+			}
+
+			// line continuation backslash-newline
+			if (ch === '\\' && this.peekAhead(1) === '\n') {
+				this.consume(); // '\'
+				this.consume(); // '\n'
+				this.line++;
+				this.column = 1;
+				continue;
+			}
+
+			// quoted token starts (including $' and $" and subshell-start $( not arithmetic)
+			if (
+				ch === "'" || ch === '"' ||
+				(ch === '$' && this.peekAhead(1) === "'") ||
+				(ch === '$' && this.peekAhead(1) === '"') ||
+				(ch === '$' && this.peekAhead(1) === '(' && this.peekAhead(2) !== '(')
+			) {
+				const piece = this.tokenizeQuotedOrDollarQuote();
+				this.pushWordPiece(piece);
+				continue;
+			}
+
+			// substitution/variable/arithmetic/backtick
+			if (ch === '$' || ch === '`') {
+				const piece = this.tokenizeDollarOrBacktick();
+				this.pushWordPiece(piece);
+				continue;
+			}
+
+			// redundant check for process substitution start (kept parity with original)
+			if ((ch === '<' || ch === '>') && this.peekAhead(1) === '(') {
+				const proc = this.tokenizeProcessSubstitution();
+				this.pushWordPiece(proc);
+				continue;
+			}
+
+			// here-string <<< special case
+			if (ch === '<' && this.peekAhead(1) === '<' && this.peekAhead(2) === '<') {
+				const t = this.tokenizeOperatorOrRedir(); // will capture '<<<'
+				this.push(t);
+				this.currentFirstWordPending = false;
+				continue;
+			}
+
+			// default: word piece
+			const wordPiece = this.tokenizeWordPiece();
+			this.pushWordPiece(wordPiece);
+		}
+
+		// merge pieces into WORD tokens, process heredocs
+		return this.mergeWordPieces(this.tokens);
+	}
+	
+	/**
+	 * Tokenize ANSI C Escape
+	 * 
+	 * @returns {String}
+	 * 
+	 */
+	tokenizeAnsiCEscape() {
+		const char = this.consume();
+		if( char === "n" ) {
+			return "\n";
+		}
+		if( char === "t" ) {
+			return "\t";
+		}
+		if( char === "r" ) {
+			return "\r";
+		}
+		if( char === "0" ) {
+			let digs = "";
+			for( let i=0; i<2 && /[0-7]/.test( this.peek() ); i++ ) {
+				digs+= this.consume();
+			}
+			return String.fromCharCode( parseInt( digs, 8 ) || 0 );
+		}
+		if( char === "x" ) {
+			let hex = "";
+			for( let i=0; i<2 && /[0-9A-Fa-f]/.test( this.peek() ); i++ ) {
+				hex+= this.consume();
+			}
+			return String.fromCharCode( parseInt( hex || "0", 16 ) );
+		}
+		return char;
+	}
+	
+	/**
+	 * Tokenize ANSI C Quoted
+	 * 
+	 * @returns {Token}
+	 * 
+	 * @throws {SyntaxError} Throws whether quote is unterminated
+	 * 
+	 */
+	tokenizeAnsiCQuoted() {
+		// $'...'
+		let position = this.position;
+		let values = '';
+		this.advance(); // $
+		this.advance(); // '
+		while( true ) {
+			const char = this.peek();
+			if( char == null ) {
+				throw this.error( "Unterminated ANSI-C quote" );
+			}
+			if( char === "'" ) {
+				this.advance();
+				break;
+			}
+			if( char === "\\" ) {
+				this.advance();
+				values+= this.tokenizeAnsiCEscape();
+				continue;
+			}
+			values+= this.consume();
+		}
+		return new Token( TokenGroup.QUOTED, values, [], position, TokenType.ANSI_C_QUOTED );
+	}
+	
+	/**
+	 * Tokenize backtick syntax
+	 * 
+	 * @returns {Token}
+	 * 
+	 * @throws {SyntaxError} Throws whether backtick unterminated
+	 * 
+	 */
+	tokenizeBacktick() {
+		let body = "";
+		let position = this.position;
+		this.advance(); // skip `
+		while( true ) {
+			const char = this.peek();
+			if( char == null ) {
+				throw this.error( "Unterminated backtick" );
+			}
+			if( char === "`" ) { 
+				this.consume();
+				break;
+			}
+			if( char === "\\" ) {
+				body+= this.consume();
+				if( this.peek() != null ) {
+					body+= this.consume();
+				}
+				continue;
+			}
+			body+= this.consume();
+		}
+		return new Token(TokenGroup.EXPANSION, body, [], position, TokenType.BACKTICK);
+	}
+	
+	/** Tokenize comment syntax */
+	tokenizeComment() {
+		let position = this.position;
+		let s = '';
+		while (true) {
+			const ch = this.peek();
+			if (ch == null || ch === '\n') break;
+			s+= this.consume();
+		}
+		if (s.length >= 3 && s[1] === "!") {
+			this.push(new Token(TokenGroup.COMMENT, s, [], position, TokenType.SHEBANG));
+		} else {
+			this.push(new Token(TokenGroup.COMMENT, s, [], position, TokenType.COMMENT));
+		}
+	}
+	
+	/**
+	 * Tokenize dollar and backtick syntax
+	 * 
+	 * @returns {Token} 
+	 * 
+	 * @throws {SyntaxError} Throws whether syntax is unterminated
+	 * 
+	 */
+	tokenizeDollarOrBacktick() {
+		let position = this.position;
+		var character = this.peek();
+		if( character === "`" ) {
+			return this.tokenizeBacktick();
+		}
+		// starts with $
+		this.consume(); // skip $
+		const next = this.peek();
+		// parameter expansion ${...}
+		if( next === "{" ) {
+			this.consume(); // skip {
+			let body = "";
+			let depth = 1;
+			while( true ) {
+				const char = this.peek();
+				if( char == null ) {
+					throw this.error( "Unterminated ${" );
+				}
+				if( char === "{" ) {
+					depth++;
+					body+= this.consume();
+					continue;
+				}
+				if( char === "}" ) {
+					depth--;
+					if( depth === 0 ) {
+						this.consume(); break;
+					}
+					else {
+						body+= this.consume();
+						continue;
+					}
+				}
+				body+= this.consume();
+			}
+			return new Token( TokenGroup.EXPANSION, body, [], position, TokenType.PARAM_EXPANSION );
+		}
+		
+		// arithmetic $(( ... ))
+		if( next === "(" && this.peekAhead( 1 ) === "(" ) {
+			this.advance(); // (
+			this.advance(); // (
+			let body = "";
+			let depth = 1;
+			while( true ) {
+				const char = this.peek();
+				if( char == null ) {
+					throw this.error( "Unterminated $((" );
+				}
+				if( char === "(" ) {
+					depth++;
+					body+= this.consume();
+					continue;
+				}
+				if( char === ")" ) {
+					if( this.peekAhead( 1 ) === ")" ) {
+						this.advance(); // )
+						this.advance(); // )
+						break;
+					}
+					else {
+						body+= this.consume();
+						continue;
+					}
+				}
+				body+= this.consume();
+			}
+			return new Token( TokenGroup.EXPANSION, body, [], position, TokenType.ARITHMETIC_EXPANSION );
+		}
+		
+		// subshell $( ... )
+		if( next === "(" ) {
+			this.advance(); // '('
+			let body = "";
+			let depth = 1;
+			while( true ) {
+				var char = this.peek();
+				if( char == null ) {
+					throw this.error( "Unterminated $(" );
+				}
+				if( char === "(" ) {
+					depth++;
+					body+= this.consume();
+					continue;
+				}
+				if( char === ")" ) {
+					depth--;
+					if( depth === 0 ) {
+						this.advance();
+						break;
+					}
+					else {
+						body+= this.consume();
+						continue;
+					}
+				}
+				// nested quotes inside subshell handled conservatively: embed raw with delimiters
+				if( char === "'" || char === "\"" ) {
+					const quoted = this.tokenizeQuotedOrDollarQuote();
+					// `quoted` is Token instance; compare typed then embed lexeme or flatten children
+					switch( quoted.typed ) {
+						case TokenType.SINGLE_QUOTED:
+							body+= Fmt( "'$\{{}\}'", quoted.lexeme );
+							continue;
+						case TokenType.DOUBLE_QUOTED:
+							body+= Fmt( "\"$\{{}\}\"", quoted.lexeme );
+							continue;
+						case TokenType.ANSI_C_QUOTED:
+						case TokenType.LOCALE_QUOTED:
+							// keep as original string form (no deep parsing)
+							body+= quoted.lexeme;
+							continue;
+						// composite flatten
+						case TokenType.COMPOSITE:
+							for( let  piece of quoted.pieces ) {
+								body+= ( piece.lexeme || '' );
+							}
+							continue;
+					}
+				}
+				body+= this.consume();
+			}
+			return new Token( TokenGroup.EXPANSION, body, [], position, TokenType.COMMAND_SUBSTITUTION );
+		}
+		
+		// variable name, positional or special
+		if( next != null && /[A-Za-z0-9_@*!#?$\-]/.test( next ) ) {
+			let name = "";
+			while( this.peek() != null ) {
+				if( /[A-Za-z0-9_@*!#?$\-]/.test( this.peek() ) ) {
+					name+= this.consume();
+					continue;
+				}
+				break;
+			}
+			return new Token( TokenGroup.EXPANSION, name, [], position, TokenType.VARIABLE_EXPANSION );
+		}
+		return new Token( TokenGroup.WORD, "$", [], position, TokenType.WORD_PIECE );
+	}
+	
+	/**
+	 * Tokenize double quoted syntax
+	 * 
+	 * @returns {Token}
+	 * 
+	 * @throws {SyntaxError} Throws whether quote is unterminated
+	 * 
+	 */
+	tokenizeDoubleQuoted() {
+		let pieces = [];
+		let position = this.position;
+		let values = "";
+		this.advance(); // skip "
+		while( true ) {
+			const char = this.peek();
+			if( char === null ) {
+				throw this.error( "Unterminated double quote" );
+			}
+			if( char === "\"" ) {
+				this.advance();
+				break;
+			}
+			if( char === "\\" ) {
+				this.advance();
+				const next = this.peek();
+				if( next === null ) {
+					break;
+				}
+				if( next === "$" || 
+					next === "`" || 
+					next === "\"" || 
+					next === "\\" || 
+					next === "\n" ) {
+					values+= this.consume();
+				}
+				else {
+					values+= "\\".concat( this.consume() );
+				}
+				continue;
+			}
+			if( char === "$" ) {
+				if( values.length > 0 ) {
+					pieces.push( new Token( TokenGroup.QUOTED, values, [], position, TokenType.DOUBLE_QUOTED ) );
+					values = "";
+				}
+				pieces.push( this.tokenizeDollarOrBacktick() );
+				continue;
+			}
+			values+= this.consume();
+		}
+		if( values.length > 0 ) {
+			pieces.push( new Token( TokenGroup.QUOTED, values, [], position, TokenType.DOUBLE_QUOTED ) );
+		}
+		if( pieces.length === 1 ) {
+			return pieces[0];
+		}
+		// composite -> use TokenGroup.MISC with null lexeme per-instruction
+		return new Token( TokenGroup.MISC, null, pieces, position, TokenType.COMPOSITE );
+	}
+	
+	/**
+	 * Tokenize locale quoted syntax
+	 * 
+	 * @returns {Token}
+	 * 
+	 * @throws {SyntaxError} Throws whether quote unterminated
+	 * 
+	 */
+	tokenizeLocaleQuoted() {
+		// $"..." - similar to double quotes but different token type for parts
+		let pieces = [];
+		let position = this.position;
+		let values = "";
+		this.advance(); // $
+		this.advance(); // "
+		while( true ) {
+			const char = this.peek();
+			if( char === null ) {
+				throw this.error( "Unterminated $\" quote" )
+			};
+			if( char === "\"" ) {
+				this.advance(); break;
+			}
+			if( char === "\\" ) {
+				this.advance();
+				const next = this.peek();
+				if( next === null ) {
+					break;
+				}
+				if( next === "$" || 
+					next === "`" || 
+					next === "\"" || 
+					next === "\\" || 
+					next === "\n" ) {
+					values+= this.consume();
+				}
+				else {
+					values+= "\\".concat( this.consume() );
+				}
+				continue;
+			}
+			if( char === "$" ) {
+				if( values.length > 0 ) {
+					pieces.push( new Token( TokenGroup.QUOTED, values, [], position, TokenType.LOCALE_QUOTED ) );
+					values = "";
+				}
+				pieces.push( this.tokenizeDollarOrBacktick() );
+				continue;
+			}
+			values+= this.consume();
+		}
+		if( values.length > 0 ) {
+			pieces.push( new Token( TokenGroup.QUOTED, values, [], position, TokenType.LOCALE_QUOTED ) );
+		}
+		if( pieces.length === 1 ) {
+			return pieces[0];
+		}
+		return new Token(TokenGroup.MISC, null, pieces, position, TokenType.COMPOSITE);
+	}
+	
+	/**
+	 * Tokenize operator or redir syntax
+	 * 
+	 * @returns {Token}
+	 * 
+	 */
+	tokenizeOperatorOrRedir() {
+		let position = this.position;
+		let start = this.consume();
+		let value = start;
+		let after = this.peek();
+		if( after === null ) {
+			return new Token( TokenGroup.OPERATOR, value, [], position, this.operatorTokenType( value ) );
+		}
+		
+		// combinations
+		if( ( start === ">" || start === "<" ) && after === ">" ) {
+			value+= this.consume();
+			if( this.peek() === "&" ) {
+				value+= this.consume();
+				return new Token( TokenGroup.OPERATOR, value, [], position, TokenType.REDIR_DUP_OUTPUT );
+			}
+			if( start === ">" ) {
+				return new Token( TokenGroup.OPERATOR, value, [], TokenType.REDIR_APPEND );
+			}
+			return new Token( TokenGroup.OPERATOR, value, [], position, TokenType.LESS_GREATER );
+		}
+		if( ( start === ">" || start === "<" ) && after === "&" ) {
+			value+= this.consume();
+			if( start === ">" ) {
+				return new Token( TokenGroup.OPERATOR, value, [], position, TokenType.REDIR_DUP_OUTPUT );
+			}
+			return new Token( TokenGroup.OPERATOR, value, [], TokenType.REDIR_DUP_INPUT );
+		}
+		if( start === "<" && after === "<" ) {
+			value+= this.consume();
+			if( this.peek() === "-" ) {
+				value+= this.consume();
+				return new Token( TokenGroup.OPERATOR, value, [], position, TokenType.REDIR_HEREDOC_STRIP );
+			}
+			if( this.peek() === "<" ) {
+				value+= this.consume();
+				return new Token( TokenGroup.OPERATOR, value, [], position, TokenType.HERE_STRING );
+			}
+			return new Token( TokenGroup.OPERATOR, value, [], position, TokenType.REDIR_HEREDOC );
+		}
+		if( ( start === "|" || start === "&" ) && after === start ) {
+			value+= this.consume();
+			if( start === "|" ) {
+				return new Token( TokenGroup.OPERATOR, value, [], position, TokenType.DOUBLE_PIPE );
+			}
+			return new Token( TokenGroup.OPERATOR, value, [], position, TokenType.DOUBLE_AMPERSAND );
+		}
+		if( start === "|" && a === "&" ) {
+			value+= this.consume();
+			return new Token( TokenGroup.OPERATOR, value, [], position, TokenType.PIPE_AND );
+		}
+		if( start === ";" && after === ";" ) {
+			value+= this.consume();
+			if( this.peek() === "&" ) {
+				value+= this.consume();
+				return new Token( TokenGroup.OPERATOR, value, [], position, TokenType.SEMI_SEMI_AMP );
+			}
+			return new Token( TokenGroup.OPERATOR, value, [], position, TokenType.SEMI_SEMI );
+		}
+		switch( start ) {
+			case "(":
+				return new Token( TokenGroup.OPERATOR, value, [], position, TokenType.SUBSHELL_START );
+			case ")":
+				return new Token( TokenGroup.OPERATOR, value, [], position, TokenType.SUBSHELL_END );
+			case "|":
+				return new Token( TokenGroup.OPERATOR, value, [], position, TokenType.PIPE );
+			case "&":
+				return new Token( TokenGroup.OPERATOR, value, [], position, TokenType.AMPERSAND );
+			case ";":
+				return new Token( TokenGroup.OPERATOR, value, [], position, TokenType.SEMICOLON );
+			case "<":
+				return new Token( TokenGroup.OPERATOR, value, [], position, TokenType.REDIR_IN );
+			case ">":
+				return new Token( TokenGroup.OPERATOR, value, [], position, TokenType.REDIR_OUT );
+		}
+		return new Token( TokenGroup.MISC, value, [], position, TokenType.UNKNOWN );
+	}
+	
+	/**
+	 * Tokenize process subtitution syntax
+	 * 
+	 * @returns {Token}
+	 * 
+	 * @throws {SyntaxError} Throws whether process subtitution is unterminated
+	 * 
+	 */
+	tokenizeProcessSubstitution() {
+		// consume <( or >(
+		let body = "";
+		let depth = 1;
+		let position = this.position;
+		let sign = this.consume(); // '<' or '>'
+		this.advance(); // '('
+		while( true ) {
+			const char = this.peek();
+			if( char === null ) {
+				throw this.error( "Unterminated process substitution" );
+			}
+			if( char === "(" ) {
+				depth++;
+				body+= this.consume();
+				continue;
+			}
+			if( char === ")" ) {
+				depth--;
+				if( depth === 0 ) {
+					this.advance();
+					break;
+				}
+				else {
+					body+= this.consume();
+					continue;
+				}
+			}
+			body+= this.consume();
+		}
+		return new TokenProcessSubtitution(TokenGroup.EXPANSION, body, [], position, sign, TokenType.PROCESS_SUBSTITUTION);
+	}
+	
+	/**
+	 * Tokenize a quoted piece or dollar-quote ($'..' or $"..")
+	 * 
+	 * @returns {Token}
+	 * 
+	 */
+	tokenizeQuotedOrDollarQuote() {
+		let position = this.position;
+		const char = this.peek();
+		if( char === "'" ) {
+			return this.tokenizeSingleQuoted();
+		}
+		if( char === "\"") {
+			return this.tokenizeDoubleQuoted();
+		}
+		if( char === "$" && this.peekAhead( 1 ) === "'" ) {
+			return this.tokenizeAnsiCQuoted();
+		}
+		if( char === "$" && this.peekAhead( 1 ) === "\"" ) {
+			return this.tokenizeLocaleQuoted();
+		}
+		if( char === "$" && this.peekAhead( 1 ) === "(" ) {
+			return this.tokenizeDollarOrBacktick();
+		}
+		// fallback
+		this.position++;
+		return new Token( TokenGroup.WORD, "", [], position, TokenType.WORD_PIECE);
+	}
+	
+	/**
+	 * Tokenize single quoted syntax
+	 * 
+	 * @returns {Token}
+	 * 
+	 * @throws {SyntaxError} Throws whether quote is unterminated
+	 * 
+	 */
+	tokenizeSingleQuoted() {
+		let values = "";
+		let position = this.position;
+		this.advance(); // skip '
+		while( true ) {
+			const char = this.peek();
+			if( char == null ) {
+				throw this.error( "Unterminated single quote" );
+			}
+			if( char === "'" ) {
+				this.advance();
+				break;
+			}
+			values+= this.consume();
+		}
+		return new Token( TokenGroup.QUOTED, values, [], position, TokenType.SINGLE_QUOTED );
+	}
+	
+	/**
+	 * Tokenize word piece syntax
+	 * 
+	 * @returns {Token}
+	 * 
+	 */
+	tokenizeWordPiece() {
+		let position = this.position;
+		let string = "";
+		while (true) {
+			const char = this.peek();
+			if( char === null ) {
+				break;
+			}
+			if( char === "\n" || this.isWhitespace( char ) || this.isOperatorStart( char ) ) {
+				break;
+			}
+			if( char === "\\" ) {
+				this.advance();
+				const next = this.peek();
+				if( next === null ) {
+					break;
+				}
+				string+= this.consume();
+				continue;
+			}
+			if( char === "'" || char === "\"" ) {
+				const quoted = char === "'" ? this.tokenizeSingleQuoted() : this.tokenizeDoubleQuoted();
+				// append quoted lexeme into current chunk (caller will treat as piece)
+				if( quoted.typed === TokenType.SINGLE_QUOTED ||
+					quoted.typed === TokenType.DOUBLE_QUOTED ) {
+					string+= quoted.lexeme;
+					continue;
+				}
+			}
+			
+			// stop at $ to produce piece boundary
+			if( char === "$" ) {
+				break;
+			}
+			
+			// stop on process substitution start
+			if( ( char === "<" || char === ">" ) && this.peekAhead( 1 ) === "(" ) {
+				break;
+			}
+			string+= this.consume();
+		}
+		return new Token( TokenGroup.WORD, string, [], position, TokenType.WORD_PIECE );
+	}
+	
 }
 
 class ProgramMetadata {
@@ -1816,7 +2120,7 @@ class Terminal {
 				default:
 					break;
 			}
-			prompt += PS1.substring( index, regexp.lastIndex - match[0].length ) + value;
+			prompt+= PS1.substring( index, regexp.lastIndex - match[0].length ) + value;
 			index = regexp.lastIndex;
 		}
 		return this.ansi.render( prompt.concat( PS1.substring( index ) ) );
@@ -1898,9 +2202,11 @@ class TokenProcessSubtitution extends Token {
  * @property {String} ANSI_C_QUOTED
  * @property {String} ARITHMETIC_EXPANSION
  * @property {String} ASSIGNMENT_WORD
+ * @property {String} BACKTICK
  * @property {String} CASE
  * @property {String} COMMAND_SUBSTITUTION
  * @property {String} COMMENT
+ * @property {String} COMPOSITE
  * @property {String} COPROC
  * @property {String} DECLARE
  * @property {String} DO
@@ -1971,6 +2277,7 @@ class TokenProcessSubtitution extends Token {
  * @property {String} SEMI_AMP
  * @property {String} SEMI_SEMI
  * @property {String} SEMI_SEMI_AMP
+ * @property {String} SHEBANG
  * @property {String} SINGLE_QUOTED
  * @property {String} SUBSHELL_END
  * @property {String} SUBSHELL_START
@@ -2014,8 +2321,12 @@ const TokenType = {
 	/** `# comment` — Shell comment. Example: `# this is a comment` */
 	COMMENT: "COMMENT",
 	
+	COMPOSITE: "COMPOSITE",
+	
 	/** `coproc` — Starts a coprocess. Example: `coproc myproc { command; }` */
 	COPROC: "COPROC",
+	
+	BACKTICK: "BACKTICK",
 	
 	/** `declare` — Declares variables or attributes. Example: `declare -i count=10` */
 	DECLARE: "DECLARE",
@@ -2227,6 +2538,8 @@ const TokenType = {
 	/** `'string'` — Single-quoted literal string. Example: `'Hello World'` */
 	SINGLE_QUOTED: "SINGLE_QUOTED",
 	
+	SHEBANG: "SHEBANG",
+	
 	/** `)` — End of subshell expression. Example: `(cd /tmp)` */
 	SUBSHELL_END: "SUBSHELL_END",
 	
@@ -2316,21 +2629,23 @@ const TokenGroup = Object.freeze({
  */
 const TokenGrouped = Object.freeze( Object.assign( new Map(), {
 	[TokenGroup.COMMENT]: [
-		TokenType.COMMENT
+		TokenType.COMMENT,
+		TokenType.SHEBANG
 	],
 	[TokenGroup.EXPANSION]: [
-		TokenType.VARIABLE_EXPANSION,
-		TokenType.PARAM_EXPANSION,
-		TokenType.COMMAND_SUBSTITUTION,
 		TokenType.ARITHMETIC_EXPANSION,
+		TokenType.BACKTICK,
+		TokenType.COMMAND_SUBSTITUTION,
+		TokenType.EXPANSION_OPERATOR,
+		TokenType.PARAM_EXPANSION,
 		TokenType.PROCESS_SUBSTITUTION,
-		TokenType.EXPANSION_OPERATOR
+		TokenType.VARIABLE_EXPANSION
 	],
 	[TokenGroup.HEREDOC]: [
-		TokenType.HEREDOC_START,
-		TokenType.HEREDOC_DELIM,
 		TokenType.HEREDOC_BODY,
-		TokenType.HEREDOC_END
+		TokenType.HEREDOC_DELIM,
+		TokenType.HEREDOC_END,
+		TokenType.HEREDOC_START
 	],
 	[TokenGroup.METACHARACTER]: [
 		TokenType.SEMICOLON,
@@ -2353,6 +2668,7 @@ const TokenGrouped = Object.freeze( Object.assign( new Map(), {
 		TokenType.SEMI_SEMI_AMP
 	],
 	[TokenGroup.MISC]: [
+		TokenType.COMPOSITE,
 		TokenType.EOF,
 		TokenType.UNKNOWN
 	],
