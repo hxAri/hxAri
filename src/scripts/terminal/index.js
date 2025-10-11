@@ -3,6 +3,7 @@
 
 // Import Scripts
 import Author from "/src/scripts/Author.js";
+import { Buffer  } from "buffer";
 // import Banner from "/src/scripts/shells/Banner.js";
 import Fmt from "/src/scripts/Fmt.js";
 import UnixTime from "/src/scripts/UnixTime.js";
@@ -65,10 +66,10 @@ class Alias {
 	/**
 	 * Construct method of class Alias
 	 * 
-	 * @param {String} alias 
-	 * @param {Boolean} display 
-	 * @param {String} name 
-	 * @param {Boolean} overridable 
+	 * @param {String} alias
+	 * @param {Boolean} display
+	 * @param {String} name
+	 * @param {Boolean} overridable
 	 * 
 	 */
 	constructor( alias, display, name, overridable=true ) {
@@ -370,7 +371,7 @@ class ANSI {
 	/**
 	 * Render ANSI text into html text with replaced ANSI color into HTML tag
 	 * 
-	 * @param {String} string 
+	 * @param {String} string
 	 * 
 	 * @returns {String}
 	 */
@@ -395,7 +396,7 @@ class ANSI {
 	/**
 	 * Returns CSS style color property
 	 * 
-	 * @param {String} code 
+	 * @param {String} code
 	 * 
 	 * @returns {false|String}
 	 */
@@ -490,11 +491,11 @@ class History {
 	/**
 	 * Construct method of class History
 	 * 
-	 * @param {?HTMLInputElement|HTMLTextAreaElement} binding 
+	 * @param {?HTMLInputElement|HTMLTextAreaElement} binding
 	 * @param {?Number} exit
-	 * @param {Stderr} stderr 
-	 * @param {?String} stdin 
-	 * @param {Stdout} stdout 
+	 * @param {Stderr} stderr
+	 * @param {?String} stdin
+	 * @param {Stdout} stdout
 	 * 
 	 */
 	constructor( binding, exit, stderr, stdin, stdout ) {
@@ -536,7 +537,7 @@ class Kernel {
 	/**
 	 * Construct method of class Kernel
 	 * 
-	 * @param {Router} router 
+	 * @param {Router} router
 	 * 
 	 */
 	constructor( router ) {
@@ -547,9 +548,8 @@ class Kernel {
 		this.table = new Map();
 		this.users = new Map();
 		this.users.set( this.root.uid, this.root );
-		this.users.set( 1001, new User( {}, "hxAri", 1001, "hxari", "/home/hxari", "hxari", "user", "/usr/bin/bash", 1001, "hxari" ) );
 		this.uid = this.root.uid;
-		this.vfs = new VirtualFileSystem( this.hostname, this.root );
+		this.vfs = new VirtualFileSystem( this, this.hostname, this.router );
 	}
 	
 	/** 
@@ -565,7 +565,7 @@ class Kernel {
 	/**
 	 * Kill specific program by process id
 	 * 
-	 * @param {Number} pid 
+	 * @param {Number} pid
 	 * 
 	 * @returns {void}
 	 * 
@@ -608,9 +608,9 @@ class Kernel {
 	/**
 	 * Spawn new program
 	 * 
-	 * @param {Function} program 
-	 * @param {Array<String>} args 
-	 * @param {Map<String,Object>} options 
+	 * @param {Function} program
+	 * @param {Array<String>} args
+	 * @param {Map<String,Object>} options
 	 * 
 	 * @returns {History}
 	 */
@@ -626,7 +626,7 @@ class Kernel {
 			metadata.pid = pid;
 		}
 		try {
-			const context = Object.assign( new Map(), options.env || {}, { kernel: this, shell: options.shell || null, stderr, stdin,  stdout });
+			const context = Object.assign( new Map(), options.env || {}, { kernel: this, shell: options.shell || null, stderr, stdin, stdout });
 			const created = program.bind( context );
 			const execute = created( ...args );
 			history.exit = execute;
@@ -652,6 +652,7 @@ class Kernel {
 		for( const user of this.users.values() ) {
 			if( user.username.match( username ) ) {
 				this.uid = user.uid;
+				this.vfs.cwd = user.home;
 				return;
 			}
 		}
@@ -661,8 +662,8 @@ class Kernel {
 	/**
 	 * Unregister spawned program
 	 * 
-	 * @param {Number} pid 
-	 * @param {Number} exit 
+	 * @param {Number} pid
+	 * @param {Number} exit
 	 * 
 	 * @returns {void}
 	 * 
@@ -749,7 +750,7 @@ class Lexer {
 	/**
 	 * Construct method of class Lexer
 	 * 
-	 * @param {Boolean} historyExpansion 
+	 * @param {Boolean} historyExpansion
 	 * 
 	 */
 	constructor( input, historyExpansion ) {
@@ -804,7 +805,7 @@ class Lexer {
 	/**
 	 * Returns error message from lexer
 	 * 
-	 * @param {String} message 
+	 * @param {String} message
 	 * 
 	 * @returns {SyntaxError}
 	 * 
@@ -823,11 +824,11 @@ class Lexer {
 	 */
 	isCommandDelimiter( operator ) {
 		var delimiters = new Set([
-			";", 
-			"&", 
-			"&&", 
-			"||", 
-			"|", 
+			";",
+			"&",
+			"&&",
+			"||",
+			"|",
 			"\n"
 		]);
 		return delimiters.has( operator );
@@ -853,7 +854,7 @@ class Lexer {
 			return true;
 		}
 		// check grouped categories rather than legacy string names
-		if( lastTok.grouped === TokenGroup.OPERATOR || 
+		if( lastTok.grouped === TokenGroup.OPERATOR ||
 			lastTok.grouped === TokenGroup.REDIRECTION ) {
 			return true;
 		}
@@ -884,7 +885,7 @@ class Lexer {
 	/**
 	 * Returns whether character is whitespace
 	 * 
-	 * @param {String} char 
+	 * @param {String} char
 	 * 
 	 * @returns {Boolean}
 	 * 
@@ -945,7 +946,7 @@ class Lexer {
 	/**
 	 * Returns merged tokens
 	 * 
-	 * @param {Array<Token>} tokens 
+	 * @param {Array<Token>} tokens
 	 * 
 	 * @returns {Array<Token>}
 	 * 
@@ -990,7 +991,7 @@ class Lexer {
 						case TokenType.ARITHMETIC_EXPANSION:
 							return Fmt( "$(({}))", piece.lexeme );
 						case TokenType.PROCESS_SUBSTITUTION:
-							if( piece.sign === ">" ) {
+							if( piece.sign.lexeme === ">" ) {
 								return Fmt( ">({})", piece.lexeme );
 							}
 							return "<(";
@@ -1023,12 +1024,16 @@ class Lexer {
 	/**
 	 * Return token type by operator character given
 	 * 
-	 * @param {String} character 
+	 * @param {String} character
 	 * 
-	 * @returns 
+	 * @returns
 	 */
 	operatorTokenType( character ) {
 		switch( character ) {
+			case "(":
+				return TokenType.LEFT_PAREN;
+			case ")":
+				return TokenType.RIGHT_PAREN;
 			case ">":
 				return TokenType.REDIR_OUT;
 			case "<":
@@ -1040,7 +1045,7 @@ class Lexer {
 	}
 	
 	/**
-	 * Peek current character 
+	 * Peek current character
 	 * 
 	 * @returns {?String}
 	 * 
@@ -1055,7 +1060,7 @@ class Lexer {
 	/**
 	 * Peek ahead character
 	 * 
-	 * @param {Number} n 
+	 * @param {Number} n
 	 * 
 	 * @returns {?String}
 	 */
@@ -1070,7 +1075,7 @@ class Lexer {
 	/**
 	 * Process heredocs tokens.
 	 * 
-	 * @param {Array<Token>} tokens 
+	 * @param {Array<Token>} tokens
 	 * 
 	 * @returns {Array<Token>}
 	 * 
@@ -1079,7 +1084,7 @@ class Lexer {
 		const results = [];
 		for( let i=0; i<tokens.length; i++ ) {
 			var token = tokens[i];
-			if( token.typed === TokenType.REDIR_HEREDOC || 
+			if( token.typed === TokenType.REDIR_HEREDOC ||
 				token.typed === TokenType.REDIR_HEREDOC_STRIP ) {
 				let j = i+1;
 				while( j<tokens.length && tokens[j].typed === TokenType.COMMENT ) j++;
@@ -1101,7 +1106,7 @@ class Lexer {
 					let u = j+1;
 					for( u; u<tokens.length; u++ ) {
 						if( tokens[u].typed === TokenType.NEWLINE &&
-							tokens[u+1]?.typed === TokenType.WORD && 
+							tokens[u+1]?.typed === TokenType.WORD &&
 							tokens[u+1]?.pieces[0].lexeme === tokenDelimiterStart.pieces[0].lexeme ) {
 							tokenDelimiterEnd = tokens[u+1];
 							break;
@@ -1131,7 +1136,7 @@ class Lexer {
 	/**
 	 * Push token
 	 * 
-	 * @param {Token} token 
+	 * @param {Token} token
 	 * 
 	 */
 	push( token ) {
@@ -1142,7 +1147,7 @@ class Lexer {
 	/**
 	 * Push word piece tokens
 	 * 
-	 * @param {Token} piece 
+	 * @param {Token} piece
 	 * 
 	 */
 	pushWordPiece( piece ) {
@@ -1342,7 +1347,7 @@ class Lexer {
 			if( char == null ) {
 				throw this.error( "Unterminated backtick" );
 			}
-			if( char === "`" ) { 
+			if( char === "`" ) {
 				this.consume();
 				break;
 			}
@@ -1377,7 +1382,7 @@ class Lexer {
 	/**
 	 * Tokenize dollar and backtick syntax
 	 * 
-	 * @returns {Token} 
+	 * @returns {Token}
 	 * 
 	 * @throws {SyntaxError} Throws whether syntax is unterminated
 	 * 
@@ -1497,7 +1502,7 @@ class Lexer {
 							continue;
 						// composite flatten
 						case TokenType.COMPOSITE:
-							for( let  piece of quoted.pieces ) {
+							for( let piece of quoted.pieces ) {
 								body+= ( piece.lexeme || '' );
 							}
 							continue;
@@ -1551,10 +1556,10 @@ class Lexer {
 				if( next === null ) {
 					break;
 				}
-				if( next === "$" || 
-					next === "`" || 
-					next === "\"" || 
-					next === "\\" || 
+				if( next === "$" ||
+					next === "`" ||
+					next === "\"" ||
+					next === "\\" ||
 					next === "\n" ) {
 					values+= this.consume();
 				}
@@ -1612,10 +1617,10 @@ class Lexer {
 				if( next === null ) {
 					break;
 				}
-				if( next === "$" || 
-					next === "`" || 
-					next === "\"" || 
-					next === "\\" || 
+				if( next === "$" ||
+					next === "`" ||
+					next === "\"" ||
+					next === "\\" ||
 					next === "\n" ) {
 					values+= this.consume();
 				}
@@ -1696,7 +1701,7 @@ class Lexer {
 			}
 			return new Token( TokenGroup.OPERATOR, value, [], position, TokenType.DOUBLE_AMPERSAND );
 		}
-		if( start === "|" && a === "&" ) {
+		if( start === "|" && after === "&" ) {
 			value+= this.consume();
 			return new Token( TokenGroup.OPERATOR, value, [], position, TokenType.PIPE_AND );
 		}
@@ -1740,7 +1745,8 @@ class Lexer {
 		let body = "";
 		let depth = 1;
 		let position = this.position;
-		let sign = this.consume(); // '<' or '>'
+		let consumed = this.consume();
+		let sign = new Token( TokenGroup.REDIRECTION, consumed, [], position, consumed === "<" ? TokenType.REDIR_IN : TokenType.REDIR_OUT ); // '<' or '>'
 		this.advance(); // '('
 		while( true ) {
 			const char = this.peek();
@@ -1765,7 +1771,7 @@ class Lexer {
 			}
 			body+= this.consume();
 		}
-		return new TokenProcessSubtitution(TokenGroup.EXPANSION, body, [], position, sign, TokenType.PROCESS_SUBSTITUTION);
+		return new TokenProcessSubtitution( TokenGroup.EXPANSION, body, [], position, sign, TokenType.PROCESS_SUBSTITUTION );
 	}
 	
 	/**
@@ -1905,12 +1911,12 @@ class ProgramMetadata {
 	 * 
 	 * Construct method of class ProgramMetadata
 	 * 
-	 * @param {Array<String>} args 
-	 * @param {String} command 
-	 * @param {Map<String,Number|String>} options 
-	 * @param {Number} pid 
-	 * @param {UnixTime} start 
-	 * @param {String} state 
+	 * @param {Array<String>} args
+	 * @param {String} command
+	 * @param {Map<String,Number|String>} options
+	 * @param {Number} pid
+	 * @param {UnixTime} start
+	 * @param {String} state
 	 */
 	constructor( args, command, options, pid, start, state ) {
 		this.args = args;
@@ -1948,7 +1954,7 @@ class Shell {
 	/**
 	 * Construct method of class Shell
 	 * 
-	 * @param {Kernel} kernel 
+	 * @param {Kernel} kernel
 	 * @param {Object} options
 	 */
 	constructor( kernel, options={} ) {
@@ -1956,13 +1962,13 @@ class Shell {
 		this.aliases = new Map();
 		this.env = Object.assign( new Map(), {
 			GROUPS: user.gid,
-			HOME: user.home, 
+			HOME: user.home,
 			HOSTNAME: kernel.hostname,
-			OLDPWD: user.home, 
-			PATH: "/bin:/usr/bin", 
-			PWD: user.home, 
+			OLDPWD: user.home,
+			PATH: "/bin:/usr/bin",
+			PWD: user.home,
 			SHELL: user.shell,
-			USER: user.username, 
+			USER: user.username,
 			PS1: "\\[\\e[1;38;5;112m\\]\\u\\[\\e[1;38;5;190m\\]@\\h\\[\\e[1;38;5;214m\\]:\x20\\[\\e[1;32m\\]\\w\\[\\e[1;37m\\]\x20$\x20"
 		});
 		this.env = Object.assign( this.env, options.env || {}, user.env || {} );
@@ -1999,12 +2005,25 @@ class Shell {
 	
 	/**
 	 * 
-	 * @param {String} command 
+	 * @param {String} command
 	 * 
-	 * @returns {Iterator<Array<String>>}
+	 * @returns {Iterator<Array<Token>>}
 	 */
-	tokenize( command ) {
-		
+	*tokenize( command ) {
+		var lexer = new Lexer( command, true );
+		var tokenized = lexer.tokenize();
+		var stacks = [];
+		for( let token of tokenized ) {
+			if( token.typed === TokenType.SEMICOLON ) {
+				if( stacks.length >= 1 ) {
+					yield stacks;
+				}
+				stacks = [];
+				continue;
+			}
+			stacks.push( token );
+		}
+		yield stacks;
 	}
 	
 }
@@ -2016,6 +2035,9 @@ class Terminal {
 	
 	/** @type {ANSI} */
 	ansi;
+	
+	/** @type {User} */
+	hxari;
 	
 	/** @type {?HTMLInputElement|HTMLTextAreaElement} */
 	input;
@@ -2047,7 +2069,7 @@ class Terminal {
 				"\x65\x63\x68\x6f\x20\x2d\x65\x20\x22\x61\x64\x65\x6c\x69\x61\x3a\x20\x49\x20\x6e\x65\x76\x65\x72\x20\x65\x78\x70\x65\x63\x74\x65\x64\x20\x79\x6f\x75\x72\x20\x61\x72\x72\x69\x76\x61\x6c\x20\x62\x65\x66\x6f\x72\x65\x3b\x20\x49\x27\x6d\x20\x71\x75\x69\x74\x65\x20\x69\x6e\x74\x65\x72\x65\x73\x74\x65\x64\x20\x69\x6e\x20\x79\x6f\x75\x72\x20\x70\x65\x72\x73\x6f\x6e\x61\x6c\x69\x74\x79\x3b\x20\x59\x6f\x75\x27\x72\x65\x20\x61\x6c\x73\x6f\x20\x61\x20\x63\x72\x79\x65\x72\x2c\x20\x6c\x69\x6b\x65\x20\x74\x6f\x20\x65\x78\x70\x65\x72\x69\x6d\x65\x6e\x74\x20\x6c\x69\x6b\x65\x20\x62\x61\x6b\x69\x6e\x67\x20\x61\x6e\x64\x20\x63\x6f\x6f\x6b\x69\x6e\x67\x2c\x20\x6c\x6f\x76\x69\x6e\x67\x20\x61\x6e\x64\x20\x63\x61\x72\x69\x6e\x67\x20\x61\x62\x6f\x75\x74\x20\x65\x76\x65\x72\x79\x6f\x6e\x65\x27\x73\x20\x68\x65\x61\x6c\x74\x68\x2c\x20\x70\x72\x65\x66\x65\x72\x20\x77\x65\x61\x72\x69\x6e\x67\x20\x72\x6f\x62\x65\x73\x20\x70\x65\x72\x68\x61\x70\x73\x3f\x2c\x2e\x20\x41\x73\x20\x66\x61\x72\x20\x61\x73\x20\x49\x20\x63\x61\x6e\x20\x73\x65\x65\x2c\x20\x79\x6f\x75\x72\x20\x69\x6e\x74\x75\x69\x74\x69\x6f\x6e\x20\x69\x73\x20\x71\x75\x69\x74\x65\x20\x67\x6f\x6f\x64\x3b\x20\x49\x20\x68\x6f\x70\x65\x20\x79\x6f\x75\x72\x20\x61\x72\x72\x69\x76\x61\x6c\x20\x69\x73\x20\x74\x68\x65\x20\x6c\x61\x73\x74\x20\x66\x6f\x72\x20\x6d\x65\x22"
 			],
 			[
-				"\x63\x68\x69\x6e\x74\x79\x61", 
+				"\x63\x68\x69\x6e\x74\x79\x61",
 				"\x65\x63\x68\x6f\x20\x2d\x65\x20\x22\x63\x68\x69\x6e\x74\x79\x61\x3a\x20\x59\x6f\x75\x20\x61\x72\x65\x20\x62\x65\x61\x75\x74\x69\x66\x75\x6c\x2c\x20\x63\x75\x74\x65\x2c\x20\x6b\x69\x6e\x64\x2c\x20\x77\x68\x69\x74\x65\x2c\x20\x72\x65\x64\x64\x69\x73\x68\x2c\x20\x73\x6d\x6f\x6f\x74\x68\x2c\x20\x73\x6f\x66\x74\x2c\x20\x62\x75\x74\x20\x61\x6c\x73\x6f\x20\x76\x65\x72\x79\x20\x61\x6e\x6e\x6f\x79\x69\x6e\x67\x3b\x20\x59\x6f\x75\x20\x6c\x69\x6b\x65\x20\x73\x6b\x79\x20\x62\x6c\x75\x65\x3b\x20\x41\x6e\x64\x20\x79\x6f\x75\x20\x6c\x69\x6b\x65\x20\x63\x6c\x65\x61\x72\x20\x73\x6f\x75\x70\x20\x77\x69\x74\x68\x20\x67\x72\x65\x65\x6e\x20\x73\x70\x69\x6e\x61\x63\x68\x3b\x20\x49\x20\x72\x65\x61\x6c\x6c\x79\x20\x72\x65\x61\x6c\x6c\x79\x20\x6c\x69\x6b\x65\x20\x79\x6f\x75\x20\x61\x6e\x64\x20\x77\x68\x69\x6c\x65\x20\x69\x20\x73\x74\x69\x6c\x20\x6c\x6f\x76\x65\x20\x79\x6f\x75\x2c\x20\x62\x75\x74\x20\x73\x6f\x20\x66\x61\x72\x20\x49\x20\x61\x6d\x20\x6d\x6f\x72\x65\x20\x64\x6f\x6d\x69\x6e\x61\x6e\x74\x20\x74\x68\x61\x6e\x20\x79\x6f\x75\x20\x61\x6e\x64\x20\x49\x20\x61\x6d\x20\x61\x6c\x73\x6f\x20\x64\x69\x73\x61\x70\x70\x6f\x69\x6e\x74\x65\x64\x20\x77\x69\x74\x68\x20\x79\x6f\x75\x72\x20\x61\x74\x74\x69\x74\x75\x64\x65\x2c\x20\x74\x74\x27\x73\x20\x6c\x69\x6b\x65\x20\x79\x6f\x75\x20\x64\x6f\x6e\x27\x74\x20\x6d\x61\x6b\x65\x20\x61\x6e\x79\x20\x65\x66\x66\x6f\x72\x74\x20\x61\x74\x20\x61\x6c\x6c\x20\x66\x6f\x72\x20\x6d\x65\x22"
 			],
 			[
@@ -2056,19 +2078,23 @@ class Terminal {
 			]
 		];
 		this.ansi = new ANSI();
+		this.hxari = new User( {}, "hxAri", 1001, "hxari", "/home/hxari", "hxari", "user", "/usr/bin/bash", 1001, "hxari" );
 		this.input = input;
 		this.kernel = new Kernel( router );
+		this.kernel.users.set( this.hxari.uid, this.hxari );
 		this.kernel.switch( "hxari" );
+		this.kernel.vfs.mkdir( this.hxari.home, { mode: 0o755, user: this.kernel.root } );
+		for( let path of [ "Desktop", "Documents", "Downloads", "Music", "Pictures", "Public", "Video", "Public" ] ) {
+			this.kernel.vfs.mkdir( path, { mode: 0o755, user: this.kernel.root } );
+		}
+		this.kernel.vfs.chgrp( this.hxari.home, { group: this.hxari, user: this.kernel.root, recursive: true } );
+		this.kernel.vfs.chown( this.hxari.home, { owner: this.hxari, user: this.kernel.root, recursive: true } );
 		this.router = router;
 		this.shell = new Shell( this.kernel );
 		this.output = output;
 		for( const aliased of this.aliases ) {
 			this.shell.aliases.set( aliased, new Alias( aliased[1], false, aliased[0], false ) )
 		}
-		// this.shell.execute( "echo -e \"Hello World!\" | grep -i \"Hello\"" )
-		// 	.then( passed => console.info( Fmt( "execute-then: {}", passed ) ) )
-		// 	.catch( error => console.error( Fmt( "execute-catch: {}", error ) ) )
-		// 	.finally( passed => console.info( Fmt( "execute-finally: {}", passed ) ) );
 	}
 	
 	ps1() {
@@ -2148,11 +2174,11 @@ class Token {
 	/**
 	 * Construct method of class Token
 	 * 
-	 * @param {TokenGroup} grouped 
-	 * @param {String} lexeme 
-	 * @param {Array<Token>} pieces 
-	 * @param {Number} position 
-	 * @param {TokenType} typed 
+	 * @param {TokenGroup} grouped
+	 * @param {String} lexeme
+	 * @param {Array<Token>} pieces
+	 * @param {Number} position
+	 * @param {TokenType} typed
 	 * 
 	 */
 	constructor( grouped, lexeme, pieces, position, typed ) {
@@ -2167,28 +2193,28 @@ class Token {
 
 class TokenProcessSubtitution extends Token {
 	
-	/** @type {String} */
+	/** @type {Token} */
 	sign; // read (<), write (>)
 	
 	/**
 	 * Construct method of class Token
 	 * 
-	 * @param {TokenGroup} grouped 
-	 * @param {String} lexeme 
-	 * @param {Array<Token>} pieces 
-	 * @param {Number} position 
-	 * @param {String} sign
+	 * @param {TokenGroup} grouped
+	 * @param {String} lexeme
+	 * @param {Array<Token>} pieces
+	 * @param {Number} position
+	 * @param {Token} sign
 	 *  Operator sign-like read (<), write (>)
-	 * @param {TokenType} typed 
+	 * @param {TokenType} typed
 	 * 
 	 */
 	constructor( grouped, lexeme, pieces, position, sign, typed ) {
-		super( 
-			grouped, 
-			lexeme, 
-			pieces, 
-			position, 
-			typed 
+		super(
+			grouped,
+			lexeme,
+			pieces,
+			position,
+			typed
 		);
 		this.sign = sign;
 	}
@@ -2782,15 +2808,15 @@ class User {
 	 * Construct method of class User
 	 * 
 	 * @param {Map<String,String>} env
-	 * @param {String} fullname 
-	 * @param {Number} gid 
-	 * @param {String} group 
-	 * @param {String} home 
+	 * @param {String} fullname
+	 * @param {Number} gid
+	 * @param {String} group
+	 * @param {String} home
 	 * @param {String} password
-	 * @param {String} privilege 
-	 * @param {String} shell 
-	 * @param {Number} uid 
-	 * @param {String} username 
+	 * @param {String} privilege
+	 * @param {String} shell
+	 * @param {Number} uid
+	 * @param {String} username
 	 * 
 	 */
 	constructor( env, fullname, gid, group, home, password, privilege, shell, uid, username ) {
@@ -2815,41 +2841,29 @@ class User {
 	/**
 	 * Return whether user is allowed to execute virtual node
 	 * 
-	 * @param {VirtualNode} vnode 
+	 * @param {VirtualNode} vnode
 	 * 
 	 * @returns {Boolean}
 	 */
 	executable( vnode ) {
-		if( this.root() ) {
-			return true;
-		}
-		if( vnode.uid === this.uid ) {
-			return vnode.mode && 0o100 !== 0;
-		}
-		if( vnode.gid === this.gid ) {
-			return vnode.mode && 0o010 !== 0;
-		}
-		return vnode.mode && 0o001 !== 0;
+		if (this.root()) return true;
+		if (vnode.uid === this.uid) return (vnode.mode & 0o100) !== 0;
+		if (vnode.gid === this.gid) return (vnode.mode & 0o010) !== 0;
+		return (vnode.mode & 0o001) !== 0;
 	}
 	
 	/**
 	 * Return whether user is allowed to read virtual node
 	 * 
-	 * @param {VirtualNode} vnode 
+	 * @param {VirtualNode} vnode
 	 * 
 	 * @returns {Boolean}
 	 */
 	readable( vnode ) {
-		if( this.root() ) {
-			return true;
-		}
-		if( vnode.uid === this.uid ) {
-			return vnode.mode && 0o400 !== 0;
-		}
-		if( vnode.gid === this.gid ) {
-			return vnode.mode && 0o040 !== 0;
-		}
-		return vnode.mode && 0o004 !== 0;
+		if( this.root()) return true;
+		if( vnode.uid === this.uid) return (vnode.mode & 0o400) !== 0;
+		if( vnode.gid === this.gid) return (vnode.mode & 0o040) !== 0;
+		return (vnode.mode & 0o004) !== 0;
 	}
 	
 	/**
@@ -2875,21 +2889,15 @@ class User {
 	/**
 	 * Return whether user is allowed to write content into virtual node
 	 * 
-	 * @param {VirtualNode} vnode 
+	 * @param {VirtualNode} vnode
 	 * 
 	 * @returns {Boolean}
 	 */
 	writeable( vnode ) {
-		if( this.root() ) {
-			return true;
-		}
-		if( vnode.uid === this.uid ) {
-			return vnode.mode && 0o200 !== 0;
-		}
-		if( vnode.gid === this.gid ) {
-			return vnode.mode && 0o020 !== 0;
-		}
-		return vnode.mode && 0o002 !== 0;
+		if (this.root()) return true;
+		if (vnode.uid === this.uid) return (vnode.mode & 0o200) !== 0;
+		if (vnode.gid === this.gid) return (vnode.mode & 0o020) !== 0;
+		return (vnode.mode & 0o002) !== 0;
 	}
 	
 }
@@ -2899,8 +2907,8 @@ class Root extends User {
 	/**
 	 * Construct method of class User
 	 * 
-	 * @param {?String} home 
-	 * @param {?String} shell 
+	 * @param {?String} home
+	 * @param {?String} shell
 	 * 
 	 */
 	constructor( home, shell ) {
@@ -2911,8 +2919,11 @@ class Root extends User {
 
 class VirtualFileSystem {
 	
-	/** @type {UnixTime} */
-	datetime;
+	/** @type {String} */
+	cwd;
+	
+	/** @type {Kernel} */
+	kernel;
 	
 	/** @type {?String} */
 	pk; // persist key
@@ -2920,28 +2931,32 @@ class VirtualFileSystem {
 	/** @type {VirtualNode} */
 	root;
 	
+	/** @type {Router} */
+	router;
+	
+	/** @type {UnixTime} */
+	time;
+	
 	/**
 	 * Construct method of class VirtualFileSystem
 	 * 
+	 * @param {Kernel} kernel
 	 * @param {?String} pk
-	 * @param {Root} user
+	 * @param {?Router} router
 	 * 
 	 */
-	constructor( pk, user ) {
-		const structs = [
+	constructor( kernel, pk, router ) {
+		var structs = [
 			"/bin>>/usr/bin",
 			"/boot",
 			"/data",
 			"/dev",
-			"/dev/null",
-			"/dev/random",
-			"/dev/urandom",
 			"/etc",
+			"/etc/alternatives",
 			"/etc/profile.d",
 			"/home",
 			"/media",
 			"/proc",
-			"/root",
 			"/run",
 			"/run/lock",
 			"/sbin>>/usr/sbin",
@@ -2965,18 +2980,535 @@ class VirtualFileSystem {
 			"/var/log",
 			"/var/run>>/run"
 		];
-		const options = {
-			ctime: this.datetime,
-			gid: user.gid, 
-			mode: 0o644, 
-			uid: user.uid, 
-			utime: this.datetime
-		};
+		var user = kernel.user();
+		this.cwd = "/";
+		this.kernel = kernel;
 		this.pk = pk;
-		this.root = new VirtualNode( "root", "path", { ...options, contents: new Map() });
-		for( const struct of structs ) {
-			const exploded = struct.split( ">>" );
+		this.router = router;
+		this.time = new UnixTime();
+		this.root = new VirtualNode( this.time, user.gid, 0o755, "/", "path", user.uid, this.time, { contents: new Map() } );
+		for( let struct of structs ) {
+			var paths = struct.split( ">>" );
+			this.mkdir( paths[0], { mode: 0o755, user: user } );
+			if( paths.length >= 2 ) {
+				var walk = this.walk( paths[0] );
+				walk.contents = paths[1];
+				walk.type = "link";
+			}
 		}
+		this.mkdir( user.home, { mode: 0o700, user: user });
+	}
+	
+	/**
+	 * Returns basename of pathname
+	 * 
+	 * @param {String} pathname
+	 * 
+	 * @returns {String}
+	 * 
+	 */
+	basename( pathname ) {
+		return pathname.split( "/" ).at( -1 );
+	}
+	
+	/**
+	 * 
+	 * @param {Object} object
+	 * @param {Map<String,Object>|Function|String} [object.contents]
+	 * @param {UnixTime} [object.ctime]
+	 * @param {Number} [object.gid]
+	 * @param {Number} [object.mode]
+	 * @param {String} [object.name]
+	 * @param {Object} [object.options]
+	 * @param {String} [object.type]
+	 * @param {Number} [object.uid]
+	 * @param {UnixTime} [object.utime]
+	 * 
+	 * @returns {VirtualNode}
+	 * 
+	 */
+	builder( object={} ) {
+		var contents = object.contents;
+		if( Type( contents, Object ) ) {
+			contents = new Map();
+			for( let keyset of Object.keys( object.contents ) ) {
+				contents.set( keyset, this.builder( object.contents[keyset] ) );
+			}
+		}
+		var ctime = new UnixTime();
+		if( object?.ctime?.date ) {
+			ctime = new UnixTime( Date.parse( object.ctime.date ) );
+		}
+		var utime = new UnixTime();
+		if( object?.utime?.date ) {
+			utime = new UnixTime( Date.parse( object.utime.date ) );
+		}
+		return new VirtualNode( ctime, object.gid, object.mode, object.name, object.type, object.uid, utime, { contents: contents } );
+	}
+	
+	/**
+	 * Change the current working directory to DIR
+	 * 
+	 * @param {String} pathname 
+	 * @param {Object} options 
+	 * @param {User} [options.user] 
+	 * 
+	 * @throws {TypeError}
+	 *  Throws whether permission denied not pathname is not directory or link
+	 * 
+	 */
+	cd( pathname, options={ user: null } ) {
+		var real = this.normalize( pathname, this.cwd );
+		var path = this.walk( pathname, this.cwd );
+		if( path.type === "file" ) {
+			throw new TypeError( Fmt( "{}: not a directory", real ) );
+		}
+		var user = options.user;
+		if( user.readable( path ) ) {
+			if( this.router !== null ) {
+				this.router.push( "/terminal".concat( real ) );
+			}
+			this.cwd = real;
+		}
+		else {
+			throw new TypeError( Fmt( "{}: permission denied", real ) );
+		}
+	}
+	
+	/**
+	 * ...
+	 * 
+	 * @param {String} pathname
+	 * @param {Object} options
+	 * @param {Number|String|User} [options.group]
+	 * @param {Boolean} [options.recursive]
+	 * @param {User} [options.user]
+	 * 
+	 * @throws {TypeError} Throws whether group not found or permission denied
+	 * 
+	 */
+	chgrp( pathname, options={ group: null, recursive: false, user: null } ) {
+		var path = this.walk( pathname );
+		var user = null;
+		if( Type( options.group, [ Number, String ] ) ) {
+			for( let element of this.kernel.users.values() ) {
+				if( ( Type( options.group, Number ) && element.gid === options.group ) ||
+					( Type( options.group, String ) && element.username === options.group ) ) {
+					user = element;
+					break;
+				}
+			}
+			if( user === null ) {
+				throw new TypeError( Fmt( "{}: group not found", options.group ) );
+			}
+		}
+		else {
+			user = options.group;
+		}
+		if( options.user.root() ||
+			options.user.gid === user.gid ) {
+			path.gid = user.gid;
+			if( options.recursive && path.type === "path" ) {
+				for( let element of path.contents.values() ) {
+					this.chgrp( pathname.concat( "/".concat( element.name ) ), options );
+				}
+			}
+			return;
+		}
+		throw new TypeError( Fmt( "{}: user is not member of group {}", pathname, options.group ) );
+	}
+	
+	/**
+	 * 
+	 * @param {String} pathname
+	 * @param {Object} options 
+	 * @param {Number|String} [options.modes]
+	 * @param {Boolean} [options.recursive]
+	 * @param {User} [options.user]
+	 * 
+	 */
+	chmod( pathname, options={ modes: null, recursive: false, user: null } ) {
+		var path = this.walk( pathname );
+		var mode = this.mode( options.modes, path.mode );
+		if( options.user.root() ||
+			options.user.uid === path.uid ) {
+			path.mode = mode;
+			if( options.recursive ) {
+				for( let element of path.contents.values() ) {
+					this.chmod( pathname.concat( "/".concat( element.name ) ), options );
+				}
+			}
+			return;
+		}
+		throw new TypeError( Fmt( "{}: permission denied", pathname ) );
+	}
+	
+	/**
+	 * 
+	 * @param {String} pathname
+	 * @param {Object} options
+	 * @param {Number} [options.owner]
+	 * @param {Boolean} [options.recursive]
+	 * @param {User} [options.user]
+	 * 
+	 */
+	chown( pathname, options={ owner: null, recursive: false, user: null } ) {
+		var path = this.walk( pathname );
+		var user = null;
+		if( Type( options.owner, [ Number, String ] ) ) {
+			for( let element of this.kernel.users.values() ) {
+				if( ( Type( options.owner, Number ) && element.uid === options.owner ) ||
+					( Type( options.owner, String ) && element.username === options.owner ) ) {
+					user = element;
+					break;
+				}
+			}
+			if( user === null ) {
+				throw new TypeError( Fmt( "{}: owner not found", options.owner ) );
+			}
+		}
+		else {
+			user = options.owner;
+		}
+		if( options.user.root() ) {
+			path.uid = user.uid;
+			if( options.recursive && path.type === "path" ) {
+				for( let element of path.contents.values() ) {
+					this.chown( pathname.concat( "/".concat( element.name ) ), options );
+				}
+			}
+			return;
+		}
+		throw new TypeError( Fmt( "{}: permission denied", pathname ) );
+	}
+	
+	/**
+	 * 
+	 * @param {String} pathname
+	 * 
+	 * @returns {Array<VirtualNode>|VirtualNode}
+	 */
+	ls( pathname ) {
+		var path = this.walk( pathname );
+	}
+	
+	/**
+	 * Creates a new directory at the specified path
+	 * 
+	 * This method is used to create directories recursively if needed,
+	 * with additional options to specify the user context to be
+	 * used when creating the directory.
+	 * 
+	 * @param {String} pathname
+	 *  Full path of the directory to be created
+	 * @param {Object} options
+	 *  Additional options for directory configuration
+	 * @param {Number} [options.mode]
+	 *  Directory permission mode
+	 * @param {User} [options.user]
+	 *  Current user previlege
+	 * 
+	 * @throws {TypeError} If directory creation fails due to permissions or other system errors
+	 * 
+	 */
+	mkdir( pathname, options={} ) {
+		var normalized = this.normalize( pathname );
+		if( normalized !== "/" ) {
+			var passed = "";
+			var parent = this.root;
+			var parts = this.split( normalized );
+			var time = new UnixTime();
+			var user = options.user;
+			for( let i=0; i<parts.length; i++ ) {
+				var part = parts[i];
+				if( parent.type === "file" ) {
+					throw new TypeError( Fmt( "{}: not a directory", passed || "/" ) );
+				}
+				if( parent.type === "link" ) {
+					passed+= "/".concat( part );
+					parent = this.root();
+					parts = [ ...this.split( parent.contents, passed ), ...parts.slice( i ) ];
+					i = 0;
+				}
+				else {
+					if( parent.contents.has( part ) === false ) {
+						if( user.writeable( parent ) ) {
+							parent.contents.set( part, new VirtualNode( time, user.gid, options.mode ?? 0o644, part, "path", user.uid, time, { contents: new Map() } ) );
+						}
+						else {
+							console.debug( "previlege:", user );
+							throw new TypeError( Fmt( "{}: permission denied", passed || "/" ) );
+						}
+					}
+					passed+= "/".concat( part );
+					parent = parent.contents.get( part );
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Returns new mode which is the result of applying the change 
+	 * if baseMode is provided, or absoluteMode if mode is octal.
+	 * 
+	 * @param {Number|String} mode
+	 *  Accepts octal string or symbolic numbers (u,g,o,a +/- rwx [, ...])
+	 * @param {Number} base
+	 * 
+	 * @returns {Number}
+	 * 
+	 * @throws {TypeError}
+	 *  Throws whether mode is null, or symbolic mode require base mode,
+	 *  and whether invalid symbolic mode passed.
+	 * 
+	 */
+	mode( mode, base=null ) {
+		if( mode === null ) throw new TypeError( "mode required" );
+		if( Type( mode, String ) ) {
+			var normalized = String( mode ).trim();
+			if( base === null ) {
+				throw new TypeError( Fmt( "{}: symbolic mode requires baseMode", normalized ) );
+			}
+			
+			// oktal: ^0?[0-7]{3,4}$
+			if( /^0?[0-7]{3,4}$/.test( normalized ) ) {
+				
+				// parse as absolute octal
+				return parseInt( normalized, 8 ) & 0o7777;
+			}
+			
+			// symbolic: comma separated operations
+			// example: u+r,g-w,o+x, a=rw
+			let octal = base & 0o7777;
+			
+			const whoMap = { u: 0o700, g: 0o070, o: 0o007, a: 0o777 };
+			const permMap = { r: 4, w: 2, x: 1 };
+			
+			const ops = normalized.split(",");
+			for (const op of ops) {
+				const m = op.match(/^([ugoa]*)([+=-])([rwx]+)$/);
+				if (!m) throw new TypeError("invalid symbolic mode: " + op);
+				let [, who, operator, perms] = m;
+				if (!who) who = "a";
+				// compute permission bits to affect (for u/g/o)
+				let mask = 0;
+				for (const c of who) {
+					if (c === "u") mask |= 0o700;
+					if (c === "g") mask |= 0o070;
+					if (c === "o") mask |= 0o007;
+					if (c === "a") mask |= 0o777;
+				}
+				// compute perm bits relative positions
+				let permBits = 0;
+				for (const p of perms) {
+					const v = permMap[p]; // 4/2/1
+					if (!v) continue;
+					// apply for u/g/o: shift into positions
+					// r: 0o400,0o040,0o004 -> pattern: base 0o444 => distributed by who mask
+					// We'll apply by mapping each who to respective shifted bits.
+					if (mask & 0o700) permBits |= ((v) << 6); // u
+					if (mask & 0o070) permBits |= ((v) << 3); // g
+					if (mask & 0o007) permBits |= (v);				// o
+				}
+				
+				// But above double-counts if who includes multiple; instead compute per who separately:
+				// Simpler approach: compute per who token
+				let applied = 0;
+				const whos = who.split("");
+				for (const w of whos) {
+					if (w === "u") {
+						for (const p of perms) {
+							const v = permMap[p];
+							if (v === 4) applied |= 0o400;
+							if (v === 2) applied |= 0o200;
+							if (v === 1) applied |= 0o100;
+						}
+					} else if (w === "g") {
+						for (const p of perms) {
+							const v = permMap[p];
+							if (v === 4) applied |= 0o040;
+							if (v === 2) applied |= 0o020;
+							if (v === 1) applied |= 0o010;
+						}
+					} else if (w === "o") {
+						for (const p of perms) {
+							const v = permMap[p];
+							if (v === 4) applied |= 0o004;
+							if (v === 2) applied |= 0o002;
+							if (v === 1) applied |= 0o001;
+						}
+					} else if (w === "a") {
+						for (const p of perms) {
+							const v = permMap[p];
+							if (v === 4) applied |= 0o444;
+							if (v === 2) applied |= 0o222;
+							if (v === 1) applied |= 0o111;
+						}
+					}
+				}
+				
+				if (operator === "+") {
+					octal = octal | applied;
+				} else if (operator === "-") {
+					octal = octal & (~applied);
+				} else if (operator === "=") {
+					// For '=' we need to clear previous for those who, then set
+					// Build clear mask for selected who
+					let clearMask = 0;
+					const whos2 = who.split("");
+					for (const w of whos2) {
+						if (w === "u") clearMask |= 0o700;
+						if (w === "g") clearMask |= 0o070;
+						if (w === "o") clearMask |= 0o007;
+						if (w === "a") clearMask |= 0o777;
+					}
+					// clear r/w/x bits under clearMask
+					// compute bits representing r/w/x for those who
+					let rwxClear = 0;
+					if (clearMask & 0o700) rwxClear |= 0o700;
+					if (clearMask & 0o070) rwxClear |= 0o070;
+					if (clearMask & 0o007) rwxClear |= 0o007;
+					octal = (octal & (~rwxClear)) | applied;
+				}
+			}
+			return octal & 0o7777;
+		}
+		return mode & 0o7777;
+	}	
+	
+	/**
+	 * Normalize pathname
+	 * 
+	 * @param {String} pathname
+	 * @param {?String} cwd
+	 * 
+	 * @returns {String}
+	 * 
+	 */
+	normalize( pathname, cwd ) {
+		if( Value.isEmpty( cwd ) ) {
+			cwd = this.cwd;
+		}
+		if( pathname.startsWith( "/" ) === false ) {
+			pathname = cwd.concat( "/".concat( pathname ) );
+		}
+		var parts = this.split( pathname );
+		var value = [];
+		for( let part of parts ) {
+			if( part === "." ) continue;
+			if( part === ".." ) {
+				value.pop();
+				continue;
+			}
+			value.push( part );
+		}
+		return "/".concat( value.join( "/" ) );
+	}
+	
+	persist() {
+		if( this.pk ) {
+			localStorage.setItem( this.pk, JSON.stringify( this.root, null , 4 ) );
+		}
+	}
+	
+	revive() {
+		if( this.pk ) {
+			try {
+				var item = localStorage.getItem( this.pk );
+				if( item ) {
+					return this.builder( JSON.parse( item ) );
+				}
+			}
+			catch( e ) {
+				console.error( e );
+			}
+		}
+	}
+	
+	/**
+	 * Split pathname
+	 * 
+	 * @param {String} pathname
+	 * 
+	 * @returns {Array<String>}
+	 * 
+	 */
+	split( pathname ) {
+		return pathname.split( "/" ).filter( Boolean );
+	}
+	
+	/**
+	 * 
+	 * @param {String} pathname
+	 * 
+	 */
+	stat( pathname ) {
+		var walk = this.walk( pathname );
+		return {
+			ctime: walk.ctime,
+			gid: walk.gid,
+			mode: walk.mode,
+			type: walk.type,
+			uid: walk.uid,
+			utime: walk.utime
+		};
+	}
+	
+	/**
+	 * 
+	 * @param {String} filename
+	 * @param {Object} options
+	 * @param {User} [options.user]
+	 *  Current user previlege
+	 * 
+	 */
+	touch( filename, options={ user: null } ) {
+	}
+	
+	walk( pathname, cwd ) {
+		if( Value.isEmpty( cwd ) ) {
+			cwd = this.cwd;
+		}
+		if( pathname === "/" ) {
+			return this.root;
+		}
+		var passed = "";
+		var parts = this.split( this.normalize( pathname, cwd ) );
+		var root = this.root;
+		for( let i=0; i<parts.length; i++ ) {
+			var part = parts[i];
+			var path = root.contents.get( part );
+			passed+= "/".concat( part );
+			if( path ) {
+				if( path.type === "file" ) {
+					if( parts[i+1] ) {
+						throw new TypeError( Fmt( "{}: not a directory", passed ) );
+					}
+					root = path;
+				}
+				if( path.type === "link" ) {
+					root = this.walk( path.contents );
+				}
+				if( path.type === "path" ) {
+					root = path;
+				}
+				continue;
+			}
+			throw new TypeError( Fmt( "{}: no such file or directory", passed ) );
+		}
+		return root;
+	}
+	
+	/**
+	 * 
+	 * @param {String} filename
+	 * @param {Object} options
+	 * @param {Buffer|String}
+	 * @param {User} [options.user]
+	 *  Current user previlege
+	 * 
+	 */
+	write( filename, options={ contents: "", user: null } ) {
 	}
 	
 }
@@ -3010,16 +3542,17 @@ class VirtualNode {
 	/**
 	 * Construct method of class VirtualNode
 	 * 
-	 * @param {UnixTime} ctime 
-	 * @param {Number} gid 
-	 * @param {Number} mode 
-	 * @param {String} name 
-	 * @param {String} type 
-	 * @param {Number} uid 
-	 * @param {UnixTime} utime 
+	 * @param {UnixTime} ctime
+	 * @param {Number} gid
+	 * @param {Number} mode
+	 * @param {String} name
+	 * @param {String} type
+	 * @param {Number} uid
+	 * @param {UnixTime} utime
 	 * 
 	 */
 	constructor( ctime, gid, mode, name, type, uid, utime, options={} ) {
+		this.contents = typeof options.contents !== "undefined" ? options.contents : ( type === "file" ? "" : ( type === "link" ? "" : {} ) );
 		this.ctime = ctime;
 		this.gid = gid;
 		this.mode = mode;
@@ -3027,6 +3560,42 @@ class VirtualNode {
 		this.type = type;
 		this.uid = uid;
 		this.utime = utime;
+	}
+	
+	/**
+	 * Returns object representation
+	 * 
+	 * @returns {Object}
+	 * 
+	 */
+	object() {
+		var contents = this.contents;
+		if( this.type === "path" ) {
+			contents = {};
+			for( let keyset of this.contents.keys() ) {
+				contents[keyset] = this.contents.get( keyset ).object();
+			}
+		}
+		return {
+			contents: contents,
+			ctime: this.ctime,
+			gid: this.gid,
+			mode: this.mode,
+			name: this.name,
+			type: this.type,
+			uid: this.uid,
+			utime: this.utime
+		};
+	}
+	
+	/**
+	 * Returns pathname
+	 * 
+	 * @returns {String}
+	 * 
+	 */
+	qualified() {
+		return this.name === "/" ? "/" : this.name;
 	}
 	
 }
@@ -3048,7 +3617,7 @@ class VirtualStream {
 	/**
 	 * Construct method of class VirtualStream
 	 * 
-	 * @param {String} name 
+	 * @param {String} name
 	 * @param {String} contents
 	 * 
 	 */
@@ -3093,7 +3662,7 @@ class VirtualStream {
 	/**
 	 * Read virtual stream buffer
 	 * 
-	 * @param {Number} max 
+	 * @param {Number} max
 	 * 
 	 * @returns {String}
 	 * 
@@ -3119,8 +3688,8 @@ class VirtualStream {
 	/**
 	 * Register stream listener
 	 * 
-	 * @param {String} event 
-	 * @param {Function} listener 
+	 * @param {String} event
+	 * @param {Function} listener
 	 * 
 	 * @returns {never}
 	 * 
@@ -3205,7 +3774,7 @@ class Stdout extends VirtualStream {
 export {
 	ANSI,
 	Kernel,
-	Lexer, 
+	Lexer,
 	Root,
 	Shell,
 	Stdin,
@@ -3216,4 +3785,4 @@ export {
 	VirtualFileSystem,
 	VirtualNode,
 	VirtualStream
-}; 
+};
