@@ -5,10 +5,10 @@ import Type from "/src/scripts/Type.js";
 /**
  * String formater.
  *
- * @params String format
- * @params Mixed ...values
+ * @param {String} format
+ * @param {T} values
  *
- * @return String
+ * @returns {String}
  */
 export default function Fmt( format, ...values ) {
 

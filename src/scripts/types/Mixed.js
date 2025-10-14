@@ -2,13 +2,13 @@
 // Import application scripts.
 import Type from "/src/scripts/Type.js";
 
-/*
+/**
  * Mixed is PHP's default data type but
  * now I've created it in JavaScript Wkwkwk.
  *
- * @params Mixed value
+ * @param {T} value
  *
- * @return Mixed
+ * @returns {T}
  */
 export default function Mixed( value = false ) {
 	
@@ -20,5 +20,5 @@ export default function Mixed( value = false ) {
 	this.type = Type( this.value );
 	
 	// Return value.
-	return( value );
+	return value;
 };

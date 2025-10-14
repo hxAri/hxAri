@@ -38,7 +38,6 @@
 					this.project = null;
 					this.document = null;
 					this.component = null;
-					
 					await this.request();
 				}
 			}
@@ -152,9 +151,9 @@
 			request: async function() {
 				var name = this.$route.params.project.toLowerCase();
 				var project = null;
-				for( let i in this.configs.projects ) {
+				for( let i in this.configs.project.includes ) {
 					
-					project = this.configs.projects[i];
+					project = this.configs.project.includes[i];
 					
 					// Skip if project is not include.
 					if( project.include === false ) continue;

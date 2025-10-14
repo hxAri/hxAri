@@ -306,7 +306,7 @@
     ],
     "home": {
         "about": true,
-        "certificate": true,
+        "certificate": false,
         "experience": false,
         "project": true,
         "programming": true,
@@ -377,6 +377,7 @@
             },
             "language": {
                 "c": "1720953483;07qSuudjtdfjg.png",
+                "c++": "1720953517;50IywUt9Ydyig.png",
                 "cpp": "1720953517;50IywUt9Ydyig.png",
                 "csharp": "1720953505;219C.AWb3H.7A.png",
                 "css": "1720953660;0avcglJ1xRzKg.png",
@@ -394,6 +395,8 @@
                 "vue": "1720952972;07EUJ5iYHLEOk.png"
             },
             "project": {
+                "aether": "1759570092;9famMV6JArAow.png",
+                "aether-svg": "1759570092;cdNAShq2qX7eA.svg",
                 "android": "1701255136;da5bQ1MYJ0Ojg.png",
                 "atarashi": "1701255136;aela1LCKsEh0g.png",
                 "eremento": "1701255136;870xbghIllhKM.png",
@@ -455,7 +458,7 @@
         "projects": false,
         "service": false,
         "sitemap": false,
-        "terminal": true
+        "terminal": false
     },
     "organizations": [
         "octancle",
@@ -480,32 +483,14 @@
                     }
                 ],
                 "descriptions": [],
-                "logo": "css",
-                "name": "CSS"
-            },
-            {
-                "certificates": [],
-                "descriptions": [],
                 "logo": "cpp",
                 "name": "C++"
             },
             {
                 "certificates": [],
                 "descriptions": [],
-                "logo": "html",
-                "name": "HTML"
-            },
-            {
-                "certificates": [],
-                "descriptions": [],
                 "logo": "js",
                 "name": "JavaScript"
-            },
-            {
-                "certificates": [],
-                "descriptions": [],
-                "logo": "json",
-                "name": "JSON"
             },
             {
                 "certificates": [],
@@ -546,10 +531,26 @@
         ],
         "includes": [
             {
+                "document_url": "public/globals/docs/aether.json",
+                "endpoint": "hxAri/AETHER",
+                "homepage": "https://github.com/hxAri/",
+                "include": true,
+                "language": "cpp",
+                "name": "AETHER",
+                "previews": [
+                    {
+                        "descriptions": [],
+                        "image": ""
+                    }
+                ],
+                "readme_url": "https://raw.githubusercontent.com/hxAri/AETHER/prod/README.md",
+                "thumbnail": "project/1759570092;9famMV6JArAow.png"
+            },
+            {
                 "document_url": "public/globals/docs/android.json",
                 "endpoint": "hxAri/Android",
                 "homepage": "https://github.com/hxAri/",
-                "include": true,
+                "include": false,
                 "language": "java",
                 "name": "Android",
                 "previews": [
@@ -565,7 +566,7 @@
                 "document_url": "public/globals/docs/atarashi.json",
                 "endpoint": "hxAri/Atarashi",
                 "homepage": "https://github.com/hxAri/Atarashi",
-                "include": true,
+                "include": false,
                 "language": "ruby",
                 "name": "Atarash\u012b",
                 "previews": [],
@@ -576,7 +577,7 @@
                 "document_url": "public/globals/docs/eremento.json",
                 "endpoint": "hxAri/Eremento",
                 "homepage": "https://github.com/hxAri/Eremento",
-                "include": true,
+                "include": false,
                 "language": "javascript",
                 "name": "Eremento",
                 "previews": [],
@@ -587,7 +588,7 @@
                 "document_url": "public/globals/docs/kanashi.json",
                 "endpoint": "hxAri/Kanashi",
                 "homepage": "https://github.com/hxAri/Kanashi",
-                "include": true,
+                "include": false,
                 "language": "python",
                 "name": "Kanash\u012b",
                 "previews": [],
@@ -598,7 +599,7 @@
                 "document_url": "public/globals/docs/kaniafi.json",
                 "endpoint": "hxAri/KaNiaFi",
                 "homepage": "https://github.com/hxAri/KaNiaFi",
-                "include": true,
+                "include": false,
                 "language": "java",
                 "name": "KaNiaFi",
                 "previews": [],
@@ -609,7 +610,7 @@
                 "document_url": "public/globals/docs/niara.json",
                 "endpoint": "hxAri/Niara",
                 "homepage": "https://github.com/hxAri/Niara",
-                "include": true,
+                "include": false,
                 "language": "python",
                 "name": "Niara",
                 "previews": [],
@@ -642,7 +643,7 @@
                 "document_url": "public/globals/docs/rinkutoin.json",
                 "endpoint": "hxAri/Rinkutoin",
                 "homepage": "https://github.com/hxAri/Rinkutoin",
-                "include": true,
+                "include": false,
                 "language": "python",
                 "name": "Rinkutoin",
                 "previews": [],
@@ -653,7 +654,7 @@
                 "document_url": "public/globals/docs/society.json",
                 "endpoint": "hxAri/Society",
                 "homepage": "https://github.com/hxAri/Society",
-                "include": true,
+                "include": false,
                 "language": "python",
                 "name": "Society",
                 "previews": [],
@@ -664,7 +665,7 @@
                 "document_url": "public/globals/docs/tree.json",
                 "endpoint": "hxAri/Tree",
                 "homepage": "https://github.com/hxAri/Tree",
-                "include": true,
+                "include": false,
                 "language": "php",
                 "name": "Tree",
                 "previews": [],
@@ -675,7 +676,7 @@
                 "document_url": "public/globals/docs/yume.json",
                 "endpoint": "yfure/Yume",
                 "homepage": "https://github.com/yfure/Yume",
-                "include": true,
+                "include": false,
                 "language": "php",
                 "name": "Yume",
                 "previews": [],
@@ -767,11 +768,45 @@
             []
         ]
     },
+    "thirdparty": [
+        {
+            "github": "https://github.com/liriliri/eruda",
+            "name": "Eruda"
+        },
+        {
+            "github": "https://github.com/highlightjs/highlight.js",
+            "name": "Highlight.js"
+        },
+        {
+            "github": "https://github.com/dchester/jsonpath",
+            "name": "jsonpath"
+        },
+        {
+            "github": "https://github.com/markdown-it/markdown-it",
+            "name": "markdown-it"
+        },
+        {
+            "github": "https://github.com/jlmakes/scrollreveal",
+            "name": "ScrollReveal"
+        },
+        {
+            "github": "https://github.com/rgov/node-shlex",
+            "name": "node-shlex"
+        },
+        {
+            "github": "https://github.com/nolimits4web/swiper",
+            "name": "Swiper"
+        },
+        {
+            "github": "https://github.com/vuejs/core",
+            "name": "Vue"
+        }
+    ],
     "technology": {
         "description": [
             "Some technologies that I have used or even still use."
         ],
-        "programming": {
+        "skill": {
             "percentage": 100
         },
         "uses": [
@@ -779,6 +814,7 @@
                 "certificates": [],
                 "descriptions": [],
                 "images": [],
+                "include": false,
                 "logo": "flink",
                 "name": "Apache Flink",
                 "type": "technology"
@@ -787,6 +823,7 @@
                 "certificates": [],
                 "descriptions": [],
                 "images": [],
+                "include": true,
                 "logo": "kafka-v2",
                 "name": "Apache Kafka",
                 "type": "technology"
@@ -795,6 +832,7 @@
                 "certificates": [],
                 "descriptions": [],
                 "images": [],
+                "include": true,
                 "logo": "maven",
                 "name": "Apache Maven",
                 "type": "technology"
@@ -822,6 +860,7 @@
                         "url": ""
                     }
                 ],
+                "include": true,
                 "logo": "nifi",
                 "name": "Apache NiFi",
                 "type": "technology"
@@ -830,6 +869,7 @@
                 "certificates": [],
                 "descriptions": [],
                 "images": [],
+                "include": true,
                 "logo": "spark",
                 "name": "Apache Spark",
                 "type": "technology"
@@ -838,6 +878,7 @@
                 "certificates": [],
                 "descriptions": [],
                 "images": [],
+                "include": true,
                 "logo": "ci",
                 "name": "CodeIgniter",
                 "type": "framework"
@@ -846,6 +887,7 @@
                 "certificates": [],
                 "descriptions": [],
                 "images": [],
+                "include": true,
                 "logo": "gradle",
                 "name": "Gradle",
                 "type": "technology"
@@ -854,6 +896,7 @@
                 "certificates": [],
                 "descriptions": [],
                 "images": [],
+                "include": true,
                 "logo": "spring-boot",
                 "name": "Spring Boot",
                 "type": "framework"
@@ -862,6 +905,7 @@
                 "certificates": [],
                 "descriptions": [],
                 "images": [],
+                "include": true,
                 "logo": "git",
                 "name": "Git",
                 "type": "technology"
@@ -870,6 +914,7 @@
                 "certificates": [],
                 "descriptions": [],
                 "images": [],
+                "include": true,
                 "logo": "gitlab",
                 "name": "Gitlab",
                 "type": "technology"
@@ -878,6 +923,7 @@
                 "certificates": [],
                 "descriptions": [],
                 "images": [],
+                "include": true,
                 "logo": "github",
                 "name": "Github",
                 "type": "technology"
@@ -886,6 +932,7 @@
                 "certificates": [],
                 "descriptions": [],
                 "images": [],
+                "include": true,
                 "logo": "elasticsearch",
                 "name": "Elasticsearch",
                 "type": "technology"
@@ -894,6 +941,7 @@
                 "certificates": [],
                 "descriptions": [],
                 "images": [],
+                "include": true,
                 "logo": "kibana",
                 "name": "Kibana",
                 "type": "technology"
@@ -902,6 +950,7 @@
                 "certificates": [],
                 "descriptions": [],
                 "images": [],
+                "include": true,
                 "logo": "mysql",
                 "name": "MySQL",
                 "type": "technology"
@@ -910,6 +959,7 @@
                 "certificates": [],
                 "descriptions": [],
                 "images": [],
+                "include": true,
                 "logo": "nodejs",
                 "name": "NodeJS",
                 "type": "technology"
@@ -918,6 +968,7 @@
                 "certificates": [],
                 "descriptions": [],
                 "images": [],
+                "include": true,
                 "logo": "npm",
                 "name": "NPM",
                 "type": "technology"
@@ -925,6 +976,8 @@
             {
                 "certificates": [],
                 "descriptions": [],
+                "images": [],
+                "include": true,
                 "logo": "vue",
                 "name": "VueJS",
                 "type": "framework"
@@ -933,6 +986,7 @@
                 "certificates": [],
                 "descriptions": [],
                 "images": [],
+                "include": true,
                 "logo": "termux",
                 "name": "Termux",
                 "type": "technology"
@@ -941,6 +995,7 @@
                 "certificates": [],
                 "descriptions": [],
                 "images": [],
+                "include": true,
                 "logo": "linux-v2",
                 "name": "Linux",
                 "type": "technology"
@@ -949,6 +1004,7 @@
                 "certificates": [],
                 "descriptions": [],
                 "images": [],
+                "include": true,
                 "logo": "ubuntu",
                 "name": "Ubuntu",
                 "type": "technology"
@@ -957,6 +1013,7 @@
                 "certificates": [],
                 "descriptions": [],
                 "images": [],
+                "include": true,
                 "logo": "tor",
                 "name": "Tor",
                 "type": "technology"
@@ -965,6 +1022,7 @@
                 "certificates": [],
                 "descriptions": [],
                 "images": [],
+                "include": true,
                 "logo": "tails",
                 "name": "Tails OS",
                 "type": "technology"
@@ -973,6 +1031,7 @@
                 "certificates": [],
                 "descriptions": [],
                 "images": [],
+                "include": true,
                 "logo": "parrot",
                 "name": "Parrot Security OS",
                 "type": "technology"
@@ -981,6 +1040,7 @@
                 "certificates": [],
                 "descriptions": [],
                 "images": [],
+                "include": true,
                 "logo": "kali",
                 "name": "Kali Linux",
                 "type": "technology"
@@ -989,6 +1049,7 @@
                 "certificates": [],
                 "descriptions": [],
                 "images": [],
+                "include": true,
                 "logo": "android",
                 "name": "Android",
                 "type": "technology"
@@ -997,6 +1058,7 @@
                 "certificates": [],
                 "descriptions": [],
                 "images": [],
+                "include": true,
                 "logo": "vsc",
                 "name": "Visual Studio Code",
                 "type": "technology"

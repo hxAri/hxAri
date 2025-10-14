@@ -11,7 +11,7 @@
 	
 	// Import Scripts.
 	import Common from "/src/scripts/Common.js";
-	import Datime from "/src/scripts/Datime.js";
+	import UnixTime from "/src/scripts/UnixTime.js";
 	import Fmt from "/src/scripts/Fmt.js";
 	import Not from "/src/scripts/logics/Not.js";
 	import Shorttext from "/src/scripts/Shorttext.js";
@@ -56,7 +56,7 @@
 			lineno: "",
 			metadata: ( filename, contents, created=0 ) => {
 				if( created === 0 ) {
-					created = new Datime().timestamp();
+					created = new UnixTime().timestamp();
 				}
 				return {
 					owner: "union",
@@ -64,7 +64,7 @@
 					filename: filename,
 					metadata: {
 						created: created,
-						updated: new Datime().timestamp()
+						updated: new UnixTime().timestamp()
 					}
 				};
 			},
@@ -944,9 +944,9 @@
 			
 			strftime: function( timestamp ) {
 				if( Common.isMobile() ) {
-					return new Datime( timestamp ).format( "%d, %m %Y %H:%M:%S" );
+					return new UnixTime( timestamp ).format( "%d, %m %Y %H:%M:%S" );
 				}
-				return new Datime( timestamp ).format( "%d, %B %Y %H:%M:%S" );
+				return new UnixTime( timestamp ).format( "%d, %B %Y %H:%M:%S" );
 			},
 			
 			/**
@@ -1052,57 +1052,57 @@
 				}
 			}
 			var home = null;
-			try {
-				home = this.terminal.ls( Fmt( "/home/{}/.editor", this.terminal.user ) );
-				home.child = [];
-			}
-			catch( e ) {
-				home = this.terminal.ls( Fmt( "/home/{}", this.terminal.user ) );
-				home.push({
-					name: ".editor",
-					type: "path",
-					meta: {
-						mode: 755,
-						group: this.terminal.user,
-						owner: this.terminal.user
-					},
-					child: [
-					]
-				});
-			}
-			home.child = [
-				{
-					name: this.setting.keysets.draft,
-					type: "file",
-					meta: {
-						mode: 755,
-						group: this.terminal.user,
-						owner: this.terminal.user
-					},
-					read: this.draft
-				},
-				{
-					name: this.setting.keysets.filename,
-					type: "path",
-					meta: {
-						mode: 755,
-						group: this.terminal.user,
-						owner: this.terminal.user
-					},
-					child: this.filenames
-						.filter( file => Value.isNotEmpty( file ) )
-						.map( file => ({
-						name: file.filename,
-						type: "file",
-						meta: {
-							mode: 755,
-							group: this.terminal.user,
-							owner: this.terminal.user
-						},
-						read: file.contents
-					}))
-				}
-			];
+			// try {
+			// 	home = this.terminal.ls( Fmt( "/home/{}/.editor", this.terminal.user ) );
+			// 	home.child = [];
+			// }
+			// catch( e ) {
+			// 	home = this.terminal.ls( Fmt( "/home/{}", this.terminal.user ) );
+			// 	home.push({
+			// 		name: ".editor",
+			// 		type: "path",
+			// 		meta: {
+			// 			mode: 755,
+			// 			group: this.terminal.user,
+			// 			owner: this.terminal.user
+			// 		},
+			// 		child: [
+			// 		]
+			// 	});
+			// }
+			// home.child = [
+			// 	{
+			// 		name: this.setting.keysets.draft,
+			// 		type: "file",
+			// 		meta: {
+			// 			mode: 755,
+			// 			group: this.terminal.user,
+			// 			owner: this.terminal.user
+			// 		},
+			// 		read: this.draft
+			// 	},
+			// 	{
+			// 		name: this.setting.keysets.filename,
+			// 		type: "path",
+			// 		meta: {
+			// 			mode: 755,
+			// 			group: this.terminal.user,
+			// 			owner: this.terminal.user
+			// 		},
+			// 		child: this.filenames
+			// 			.filter( file => Value.isNotEmpty( file ) )
+			// 			.map( file => ({
+			// 			name: file.filename,
+			// 			type: "file",
+			// 			meta: {
+			// 				mode: 755,
+			// 				group: this.terminal.user,
+			// 				owner: this.terminal.user
+			// 			},
+			// 			read: file.contents
+			// 		}))
+			// 	}
+			// ];
 		},
 		mounted: function() {
 			this.validator();

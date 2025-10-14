@@ -7,7 +7,7 @@ import Type from "/src/scripts/Type.js";
  * Date utility.
  *
  */
-const Datime = function( datetime ) {
+const UnixTime = function( datetime ) {
 	
 	/**
 	 * Date instance.
@@ -247,4 +247,4 @@ const Datime = function( datetime ) {
 	return this;
 };
 
-export default Datime;
+export default UnixTime;
