@@ -4,7 +4,7 @@
 	import { mapState } from "vuex";
 	
 	// Import Scripts
-	import Datime from "/src/scripts/Datime.js";
+	import UnixTime from "/src/scripts/UnixTime.js";
 	import Fmt from "/src/scripts/Fmt.js";
 	import Image from "/src/scripts/Image.js";
 	import Not from "/src/scripts/logics/Not.js";
@@ -29,13 +29,13 @@
 		methods: {
 			
 			/**
-			 * Return new Datime instance.
+			 * Return new UnixTime instance.
 			 *
 			 * @params Number|String datetime
 			 *
-			 * @return Datime
+			 * @return UnixTime
 			 */
-			datetime: datetime => new Datime( datetime ),
+			datetime: datetime => new UnixTime( datetime ),
 			
 			/**
 			 * Display more information of project.
