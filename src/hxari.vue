@@ -5,7 +5,7 @@
 	import { RouterLink, RouterView } from "vue-router";
 	
 	// Import Scripts.
-	import Datime from "/src/scripts/Datime.js";
+	import UnixTime from "/src/scripts/UnixTime.js";
 	import Value from "/src/scripts/logics/Value.js";
 	
 	// Import Widgets.
@@ -15,7 +15,7 @@
 	
 	export default {
 		data: () => ({
-			date: new Datime(),
+			date: new UnixTime(),
 			dateFormat: null,
 			themeColor: null,
 			footer: [
@@ -120,7 +120,7 @@
 <template>
 	<header class="header">
 		<div class="header-banner flex flex-left pd-14">
-			<Avatar :attrs="{ avatar: 'header-avatar', wrapper: 'rd-circle', route: [ 'header-avatar-route', 'mg-right-14' ] }" :route="{ path: '/' }" title="hxAri" alt="hxAri Avatar" src="https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1677866924;deVw5x2Uzx.png" />
+			<Avatar :attrs="{ avatar: 'header-avatar', wrapper: 'rd-circle', route: [ 'header-avatar-route', 'mg-right-14' ] }" :route="{ path: '/' }" title="hxAri" alt="hxAri Avatar" src="https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1701255136;6duiesguuJBCQ.png" />
 			<button class="button burger" ref="burger" @click="buttonBurgerHandle">
 				<span class="burger-line"></span>
 				<span class="burger-line"></span>
@@ -148,7 +148,7 @@
 				<div class="sidebar-body scroll-hidden">
 					<div class="list-group scroll-x scroll-hidden">
 						<div class="pd-14 blinking" v-if="loading">
-							<div class="pd-16 rd-square bg-4 mg-bottom-14 mg-lc-bottom" v-for="i in 6"></div>
+							<div class="pd-16 rd-square bg-4 mg-bottom-14 mg-lc-bottom" v-for="i in 6">c</div>
 						</div>
 						<div class="" v-else-if="error">
 						</div>
@@ -188,7 +188,7 @@
 					</li>
 				</div>
 				<div class="footer-group pd-14">
-					<h5 class="mg-bottom-8">Follow Me</h5>
+					<h5 class="mg-bottom-8">Social</h5>
 					<p class="fc-1m">Stay connected with me.</p>
 					<li class="li dp-inline-block mg-right-10" v-for="( link, social ) in configs.author.social" v-if="hasConfig">
 						<a :href="link" target="_blank" rel="noopener noreferrer">
@@ -200,8 +200,18 @@
 					</li>
 				</div>
 			</div>
+			<div class="footer-content dp-flex">
+				<div class="footer-group pd-14">
+					<h5 class="mg-bottom-8">Thirdparty</h5>
+					<p class="fc-1m mg-bottom-8">Thankyou for open-source thirdparty.</p>
+					<li class="li dp-block mg-bottom-8 mg-lc-bottom" v-for="thirdparty in this.configs.thirdparty" v-if="hasConfig">
+						<span class="fb-45 mg-right-12">·</span>
+						<a class="text-underline" :href="thirdparty.github" target="_blank" rel="noopener noreferrer">{{ thirdparty.name }} </a>
+					</li>
+				</div>
+			</div>
 			<div class="footer-single">
-				<p class="title">Copyright &copy Ari Setiawan (hxAri) - {{ dateFormat }}</p>
+				<p class="title">Copyright &copy Ari Setiawan (<span class="fb-45">hxAri</span>) - {{ dateFormat }}</p>
 			</div>
 		</div>
 	</footer>
