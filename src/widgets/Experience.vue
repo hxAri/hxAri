@@ -4,7 +4,7 @@
 	import { mapState } from "vuex";
 	
 	// Import Scripts
-	import Datime from "/src/scripts/Datime.js";
+	import UnixTime from "/src/scripts/UnixTime.js";
 	import Fmt from "/src/scripts/Fmt.js";
 	import Image from "/src/scripts/Image.js";
 	
@@ -23,10 +23,10 @@
 		methods: {
 			
 			/**
-			 * @inheritdoc Datime
+			 * @inheritdoc UnixTime
 			 *
 			 */
-			datetime: datetime => new Datime( datetime ),
+			datetime: datetime => new UnixTime( datetime ),
 			
 			/**
 			 * Display more information of experience.
@@ -114,7 +114,7 @@
 		<div class="experiences">
 			<div class="experience mg-bottom-14 mg-lc-bottom" @click="display( experience )" v-for="experience in experiences" v-scroll-reveal="{ delay: 600 }">
 				<div class="experience-body flex pd-14" v-scroll-reveal="{ delay: 600 }">
-					<div class="experience-logo flex">
+					<div class="experience-logo flex flex-center">
 						<div class="experience-avatar avatar rd-circle flex">
 							<div class="experience-avatar-wrapper avatar-wrapper rd-cirlcle flex flex-center">
 								<img class="avatar-image" :alt="experience.company" :title="experience.company" :data-src="image.search( configs.image, 'company', experience.logo )" v-lazyload />
@@ -163,14 +163,15 @@
 			}
 				.experience-logo {
 					height: auto;
-					width: 7.4%;
+					/* width: 7.4%; */
+					width: 10%;
 					/* background: lime; */
 				}
-				@media screen and (max-width: 1080px) {
+				/* @media screen and (max-width: 1080px) {
 					.experience-logo {
-						width: 9.4%;
+						width: 10%;
 					}
-				}
+				} */
 				@media screen and (max-width: 750px) {
 					.experience-logo {
 						width: 18%;
