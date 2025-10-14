@@ -5,7 +5,7 @@
 	import MarkdownIt from "markdown-it";
 	
 	// Import Scripts
-	import Datime from "/src/scripts/Datime.js";
+	import UnixTime from "/src/scripts/UnixTime.js";
 	import Fmt from "/src/scripts/Fmt.js";
 	import Shorttext from "/src/scripts/Shorttext.js";
 	import Type from "/src/scripts/Type.js";
@@ -29,13 +29,13 @@
 		methods: {
 			
 			/**
-			 * Return new Datime instance.
+			 * Return new UnixTime instance.
 			 *
 			 * @params Number|String datetime
 			 *
-			 * @return Datime
+			 * @return UnixTime
 			 */
-			 datetime: datetime => new Datime( datetime ),
+			 datetime: datetime => new UnixTime( datetime ),
 			
 			/**
 			 * HTML Paragraph replacer.
