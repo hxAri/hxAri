@@ -80,9 +80,10 @@ class Alias {
 	}
 	
 	/**
-	 * Transform instance into String
+	 * Returns a string representation of a Alias
 	 * 
 	 * @returns {String}
+	 * 
 	 */
 	toString() {
 		return Fmt( "alias {name}={alias}", this );
@@ -471,6 +472,46 @@ class ANSI {
 	
 };
 
+class Group {
+	
+	/** @type {Number} */
+	gid;
+	
+	/** @type {Set<User>} */
+	members;
+	
+	/** @type {String} */
+	username;
+	
+	/**
+	 * Construct method of class Group
+	 * 
+	 * @param {Number} gid
+	 * @param {Array<User>|Set<User>} members
+	 * @param {String} username
+	 * 
+	 */
+	constructor( gid, members, username ) {
+		this.gid = gid;
+		this.members = members;
+		if( Type( members, Array ) ) {
+			this.members = new Set( members );
+		}
+		this.username = username;
+	}
+	
+	/**
+	 * Returns a string representation of a Group
+	 * 
+	 * @returns {String}
+	 * 
+	 */
+	toString() {
+		return Fmt( "{}:x:{}:{}", ...[ this.username, this.gid, Array.from( this.members.entries() ).map( member => member[0].username ).join( "\x0a" ) ] );
+	}
+	
+}
+
 class History {
 	
 	/** @type {?HTMLInputElement|HTMLTextAreaElement} */
@@ -510,11 +551,20 @@ class History {
 
 class Kernel {
 	
+	/** @type {Number} */
+	gic; // gid counter
+	
+	/** @type {Map<Number,Group>} */
+	groups;
+	
 	/** @type {String} */
 	hostname;
 	
+	/** @type {VirtualNodePasswd} */
+	passwd;
+	
 	/** @type {Number} */
-	pc; // pid counter
+	pic; // pid /counter
 	
 	/** @type {Root} */
 	root;
@@ -522,14 +572,20 @@ class Kernel {
 	/** @type {Router} */
 	router;
 	
+	/** @type {VirtualNodeShadow} */
+	shadow;
+	
 	/** @type {Map<Number,ProgramMetadata>} */
 	table;
 	
-	/** @type {Map<Number,User>} */
-	users;
+	/** @type {Number} */
+	uic; // uid counter
 	
 	/** @type {Number} */
 	uid;
+	
+	/** @type {Map<Number,User>} */
+	users;
 	
 	/** @type {VirtualFileSystem} */
 	vfs;
@@ -541,15 +597,46 @@ class Kernel {
 	 * 
 	 */
 	constructor( router ) {
+		this.gic = 1000;
+		this.groups = new Map();
 		this.hostname = window?.location?.host?.split( "\x3a" )[0] ?? "hxari";
-		this.pc = 100;
+		this.pic = 100;
 		this.root = new Root();
+		this.groups.set( 0, new Group( 0, new Set([ this.root ]) ), "root" );
+		this.group = new VirtualNodeGroup( this.groups );
 		this.router = router;
 		this.table = new Map();
 		this.users = new Map();
 		this.users.set( this.root.uid, this.root );
+		this.passwd = new VirtualNodePasswd( this.users );
+		this.shadow = new VirtualNodeShadow( this.users );
+		this.uic = 1000;
 		this.uid = this.root.uid;
 		this.vfs = new VirtualFileSystem( this, this.hostname, this.router );
+		this.vfs.mkdir( this.root.home, { mode: 0o700, user: this.root });
+		if( this.vfs.exists( "/etc" ) === false ) {
+			this.vfs.mkdir( "/etc", { mode: 0o755, user: this.root });
+		}
+		this.vfs.walk( "/etc" ).contents.set( "group", this.group );
+		this.vfs.walk( "/etc" ).contents.set( "passwd", this.passwd );
+		this.vfs.walk( "/etc" ).contents.set( "shadow", this.shadow );
+		this.groupadd( "sudo", { user: this.root } );
+	}
+	
+	/** 
+	 * Returns allocate group id
+	 * 
+	 * @returns {Number}
+	 * 
+	 */
+	allocateGID() {
+		if( this.groups === null || typeof this.groups === "undefined" ) {
+			this.groups = new Map();
+		}
+		while( this.groups.has( this.gic ) ) {
+			this.gic++;
+		}
+		return this.gic;
 	}
 	
 	/** 
@@ -558,23 +645,142 @@ class Kernel {
 	 * @returns {Number}
 	 * 
 	 */
-	allocate() {
-		return ++this.pc;
+	allocatePID() {
+		return ++this.pic;
+	}
+	
+	/** 
+	 * Returns allocate user id
+	 * 
+	 * @returns {Number}
+	 * 
+	 * @throws {TypeError} Throws whether uid space exhausted
+	 * 
+	 */
+	allocateUID() {
+		if( this.users === null || typeof this.users === "undefined" ) {
+			this.users = new Map();
+		}
+		while( this.users.has( this.uic ) ) {
+			this.uic++;
+			if( this.uic >= 0xFFFF ) {
+				throw new TypeError( "uid space exhausted" );
+			}
+		}
+		return this.uic;
+	}
+	
+	/**
+	 * ...
+	 * 
+	 * @param {String} groupname 
+	 * @param {Object} options 
+	 * @param {?Number} options.gid 
+	 * @param {User} [options.user]
+	 * 
+	 */
+	groupadd( groupname, options={} ) {
+		if( options.user.root() === false ) {
+			throw new TypeError( "operation not permitted: only root can add group" );
+		}
+		if( /^[a-z_][a-z0-9_-]{0,31}$/.test( groupname ) === false ) {
+			throw new TypeError( Fmt( "{}: invalid groupname", groupname ) );
+		}
+		var gid = options?.gid;
+		if( gid && Number.isFinite( gid ) ) {
+			if( this.groups.has( gid ) ) {
+				throw new TypeError( Fmt( "{}: gid exists", gid ) );
+			}
+		}
+		else {
+			gid = this.allocateGID();
+		}
+		for( let group of this.groups.values() ) {
+			if( group.username === groupname ) {
+				throw new TypeError( Fmt( "{}: group username exists", groupname ) );
+			}
+		}
+		this.groups.set( gid, new Group( gid, new Set(), groupname ) );
+		this.group.refresh();
+		this.vfs.persist();
+	}
+	
+	/**
+	 * ...
+	 * 
+	 * @param {String} groupname 
+	 * @param {Object} options 
+	 * @param {?Boolean} [options.force]
+	 * @param {User} [options.user]
+	 * 
+	 */
+	groupdel( groupname, options={} ) {
+		options.force = options.force ?? false;
+		if( options.user.root() === false ) {
+			throw new TypeError( "operation not permitted: only root can delete group" );
+		}
+		for( let [ gid, group ] of this.groups.entries() ) {
+			if( group.username === groupname ) {
+				var procs = Array.from( this.table.values() ).filter( table => group.members.has( table.user ) );
+				if( procs.length >= 1 ) {
+					if( options.force ) {
+						for( let process of procs ) {
+							this.kill( process.pid, { user: options.user } );
+						}
+					}
+					else {
+						throw new TypeError( Fmt( "{}: group has running process", groupname ) );
+					}
+				}
+				this.groups.delete( gid );
+				this.group.refresh();
+				this.vfs.persist();
+				return;
+			}
+		}
+		throw new TypeError( Fmt( "{}: group not found", groupname ) );
+	}
+	
+	/**
+	 * ...
+	 * 
+	 * @param {String} groupname 
+	 * @param {Object} options 
+	 * @param {?Number} [options.gid]
+	 * @param {?String} [options.member]
+	 * @param {?String} [options.memberadd]
+	 * @param {?String} [options.username]
+	 * @param {User} [options.user]
+	 * 
+	 */
+	groupmod( groupname, options={} ) {
+		if( options.user.root() === false ) {
+			throw new TypeError( "operation not permitted: only root can modify group" );
+		}
+		this.group.refresh();
+		this.vfs.persist();
 	}
 	
 	/**
 	 * Kill specific program by process id
 	 * 
 	 * @param {Number} pid
+	 * @param {Object} options
+	 * @param {User} [options.user]
 	 * 
 	 * @returns {void}
 	 * 
-	 * @throws {TypeError} Throws whether pid not found
+	 * @throws {TypeError} Throws whether permission denied or pid not found
+	 * 
 	 */
-	kill( pid ) {
+	kill( pid, options={} ) {
 		if( this.table.has( pid ) ) {
-			this.table[pid].exit = 1;
-			this.table[pid].state = "killed";
+			var process = this.table.get( pid );
+			if( process.user.uid !== options.user.uid && options.user.root() === false ) {
+				throw TypeError( "{}: unallowed kill process", pid );
+			}
+			process.exit = 1;
+			process.state = "killed";
 			return;
 		}
 		throw TypeError( "{}: no such process id", pid );
@@ -599,7 +805,7 @@ class Kernel {
 	 * 
 	 */
 	register( metadata ) {
-		const pid = this.allocate();
+		const pid = this.allocatePID();
 		this.table.set( pid, metadata );
 		this.table.get( pid ).pid;
 		return pid;
@@ -610,11 +816,16 @@ class Kernel {
 	 * 
 	 * @param {Function} program
 	 * @param {Array<String>} args
-	 * @param {Map<String,Object>} options
+	 * @param {Object} options
+	 * @param {Stderr} [options.stderr]
+	 * @param {Stdin} [options.stdin]
+	 * @param {Stdout} [options.stdout]
+	 * @param {User} user
 	 * 
 	 * @returns {History}
+	 * 
 	 */
-	async spawn( program, args=[], options={} ) {
+	spawn( program, args=[], options={}, user ) {
 		const stdin = options.stdin || new Stdin();
 		const stderr = options.stderr || new Stderr();
 		const stdout = options.stdout || new Stdout();
@@ -685,9 +896,266 @@ class Kernel {
 	 * Return current user previlege
 	 * 
 	 * @returns {User}
+	 * 
 	 */
 	user() {
 		return this.users.get( this.uid );
+	}
+	
+	/**
+	 * 
+	 * @param {String} username
+	 * @param {Object} options
+	 * @param {?String} [options.fullname]
+	 * @param {?String} [options.home]
+	 * @param {?Number} [options.gid]
+	 * @param {?Password|String} [options.password]
+	 * @param {?String} [options.shell]
+	 * @param {?Number} [options.uid]
+	 * @param {User} [options.user]
+	 * 
+	 * @throws {TypeError}
+	 *  Throws whether permission denied, username exists, user id exists, homedir exists
+	 * 
+	 */
+	useradd( username, options={} ) {
+		if( options.user.root() === false ) {
+			throw new TypeError( "operation not permitted: only root can add user" );
+		}
+		username = new String( username || "" ).trim();
+		if( /^[a-z_][a-z0-9_-]{0,31}$/.test( username ) === false ) {
+			throw new TypeError( Fmt( "{}: invalid username", username ) );
+		}
+		for( let entry of this.users.entries() ) {
+			if( entry[1].username === username ) {
+				throw new TypeError( Fmt( "{}: username exists", username ) );
+			}
+		}
+		var gid = options?.gid;
+		if( gid && Number.isFinite( gid ) ) {
+		}
+		else {
+			gid = this.allocateGID();
+		}
+		var uid = options?.uid;
+		if( uid && Number.isFinite( uid ) ) {
+			if( this.users.has( uid ) ) {
+				throw new TypeError( Fmt( "{}: user id exists", uid ) );
+			}
+		}
+		else {
+			uid = this.allocateUID();
+		}
+		var name = options?.fullname || username;
+		var home = options?.home;
+		var passw = options?.password;
+		var shell = options?.shell;
+		var user = new User( new Map(), name, gid, username, home, passw, "user", shell, uid, username );
+		if( this.groups.has( gid ) ) {
+			this.groups.get( gid ).members.add( user );
+		}
+		else {
+			this.groups.set( gid, new Group( gid, [ user ], username ) );
+		}
+		this.users.set( uid, user );
+		if( home ) {
+			if( this.vfs.exists( home ) ) {
+				this.userdel( username );
+				throw new TypeError( Fmt( "{}: home directory exists", home ) );
+			}
+			this.vfs.mkdir( home, { mode: 0o755, user: options.user } );
+			this.vfs.chgrp( home, { group: user, recursive: true, user: options.user } );
+			this.vfs.chown( home, { owner: user, recursive: true, user: options.user } );
+			var maps = new Map([
+				[ 
+					"/.bashrc", {
+						contents: "#!/usr/bin/env bash\n\nif [[ -f /home/${USER}/.bash_aliases ]]; then source /home/${USER}/.bash_aliases; fi", 
+						type: "file" 
+					} 
+				],
+				[ "/.bash_aliases", { contents: "#!/usr/bin/env bash\n", type: "file" } ],
+				[ "/.bash_history", { contents: "", type: "file" } ],
+				[ "/Desktop", { type: "path" } ],
+				[ "/Documents", { type: "path" } ],
+				[ "/Download", { type: "path" } ],
+				[ "/Music", { type: "path" } ],
+				[ "/Pictures", { type: "path" } ],
+				[ "/Trash", { type: "path" } ],
+				[ "/Videos", { type: "path" } ],
+			]);
+			for( let entry of maps ) {
+				switch( entry[1].type ) {
+					case "file":
+					case "link":
+						this.vfs.write( home.concat( entry[0] ), { user: user, contents: entry[1]?.contents } );
+						break;
+					case "path":
+						this.vfs.mkdir( home.concat( entry[0] ), { user: user } );
+						break;
+				}
+			}
+		}
+		this.group.refresh();
+		this.passwd.refresh();
+		this.shadow.refresh();
+		this.vfs.persist();
+	}
+	
+	/**
+	 * Delete user account
+	 * 
+	 * @param {String} username
+	 * @param {Object} options
+	 * @param {?Boolean} [options.force]
+	 * @param {?Boolean} [options.home]
+	 * @param {User} [options.user]
+	 * 
+	 * @throws {TypeError} 
+	 *  Throws whether permission denied, user not found or
+	 *  whether user has running process and delete without force deletion
+	 * 
+	 */
+	userdel( username, options={} ) {
+		options.force = options.force ?? false;
+		if( options.user.root() === false ) {
+			throw new TypeError( "operation not permitted: only root can delete user" );
+		}
+		var users = Array.from( this.users.values() ).filter( user => user.username === username );
+		if( users.length <= 0 ) {
+			throw new TypeError( Fmt( "{}: user not found", username ) );
+		}
+		var procs = Array.from( this.table.values() ).filter( table => table.state === "running" && table.user.username === username );
+		if( procs >= 1 ) {
+			if( options.force === false ) {
+				throw new TypeError( Fmt( "{}: user has running process", username ) );
+			}
+			for( let process of procs ) {
+				this.kill( process.pid, { user: options.user } );
+			}
+		}
+		for( let group of this.groups.values() ) {
+			if( group.members.has( users[0] ) ) {
+				group.members.delete( users[0] );
+			}
+		}
+		if( users[0].home && options?.home ) {
+			this.vfs.remove( users[0].home );
+		}
+		this.users.delete( users[0].uid );
+		this.group.refresh();
+		this.passwd.refresh();
+		this.shadow.refresh();
+		this.vfs.persist();
+	}
+	
+	/**
+	 * Modify user account
+	 * 
+	 * @param {String} username
+	 * @param {Object} options
+	 * @param {?String} [options.fullname]
+	 * @param {?Number} [options.gid]
+	 * @param {?String} [options.group]
+	 * @param {?String} [options.groupadd]
+	 * @param {?String} [options.home]
+	 * @param {?Password} [options.password]
+	 * @param {?String} [options.privilege]
+	 * @param {?String} [options.shell]
+	 * @param {?Number} [options.uid]
+	 * @param {?String} [options.username]
+	 * @param {User} [options.user]
+	 * 
+	 * @throws {TypeError}
+	 *  Throws whether permission denied, group not found, 
+	 *  user not found, uid exists, home directory exists.
+	 * 
+	 */
+	usermod( username, options={} ) {
+		if( options.user.root() === false ) {
+			throw new TypeError( "operation not permitted: only root can modify user" );
+		}
+		if(
+			( options.fullname === null || typeof options.fullname === "undefined" ) &&
+			( options.gid === null || typeof options.gid === "undefined" ) &&
+			( options.group === null || typeof options.group === "undefined" ) &&
+			( options.groupadd === null || typeof options.groupadd === "undefined" ) &&
+			( options.home === null || typeof options.home === "undefined" ) &&
+			( options.password === null || typeof options.password === "undefined" ) &&
+			( options.privilege === null || typeof options.privilege === "undefined" ) &&
+			( options.shell === null || typeof options.shell === "undefined" ) &&
+			( options.uid === null || typeof options.uid === "undefined" ) &&
+			( options.username === null || typeof options.username === "undefined" ) ) {
+			throw new TypeError( Fmt( "{}: nothing changed", username ) );
+		}
+		var users = Array.from( this.users.values() ).filter( user => user.username === username );
+		if( users.length <= 0 ) {
+			throw new TypeError( Fmt( "{}: user not found", username ) );
+		}
+		var user = users.pop();
+		if( options?.fullname ) {
+			user.fullname = options.fullname;
+		}
+		if( options?.gid ) {
+			user.gid = options.gid; // some file or directory with old gid keep not change
+		}
+		if( options?.group ) {
+			for( let group of this.groups.values() ) {
+				if( group.members.has( user ) ) {
+					group.members.delete( user );
+				}
+			}
+			options.groupadd = options.group;
+		}
+		if( options?.groupadd ) {
+			var groups = Array.from( this.groups.values() ).filter( group => group.username === options.groupadd );
+			if( groups <= 0 ) {
+				throw new TypeError( Fmt( "{}: {}: group not found", username, options.groupadd ) );
+			}
+			groups[0].members.add( user );
+		}
+		if( options?.password ) {
+			if( Type( options.password, String ) ) {
+				options.password = new Password( username, {
+					chipertext: options.password,
+					expired: user.expired,    // unhandled at this time!
+					inactive: user.inactive,  // unhandled at this time!
+					maximum: user.maximum,    // unhandled at this time!
+					minimum: user.minimum,    // unhandled at this time!
+					updated: user.updated,    // unhandled at this time!
+					warning: user.warning     // unhandled at this time!
+				});
+			}
+			user.password = options.password;
+		}
+		if( options?.privilege ) {
+			user.privilege = options.privilege;
+		}
+		if( options?.shell ) {
+			user.shell = options.shell;
+		}
+		if( options?.uid ) {
+			if( this.users.has( options.uid ) ) {
+				throw new TypeError( Fmt( "{}: {}: uid exists", username, uid ) );
+			}
+			user.uid = options.uid;
+			this.users.delete( user.uid );
+			this.users.set( options.uid, user );
+		}
+		if( options?.username ) {
+			user.username = options.username;
+		}
+		if( options?.home ) {
+			if( this.vfs.isdir( options.home ) ) {
+				throw new TypeError( Fmt( "{}: {}: home directory exists", username, options.home ) );
+			}
+			this.vfs.mkdir( options.home, { mode: 0o755, user: this.root } );
+			this.vfs.chgrp( options.home, { group: user.gid, recursive: true, user: this.root } );
+			this.vfs.chown( options.home, { owner: user.uid, recursive: true, user: this.root } );
+		}
+		this.group.refresh();
+		this.passwd.refresh();
+		this.shadow.refresh();
+		this.vfs.persist();
 	}
 	
 }
@@ -1881,6 +2349,78 @@ class Lexer {
 	
 }
 
+class Password {
+	
+	/** @type {String} */
+	chipertext;
+	
+	/** @type {Number} */
+	expired;
+	
+	/** @type {Number} */
+	inactive;
+	
+	/** @type {Number} */
+	maximum;
+	
+	/** @type {Number} */
+	minimum;
+	
+	/** @type {Number} */
+	updated;
+	
+	/** @type {String} */
+	username;
+	
+	/** @type {Number} */
+	warning;
+	
+	/**
+	 * Construct method of class Password
+	 * 
+	 * @param {String} username
+	 * @param {Object} options
+	 * @param {String} [options.chipertext]
+	 * @param {Number} [options.expired]
+	 * @param {Number} [options.inactive]
+	 * @param {Number} [options.maximum]
+	 * @param {Number} [options.minimum]
+	 * @param {Number} [options.updated]
+	 * @param {Number} [options.warning]
+	 * 
+	 */
+	constructor( username, options={ chipertext: "!", expired: null, inactive: null, maximum: 0, minimum: 0, updated: 19743, warning: 7 } ) {
+		this.chipertext = options.chipertext;
+		this.expired = options.expired;
+		this.inactive = options.inactive;
+		this.maximum = options.maximum;
+		this.minimum = options.minimum;
+		this.updated = options.updated;
+		this.username = username;
+		this.warning = options.warning;
+	}
+	
+	/**
+	 * Returns a string representation of a Password
+	 * 
+	 * @returns {String}
+	 * 
+	 */
+	toString() {
+		return Fmt( "{}:{}:{}:{}:{}:{}:{}:{}", ...[
+			this.username,
+			this.chipertext || "!",
+			this.updated ?? 19743,
+			this.minimum ?? 0,
+			this.maximum ?? 0,
+			this.warning ?? 7,
+			this.inactive ?? "",
+			this.expired ?? ""
+		]);
+	}
+	
+}
+
 class ProgramMetadata {
 	
 	/** @type {Array<String>} */
@@ -1895,7 +2435,7 @@ class ProgramMetadata {
 	/** @type {?Number} */
 	exit;
 	
-	/** @type {Map<String,Number|String>} */
+	/** @type {Object} */
 	options;
 	
 	/** @type {Number} */
@@ -1907,18 +2447,23 @@ class ProgramMetadata {
 	/** @type {String} */
 	state; // exit|killed|running
 	
+	/** @type {User} */
+	user;
+	
 	/**
 	 * 
 	 * Construct method of class ProgramMetadata
 	 * 
 	 * @param {Array<String>} args
 	 * @param {String} command
-	 * @param {Map<String,Number|String>} options
+	 * @param {Object} options
 	 * @param {Number} pid
 	 * @param {UnixTime} start
 	 * @param {String} state
+	 * @param {User} user
+	 * 
 	 */
-	constructor( args, command, options, pid, start, state ) {
+	constructor( args, command, options, pid, start, state, user ) {
 		this.args = args;
 		this.command = command;
 		this.end = null;
@@ -1927,6 +2472,7 @@ class ProgramMetadata {
 		this.pid = pid;
 		this.start = start;
 		this.state = state;
+		this.user = user;
 	}
 	
 }
@@ -1956,6 +2502,7 @@ class Shell {
 	 * 
 	 * @param {Kernel} kernel
 	 * @param {Object} options
+	 * 
 	 */
 	constructor( kernel, options={} ) {
 		const user = kernel.user();
@@ -1986,7 +2533,8 @@ class Shell {
 	 * 
 	 * @param {String} command
 	 * 
-	 * @returns {void}
+	 * @returns {Promise<void>}
+	 * 
 	 */
 	async execute( command ) {
 		if( this.history.length >= 100 ) {
@@ -2052,48 +2600,48 @@ class Terminal {
 	shell;
 	
 	/** @type {?HTMLDivElement} */
-	output;
+	window;
 	
 	/**
 	 * Construct method of class Terminal
 	 *
 	 * @param {?HTMLInputElement|HTMLTextAreaElement} input
 	 * @param {Router} router
-	 * @param {?HTMLDivElement} output
+	 * @param {?HTMLDivElement} window
 	 * 
 	 */
-	constructor( input, router, output ) {
+	constructor( input, router, window ) {
 		this.aliases = [
 			[
-				"\x61\x64\x65\x6c\x69\x61",
-				"\x65\x63\x68\x6f\x20\x2d\x65\x20\x22\x61\x64\x65\x6c\x69\x61\x3a\x20\x49\x20\x6e\x65\x76\x65\x72\x20\x65\x78\x70\x65\x63\x74\x65\x64\x20\x79\x6f\x75\x72\x20\x61\x72\x72\x69\x76\x61\x6c\x20\x62\x65\x66\x6f\x72\x65\x3b\x20\x49\x27\x6d\x20\x71\x75\x69\x74\x65\x20\x69\x6e\x74\x65\x72\x65\x73\x74\x65\x64\x20\x69\x6e\x20\x79\x6f\x75\x72\x20\x70\x65\x72\x73\x6f\x6e\x61\x6c\x69\x74\x79\x3b\x20\x59\x6f\x75\x27\x72\x65\x20\x61\x6c\x73\x6f\x20\x61\x20\x63\x72\x79\x65\x72\x2c\x20\x6c\x69\x6b\x65\x20\x74\x6f\x20\x65\x78\x70\x65\x72\x69\x6d\x65\x6e\x74\x20\x6c\x69\x6b\x65\x20\x62\x61\x6b\x69\x6e\x67\x20\x61\x6e\x64\x20\x63\x6f\x6f\x6b\x69\x6e\x67\x2c\x20\x6c\x6f\x76\x69\x6e\x67\x20\x61\x6e\x64\x20\x63\x61\x72\x69\x6e\x67\x20\x61\x62\x6f\x75\x74\x20\x65\x76\x65\x72\x79\x6f\x6e\x65\x27\x73\x20\x68\x65\x61\x6c\x74\x68\x2c\x20\x70\x72\x65\x66\x65\x72\x20\x77\x65\x61\x72\x69\x6e\x67\x20\x72\x6f\x62\x65\x73\x20\x70\x65\x72\x68\x61\x70\x73\x3f\x2c\x2e\x20\x41\x73\x20\x66\x61\x72\x20\x61\x73\x20\x49\x20\x63\x61\x6e\x20\x73\x65\x65\x2c\x20\x79\x6f\x75\x72\x20\x69\x6e\x74\x75\x69\x74\x69\x6f\x6e\x20\x69\x73\x20\x71\x75\x69\x74\x65\x20\x67\x6f\x6f\x64\x3b\x20\x49\x20\x68\x6f\x70\x65\x20\x79\x6f\x75\x72\x20\x61\x72\x72\x69\x76\x61\x6c\x20\x69\x73\x20\x74\x68\x65\x20\x6c\x61\x73\x74\x20\x66\x6f\x72\x20\x6d\x65\x22"
+				"\\x61\\x64\\x65\\x6c\\x69\\x61",
+				"\\x65\\x63\\x68\\x6f\\x20\\x2d\\x65\\x20\\x22\\x61\\x64\\x65\\x6c\\x69\\x61\\x3a\\x20\\x49\\x20\\x6e\\x65\\x76\\x65\\x72\\x20\\x65\\x78\\x70\\x65\\x63\\x74\\x65\\x64\\x20\\x79\\x6f\\x75\\x72\\x20\\x61\\x72\\x72\\x69\\x76\\x61\\x6c\\x20\\x62\\x65\\x66\\x6f\\x72\\x65\\x3b\\x20\\x49\\x27\\x6d\\x20\\x71\\x75\\x69\\x74\\x65\\x20\\x69\\x6e\\x74\\x65\\x72\\x65\\x73\\x74\\x65\\x64\\x20\\x69\\x6e\\x20\\x79\\x6f\\x75\\x72\\x20\\x70\\x65\\x72\\x73\\x6f\\x6e\\x61\\x6c\\x69\\x74\\x79\\x3b\\x20\\x59\\x6f\\x75\\x27\\x72\\x65\\x20\\x61\\x6c\\x73\\x6f\\x20\\x61\\x20\\x63\\x72\\x79\\x65\\x72\\x2c\\x20\\x6c\\x69\\x6b\\x65\\x20\\x74\\x6f\\x20\\x65\\x78\\x70\\x65\\x72\\x69\\x6d\\x65\\x6e\\x74\\x20\\x6c\\x69\\x6b\\x65\\x20\\x62\\x61\\x6b\\x69\\x6e\\x67\\x20\\x61\\x6e\\x64\\x20\\x63\\x6f\\x6f\\x6b\\x69\\x6e\\x67\\x2c\\x20\\x6c\\x6f\\x76\\x69\\x6e\\x67\\x20\\x61\\x6e\\x64\\x20\\x63\\x61\\x72\\x69\\x6e\\x67\\x20\\x61\\x62\\x6f\\x75\\x74\\x20\\x65\\x76\\x65\\x72\\x79\\x6f\\x6e\\x65\\x27\\x73\\x20\\x68\\x65\\x61\\x6c\\x74\\x68\\x2c\\x20\\x70\\x72\\x65\\x66\\x65\\x72\\x20\\x77\\x65\\x61\\x72\\x69\\x6e\\x67\\x20\\x72\\x6f\\x62\\x65\\x73\\x20\\x70\\x65\\x72\\x68\\x61\\x70\\x73\\x3f\\x2c\\x2e\\x20\\x41\\x73\\x20\\x66\\x61\\x72\\x20\\x61\\x73\\x20\\x49\\x20\\x63\\x61\\x6e\\x20\\x73\\x65\\x65\\x2c\\x20\\x79\\x6f\\x75\\x72\\x20\\x69\\x6e\\x74\\x75\\x69\\x74\\x69\\x6f\\x6e\\x20\\x69\\x73\\x20\\x71\\x75\\x69\\x74\\x65\\x20\\x67\\x6f\\x6f\\x64\\x3b\\x20\\x49\\x20\\x68\\x6f\\x70\\x65\\x20\\x79\\x6f\\x75\\x72\\x20\\x61\\x72\\x72\\x69\\x76\\x61\\x6c\\x20\\x69\\x73\\x20\\x74\\x68\\x65\\x20\\x6c\\x61\\x73\\x74\\x20\\x66\\x6f\\x72\\x20\\x6d\\x65\\x22"
 			],
 			[
-				"\x63\x68\x69\x6e\x74\x79\x61",
-				"\x65\x63\x68\x6f\x20\x2d\x65\x20\x22\x63\x68\x69\x6e\x74\x79\x61\x3a\x20\x59\x6f\x75\x20\x61\x72\x65\x20\x62\x65\x61\x75\x74\x69\x66\x75\x6c\x2c\x20\x63\x75\x74\x65\x2c\x20\x6b\x69\x6e\x64\x2c\x20\x77\x68\x69\x74\x65\x2c\x20\x72\x65\x64\x64\x69\x73\x68\x2c\x20\x73\x6d\x6f\x6f\x74\x68\x2c\x20\x73\x6f\x66\x74\x2c\x20\x62\x75\x74\x20\x61\x6c\x73\x6f\x20\x76\x65\x72\x79\x20\x61\x6e\x6e\x6f\x79\x69\x6e\x67\x3b\x20\x59\x6f\x75\x20\x6c\x69\x6b\x65\x20\x73\x6b\x79\x20\x62\x6c\x75\x65\x3b\x20\x41\x6e\x64\x20\x79\x6f\x75\x20\x6c\x69\x6b\x65\x20\x63\x6c\x65\x61\x72\x20\x73\x6f\x75\x70\x20\x77\x69\x74\x68\x20\x67\x72\x65\x65\x6e\x20\x73\x70\x69\x6e\x61\x63\x68\x3b\x20\x49\x20\x72\x65\x61\x6c\x6c\x79\x20\x72\x65\x61\x6c\x6c\x79\x20\x6c\x69\x6b\x65\x20\x79\x6f\x75\x20\x61\x6e\x64\x20\x77\x68\x69\x6c\x65\x20\x69\x20\x73\x74\x69\x6c\x20\x6c\x6f\x76\x65\x20\x79\x6f\x75\x2c\x20\x62\x75\x74\x20\x73\x6f\x20\x66\x61\x72\x20\x49\x20\x61\x6d\x20\x6d\x6f\x72\x65\x20\x64\x6f\x6d\x69\x6e\x61\x6e\x74\x20\x74\x68\x61\x6e\x20\x79\x6f\x75\x20\x61\x6e\x64\x20\x49\x20\x61\x6d\x20\x61\x6c\x73\x6f\x20\x64\x69\x73\x61\x70\x70\x6f\x69\x6e\x74\x65\x64\x20\x77\x69\x74\x68\x20\x79\x6f\x75\x72\x20\x61\x74\x74\x69\x74\x75\x64\x65\x2c\x20\x74\x74\x27\x73\x20\x6c\x69\x6b\x65\x20\x79\x6f\x75\x20\x64\x6f\x6e\x27\x74\x20\x6d\x61\x6b\x65\x20\x61\x6e\x79\x20\x65\x66\x66\x6f\x72\x74\x20\x61\x74\x20\x61\x6c\x6c\x20\x66\x6f\x72\x20\x6d\x65\x22"
+				"\\x63\\x68\\x69\\x6e\\x74\\x79\\x61",
+				"\\x65\\x63\\x68\\x6f\\x20\\x2d\\x65\\x20\\x22\\x63\\x68\\x69\\x6e\\x74\\x79\\x61\\x3a\\x20\\x59\\x6f\\x75\\x20\\x61\\x72\\x65\\x20\\x62\\x65\\x61\\x75\\x74\\x69\\x66\\x75\\x6c\\x2c\\x20\\x63\\x75\\x74\\x65\\x2c\\x20\\x6b\\x69\\x6e\\x64\\x2c\\x20\\x77\\x68\\x69\\x74\\x65\\x2c\\x20\\x72\\x65\\x64\\x64\\x69\\x73\\x68\\x2c\\x20\\x73\\x6d\\x6f\\x6f\\x74\\x68\\x2c\\x20\\x73\\x6f\\x66\\x74\\x2c\\x20\\x62\\x75\\x74\\x20\\x61\\x6c\\x73\\x6f\\x20\\x76\\x65\\x72\\x79\\x20\\x61\\x6e\\x6e\\x6f\\x79\\x69\\x6e\\x67\\x3b\\x20\\x59\\x6f\\x75\\x20\\x6c\\x69\\x6b\\x65\\x20\\x73\\x6b\\x79\\x20\\x62\\x6c\\x75\\x65\\x3b\\x20\\x41\\x6e\\x64\\x20\\x79\\x6f\\x75\\x20\\x6c\\x69\\x6b\\x65\\x20\\x63\\x6c\\x65\\x61\\x72\\x20\\x73\\x6f\\x75\\x70\\x20\\x77\\x69\\x74\\x68\\x20\\x67\\x72\\x65\\x65\\x6e\\x20\\x73\\x70\\x69\\x6e\\x61\\x63\\x68\\x3b\\x20\\x49\\x20\\x72\\x65\\x61\\x6c\\x6c\\x79\\x20\\x72\\x65\\x61\\x6c\\x6c\\x79\\x20\\x6c\\x69\\x6b\\x65\\x20\\x79\\x6f\\x75\\x20\\x61\\x6e\\x64\\x20\\x77\\x68\\x69\\x6c\\x65\\x20\\x69\\x20\\x73\\x74\\x69\\x6c\\x20\\x6c\\x6f\\x76\\x65\\x20\\x79\\x6f\\x75\\x2c\\x20\\x62\\x75\\x74\\x20\\x73\\x6f\\x20\\x66\\x61\\x72\\x20\\x49\\x20\\x61\\x6d\\x20\\x6d\\x6f\\x72\\x65\\x20\\x64\\x6f\\x6d\\x69\\x6e\\x61\\x6e\\x74\\x20\\x74\\x68\\x61\\x6e\\x20\\x79\\x6f\\x75\\x20\\x61\\x6e\\x64\\x20\\x49\\x20\\x61\\x6d\\x20\\x61\\x6c\\x73\\x6f\\x20\\x64\\x69\\x73\\x61\\x70\\x70\\x6f\\x69\\x6e\\x74\\x65\\x64\\x20\\x77\\x69\\x74\\x68\\x20\\x79\\x6f\\x75\\x72\\x20\\x61\\x74\\x74\\x69\\x74\\x75\\x64\\x65\\x2c\\x20\\x74\\x74\\x27\\x73\\x20\\x6c\\x69\\x6b\\x65\\x20\\x79\\x6f\\x75\\x20\\x64\\x6f\\x6e\\x27\\x74\\x20\\x6d\\x61\\x6b\\x65\\x20\\x61\\x6e\\x79\\x20\\x65\\x66\\x66\\x6f\\x72\\x74\\x20\\x61\\x74\\x20\\x61\\x6c\\x6c\\x20\\x66\\x6f\\x72\\x20\\x6d\\x65\\x22"
 			],
 			[
-				"\x6c\x69\x61\x6e\x61",
-				"\x65\x63\x68\x6f\x20\x2d\x65\x20\x22\x6c\x69\x61\x6e\x61\x3a\x20\x52\x65\x6d\x65\x6d\x62\x65\x72\x2c\x20\x66\x61\x6c\x6c\x69\x6e\x67\x20\x69\x6e\x20\x6c\x6f\x76\x65\x20\x62\x65\x63\x61\x75\x73\x65\x20\x6f\x66\x20\x66\x61\x69\x74\x68\x20\x69\x73\x20\x6d\x75\x63\x68\x20\x6d\x6f\x72\x65\x20\x62\x65\x61\x75\x74\x69\x66\x75\x6c\x20\x74\x68\x61\x6e\x20\x66\x61\x6c\x6c\x69\x6e\x67\x20\x69\x6e\x20\x6c\x6f\x76\x65\x20\x62\x65\x63\x61\x75\x73\x65\x20\x6f\x66\x20\x6c\x75\x73\x74\x3b\x20\x59\x6f\x75\x20\x61\x72\x65\x20\x61\x20\x70\x65\x72\x73\x6f\x6e\x20\x77\x68\x6f\x20\x63\x72\x69\x65\x73\x20\x65\x61\x73\x69\x6c\x79\x20\x66\x6f\x72\x20\x6e\x6f\x20\x72\x65\x61\x73\x6f\x6e\x2c\x20\x62\x75\x74\x20\x49\x20\x6b\x6e\x6f\x77\x20\x79\x6f\x75\x20\x61\x72\x65\x20\x61\x6c\x73\x6f\x20\x74\x68\x65\x20\x6d\x6f\x73\x74\x20\x63\x68\x65\x65\x72\x66\x75\x6c\x20\x70\x65\x72\x73\x6f\x6e\x20\x49\x20\x6b\x6e\x6f\x77\x2e\x3b\x20\x49\x20\x73\x68\x6f\x75\x6c\x64\x20\x68\x61\x76\x65\x20\x75\x6e\x64\x65\x72\x73\x74\x6f\x6f\x64\x20\x79\x6f\x75\x72\x20\x63\x6f\x64\x65\x20\x66\x72\x6f\x6d\x20\x74\x68\x65\x20\x73\x74\x61\x72\x74\x3b\x20\x4f\x6e\x65\x20\x6d\x6f\x72\x65\x20\x74\x68\x69\x6e\x67\x2c\x20\x49\x20\x6d\x69\x73\x73\x20\x79\x6f\x75\x72\x20\x76\x6f\x69\x63\x65\x22"
+				"\\x6c\\x69\\x61\\x6e\\x61",
+				"\\x65\\x63\\x68\\x6f\\x20\\x2d\\x65\\x20\\x22\\x6c\\x69\\x61\\x6e\\x61\\x3a\\x20\\x52\\x65\\x6d\\x65\\x6d\\x62\\x65\\x72\\x2c\\x20\\x66\\x61\\x6c\\x6c\\x69\\x6e\\x67\\x20\\x69\\x6e\\x20\\x6c\\x6f\\x76\\x65\\x20\\x62\\x65\\x63\\x61\\x75\\x73\\x65\\x20\\x6f\\x66\\x20\\x66\\x61\\x69\\x74\\x68\\x20\\x69\\x73\\x20\\x6d\\x75\\x63\\x68\\x20\\x6d\\x6f\\x72\\x65\\x20\\x62\\x65\\x61\\x75\\x74\\x69\\x66\\x75\\x6c\\x20\\x74\\x68\\x61\\x6e\\x20\\x66\\x61\\x6c\\x6c\\x69\\x6e\\x67\\x20\\x69\\x6e\\x20\\x6c\\x6f\\x76\\x65\\x20\\x62\\x65\\x63\\x61\\x75\\x73\\x65\\x20\\x6f\\x66\\x20\\x6c\\x75\\x73\\x74\\x3b\\x20\\x59\\x6f\\x75\\x20\\x61\\x72\\x65\\x20\\x61\\x20\\x70\\x65\\x72\\x73\\x6f\\x6e\\x20\\x77\\x68\\x6f\\x20\\x63\\x72\\x69\\x65\\x73\\x20\\x65\\x61\\x73\\x69\\x6c\\x79\\x20\\x66\\x6f\\x72\\x20\\x6e\\x6f\\x20\\x72\\x65\\x61\\x73\\x6f\\x6e\\x2c\\x20\\x62\\x75\\x74\\x20\\x49\\x20\\x6b\\x6e\\x6f\\x77\\x20\\x79\\x6f\\x75\\x20\\x61\\x72\\x65\\x20\\x61\\x6c\\x73\\x6f\\x20\\x74\\x68\\x65\\x20\\x6d\\x6f\\x73\\x74\\x20\\x63\\x68\\x65\\x65\\x72\\x66\\x75\\x6c\\x20\\x70\\x65\\x72\\x73\\x6f\\x6e\\x20\\x49\\x20\\x6b\\x6e\\x6f\\x77\\x2e\\x3b\\x20\\x49\\x20\\x73\\x68\\x6f\\x75\\x6c\\x64\\x20\\x68\\x61\\x76\\x65\\x20\\x75\\x6e\\x64\\x65\\x72\\x73\\x74\\x6f\\x6f\\x64\\x20\\x79\\x6f\\x75\\x72\\x20\\x63\\x6f\\x64\\x65\\x20\\x66\\x72\\x6f\\x6d\\x20\\x74\\x68\\x65\\x20\\x73\\x74\\x61\\x72\\x74\\x3b\\x20\\x4f\\x6e\\x65\\x20\\x6d\\x6f\\x72\\x65\\x20\\x74\\x68\\x69\\x6e\\x67\\x2c\\x20\\x49\\x20\\x6d\\x69\\x73\\x73\\x20\\x79\\x6f\\x75\\x72\\x20\\x76\\x6f\\x69\\x63\\x65\\x22"
 			]
 		];
 		this.ansi = new ANSI();
-		this.hxari = new User( {}, "hxAri", 1001, "hxari", "/home/hxari", "hxari", "user", "/usr/bin/bash", 1001, "hxari" );
 		this.input = input;
 		this.kernel = new Kernel( router );
-		this.kernel.users.set( this.hxari.uid, this.hxari );
+		this.kernel.useradd( "hxari", {
+			fullname: "hxAri",
+			home: "/home/hxari",
+			password: "", // <<< gues what?
+			shell: "/usr/bin/bash",
+			user: this.kernel.root
+		});
 		this.kernel.switch( "hxari" );
-		this.kernel.vfs.mkdir( this.hxari.home, { mode: 0o755, user: this.kernel.root } );
-		for( let path of [ "Desktop", "Documents", "Downloads", "Music", "Pictures", "Public", "Video", "Public" ] ) {
-			this.kernel.vfs.mkdir( path, { mode: 0o755, user: this.kernel.root } );
-		}
-		this.kernel.vfs.chgrp( this.hxari.home, { group: this.hxari, user: this.kernel.root, recursive: true } );
-		this.kernel.vfs.chown( this.hxari.home, { owner: this.hxari, user: this.kernel.root, recursive: true } );
+		this.hxari = this.kernel.user();
 		this.router = router;
 		this.shell = new Shell( this.kernel );
-		this.output = output;
+		this.window = window;
 		for( const aliased of this.aliases ) {
-			this.shell.aliases.set( aliased, new Alias( aliased[1], false, aliased[0], false ) )
+			this.kernel.vfs.append( "/home/hxari/.bash_aliases", { contents: Fmt( "\nalias -d 0 -o 0 $'{}'=\"{}\"", ...aliased.map( ( alias, index ) => index === 0 ? alias : alias.replaceAll( /\"/g, "\\\"" ) ) ), user: this.hxari } );
 		}
 	}
 	
@@ -2789,7 +3337,7 @@ class User {
 	/** @type {String} */
 	home;
 	
-	/** @type {String} */
+	/** @type {Password} */
 	password;
 	
 	/** @type {String} */
@@ -2812,7 +3360,7 @@ class User {
 	 * @param {Number} gid
 	 * @param {String} group
 	 * @param {String} home
-	 * @param {String} password
+	 * @param {?Password|String} password
 	 * @param {String} privilege
 	 * @param {String} shell
 	 * @param {Number} uid
@@ -2832,6 +3380,9 @@ class User {
 		this.group = group;
 		this.home = home;
 		this.password = password;
+		if( Type( password, [ "Null", "String", "Undefined" ] ) ) {
+			this.password = new Password( username, { chipertext: password } );
+		}
 		this.privilege = privilege;
 		this.shell = shell;
 		this.uid = uid;
@@ -2877,7 +3428,7 @@ class User {
 	}
 	
 	/**
-	 * Transform instance into String
+	 * Returns a string representation of a User
 	 * 
 	 * @returns {String}
 	 * 
@@ -2996,7 +3547,61 @@ class VirtualFileSystem {
 				walk.type = "link";
 			}
 		}
-		this.mkdir( user.home, { mode: 0o700, user: user });
+	}
+	
+	/**
+	 * 
+	 * @param {String} filename
+	 * @param {Object} options
+	 * @param {Buffer|String} [options.contents]
+	 * @param {User} [options.user]
+	 *  Current user previlege
+	 * 
+	 * @throws {TypeError}
+	 *  Throws whether permission denied or no such file or directory
+	 * 
+	 */
+	append( filename, options={ contents: "", user: null } ) {
+		var normalized = this.normalize( filename );
+		var basename = this.basename( filename );
+		var basepath = "/".concat( this.split( normalized ).slice( 0, -1 ).join( "/" ) );
+		var contents = options.contents || "";
+		var parent = this.walk( basepath );
+		var user = options.user;
+		if( user.writeable( parent ) ) {
+			if( parent.type === "file" ) {
+				throw new TypeError( Fmt( "{}: not a directory", basepath ) );
+			}
+			var file = parent.contents.get( basename );
+			if( file ) {
+				if( user.writeable( file ) === false ) {
+					throw new TypeError( Fmt( "{}: permission denied", filename ) );
+				}
+				if( file.type !== "file" ) {
+					throw new TypeError( Fmt( "{}: is a directory", filename ) );
+				}
+				if( Type( file.contents, String ) ) {
+					if( Type( contents, String ) === false ) {
+						contents = contents.toString( "utf-8" );
+					}
+					file.contents+= contents;
+				}
+				else {
+					if( Type( contents, String ) === false ) {
+						contents = Buffer.from( contents );
+					}
+					file.contents = Buffer.concat([ file.contents, contents ]);
+				}
+				file.utime = new UnixTime();
+			}
+			else {
+				file = new VirtualNode( null, user.gid, options.mode ?? parent.mode ?? 0o666, basename, "file", user.uid, null, { contents: contents } );
+				parent.contents.set( basename, file );
+			}
+		}
+		else {
+			throw new TypeError( Fmt( "{}: permission denied", basepath ) );
+		}
 	}
 	
 	/**
@@ -3020,6 +3625,7 @@ class VirtualFileSystem {
 	 * @param {Number} [object.mode]
 	 * @param {String} [object.name]
 	 * @param {Object} [object.options]
+	 * @param {Boolean} [object.scripting]
 	 * @param {String} [object.type]
 	 * @param {Number} [object.uid]
 	 * @param {UnixTime} [object.utime]
@@ -3029,10 +3635,18 @@ class VirtualFileSystem {
 	 */
 	builder( object={} ) {
 		var contents = object.contents;
+		if( object.scripting ?? false ) {
+			console.warn( "unallowed to transform JavaScript contents into executable code" );
+		}
 		if( Type( contents, Object ) ) {
-			contents = new Map();
-			for( let keyset of Object.keys( object.contents ) ) {
-				contents.set( keyset, this.builder( object.contents[keyset] ) );
+			if( contents?.type === "Buffer" && contents?.data ) {
+				contents = Buffer.from( contents.data );
+			}
+			else {
+				contents = new Map();
+				for( let keyset of Object.keys( object.contents ) ) {
+					contents.set( keyset, this.builder( object.contents[keyset] ) );
+				}
 			}
 		}
 		var ctime = new UnixTime();
@@ -3049,9 +3663,9 @@ class VirtualFileSystem {
 	/**
 	 * Change the current working directory to DIR
 	 * 
-	 * @param {String} pathname 
-	 * @param {Object} options 
-	 * @param {User} [options.user] 
+	 * @param {String} pathname
+	 * @param {Object} options
+	 * @param {User} [options.user]
 	 * 
 	 * @throws {TypeError}
 	 *  Throws whether permission denied not pathname is not directory or link
@@ -3108,7 +3722,7 @@ class VirtualFileSystem {
 		if( options.user.root() ||
 			options.user.gid === user.gid ) {
 			path.gid = user.gid;
-			if( options.recursive && path.type === "path" ) {
+			if( path.type !== "file" && options?.recursive ) {
 				for( let element of path.contents.values() ) {
 					this.chgrp( pathname.concat( "/".concat( element.name ) ), options );
 				}
@@ -3121,10 +3735,12 @@ class VirtualFileSystem {
 	/**
 	 * 
 	 * @param {String} pathname
-	 * @param {Object} options 
+	 * @param {Object} options
 	 * @param {Number|String} [options.modes]
 	 * @param {Boolean} [options.recursive]
 	 * @param {User} [options.user]
+	 * 
+	 * @throws {TypeError} Throws whether permission denied
 	 * 
 	 */
 	chmod( pathname, options={ modes: null, recursive: false, user: null } ) {
@@ -3133,7 +3749,7 @@ class VirtualFileSystem {
 		if( options.user.root() ||
 			options.user.uid === path.uid ) {
 			path.mode = mode;
-			if( options.recursive ) {
+			if( path.type !== "file" && options?.recursive ) {
 				for( let element of path.contents.values() ) {
 					this.chmod( pathname.concat( "/".concat( element.name ) ), options );
 				}
@@ -3150,6 +3766,8 @@ class VirtualFileSystem {
 	 * @param {Number} [options.owner]
 	 * @param {Boolean} [options.recursive]
 	 * @param {User} [options.user]
+	 * 
+	 * @throws {TypeError} Throws whether owner not found or permission denied
 	 * 
 	 */
 	chown( pathname, options={ owner: null, recursive: false, user: null } ) {
@@ -3172,7 +3790,7 @@ class VirtualFileSystem {
 		}
 		if( options.user.root() ) {
 			path.uid = user.uid;
-			if( options.recursive && path.type === "path" ) {
+			if( path.type !== "file" && options?.recursive ) {
 				for( let element of path.contents.values() ) {
 					this.chown( pathname.concat( "/".concat( element.name ) ), options );
 				}
@@ -3183,13 +3801,96 @@ class VirtualFileSystem {
 	}
 	
 	/**
+	 * Returns whether pathname is exists
 	 * 
 	 * @param {String} pathname
 	 * 
-	 * @returns {Array<VirtualNode>|VirtualNode}
+	 * @returns {Boolean}
+	 * 
 	 */
-	ls( pathname ) {
+	exists( pathname ) {
+		try {
+			this.walk( pathname );
+		}
+		catch( e ) {
+			return false;
+		}
+		return true;
+	}
+	
+	/**
+	 * Returns whether pathname is directory type
+	 * 
+	 * @param {String} pathname
+	 * 
+	 * @returns {Boolean}
+	 * 
+	 */
+	isdir( pathname ) {
+		try {
+			return this.walk( pathname, this.cwd ).type === "path";
+		}
+		catch( e ) {
+		}
+		return false;
+	}
+	
+	/**
+	 * Returns whether pathname is file type
+	 * 
+	 * @param {String} pathname
+	 * 
+	 * @returns {Boolean}
+	 * 
+	 */
+	isfile( pathname ) {
+		try {
+			return this.walk( pathname, this.cwd ).type === "file";
+		}
+		catch( e ) {
+		}
+		return false;
+	}
+	
+	/**
+	 * Returns whether pathname is link
+	 * 
+	 * @param {String} pathname
+	 * 
+	 * @returns {Boolean}
+	 * 
+	 */
+	islink( pathname ) {
+		try {
+			return this.walk( pathname, this.cwd, { follow: false } ).type === "link";
+		}
+		catch( e ) {
+		}
+		return false;
+	}
+	
+	/**
+	 * 
+	 * @param {String} pathname
+	 * @param {Object} options
+	 * @param {User} [options.user]
+	 * 
+	 * @returns {Array<VirtualNode>|VirtualNode}
+	 * 
+	 * @throws {TypeError} Throws whether permission denied
+	 * 
+	 */
+	ls( pathname, options={ user: null } ) {
 		var path = this.walk( pathname );
+		var user = options.user;
+		if( user.readable( path ) ) {
+			if( path.type !== "file" &&
+				pathname.endsWith( "/" ) ) {
+				return Array.from( path.contents.values() ).map( entry => entry.copy() );
+			}
+			return path.copy();
+		}
+		throw new TypeError( Fmt( "{}: permission denied", this.normalize( pathname ) ) );
 	}
 	
 	/**
@@ -3208,7 +3909,9 @@ class VirtualFileSystem {
 	 * @param {User} [options.user]
 	 *  Current user previlege
 	 * 
-	 * @throws {TypeError} If directory creation fails due to permissions or other system errors
+	 * @throws {TypeError}
+	 *  Throws whether directory creation fails due to
+	 *  permissions or other system errors
 	 * 
 	 */
 	mkdir( pathname, options={} ) {
@@ -3233,10 +3936,9 @@ class VirtualFileSystem {
 				else {
 					if( parent.contents.has( part ) === false ) {
 						if( user.writeable( parent ) ) {
-							parent.contents.set( part, new VirtualNode( time, user.gid, options.mode ?? 0o644, part, "path", user.uid, time, { contents: new Map() } ) );
+							parent.contents.set( part, new VirtualNode( time, user.gid, options.mode ?? 0o700, part, "path", user.uid, time, { contents: new Map() } ) );
 						}
 						else {
-							console.debug( "previlege:", user );
 							throw new TypeError( Fmt( "{}: permission denied", passed || "/" ) );
 						}
 					}
@@ -3248,7 +3950,7 @@ class VirtualFileSystem {
 	}
 	
 	/**
-	 * Returns new mode which is the result of applying the change 
+	 * Returns new mode which is the result of applying the change
 	 * if baseMode is provided, or absoluteMode if mode is octal.
 	 * 
 	 * @param {Number|String} mode
@@ -3407,7 +4109,98 @@ class VirtualFileSystem {
 	
 	persist() {
 		if( this.pk ) {
-			localStorage.setItem( this.pk, JSON.stringify( this.root, null , 4 ) );
+			localStorage.setItem( this.pk, JSON.stringify( this.root.object(), null , 4 ) );
+		}
+	}
+	
+	/**
+	 * 
+	 * @param {String} filename
+	 * @param {Object} options
+	 * @param {String} [options.encode]
+	 *  Content encoding (Buffer only)
+	 * @param {User} [options.user]
+	 *  Current user previlege
+	 * 
+	 * @returns {String}
+	 * 
+	 * @throws {TypeError}
+	 *  Throws whether permission denied or no such file or directory
+	 * 
+	 */
+	read( filename, options={ encode: "utf-8", user: null } ) {
+		var normalized = this.normalize( filename );
+		var file = this.walk( normalized );
+		var user = options.user;
+		if( user.readable( file ) ) {
+			if( file.type === "file" ) {
+				if( Type( file.contents, String ) ) {
+					return new String( file.contents );
+				}
+				return file.contents.toString( options.encode || "utf-8" );
+			}
+			throw new TypeError( Fmt( "{}: not a file", normalized ) );
+		}
+		else {
+			throw new TypeError( Fmt( "{}: permission denied", basepath ) );
+		}
+	}
+	
+	/**
+	 * Returns resolved symbolic links or cannonical file names
+	 * 
+	 * @param {String} pathname
+	 * @param {Object} options
+	 * @param {User} [options.user]
+	 * 
+	 * @returns {?String}
+	 * 
+	 */
+	readlink( pathname, options={} ) {
+		var normalize = this.normalize( pathname, this.cwd );
+		if( this.islink( pathname ) ) {
+			var path = this.walk( pathname, this.cwd, { follow: false } );
+			if( options.user.readable( path ) === false ) {
+				throw new TypeError( Fmt( "{}: permission denied", normalize ) );
+			}
+			return this.normalize( path.contents, normalize );
+		}
+	}
+	
+	/**
+	 * 
+	 * @param {String} pathname 
+	 * @param {Object} options
+	 * @param {Boolean} [options.dir]
+	 * @param {Boolean} [options.file]
+	 * @param {Boolean} [options.recursive]
+	 * @param {User} [options.user]
+	 * 
+	 * @throws {TypeError} Throws whether permission denied or directory is not empty
+	 * 
+	 */
+	remove( pathname, options={} ) {
+		var normalize = this.normalize( pathname, this.cwd );
+		var filepath = this.walk( pathname );
+		var basepath = this.walk( "/".concat( this.split( normalize ).slice( 0, -1 ).join( "/" ) ) );
+		if( options.user.writeable( filepath ) ) {
+			if( options?.dir && filepath.type !== "path" ) {
+				throw new TypeError( Fmt( "{}: is not a directory", normalize ) );
+			}
+			if( options?.file && filepath.type === "path" ) {
+				throw new TypeError( Fmt( "{}: is not a file", normalize ) );
+			}
+			if( filepath.type === "path" && filepath.contents.size >= 1 ) {
+				if( options.recursive ?? false ) {
+				}
+				else {
+					throw new TypeError( Fmt( "{}: directory is not empty", normalize ) );
+				}
+			}
+			basepath.contents.delete( this.basename( normalize ) );
+		}
+		else {
+			throw new TypeError( Fmt( "{}: permission denied", normalize ) );
 		}
 	}
 	
@@ -3458,20 +4251,58 @@ class VirtualFileSystem {
 	 * 
 	 * @param {String} filename
 	 * @param {Object} options
+	 * @param {Number} [options.mode]
 	 * @param {User} [options.user]
 	 *  Current user previlege
 	 * 
+	 * @throws {TypeError}
+	 *  Throws whether permission denied or no such file or directory
+	 * 
 	 */
 	touch( filename, options={ user: null } ) {
+		var normalized = this.normalize( filename );
+		var basename = this.basename( filename );
+		var basepath = "/".concat( this.split( normalized ).slice( 0, -1 ).join( "/" ) );
+		var parent = this.walk( basepath );
+		var user = options.user;
+		if( user.writeable( parent ) ) {
+			if( parent.type === "file" ) {
+				throw new TypeError( Fmt( "{}: not a directory", basepath ) );
+			}
+			var file = parent.contents.get( basename );
+			if( file ) {
+				// Nothing happed here!
+			}
+			else {
+				file = new VirtualNode( null, user.gid, options.mode ?? parent.mode ?? 0o666, basename, "file", user.uid, null, { contents: "" } );
+				parent.contents.set( basename, file );
+			}
+		}
+		else {
+			throw new TypeError( Fmt( "{}: permission denied", basepath ) );
+		}
 	}
 	
-	walk( pathname, cwd ) {
+	/**
+	 * Returns VirtualNode by pathname
+	 * 
+	 * @param {String} pathname
+	 * @param {String} cwd
+	 * @param {Object} options
+	 * @param {?Boolean} [options.follow]
+	 *  Follow whether VirtualNode is symlink (default: true)
+	 * 
+	 * @returns {VirtualNode}
+	 * 
+	 */
+	walk( pathname, cwd, options={} ) {
 		if( Value.isEmpty( cwd ) ) {
 			cwd = this.cwd;
 		}
 		if( pathname === "/" ) {
 			return this.root;
 		}
+		var follow = options.follow ?? true;
 		var passed = "";
 		var parts = this.split( this.normalize( pathname, cwd ) );
 		var root = this.root;
@@ -3484,14 +4315,14 @@ class VirtualFileSystem {
 					if( parts[i+1] ) {
 						throw new TypeError( Fmt( "{}: not a directory", passed ) );
 					}
-					root = path;
 				}
 				if( path.type === "link" ) {
-					root = this.walk( path.contents );
+					if( follow ) {
+						root = this.walk( path.contents, passed );
+						continue;
+					}
 				}
-				if( path.type === "path" ) {
-					root = path;
-				}
+				root = path;
 				continue;
 			}
 			throw new TypeError( Fmt( "{}: no such file or directory", passed ) );
@@ -3503,19 +4334,52 @@ class VirtualFileSystem {
 	 * 
 	 * @param {String} filename
 	 * @param {Object} options
-	 * @param {Buffer|String}
+	 * @param {Buffer|String} [options.contents]
+	 * @param {Number} [options.mode]
 	 * @param {User} [options.user]
 	 *  Current user previlege
 	 * 
+	 * @throws {TypeError}
+	 *  Throws whether permission denied or no such file or directory
+	 * 
 	 */
-	write( filename, options={ contents: "", user: null } ) {
+	write( filename, options={ contents: "", mode: 0o666, user: null } ) {
+		var normalized = this.normalize( filename );
+		var basename = this.basename( filename );
+		var basepath = "/".concat( this.split( normalized ).slice( 0, -1 ).join( "/" ) );
+		var contents = options.contents || "";
+		var parent = this.walk( basepath );
+		var user = options.user;
+		if( user.writeable( parent ) ) {
+			if( parent.type === "file" ) {
+				throw new TypeError( Fmt( "{}: not a directory", basepath ) );
+			}
+			var file = parent.contents.get( basename );
+			if( file ) {
+				if( user.writeable( file ) === false ) {
+					throw new TypeError( Fmt( "{}: permission denied", filename ) );
+				}
+				if( file.type !== "file" ) {
+					throw new TypeError( Fmt( "{}: is a directory", filename ) );
+				}
+				file.contents = contents;
+				file.utime = new UnixTime();
+			}
+			else {
+				file = new VirtualNode( null, user.gid, options.mode ?? parent.mode ?? 0o666, basename, "file", user.uid, null, { contents: contents } );
+				parent.contents.set( basename, file );
+			}
+		}
+		else {
+			throw new TypeError( Fmt( "{}: permission denied", basepath ) );
+		}
 	}
 	
 }
 
 class VirtualNode {
 	
-	/** @type {Function|Map<String,VirtualNode>|String} */
+	/** @type {Buffer|Function|Map<String,VirtualNode>|String} */
 	contents;
 	
 	/** @type {UnixTime} */
@@ -3542,24 +4406,45 @@ class VirtualNode {
 	/**
 	 * Construct method of class VirtualNode
 	 * 
-	 * @param {UnixTime} ctime
+	 * @param {?UnixTime} ctime
 	 * @param {Number} gid
 	 * @param {Number} mode
 	 * @param {String} name
 	 * @param {String} type
 	 * @param {Number} uid
-	 * @param {UnixTime} utime
+	 * @param {?UnixTime} utime
+	 * @param {Object} options
+	 * @param {?Buffer|Function|Map<String,VirtualNode>|String} [options.contents]
 	 * 
 	 */
 	constructor( ctime, gid, mode, name, type, uid, utime, options={} ) {
 		this.contents = typeof options.contents !== "undefined" ? options.contents : ( type === "file" ? "" : ( type === "link" ? "" : {} ) );
-		this.ctime = ctime;
+		this.ctime = ctime || new UnixTime();
 		this.gid = gid;
 		this.mode = mode;
 		this.name = name;
 		this.type = type;
 		this.uid = uid;
-		this.utime = utime;
+		this.utime = utime || new UnixTime();
+	}
+	
+	/**
+	 * Returns copied instance
+	 * 
+	 * This will include all content that is under the parent
+	 * 
+	 * @returns {VirtualNode}
+	 * 
+	 */
+	copy() {
+		var contents = this.contents;
+		if( this.type === "path" ) {
+			contents = new Map();
+			for( let keyset of this.contents.keys() ) {
+				contents.set( keyset, this.contents.get( keyset ).copy() );
+			}
+		}
+		return new VirtualNode( this.ctime, this.gid, this.mode, this.name, this.type, this.uid, this.utime, { contents: contents } );
 	}
 	
 	/**
@@ -3570,6 +4455,15 @@ class VirtualNode {
 	 */
 	object() {
 		var contents = this.contents;
+		var scripting = false;
+		if( this.type === "file" ) {
+			if( contents instanceof Buffer ) {
+			}
+			if( contents instanceof Function ) {
+				contents = contents.toString();
+				scripting = true;
+			}
+		}
 		if( this.type === "path" ) {
 			contents = {};
 			for( let keyset of this.contents.keys() ) {
@@ -3582,6 +4476,7 @@ class VirtualNode {
 			gid: this.gid,
 			mode: this.mode,
 			name: this.name,
+			scripting: scripting,
 			type: this.type,
 			uid: this.uid,
 			utime: this.utime
@@ -3596,6 +4491,104 @@ class VirtualNode {
 	 */
 	qualified() {
 		return this.name === "/" ? "/" : this.name;
+	}
+	
+}
+
+class VirtualNodeGroup extends VirtualNode {
+	
+	/** @type {Map<Number,Group>} */
+	groups;
+	
+	/**
+	 * Construct method of class VirtualNodePasswd
+	 * 
+	 * @param {Map<Number,Group>} groups
+	 * 
+	 * @throws {TypeError} Throws whether root group not found
+	 * 
+	 */
+	constructor( groups ) {
+		if( groups.has( 0 ) ) {
+			super( null, 0, 0o644, "group", "file", 0, null, { contents: "" } );
+			this.groups = groups;
+			this.refresh();
+		}
+		else {
+			throw new TypeError( "unable to instantiate group" );
+		}
+	}
+	
+	/** Refresh saved group information */
+	refresh() {
+		this.contents = Array.from( this.groups.values() ).join( "\x0a" );
+		this.utime = new UnixTime();
+	}
+	
+}
+
+class VirtualNodePasswd extends VirtualNode {
+	
+	/** @type {Map<Number,User>} */
+	users;
+	
+	/**
+	 * Construct method of class VirtualNodePasswd
+	 * 
+	 * @param {Map<Number,User>} users
+	 * 
+	 * @throws {TypeError} Throws whether root user not found
+	 * 
+	 */
+	constructor( users ) {
+		if( users.has( 0 ) ) {
+			var user = users.get( 0 );
+			super( null, user.gid, 0o644, "passwd", "file", user.uid, null, { contents: "" } );
+			this.users = users;
+			this.refresh();
+		}
+		else {
+			throw new TypeError( "unable to instantiate passwd" );
+		}
+	}
+	
+	/** Refresh saved user account information */
+	refresh() {
+		this.contents = Array.from( this.users.values() ).join( "\x0a" );
+		this.utime = new UnixTime();
+	}
+	
+}
+
+class VirtualNodeShadow extends VirtualNode {
+	
+	/** @type {Map<Number,User>} */
+	users;
+	
+	/**
+	 * Construct method of class VirtualNodeShadow
+	 * 
+	 * @param {Map<Number,User>} users
+	 * 
+	 * @throws {TypeError} Throws whether root user not found
+	 * 
+	 */
+	constructor( users ) {
+		if( users.has( 0 ) ) {
+			var user = users.get( 0 );
+			super( null, user.gid, 0o640, "shadow", "file", user.uid, null, { contents: "" } );
+			this.users = users;
+			this.refresh();
+		}
+		else {
+			throw new TypeError( "unable to instantiate shadow" );
+		}
+	}
+	
+	/** Refresh saved sensitive user account information */
+	refresh() {
+		this.contents = Array.from( this.users.values() ).map( user => user.password ).join( "\x0a" );
+		this.utime = new UnixTime();
 	}
 	
 }
