@@ -12,7 +12,7 @@ import Json from "/src/scripts/Json.js";
 import Mapper from "/src/scripts/Mapper.js";
 import Request from "/src/scripts/Request.js";
 import Requests from "/src/scripts/Requests.js";
-import Terminal from  "/src/scripts/shells/Terminal.js";
+import { Terminal } from "../scripts/terminal";
 import Theme from "/src/scripts/Theme.js";
 import Type from "/src/scripts/Type.js";
 import Value from "/src/scripts/logics/Value.js";
@@ -77,7 +77,7 @@ export default createStore({
 				method: "GET"
 			}
 		},
-		terminal: new Terminal( null, Router ),
+		terminal: new Terminal( null, Router, null ),
 		theme: new Theme(),
 		vector: {
 			base64: {
