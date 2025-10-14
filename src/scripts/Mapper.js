@@ -1,25 +1,27 @@
 
 // Import Scripts.
+import { readonly } from "vue";
 import Match from "/src/scripts/Match.js";
 import Type from "/src/scripts/Type.js";
 
 /**
  * Array, Object, and String Mapper.
  *
- * @params Array|Object|String $data
- * @params Function $call
+ * @param {Array<T>|Map<K,T>|String} data
+ * @param {Function} call
  *
- * @return Array|Object
+ * @return {Array<T>|Map<K,T>}
  */
 export default function Mapper( data, call ) {
+	
 	var results = Match( data, [
 		
 		/**
 		 * Array|String Mapper.
 		 *
-		 * @params Array|String $data
+		 * @param {Array<T>|String} data
 		 *
-		 * @return Array
+		 * @return {Array<T>}
 		 */
 		{
 			case: [ Array, String ],
@@ -39,9 +41,9 @@ export default function Mapper( data, call ) {
 		/**
 		 * Object Mapper.
 		 *
-		 * @params Object $data
+		 * @param {Map<K,T>} data
 		 *
-		 * @return Object
+		 * @return {Map<K,T>}
 		 */
 		{
 			case: Object,
@@ -62,8 +64,6 @@ export default function Mapper( data, call ) {
 			}
 		}
 	]);
-	
-	// Resolve for constructor.
 	if( Type( this, [ Mapper, Object, Window ] ) ) {
 		this.data = data;
 		this.callback = call;
