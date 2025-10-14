@@ -1,18 +1,14 @@
 
-// Import Scripts.
-import { registerRuntimeCompiler } from "vue";
-import Callable from "/src/scripts/types/Callable.js";
-
 /**
  * Get value type.
  *
- * @params Mixed argv
- * @params Function|Array<Function> type
+ * @param {Object} argv
+ * @param {Function|Array<Function>} type
  *  The array of function identified if value type is optional
- * @params Function handler
- * @params Function catcher
+ * @param {Function} handler
+ * @param {Function} catcher
  *
- * @return Mixed
+ * @returns {Object}
  */
 export default function Type( argv, type, handler, catcher ) {
 	
