@@ -364,7 +364,7 @@ import { config } from "@vue/test-utils";
 				height: 100%;
 				margin: auto;
 				background-color: var(--background-1);
-				background-image: url(https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1677866924;deVw5x2Uzx.png);
+				background-image: url(https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1701255136;6duiesguuJBCQ.png);
 				background-position: center;
 				background-size: cover;
 			}
