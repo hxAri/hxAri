@@ -140,23 +140,14 @@
 				
 				// Find projects name.
 				for( let i in routes ) {
-					
-					// Check if route is project.
 					if( routes[i].name.toLowerCase() === "projects" ) {
-						
-						// Check if project does not have children.
 						if( Value.isEmpty( routes[i].children ) ) {
-							
-							// Resolve if chidlren is not array.
 							routes[i].children = [];
-							
-							for( let u in this.configs.projects ) {
-								
-								// If project has documentation.
-								if( this.configs.projects[u].include ) {
+							for( let u in this.configs.project.includes ) {
+								if( this.configs.project.includes[u]?.include ) {
 									routes[i].children.push({
-										path: this.configs.projects[u].endpoint.split( "/" ).pop(),
-										name: this.configs.projects[u].name
+										path: this.configs.project.includes[u].endpoint.split( "/" ).pop(),
+										name: this.configs.project.includes[u].name
 									});
 								};
 							}
@@ -248,13 +239,13 @@
 							}
 						}
 					},
-					template: "<div class=\"sidebar-group scroll-y scroll-hidden\">{}</div>"
+					template: "<div class=\"sidebar-group scroll-y scroll-hidden\">s</div>"
 				};
 				
-				for( let i in this.configs.projects ) {
+				for( let i in this.configs.project.includes ) {
 					
 					// Get project info.
-					project = this.configs.projects[i];
+					project = this.configs.project.includes[i];
 					
 					// Check if project name is equal,
 					// And if project has documentation.
@@ -393,9 +384,9 @@
 			request: async function() {
 				var name = this.$route.params.project.toLowerCase();
 				var project = null;
-				for( let i in this.configs.projects ) {
+				for( let i in this.configs.project.includes ) {
 					
-					project = this.configs.projects[i];
+					project = this.configs.project.includes[i];
 					
 					// Skip if project is not include.
 					if( project.include === false ) continue;
@@ -408,10 +399,14 @@
 						this.project = project;
 						
 						// If current project is loading.
-						if( project.document_loading ) await project.document_loading;
+						if( project.document_loading ) {
+							await project.document_loading;
+						}
 						
 						// Check if document is not requested.
-						if( Not( this.documents[project.endpoint], Object ) ) await this.$store.dispatch( "document", project );
+						if( Not( this.documents[project.endpoint], Object ) ) {
+							await this.$store.dispatch( "document", project );
+						}
 						
 						// If there are no error occured.
 						if( project.document_error === false ) {
@@ -430,7 +425,7 @@
 <template>
 	<div class="dp-block">
 		<div class="dp-block" v-if="isDocument() && project">
-			<div class="pd-14" v-if="project.document_loading">
+			<div class="pd-14" v-if="project && project.document_loading">
 				<div class="pd-14 bg-3 blinking rd-square mg-bottom-14 mg-lc-bottom" v-for="i in 6"></div>
 			</div>
 			<component v-bind:is="default" @close="close" v-else-if="project.document_error"></component>
