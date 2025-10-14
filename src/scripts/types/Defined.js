@@ -1,5 +1,4 @@
 
-// Check if value is defined.
-const Defined = x => typeof x !== "undefined";
-
-export default const Defined;
+export default function Defined( x ) {
+	return typeof x !== "undefined";
+};
