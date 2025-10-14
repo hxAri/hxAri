@@ -1,5 +1,4 @@
 
-// Check if value is null.
-const Null = x => typeof x === "null";
-
-export default Null;
+export default function Null( x ) {
+	return typeof x === "null";
+};
