@@ -27,6 +27,7 @@
 		},
 		created: function() {
 			this.technology = this.configs.technology;
+			this.technology.uses = this.technology.uses.filter( technology => typeof technology.include != undefined ? technology.include : false );
 		}
 	};
 	
@@ -35,7 +36,7 @@
 <template>
 	<div class="technology">
 		<div class="technology-wrapper flex flex-left flex-wrap">
-			<div class="technology-single" :title="used.name" v-for="used in technology.uses">
+			<div class="technology-single" :title="used.name" v-for="used in this.technology.uses">
 				<div class="technology-avatar avatar flex flex-center rd-square">
 					<div class="technology-avatar-wrapper avatar-wrapper flex flex-center">
 						<img class="avatar-image lazy" :alt="used.name" :data-src="resolver( used.logo, used.type )" v-lazyload />
