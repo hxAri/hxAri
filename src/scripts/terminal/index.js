@@ -1,18 +1,20 @@
 
 "use strict";
 
+import { Buffer  } from "buffer";
+
 // Import Scripts
 import Author from "/src/scripts/Author.js";
-import { Buffer  } from "buffer";
 // import Banner from "/src/scripts/shells/Banner.js";
-import Fmt from "/src/scripts/Fmt.js";
+import Common from "/src/scripts/Common.js";
+import { Fmt } from "/src/scripts/formatter";
 import UnixTime from "/src/scripts/UnixTime.js";
 // import Directory from "/src/scripts/shells/Directory.js";
 // import Helper from "/src/scripts/shells/Helper.js"
 import Mapper from "/src/scripts/Mapper.js";
-// import Router from "/src/routing/router.js";
-import Type from "/src/scripts/Type.js";
-import Value from "/src/scripts/logics/Value.js";
+import { Router } from "/src/routing";
+import { Typed } from "/src/scripts/types";
+import { isEmpty, isNotEmpty } from "/src/scripts/logics";
 
 
 /**
@@ -296,26 +298,26 @@ class ANSI {
 		};
 		function handler( match, escape, patterns ) {
 			// Check if match has groups.
-			if( Type( match.groups, Object ) ) {
+			if( Typed( match.groups, Object ) ) {
 				// Get all group names.
 				var groups = Object.keys( match.groups );
 				var group = null;
 				
 				for( let i in groups ) {
 					group = groups[i];
-					if( Type( patterns[groups[i]], Object ) &&
-						Type( match.groups[groups[i]], String ) ) {
+					if( Typed( patterns[groups[i]], Object ) &&
+						Typed( match.groups[groups[i]], String ) ) {
 						// escape = patterns[group].styling;
 						break;
 					}
 				}
 				var chars = match.groups[group];
 				var color = patterns[group].styling;
-				if( Type( patterns[group].handler, [ Function, "handler", Object ] ) ) {
-					if( Type( patterns[group].handler, Object ) ) {
+				if( Typed( patterns[group].handler, [ Function, "handler", Object ] ) ) {
+					if( Typed( patterns[group].handler, Object ) ) {
 						var regexps = [];
 						for( let i in patterns[group].handler ) {
-							if( Type( patterns[group].handler[i], Window ) ) {
+							if( Typed( patterns[group].handler[i], Window ) ) {
 								chars = patterns[group].handler[i].call( chars );
 							}
 							else {
@@ -339,7 +341,7 @@ class ANSI {
 						chars = patterns[group].handler( chars );
 					}
 				}
-				if( Type( patterns[group].rematch, Array ) ) {
+				if( Typed( patterns[group].rematch, Array ) ) {
 					var result = "";
 					var reindex = 0;
 					var rematch = null;
@@ -359,7 +361,7 @@ class ANSI {
 		var match = null;
 		var result = "";
 		var escape = "var(--shell-c-0-37m)";
-		var string = Type( string, String, () => string, () => "" );
+		var string = Typed( string, String, () => string, () => "" );
 		var pattern = new RegExp( Fmt( "(?:{})", Object.values( Mapper( patterns, ( i, k, val ) => val.pattern ) ).join( "|" ) ), "gms" );
 		while( ( match = pattern.exec( string ) ) !== null ) {
 			result+= string.substring( index, pattern.lastIndex - match[0].length );
@@ -383,7 +385,7 @@ class ANSI {
 		if( matches !== null ) {
 			var escaped = "";
 			var styling = this.styles( matches.groups.code );
-			if( Type( matches.groups.text, String ) ) {
+			if( Typed( matches.groups.text, String ) ) {
 				escaped = this.render( matches.groups.text );
 			}
 			if( styling ) {
@@ -494,7 +496,7 @@ class Group {
 	constructor( gid, members, username ) {
 		this.gid = gid;
 		this.members = members;
-		if( Type( members, Array ) ) {
+		if( Typed( members, Array ) ) {
 			this.members = new Set( members );
 		}
 		this.username = username;
@@ -602,7 +604,7 @@ class Kernel {
 		this.hostname = window?.location?.host?.split( "\x3a" )[0] ?? "hxari";
 		this.pic = 100;
 		this.root = new Root();
-		this.groups.set( 0, new Group( 0, new Set([ this.root ]) ), "root" );
+		this.groups.set( 0, new Group( 0, new Set([ this.root ]), "root" ) );
 		this.group = new VirtualNodeGroup( this.groups );
 		this.router = router;
 		this.table = new Map();
@@ -614,13 +616,61 @@ class Kernel {
 		this.uid = this.root.uid;
 		this.vfs = new VirtualFileSystem( this, this.hostname, this.router );
 		this.vfs.mkdir( this.root.home, { mode: 0o700, user: this.root });
-		if( this.vfs.exists( "/etc" ) === false ) {
+		if( this.vfs.isdir( "/etc" ) ) {
+			if( this.vfs.isfile( "/etc/group" ) ) {
+				var group = this.vfs.read( "/etc/group", { user: this.root } );
+				for( let line of group.split( "\x0a" ) ) {
+					var parts = line.split( "\x3a" );
+					var gid = parseInt( parts[2] );
+					this.groups.set( gid, new Group( gid, parts[3].split( "\x2c" ).filter( Boolean ), parts[0] ) );
+				}
+				this.group.refresh();
+			}
+			if( this.vfs.isfile( "/etc/passwd" ) ) {
+				var passwd = this.vfs.read( "/etc/passwd", { user: this.root } );
+				for( let line of passwd.split( "\x0a" ) ) {
+					var parts = line.split( "\x3a" );
+					var gid = parseInt( parts[2] );
+					var uid = parseInt( parts[3] );
+					if( gid !== 0 && uid !== 0 ) {
+						this.users.set( gid, new User( {}, parts[4], gid, parts[0], parts[5] || null, null, "user", parts[6], uid ) );
+					}
+				}
+				this.passwd.refresh();
+			}
+			if( this.vfs.isfile( "/etc/shadow" ) ) {
+				var shadow = this.vfs.read( "/etc/shadow", { user: this.root } );
+				for( let line of shadow.split( "\x0a" ) ) {
+					var parts = line.split( "\x3a" );
+					for( let [ _, user ] of this.users.entries() ) {
+						if( user.username === parts[0] ) {
+							user.password = new Password( parts[0], {
+								chipertext: parts[1],
+								expired: parts[7] || null,
+								inactive: parts[6] || null,
+								maximum: parts[4] || 0,
+								minimum: parts[3] || 0,
+								updated: parts[2] || 19743,
+								warning: parts[5] || 7
+							});
+						}
+					}
+				}
+				this.shadow.refresh();
+			}
+		}
+		else {
 			this.vfs.mkdir( "/etc", { mode: 0o755, user: this.root });
+		}
+		try {
+			this.groupadd( "sudo", { user: this.root } );
+		}
+		catch( e ) {
+			console.debug( e );
 		}
 		this.vfs.walk( "/etc" ).contents.set( "group", this.group );
 		this.vfs.walk( "/etc" ).contents.set( "passwd", this.passwd );
 		this.vfs.walk( "/etc" ).contents.set( "shadow", this.shadow );
-		this.groupadd( "sudo", { user: this.root } );
 	}
 	
 	/** 
@@ -1114,7 +1164,7 @@ class Kernel {
 			groups[0].members.add( user );
 		}
 		if( options?.password ) {
-			if( Type( options.password, String ) ) {
+			if( Typed( options.password, String ) ) {
 				options.password = new Password( username, {
 					chipertext: options.password,
 					expired: user.expired,    // unhandled at this time!
@@ -2628,21 +2678,25 @@ class Terminal {
 		this.ansi = new ANSI();
 		this.input = input;
 		this.kernel = new Kernel( router );
-		this.kernel.useradd( "hxari", {
-			fullname: "hxAri",
-			home: "/home/hxari",
-			password: "", // <<< gues what?
-			shell: "/usr/bin/bash",
-			user: this.kernel.root
-		});
-		this.kernel.switch( "hxari" );
-		this.hxari = this.kernel.user();
+		if( this.kernel.vfs.isdir( "/home/hxari" ) ) {
+		}
+		else {
+			this.kernel.useradd( "hxari", {
+				fullname: "hxAri",
+				home: "/home/hxari",
+				password: "", // <<< gues what?
+				shell: "/usr/bin/bash",
+				user: this.kernel.root
+			});
+			this.kernel.switch( "hxari" );
+			this.hxari = this.kernel.user();
+			for( const aliased of this.aliases ) {
+				this.kernel.vfs.append( "/home/hxari/.bash_aliases", { contents: Fmt( "\nalias -d 0 -o 0 $'{}'=\"{}\"", ...aliased.map( ( alias, index ) => index === 0 ? alias : alias.replaceAll( /\"/g, "\\\"" ) ) ), user: this.hxari } );
+			}
+		}
 		this.router = router;
 		this.shell = new Shell( this.kernel );
 		this.window = window;
-		for( const aliased of this.aliases ) {
-			this.kernel.vfs.append( "/home/hxari/.bash_aliases", { contents: Fmt( "\nalias -d 0 -o 0 $'{}'=\"{}\"", ...aliased.map( ( alias, index ) => index === 0 ? alias : alias.replaceAll( /\"/g, "\\\"" ) ) ), user: this.hxari } );
-		}
 	}
 	
 	ps1() {
@@ -2772,6 +2826,9 @@ class TokenProcessSubtitution extends Token {
 /**
  * Map of token types.
  * 
+ * Defines all lexical token types recognized by the Bash-compatible lexer.
+ * Each token represents a syntactic unit in a Bash command line.
+ * 
  * @property {String} AMPERSAND
  * @property {String} ANSI_C_QUOTED
  * @property {String} ARITHMETIC_EXPANSION
@@ -2867,11 +2924,6 @@ class TokenProcessSubtitution extends Token {
  * 
  * @typedef {Map<String,String>} TokenType
  * 
- */
-/**
- * @enum {string}
- * @description Defines all lexical token types recognized by the Bash-compatible lexer.
- * Each token represents a syntactic unit in a Bash command line.
  */
 const TokenType = {
 	/** `&` — Runs a command in the background. Example: `sleep 10 &` */
@@ -3380,7 +3432,7 @@ class User {
 		this.group = group;
 		this.home = home;
 		this.password = password;
-		if( Type( password, [ "Null", "String", "Undefined" ] ) ) {
+		if( Typed( password, [ "Null", "String", "Undefined" ] ) ) {
 			this.password = new Password( username, { chipertext: password } );
 		}
 		this.privilege = privilege;
@@ -3537,14 +3589,19 @@ class VirtualFileSystem {
 		this.pk = pk;
 		this.router = router;
 		this.time = new UnixTime();
-		this.root = new VirtualNode( this.time, user.gid, 0o755, "/", "path", user.uid, this.time, { contents: new Map() } );
-		for( let struct of structs ) {
-			var paths = struct.split( ">>" );
-			this.mkdir( paths[0], { mode: 0o755, user: user } );
-			if( paths.length >= 2 ) {
-				var walk = this.walk( paths[0] );
-				walk.contents = paths[1];
-				walk.type = "link";
+		try {
+			this.root = this.revive();
+		}
+		catch( e ) {
+			this.root = new VirtualNode( this.time, user.gid, 0o755, "/", "path", user.uid, this.time, { contents: new Map() } );
+			for( let struct of structs ) {
+				var paths = struct.split( ">>" );
+				this.mkdir( paths[0], { mode: 0o755, user: user } );
+				if( paths.length >= 2 ) {
+					var walk = this.walk( paths[0] );
+					walk.contents = paths[1];
+					walk.type = "link";
+				}
 			}
 		}
 	}
@@ -3580,14 +3637,14 @@ class VirtualFileSystem {
 				if( file.type !== "file" ) {
 					throw new TypeError( Fmt( "{}: is a directory", filename ) );
 				}
-				if( Type( file.contents, String ) ) {
-					if( Type( contents, String ) === false ) {
+				if( Typed( file.contents, String ) ) {
+					if( Typed( contents, String ) === false ) {
 						contents = contents.toString( "utf-8" );
 					}
 					file.contents+= contents;
 				}
 				else {
-					if( Type( contents, String ) === false ) {
+					if( Typed( contents, String ) === false ) {
 						contents = Buffer.from( contents );
 					}
 					file.contents = Buffer.concat([ file.contents, contents ]);
@@ -3638,7 +3695,7 @@ class VirtualFileSystem {
 		if( object.scripting ?? false ) {
 			console.warn( "unallowed to transform JavaScript contents into executable code" );
 		}
-		if( Type( contents, Object ) ) {
+		if( Typed( contents, Object ) ) {
 			if( contents?.type === "Buffer" && contents?.data ) {
 				contents = Buffer.from( contents.data );
 			}
@@ -3679,7 +3736,7 @@ class VirtualFileSystem {
 		}
 		var user = options.user;
 		if( user.readable( path ) ) {
-			if( this.router !== null ) {
+			if( this.router ) {
 				this.router.push( "/terminal".concat( real ) );
 			}
 			this.cwd = real;
@@ -3704,10 +3761,10 @@ class VirtualFileSystem {
 	chgrp( pathname, options={ group: null, recursive: false, user: null } ) {
 		var path = this.walk( pathname );
 		var user = null;
-		if( Type( options.group, [ Number, String ] ) ) {
+		if( Typed( options.group, [ Number, String ] ) ) {
 			for( let element of this.kernel.users.values() ) {
-				if( ( Type( options.group, Number ) && element.gid === options.group ) ||
-					( Type( options.group, String ) && element.username === options.group ) ) {
+				if( ( Typed( options.group, Number ) && element.gid === options.group ) ||
+					( Typed( options.group, String ) && element.username === options.group ) ) {
 					user = element;
 					break;
 				}
@@ -3773,10 +3830,10 @@ class VirtualFileSystem {
 	chown( pathname, options={ owner: null, recursive: false, user: null } ) {
 		var path = this.walk( pathname );
 		var user = null;
-		if( Type( options.owner, [ Number, String ] ) ) {
+		if( Typed( options.owner, [ Number, String ] ) ) {
 			for( let element of this.kernel.users.values() ) {
-				if( ( Type( options.owner, Number ) && element.uid === options.owner ) ||
-					( Type( options.owner, String ) && element.username === options.owner ) ) {
+				if( ( Typed( options.owner, Number ) && element.uid === options.owner ) ||
+					( Typed( options.owner, String ) && element.username === options.owner ) ) {
 					user = element;
 					break;
 				}
@@ -3966,7 +4023,7 @@ class VirtualFileSystem {
 	 */
 	mode( mode, base=null ) {
 		if( mode === null ) throw new TypeError( "mode required" );
-		if( Type( mode, String ) ) {
+		if( Typed( mode, String ) ) {
 			var normalized = String( mode ).trim();
 			if( base === null ) {
 				throw new TypeError( Fmt( "{}: symbolic mode requires baseMode", normalized ) );
@@ -4088,7 +4145,7 @@ class VirtualFileSystem {
 	 * 
 	 */
 	normalize( pathname, cwd ) {
-		if( Value.isEmpty( cwd ) ) {
+		if( isEmpty( cwd ) ) {
 			cwd = this.cwd;
 		}
 		if( pathname.startsWith( "/" ) === false ) {
@@ -4109,7 +4166,7 @@ class VirtualFileSystem {
 	
 	persist() {
 		if( this.pk ) {
-			localStorage.setItem( this.pk, JSON.stringify( this.root.object(), null , 4 ) );
+			localStorage.setItem( Common.bin2hex( this.pk ), JSON.stringify( this.root.object(), null , 4 ) );
 		}
 	}
 	
@@ -4134,7 +4191,8 @@ class VirtualFileSystem {
 		var user = options.user;
 		if( user.readable( file ) ) {
 			if( file.type === "file" ) {
-				if( Type( file.contents, String ) ) {
+				if( Typed( file.contents, String ) ) {
+					console.debug( file.contents );
 					return new String( file.contents );
 				}
 				return file.contents.toString( options.encode || "utf-8" );
@@ -4207,7 +4265,7 @@ class VirtualFileSystem {
 	revive() {
 		if( this.pk ) {
 			try {
-				var item = localStorage.getItem( this.pk );
+				var item = localStorage.getItem( Common.bin2hex( this.pk ) );
 				if( item ) {
 					return this.builder( JSON.parse( item ) );
 				}
@@ -4216,6 +4274,7 @@ class VirtualFileSystem {
 				console.error( e );
 			}
 		}
+		throw new TypeError( "Failed revive root node" );
 	}
 	
 	/**
@@ -4296,7 +4355,7 @@ class VirtualFileSystem {
 	 * 
 	 */
 	walk( pathname, cwd, options={} ) {
-		if( Value.isEmpty( cwd ) ) {
+		if( isEmpty( cwd ) ) {
 			cwd = this.cwd;
 		}
 		if( pathname === "/" ) {
@@ -4621,7 +4680,7 @@ class VirtualStream {
 		this.listeners.set( "read", new Set() );
 		this.listeners.set( "write", new Set() );
 		this.name = name;
-		if( Value.isNotEmpty( contents ) ) {
+		if( isNotEmpty( contents ) ) {
 			this.buffer.push( contents );
 		}
 	}
