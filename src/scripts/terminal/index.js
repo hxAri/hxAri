@@ -41,7 +41,7 @@ import { Fmt } from "/src/scripts/formatter";
 import { UnixTime } from "../unixtime";
 // import Directory from "/src/scripts/shells/Directory.js";
 // import Helper from "/src/scripts/shells/Helper.js"
-import Mapper from "/src/scripts/Mapper.js";
+import { Mapper } from "../mapper";
 import { Router } from "/src/routing";
 import { Typed } from "/src/scripts/types";
 import { isEmpty, isNotEmpty } from "/src/scripts/logics";
