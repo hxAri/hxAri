@@ -5,10 +5,10 @@
 	
 	// Import Scripts
 	import { ANSI, Terminal } from "../scripts/terminal";
-	import Common from "/src/scripts/Common.js";
-	import Fmt from "/src/scripts/Fmt.js";
+	import {} from "/src/scripts/common";
+	import { Fmt } from "/src/scripts/formatter";
 	import Mapper from "/src/scripts/Mapper.js";
-	import Type from "/src/scripts/Type";
+	import { Typed } from "/src/scripts/types";
 	
 	export default {
 		data: () => ({
@@ -35,6 +35,7 @@
 			])
 		},
 		created: function() {
+			console.debug( this.terminal.kernel.vfs.root );
 		},
 		mounted: function() {
 		},
