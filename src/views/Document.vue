@@ -3,18 +3,12 @@
 	
 	import { mapState } from "vuex";
 	
-	// Import Routing
-	import Routes from "/src/routing/routes.js";
+	import Eremento from "../scripts/eremento";
+	import { Fmt } from "../scripts/formatter";
+	import { Typed } from "../scripts/types";
+	import { isNotEmpty, Not } from "../scripts/logics";
 	
-	// Import Scripts
-	import Eremento from "/src/scripts/Eremento.js";
-	import Fmt from "/src/scripts/Fmt.js";
-	import Not from "/src/scripts/logics/Not.js";
-	import Type from "/src/scripts/Type.js";
-	import Value from "/src/scripts/logics/Value.js";
-	
-	// Import Widgets
-	import Error from "/src/widgets/Error.vue";
+	import Error from "../widgets/Error.vue";
 	
 	export default {
 		data: () => ({
@@ -29,9 +23,10 @@
 			/**
 			 * Watch for handle when route has changed.
 			 *
-			 * @params String to,
+			 * @param {String} to
+			 * 
+			 * @returns {Promise<void>}
 			 *
-			 * @return Void
 			 */
 			"$route.path": async function( to ) {
 				if( this.isDocument() ) {
@@ -54,8 +49,9 @@
 			/**
 			 * Component binding.
 			 *
-			 * @return Object
+			 * @returns {Object}
 			 *  Component object
+			 * 
 			 */
 			binding: function() {
 				return {
@@ -73,7 +69,7 @@
 						"documents"
 					]),
 					created: function() {
-						this.images = this.configs.image.images;
+						this.images = this.configs.image.items;
 						this.source = this.configs.image.source;
 						if( process.env.NODE_ENV === "development" ) {
 							this.source = "/public/images";
@@ -97,34 +93,35 @@
 			/**
 			 * Find route component by current route path.
 			 *
-			 * @params Array routes
-			 * @params String prefix
+			 * @param {Array} routes
+			 * @param {String} prefix
 			 *  Prefix only usage when loop
 			 *
-			 * @return Object
+			 * @returns {?Object}
 			 *  Object of component
+			 * 
 			 */
 			finder: function( routes, prefix = null ) {
 				
 				// Check if routes is iterable.
-				if( Type( routes, Array ) ) {
+				if( Typed( routes, Array ) ) {
 					for( let i in routes ) {
 						var path = routes[i].path;
 						var route = routes[i];
 						
 						// If current iteration has prefix.
-						if( Type( prefix, String ) ) path = Fmt( "{}/{}", prefix, path.trim( "/" ) );
+						if( Typed( prefix, String ) ) path = Fmt( "{}/{}", prefix, path.trim( "/" ) );
 						
 						// Check if current route is match.
 						if( this.$route.path.toLowerCase() === path.toLowerCase() ) return route.component;
 						
 						// Check if current route has children.
-						if( Type( route.children, Array ) ) {
+						if( Typed( route.children, Array ) ) {
 							
 							var find = null;
 							
 							// If route found on children of current route iteration.
-							if( Type( find = this.finder( route.children, path ), Object ) ) {
+							if( Typed( find = this.finder( route.children, path ), Object ) ) {
 								
 								// Return returns.
 								return find;
@@ -137,16 +134,18 @@
 			/**
 			 * Return if current path is project documentation.
 			 *
-			 * @return Boolean
+			 * @returns {Boolean}
+			 * 
 			 */
 			isDocument: function() {
-				return Value.isNotEmpty( this.$route.params.project );
+				return isNotEmpty( this.$route.params.project );
 			},
 			
 			/**
 			 * Get current project documentation.
 			 *
-			 * @return Promise
+			 * @returns {Promise<void>}
+			 * 
 			 */
 			request: async function() {
 				var name = this.$route.params.project.toLowerCase();
