@@ -3,12 +3,7 @@
 
 	import { mapState } from "vuex";
 	
-	// Import Scripts
 	import { ANSI, Terminal } from "../scripts/terminal";
-	import {} from "/src/scripts/common";
-	import { Fmt } from "/src/scripts/formatter";
-	import Mapper from "/src/scripts/Mapper.js";
-	import { Typed } from "/src/scripts/types";
 	
 	export default {
 		data: () => ({
