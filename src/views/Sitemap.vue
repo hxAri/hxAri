@@ -10,7 +10,7 @@
 	// Import Scripts
 	import Eremento from "/src/scripts/eremento";
 	import { Fmt } from "/src/scripts/formatter";
-	import Mapper from "/src/scripts/Mapper.js";
+	import { Mapper } from "../scripts/mapper";
 	import { Not } from "/src/scripts/logics";
 	import { Typed } from "/src/scripts/types";
 	
