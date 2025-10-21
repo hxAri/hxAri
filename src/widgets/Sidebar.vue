@@ -3,15 +3,12 @@
 	
 	import { mapState } from "vuex";
 	
-	// Import Routes
-	import { Routes } from "/src/routing";
-	
-	// Import Scripts
-	import Eremento from "/src/scripts/eremento";
-	import { Fmt } from "/src/scripts/formatter";
-	import Mapper from "/src/scripts/Mapper.js";
-	import { Typed } from "/src/scripts/types";
-	import { Not, isEmpty, isNotEmpty } from "/src/scripts/logics";
+	import { Routes } from "../routing";
+	import Eremento from "../scripts/eremento";
+	import { Fmt } from "../scripts/formatter";
+	import { Not, isEmpty, isNotEmpty } from "../scripts/logics";
+	import { Mapper } from "../scripts/mapper";
+	import { Typed } from "../scripts/types";
 	
 	export default {
 		data: () => ({
