@@ -1,11 +1,15 @@
 
 <script>
 	
+	import { Typed } from '../scripts/types';
+	
 	export default {
 		computed: {
 			image: function() {
-				return this.$store.state.vector.base64.error;
+				return this.$store.state.vectors.base64.error;
 			}
+		},
+		created: function() {
 		}
 	};
 	
