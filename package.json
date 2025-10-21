@@ -12,7 +12,8 @@
         "swiper": "^11.1.4",
         "vue": "^3.2.47",
         "vue-router": "^4.1.6",
-        "vuex": "^4.1.0"
+        "vuex": "^4.1.0",
+        "xmlhttprequest": "^1.8.0"
     },
     "devDependencies": {
         "@vitejs/plugin-vue": "^4.0.0",
