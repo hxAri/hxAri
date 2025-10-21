@@ -4,11 +4,10 @@
 	import { mapState } from "vuex";
 	import MarkdownIt from "markdown-it";
 	
-	// Import Scripts
-	import UnixTime from "/src/scripts/UnixTime.js";
-	import Fmt from "/src/scripts/Fmt.js";
-	import Shorttext from "/src/scripts/Shorttext.js";
-	import Type from "/src/scripts/Type.js";
+	import { shorttext } from "../scripts/common";
+	import { Fmt } from "/src/scripts/formatter";
+	import { Typed } from "/src/scripts/types";
+	import { UnixTime } from "../scripts/unixtime";
 	
 	export default {
 		data: () => ({
@@ -21,7 +20,7 @@
 		]),
 		created: function()
 		{
-			this.certificates = this.configs.certificate.certificates;
+			this.certificates = this.configs.certificate.items;
 			this.markdown = new MarkdownIt({
 				html: false
 			});
@@ -54,7 +53,7 @@
 				while( ( match = regexp.exec( paragraph ) ) !== null ) {
 					
 					// Get regex group name.
-					var kind = Object.keys( match.groups ).find( group => Type( match.groups[group], String ) );
+					var kind = Object.keys( match.groups ).find( group => Typed( match.groups[group], String ) );
 						kind = kind === "bold" ? "fb-45" : `text-${kind}`;
 					
 					// Format captured character.
@@ -67,11 +66,8 @@
 				return string + paragraph.substring( index );
 			},
 			
-			/**
-			 * @inherit Shorttext
-			 *
-			 */
-			shorttext: ( strings, length ) => Shorttext( strings, length ),
+			/** @inheritdoc */
+			shorttext: shorttext,
 			
 			/**
 			 * Return formated url for certificate origin source.
@@ -81,7 +77,7 @@
 			 * @return String
 			 */
 			source: function( target ) {
-				return Fmt( "{}/{}", this.configs.certificate.source.origin, target );
+				return Fmt( "{}/{}", this.configs.certificate.sources.origin, target );
 			},
 			
 			/**
@@ -92,7 +88,7 @@
 			 * @return String
 			 */
 			thumbnail: function( target ) {
-				return Fmt( "{}/{}", this.configs.certificate.source.thumbnail, target );
+				return Fmt( "{}/{}", this.configs.certificate.sources.thumbnail, target );
 			}
 		}
 	};
@@ -115,11 +111,9 @@
 									</div>
 								</div>
 								<h5 class="title center mg-bottom-14" data-title="certificate.title">{{ preview.title }}</h5>
-								<p class="text mg-bottom-14">
-									<p class="mg-bottom-14 mg-lc-bottom" v-for="description in preview.description">
-										<p class="" v-html="markdown.render( description )"></p>
-									</p>
-								</p>
+								<div class="text mg-bottom-14">
+									<p class="mg-bottom-14 mg-lc-bottom" v-html="markdown.render( description )" v-for="description in preview.description"></p>
+								</div>
 								<div class="text mg-bottom datetime">
 									<p class="sub-title pd-14 rd-square bg-2 mg-bottom-14">
 										<i class="bx bx-time-five mg-right-12"></i>
