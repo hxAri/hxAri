@@ -3,10 +3,8 @@
 	
 	import { mapState } from "vuex";
 	
-	// Import Scripts
-	import UnixTime from "/src/scripts/UnixTime.js";
-	import Fmt from "/src/scripts/Fmt.js";
-	import Image from "/src/scripts/Image.js";
+	import { UnixTime } from "../scripts/unixtime";
+	import Image from "/src/scripts/image";
 	
 	export default {
 		data: () => ({
