@@ -3,14 +3,13 @@
 	
 	import { mapState } from "vuex";
 	
-	// Import Scripts
-	import Choice from "/src/scripts/Choice.js";
-	import Fmt from "/src/scripts/Fmt.js";
-	import Image from "/src/scripts/Image.js";
+	import { choice } from "../scripts/common";
+	import { Fmt } from "/src/scripts/formatter";
+	import { isNotEmpty } from "../scripts/logics";
+	import Image from "/src/scripts/image";
 	import Mapper from "/src/scripts/Mapper.js";
 	import Request from "/src/scripts/Request.js";
-	import Type from "/src/scripts/Type.js";
-	import Value from "/src/scripts/logics/Value.js";
+	import { Typed } from "/src/scripts/types";
 	
 	export default {
 		data: () => ({
@@ -57,10 +56,7 @@
 					data: {},
 					headers: {
 						"Accept": "application/json",
-						"Authority": "https://hxari.github.io",
-						"Content-Type": "application/x-www-form-urlencoded",
-						"Origin": "https://hxari.github.io",
-						"Referer": "https://hxari.github.io/contact"
+						"Content-Type": "application/x-www-form-urlencoded"
 					}
 				}
 			},
@@ -121,9 +117,10 @@
 			/**
 			 * Enable all form inputs.
 			 *
-			 * @params Boolean allow
+			 * @param {Boolean} allow
 			 *
-			 * @return Void
+			 * @returns {void}
+			 * 
 			 */
 			allow: function( allow ) {
 				for( let i in this.models ) {
@@ -134,20 +131,17 @@
 			/**
 			 * Return randomize background image.
 			 *
-			 * @return Object
-			 *  Ovject style of background image
+			 * @returns {Object}
+			 *  Object style of background image
+			 * 
 			 */
 			choice: function() {
 				return {
-					backgroundImage: Fmt( "url({})", Image.search( this.configs.image, "anime", Choice( Object.keys( this.configs.image.images.anime ) ) ) )
+					backgroundImage: Fmt( "url({})", Image.search( this.configs.image, "anime", choice( Object.keys( this.configs.image.items.anime ) ) ) )
 				};
 			},
 			
-			/**
-			 * Reset all value of form inputs.
-			 *
-			 * @return Void
-			 */
+			/** Reset all value of form inputs */
 			reset: function() {
 				for( let i in this.models ) {
 					this.models[i].value = null;
@@ -157,9 +151,10 @@
 			/**
 			 * Handle form submit.
 			 *
-			 * @params Event e
+			 * @param {Event} e
 			 *
-			 * @return Promise
+			 * @returns {Promise<void>}
+			 * 
 			 */
 			submit: async function( e ) {
 				
@@ -184,10 +179,10 @@
 						model.error = false;
 						
 						// Check if value is not empty.
-						if( Value.isNotEmpty( model.value ) ) {
+						if( isNotEmpty( model.value ) ) {
 							
 							// Check if model has regex.
-							if( Type( model.regex, RegExp ) && model.regex.test( model.value ) === false ) {
+							if( Typed( model.regex, RegExp ) && model.regex.test( model.value ) === false ) {
 								model.error = true;
 								throw new Error( Fmt( "Invalid value for {}", model.label ) );
 							}
@@ -203,10 +198,8 @@
 					await Request( ...Object.values( self.request ) )
 						
 						// Handle email response.
-						.then( r => {
-							
-							// Check if request is succesfull sent.
-							if( r.status === 200 ) {
+						.then( request => {
+							if( request.status === 200 ) {
 								self.reset();
 								self.trigger = {
 									text: "Email has been sent successfully",
@@ -215,23 +208,21 @@
 							}
 							else {
 								self.trigger = {
-									text: Request.StatusText( r.status ),
+									text: Request.StatusText( request.status ),
 									type: "warning"
 								};
 							}
 						})
-						
-						// When something wrong.
-						.catch( e => {
+						.catch( error => {
 							self.trigger = {
-								text: Type( e, XMLHttpRequest, () => "No Internet Connection", () => e ),
+								text: Typed( error, XMLHttpRequest, () => "No Internet Connection", () => error ),
 								type: "error"
 							};
 						});
 				}
-				catch( e ) {
+				catch( error ) {
 					self.trigger = {
-						text: e,
+						text: error,
 						type: "error"
 					};
 				}
