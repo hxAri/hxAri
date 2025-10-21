@@ -5,14 +5,14 @@
 	import { RouterLink } from "vue-router";
 	
 	// Import Routes
-	import Routes from "/src/routing/routes.js";
+	import { Routes } from "/src/routing/routes.js";
 	
 	// Import Scripts
-	import Eremento from "/src/scripts/Eremento.js";
-	import Fmt from "/src/scripts/Fmt.js";
+	import Eremento from "/src/scripts/eremento";
+	import { Fmt } from "/src/scripts/formatter";
 	import Mapper from "/src/scripts/Mapper.js";
-	import Not from "/src/scripts/logics/Not.js";
-	import Type from "/src/scripts/Type.js";
+	import { Not } from "/src/scripts/logics";
+	import { Typed } from "/src/scripts/types";
 	
 	export default {
 		watch: {
@@ -57,7 +57,7 @@
 				for( let content of contents ) {
 					
 					// If content has option.
-					if( Type( content, Object ) ) {
+					if( Typed( content, Object ) ) {
 						
 						/**
 						 * If content is subtitle.
@@ -126,7 +126,7 @@
 				Mapper( routes, function( i, route ) {
 					
 					// Check if route is not visible.
-					if( Type( route.visible, Boolean ) && route.visible === false ) return;
+					if( Typed( route.visible, Boolean ) && route.visible === false ) return;
 					
 					// Create route list.
 					stack += Fmt( format.join( "" ), {
@@ -136,7 +136,7 @@
 					
 					// Check if route has children paths.
 					// And if path is readable.
-					if( Type( route.children, Array ) && route.readable ) {
+					if( Typed( route.children, Array ) && route.readable ) {
 						
 						// Mapping children routes.
 						stack += self.iterator( Mapper( route.children,
@@ -180,7 +180,7 @@
 				while( ( match = regexp.exec( paragraph ) ) !== null ) {
 					
 					// Get regex group name.
-					var kind = Object.keys( match.groups ).find( group => Type( match.groups[group], String ) );
+					var kind = Object.keys( match.groups ).find( group => Typed( match.groups[group], String ) );
 						kind = kind === "bold" ? "fb-45" : `text-${kind}`;
 					
 					// Format captured character.
