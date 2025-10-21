@@ -1,32 +1,24 @@
 
 <script>
 	
-	import { mapState } from "vuex";
-	
-	// Import HightlighterJs.
-	import hljs from "highlight.js";
-	
-	// Import Jsonpath.
-	import Jsonpath from "jsonpath";
-	
-	// Import Scripts.
-	import Common from "/src/scripts/Common.js";
-	import UnixTime from "/src/scripts/UnixTime.js";
-	import Fmt from "/src/scripts/Fmt.js";
-	import Not from "/src/scripts/logics/Not.js";
-	import Shorttext from "/src/scripts/Shorttext.js";
-	import Type from "/src/scripts/Type.js";
-	import Value from "/src/scripts/logics/Value.js";
-	
-	// Import Swiper CSS.
 	import "swiper/css";
 	
-	// Import Swiper Vue.
+	import hljs from "highlight.js";
+	import Jsonpath from "jsonpath";
 	import { Swiper, SwiperSlide } from "swiper/vue";
+	
+	import { bin2hex, isMobile, isMobileUserAgent, shorttext } from "../scripts/common";
+	import { Configs } from "../scripts/configs";
+	import { Fmt } from "../scripts/formatter";
+	import { isEmpty, isNotEmpty, Not } from "../scripts/logics";
+	import { Terminal, User, VirtualFileSystem, VirtualNode } from "../scripts/terminal";
+	import { Typed } from "../scripts/types";
+	import { UnixTime } from "../scripts/unixtime.js";
 	
 	export default {
 		data: () => ({
-			alert: {
+			
+			alerts: {
 				error: {
 					info: {
 						line: 0,
@@ -51,53 +43,405 @@
 					message: null
 				}
 			},
-			draft: null,
-			filenames: [],
-			lineno: "",
-			metadata: ( filename, contents, created=0 ) => {
-				if( created === 0 ) {
-					created = new UnixTime().timestamp();
-				}
-				return {
-					owner: "union",
-					contents: contents,
-					filename: filename,
-					metadata: {
-						created: created,
-						updated: new UnixTime().timestamp()
+			
+			/** @type {Configs} */
+			configs: null,
+			
+			default: {
+				contents: JSON.stringify({
+					"entryId": "tweet-1979042243366294007",
+					"sortIndex": "1979496057083527165",
+					"content": {
+						"entryType": "TimelineTimelineItem",
+						"__typename": "TimelineTimelineItem",
+						"itemContent": {
+							"itemType": "TimelineTweet",
+							"__typename": "TimelineTweet",
+							"tweet_results": {
+								"result": {
+									"__typename": "Tweet",
+									"rest_id": "1979042243366294007",
+									"post_image_description": "Grid of eight close-up anime character portraits depicting Upper Moon demons. Top row: Red-haired female demon with multiple yellow spider-like eyes and sharp teeth; white-haired male demon with golden eyes, scars, and fangs; blue-skinned demon with intricate purple facial patterns and smiling expression. Middle row: Purple-haired demon with horn-like hair and multiple eyes; black-haired female demon with violin; orange demon with single large eye and horns. Bottom row: Purple-haired female demon with multiple eyes and tentacles; green demon with mask-like face and tendrils.",
+									"core": {
+										"user_results": {
+											"result": {
+												"__typename": "User",
+												"id": "VXNlcjoxMTMzMzU1MDYwNzMyMzU0NTYw",
+												"rest_id": "1133355060732354560",
+												"affiliates_highlighted_label": {},
+												"avatar": {
+													"image_url": "https://pbs.twimg.com/profile_images/1819726682690859008/5p_ElaV4_normal.jpg"
+												},
+												"core": {
+													"created_at": "Tue May 28 12:51:17 +0000 2019",
+													"name": "Anime Daily",
+													"screen_name": "anime_psts"
+												},
+												"dm_permissions": {
+													"can_dm": true
+												},
+												"has_graduated_access": true,
+												"is_blue_verified": true,
+												"legacy": {
+													"default_profile": true,
+													"default_profile_image": false,
+													"description": "Daily Anime Posts ⛩️",
+													"entities": {
+														"description": {
+															"urls": []
+														},
+														"url": {
+															"urls": [
+																{
+																	"display_url": "instagram.com/anime_psts",
+																	"expanded_url": "http://instagram.com/anime_psts",
+																	"url": "https://t.co/mqVxcbyjdV",
+																	"indices": [
+																		0,
+																		23
+																	]
+																}
+															]
+														}
+													},
+													"fast_followers_count": 0,
+													"favourites_count": 5076,
+													"followers_count": 739261,
+													"friends_count": 46,
+													"has_custom_timelines": true,
+													"is_translator": false,
+													"listed_count": 561,
+													"media_count": 7763,
+													"normal_followers_count": 739261,
+													"pinned_tweet_ids_str": [
+														"1979268760583168017"
+													],
+													"possibly_sensitive": false,
+													"profile_banner_url": "https://pbs.twimg.com/profile_banners/1133355060732354560/1756921958",
+													"profile_interstitial_type": "",
+													"statuses_count": 8140,
+													"translator_type": "none",
+													"url": "https://t.co/mqVxcbyjdV",
+													"want_retweets": false,
+													"withheld_in_countries": []
+												},
+												"location": {
+													"location": ""
+												},
+												"media_permissions": {
+													"can_media_tag": false
+												},
+												"parody_commentary_fan_label": "None",
+												"profile_image_shape": "Circle",
+												"professional": {
+													"rest_id": "1947787022518915522",
+													"professional_type": "Creator",
+													"category": []
+												},
+												"privacy": {
+													"protected": false
+												},
+												"relationship_perspectives": {
+													"following": false
+												},
+												"tipjar_settings": {},
+												"super_follow_eligible": true,
+												"verification": {
+													"verified": false
+												}
+											}
+										}
+									},
+									"unmention_data": {},
+									"edit_control": {
+										"edit_tweet_ids": [
+											"1979042243366294007"
+										],
+										"editable_until_msecs": "1760679014000",
+										"is_edit_eligible": true,
+										"edits_remaining": "5"
+									},
+									"is_translatable": false,
+									"views": {
+										"count": "65904",
+										"state": "EnabledWithCount"
+									},
+									"source": "<a href=\"https://buffer.com\" rel=\"nofollow\">Buffer</a>",
+									"grok_analysis_button": true,
+									"legacy": {
+										"bookmark_count": 188,
+										"bookmarked": false,
+										"created_at": "Fri Oct 17 04:30:14 +0000 2025",
+										"conversation_id_str": "1979042243366294007",
+										"display_text_range": [
+											0,
+											34
+										],
+										"entities": {
+											"hashtags": [],
+											"media": [
+												{
+													"display_url": "pic.x.com/0PTB1IImwN",
+													"expanded_url": "https://x.com/DemonSlayerSc/status/1979042243366294007/photo/1",
+													"id_str": "1979042240455446528",
+													"indices": [
+														35,
+														58
+													],
+													"media_key": "3_1979042240455446528",
+													"media_url_https": "https://pbs.twimg.com/media/G3b4bqnXEAA2TRh.jpg",
+													"type": "photo",
+													"url": "https://t.co/0PTB1IImwN",
+													"ext_media_availability": {
+														"status": "Available"
+													},
+													"features": {
+														"large": {
+															"faces": []
+														},
+														"medium": {
+															"faces": []
+														},
+														"small": {
+															"faces": []
+														},
+														"orig": {
+															"faces": []
+														}
+													},
+													"sizes": {
+														"large": {
+															"h": 1159,
+															"w": 875,
+															"resize": "fit"
+														},
+														"medium": {
+															"h": 1159,
+															"w": 875,
+															"resize": "fit"
+														},
+														"small": {
+															"h": 680,
+															"w": 513,
+															"resize": "fit"
+														},
+														"thumb": {
+															"h": 150,
+															"w": 150,
+															"resize": "crop"
+														}
+													},
+													"original_info": {
+														"height": 1159,
+														"width": 875,
+														"focus_rects": [
+															{
+																"x": 0,
+																"y": 0,
+																"w": 875,
+																"h": 490
+															},
+															{
+																"x": 0,
+																"y": 0,
+																"w": 875,
+																"h": 875
+															},
+															{
+																"x": 0,
+																"y": 0,
+																"w": 875,
+																"h": 998
+															},
+															{
+																"x": 0,
+																"y": 0,
+																"w": 580,
+																"h": 1159
+															},
+															{
+																"x": 0,
+																"y": 0,
+																"w": 875,
+																"h": 1159
+															}
+														]
+													},
+													"media_results": {
+														"result": {
+															"media_key": "3_1979042240455446528"
+														}
+													}
+												}
+											],
+											"symbols": [],
+											"timestamps": [],
+											"urls": [],
+											"user_mentions": []
+										},
+										"extended_entities": {
+											"media": [
+												{
+													"display_url": "pic.x.com/0PTB1IImwN",
+													"expanded_url": "https://x.com/DemonSlayerSc/status/1979042243366294007/photo/1",
+													"id_str": "1979042240455446528",
+													"indices": [
+														35,
+														58
+													],
+													"media_key": "3_1979042240455446528",
+													"media_url_https": "https://pbs.twimg.com/media/G3b4bqnXEAA2TRh.jpg",
+													"type": "photo",
+													"url": "https://t.co/0PTB1IImwN",
+													"ext_media_availability": {
+														"status": "Available"
+													},
+													"features": {
+														"large": {
+															"faces": []
+														},
+														"medium": {
+															"faces": []
+														},
+														"small": {
+															"faces": []
+														},
+														"orig": {
+															"faces": []
+														}
+													},
+													"sizes": {
+														"large": {
+															"h": 1159,
+															"w": 875,
+															"resize": "fit"
+														},
+														"medium": {
+															"h": 1159,
+															"w": 875,
+															"resize": "fit"
+														},
+														"small": {
+															"h": 680,
+															"w": 513,
+															"resize": "fit"
+														},
+														"thumb": {
+															"h": 150,
+															"w": 150,
+															"resize": "crop"
+														}
+													},
+													"original_info": {
+														"height": 1159,
+														"width": 875,
+														"focus_rects": [
+															{
+																"x": 0,
+																"y": 0,
+																"w": 875,
+																"h": 490
+															},
+															{
+																"x": 0,
+																"y": 0,
+																"w": 875,
+																"h": 875
+															},
+															{
+																"x": 0,
+																"y": 0,
+																"w": 875,
+																"h": 998
+															},
+															{
+																"x": 0,
+																"y": 0,
+																"w": 580,
+																"h": 1159
+															},
+															{
+																"x": 0,
+																"y": 0,
+																"w": 875,
+																"h": 1159
+															}
+														]
+													},
+													"media_results": {
+														"result": {
+															"media_key": "3_1979042240455446528"
+														}
+													}
+												}
+											]
+										},
+										"favorite_count": 3720,
+										"favorited": false,
+										"full_text": "Which Upper Moon is your favorite? https://t.co/0PTB1IImwN",
+										"is_quote_status": false,
+										"lang": "en",
+										"possibly_sensitive": false,
+										"possibly_sensitive_editable": true,
+										"quote_count": 97,
+										"reply_count": 216,
+										"retweet_count": 179,
+										"retweeted": false,
+										"user_id_str": "1133355060732354560",
+										"id_str": "1979042243366294007"
+									}
+								}
+							},
+							"tweetDisplayType": "Tweet"
+						},
+						"feedbackInfo": {
+							"feedbackKeys": [
+								"-1684986710"
+							]
+						},
+						"clientEventInfo": {
+							"component": "for_you_simclusters",
+							"element": "tweet",
+							"details": {
+								"timelinesDetails": {
+									"injectionType": "ForYouSimclusters",
+									"controllerData": "DAACDAABDAABCgABBAAAQkICAAEKAAIAAAAAAAAgAAoACfJY5ONwYCgdCgAKAAABmfbhs/UIAAsAAAADDwAMAwAAACMBAAJCQgAABAAgAAAAAAAAAAAAAAAAAACAAAAAAADggQAAIAoADgrggwGKYkTJCgAQY73/jQ4CS4UAAAAA"
+								}
+							}
+						}
 					}
-				};
+				}, null, 4 ),
+				filename: "New File"
 			},
+			
+			jsonpath: {
+				schema: "$.",
+				preview: "[]"
+			},
+			
+			keysets: {
+				active: "active",
+				content: "content",
+				prefix: ".editor",
+				setting: "setting",
+				temporary: "temporary"
+			},
+			
 			models: {
-				filename: "",
-				replace: "",
-				jsonpath: {
-					schema: "$.",
-					preview: "[]"
-				},
-				search: "",
-				textarea: {
-					editable: ""
-				}
+				
+				/** @type {VirtualNode} */
+				draft: null,
+				
+				/** @type {VirtualNode} */
+				fopen: null
 			},
-			preview: {
-				editable: ""
-			},
-			setting: {
-				default: {
-					filename: "New File",
-					contents: JSON.stringify( { union: [ 0x2, 0xe, 0x10 ] }, null, 4 )
-				},
+			
+			settings: {
 				header: 0x1,
 				headers: {
 					editable: 0x1,
 					jsonpath: 0x2,
 					searching: 0x4
-				},
-				keysets: {
-					draft: Fmt( "0x{}", Common.bin2hex( "draft" ) ),
-					filename: Fmt( "0x{}", Common.bin2hex( "filename" ) ),
-					fileopen: Fmt( "0x{}", Common.bin2hex( "fileopen" ) )
 				},
 				mode: 0x1,
 				modes: {
@@ -105,12 +449,29 @@
 					jsonpath: 0x2,
 					structure: 0x3
 				},
-				position: null,
+				previously: [
+					
+				],
 				previous: {
 					header: 0x1,
 					mode: 0x1
 				}
-			}
+			},
+			
+			/** @type {Terminal} */
+			terminal: null,
+			
+			/** @type {User} */
+			user: null,
+			
+			/** @type {VirtualFileSystem} */
+			vfs: null,
+			
+			/** @type {VirtualNode} */
+			vnode: null,
+			
+			x: null
+			
 		}),
 		setup: function( props, {} ) {
 			return {
@@ -126,10 +487,17 @@
 		},
 		computed: {
 			
-			...mapState([
-				"configs",
-				"terminal"
-			]),
+			fileActive: function() {
+				return this.concat( this.bin2hex( this.keysets.active ) );
+			},
+			
+			fileSetting: function() {
+				return this.concat( this.bin2hex( this.keysets.setting ) );
+			},
+			
+			fileTemporary: function() {
+				return this.concat( this.bin2hex( this.keysets.temporary ) );
+			},
 			
 			/**
 			 * Return current header keyset name.
@@ -137,8 +505,8 @@
 			 * @return String
 			 */
 			header: function() {
-				for( let keyset of Object.keys( this.setting.headers ) ) {
-					if( this.setting.header === this.setting.headers[keyset] ) {
+				for( let keyset of Object.keys( this.settings.headers ) ) {
+					if( this.settings.header === this.settings.headers[keyset] ) {
 						return keyset;
 					}
 				}
@@ -150,7 +518,7 @@
 			 * @return Boolean
 			 */
 			isEditableOrJsonpathMode: function() {
-				return [ this.setting.modes.editable, this.setting.modes.jsonpath ].indexOf( this.setting.mode ) >= 0;
+				return [ this.settings.modes.editable, this.settings.modes.jsonpath ].indexOf( this.settings.mode ) >= 0;
 			},
 			
 			/**
@@ -159,7 +527,7 @@
 			 * @return Boolean
 			 */
 			isEditableOrStructureMode: function() {
-				return [ this.setting.modes.editable, this.setting.modes.structure ].indexOf( this.setting.mode ) >= 0;
+				return [ this.settings.modes.editable, this.settings.modes.structure ].indexOf( this.settings.mode ) >= 0;
 			},
 			
 			/**
@@ -168,7 +536,7 @@
 			 * @return Boolean
 			 */
 			isEditableMode: function() {
-				return this.setting.mode === this.setting.modes.editable;
+				return this.settings.mode === this.settings.modes.editable;
 			},
 			
 			/**
@@ -177,7 +545,7 @@
 			 * @return Boolean
 			 */
 			isEditableHeader: function() {
-				return this.setting.header === this.setting.headers.editable;
+				return this.settings.header === this.settings.headers.editable;
 			},
 			
 			/**
@@ -186,7 +554,7 @@
 			 * @return Boolean
 			 */
 			isJsonpathMode: function() {
-				return this.setting.mode === this.setting.modes.jsonpath;
+				return this.settings.mode === this.settings.modes.jsonpath;
 			},
 			
 			/**
@@ -195,7 +563,7 @@
 			 * @return Boolean
 			 */
 			isJsonpathHeader: function() {
-				return this.setting.header === this.setting.headers.jsonpath;
+				return this.settings.header === this.settings.headers.jsonpath;
 			},
 			
 			/**
@@ -204,7 +572,7 @@
 			 * @return Boolean
 			 */
 			isStructureMode: function() {
-				return this.setting.mode === this.setting.modes.structure;
+				return this.settings.mode === this.settings.modes.structure;
 			},
 			
 			/**
@@ -213,7 +581,7 @@
 			 * @return Boolean
 			 */
 			isSearchingHeader: function() {
-				return this.setting.header === this.setting.headers.searching;
+				return this.settings.header === this.settings.headers.searching;
 			},
 			
 			/**
@@ -222,7 +590,7 @@
 			 * @return Array<String>
 			 */
 			lines: function() {
-				return this.splitline( this.models.textarea.editable.split( "\x0a" ) );
+				return this.splitline( this.models.fopen.contents.split( "\x0a" ) );
 			},
 			
 			/**
@@ -232,7 +600,7 @@
 			 */
 			lineOfJsonpathPreview: function() {
 				if( this.isJsonpathMode ) {
-					return this.splitline( this.models.jsonpath.preview.split( "\x0a" ) );
+					return this.splitline( this.jsonpath.preview.split( "\x0a" ) );
 				}
 				return [];
 			},
@@ -243,11 +611,11 @@
 			 * @return String
 			 */
 			 mode: function() {
-			 	for( let keyset of Object.keys( this.setting.modes ) ) {
-			 		if( this.setting.modes[keyset] === this.setting.mode ) {
-			 			return keyset;
-			 		}
-			 	}
+				for( let keyset of Object.keys( this.settings.modes ) ) {
+					if( this.settings.modes[keyset] === this.settings.mode ) {
+						return keyset;
+					}
+				}
 			 }
 			
 		},
@@ -259,16 +627,15 @@
 			 * @param {HTMLElement} el
 			 * @param {Object} binding
 			 *
-			 * @return Void
+			 * @return {void}
+			 * 
 			 */
 			highlighter: function( el, binding ) {
-				
 				var language = "json";
 				var contents = binding.value;
 				var explodes = contents.split( "\x0a" );
 				var heading = explodes[0];
 				var matches = null;
-				
 				if( ( matches = /\.(?<language>[a-zA-Z]+)$/.exec( el.dataset.filename ) ) !== null ) {
 					language = matches.groups.language;
 				}
@@ -277,7 +644,7 @@
 				}
 				el.innerHTML = contents;
 				if( language === "json" ) {
-					if( Value.isNotEmpty( el.dataset.error ) ) {
+					if( isNotEmpty( el.dataset.error ) ) {
 						var errnoset = JSON.parse( el.dataset.error );
 						for( let line=0; line<explodes.length; line++ ) {
 							if( line+1 === errnoset.line ) {
@@ -305,474 +672,205 @@
 		},
 		methods: {
 			
-			fsize: function( file ) {
-				return new TextEncoder().encode( file.contents ).length
+			bin2hex: function( string ) {
+				return "0x".concat( bin2hex( string ) );
 			},
 			
-			/**
-			 * Minify Json string.
-			 *
-			 * @return Void
-			 */
-			minify: function() {
-				if( this.isEditableOrJsonpathMode ) {
-					if( Value.isEmpty( this.alert.error.message ) ) {
-						this.models.textarea.editable = JSON.stringify( JSON.parse( this.models.textarea.editable ) );
-					}
+			concat: function( pathname ) {
+				if( isNotEmpty( pathname ) ) {
+					return this.user.home.concat( "/".concat( this.keysets.prefix.concat( "/".concat( pathname ) ) ) );
 				}
+				return this.user.home.concat( "/".concat( this.keysets.prefix ) );
+			},
+			
+			concatContent: function( filename ) {
+				if( isNotEmpty( filename ) ) {
+					return this.concat( this.bin2hex( this.keysets.content ).concat( "/".concat( this.bin2hex( filename ) ) ) );
+				}
+				return this.concat( this.bin2hex( this.keysets.content ) );
 			},
 			
 			/**
-			 * Close current opened file.
-			 *
-			 * @param {PointerEvent} e
-			 *
-			 * @return Void
+			 * Download filenode into local device storage
+			 * 
+			 * @param {VirtualNode} filenode 
+			 * 
 			 */
-			onclose: function( e ) {
-				if( Type( this.setting.position, Number ) ) {
-					this.save();
-					this.setting.position = null;
-					if( Type( this.draft, Object ) ) {
-						this.models.filename = this.draft.filename;
-						this.models.textarea.editable = this.draft.contents;
-						localStorage.removeItem( this.setting.keysets.fileopen );
-					}
-					else {
-						this.onnew( e );
-					}
+			download: function( filenode ) {
+				if( filenode.type === "file" ) {
+					var element = document.createElement( "a" );
+						element.setAttribute( "href", Fmt( "data:text/plain;charset=utf-8,{}", filenode.contents ) );
+						element.setAttribute( "download", filenode.name );
+						element.click();
 				}
 				else {
-					this.onnew( e );
+					this.alerts.error.display = true;
+					this.alerts.error.message = "Unallowed download directory node";
 				}
-				this.validator();
+			},
+			
+			/** @inheritdoc */
+			fmt: Fmt,
+			
+			fsize: function( filenode ) {
+				return new TextEncoder().encode( filenode.contents ).length
+			},
+			
+			isdir: function( pathname ) {
+				return this.vfs.isdir( pathname );
+			},
+			
+			isfile: function( pathname ) {
+				return this.vfs.isfile( pathname );
+			},
+			
+			/** Minify Json string */
+			minify: function() {
+				if( this.isEditableOrJsonpathMode ) {
+					if( isEmpty( this.alerts.error.message ) ) {
+						this.models.fopen.contents = JSON.stringify( JSON.parse( this.models.fopen.contents ) );
+					}
+				}
+			},
+			
+			mkdir: function( pathname ) {
+				this.vfs.mkdir( pathname, { user: this.user } );
+			},
+			
+			/**
+			 * Create new temporary file
+			 * 
+			 * NOTE: All temporary file will replace old temporary file
+			 * 
+			 */
+			newfile: function() {
+				if( this.isfile( this.fileTemporary ) ) {
+					this.remove( this.fileTemporary );
+				}
+				this.write( this.fileTemporary, this.default.contents );
+				this.models.draft = this.vfs.walk( this.fileTemporary );
+				this.models.draft.name = this.default.filename;
+				this.vfs.persist();
+			},
+			
+			onbacktoprev: function() {
+				var previously = this.settings.previously.at( -1 );
+				if( Typed( previously, Object ) ) {
+					this.settings.header = previously?.header ?? this.settings.header ?? this.settings.headers.editable;
+					this.settings.mode = previously?.mode ?? this.settings.mode ?? this.settings.modes.editable;
+					this.settings.previously.pop();
+				}
+				else {
+					this.settings.header = this.settings.headers.editable;
+					this.settings.mode = this.settings.modes.editable;
+				}
+				this.onsetting();
 			},
 			
 			/**
 			 * Handle change mode or header.
 			 *
-			 * @param {Number} mode
-			 * @param {Number} header
+			 * @param {?Number} header
+			 * @param {?Number} mode
 			 *
-			 * @return Void
+			 * @return {void}
+			 * 
 			 */
-			onchange: function( mode, header ) {
-				if( Type( mode, Number ) ) {
-					this.setting.previous.mode = this.setting.mode;
-					this.setting.mode = mode;
+			onchange: function( header, mode ) {
+				for( let object of Object.values( this.alerts ) ) {
+					object.display = false;
+					object.message = null;
 				}
-				if( Type( header, Number ) ) {
-					this.setting.previous.header = this.setting.header;
-					this.setting.header = header;
+				this.settings.previously.push({ 
+					header: this.settings.header, 
+					mode: this.settings.mode 
+				});
+				if( Typed( header, Number ) && Typed( mode, Number ) ) {
+					this.settings.header = header;
+					this.settings.mode = mode;
 				}
+				else if( Typed( header, Number ) ) {
+					this.settings.header = header;
+				}
+				else if( Typed( mode, Number ) ) {
+					this.settings.mode = mode;
+				}
+				this.onsetting();
 			},
 			
 			/**
-			 * Handle copy text into clipboard.
-			 *
+			 * Download opened file
+			 * 
 			 * @param {PointerEvent} e
-			 *
-			 * @return Void
+			 * 
 			 */
-			oncopy: function( e ) {
-				var self = this;
-				var contents = this.models.textarea.editable;
-				var textarea = null;
-				switch( this.setting.mode ) {
-					case this.setting.modes.editable:
-						textarea = this.$refs.editorEditableTextarea;
-						break;
-					case this.setting.modes.jsonpath:
-						textarea = this.$refs.editorJsonpathTextarea;
-						break;
-				}
-				if( textarea !== null ) {
-					var selectionEnd = textarea.selectionEnd;
-					var selectionStart = textarea.selectionStart;
-					if( selectionEnd !== selectionStart ) {
-						contents = contents.substring( selectionStart, selectionEnd );
-					}
-					window.navigator.clipboard.writeText( contents )
-						.then( function() {
-							self.alert.info = {
-								display: true,
-								message: "Text copied into clipboard"
-							};
-						})
-						.catch( function( error ) {
-							self.alert.error = {
-								info: {
-									line: 0,
-									column: 0,
-									position: 0,
-									expected: null,
-									unexpected: null
-								},
-								display: true,
-								message: new String( error )
-							};
-						});
-				}
+			ondownload: function( e ) {
+				this.download( this.models.fopen );
 			},
 			
 			/**
-			 * Handle textarea input event.
-			 *
-			 * @param {InputEvent} e
-			 *
-			 * @return Void
-			 */
-			oninput: function( e ) {
-				this.models.textarea.editable = this.models.textarea.editable.replaceAll( /\t/gms, "\x20".repeat( 4 ) );
-				this.save();
-				this.validator();
-				this.onscroll( e );
-			},
-			
-			/**
-			 * Handle textarea keyboard event.
-			 *
-			 * @param {KeyboardEvent} e
-			 *
-			 * @return Void
-			 */
-			onkeydown: function( e ) {
-				var textarea = null;
-				switch( this.setting.mode ) {
-					case this.setting.modes.editable:
-						textarea = this.$refs.editorEditableTextarea;
-						break;
-					case this.setting.modes.jsonpath:
-						textarea = this.$refs.editorJsonpathTextarea;
-						break;
-				}
-				if( textarea !== null ) {
-					var position = textarea.selectionStart;
-					var positionUpdated = position;
-					var explodedEnd = this.models.textarea.editable.substring( textarea.selectionEnd );
-					var explodedMidle = this.models.textarea.editable.substring( position, textarea.selectionEnd );
-					var explodedStart = this.models.textarea.editable.substring( 0, position );
-					switch( e.keyCode ) {
-						case 8:
-							if( textarea.selectionStart === textarea.selectionEnd ) {
-								var char = explodedStart[( explodedStart.length -1 )];
-								if( [ "\x5b", "\x7b" ].indexOf( char ) >= 0 ) {
-									this.models.textarea.editable = explodedStart.substring( 0, explodedStart.length-1 );
-									var lines = explodedEnd.split( "\x0a" );
-									if( lines[0][0] === "\x5d" && char === "\x5b" ||
-										lines[0][0] === "\x7d" && char === "\x7b" ) {
-										lines[0] = lines[0].slice( 1, lines[0].length )
-										this.models.textarea.editable+= lines.join( "\x0a" );
-									}
-									else {
-										this.models.textarea.editable+= explodedEnd;
-									}
-									positionUpdated--;
-								}
-							}
-							break;
-						case 9:
-							this.models.textarea.editable = this.models.textarea.editable.substring( 0, position ) + "\x20".repeat( 4 ) + this.models.textarea.editable.substring( position );
-							positionUpdated+=4;
-							break;
-						case 13:
-							var char = [];
-							var splited = explodedStart.split( "\x0a" ).pop();
-							var matches = splited.match( /^(?:\t|\x20+)/ );
-							var matchar = splited.match( /(?:[\r\x20\t]*)(?<prefix>(?:(?:\"(?:(?:[^\"\\\\]|\\.)*)\"(?:[\r\x20\t]*)\:))|(?<schar>\[))?(?:[\r\x20\t]*)(?<char>\[|\{)(?:[\r\x20\t]*)?$/ );
-							if( matches !== null ) {
-								this.models.textarea.editable = explodedStart;
-								this.models.textarea.editable+= "\x0a";
-								this.models.textarea.editable+= matches[0];
-								positionUpdated = this.models.textarea.editable.length;
-								if( matchar !== null ) {
-									if( Value.isNotEmpty( matchar.groups.schar ) ) {
-										console.log({
-											splited: "\"" + splited + "\"",
-											matches: matches,
-											matchar: matchar
-										});
-										if( matchar.groups.schar === "\x5b" && [ "\x5b", "\x7b" ].indexOf( matchar.groups.char ) >= 0 ) {
-											if( matchar.groups.char === "\x5b" ) {
-												alert( "schar == && indexOf >= && char ==" );
-											}
-											else {
-												alert( "schar == && indexOf >= && char !=" );
-											}
-										}
-										else {
-											alert( "Matchar char available" );
-										}
-									}
-									else {
-										var endlines = explodedEnd.split( "\x0a" );
-										var endline = "";
-										if( Value.isNotEmpty( endlines ) ) {
-											for( let line of endlines ) {
-												if( Value.isNotEmpty( line ) ) {
-													endline = line;
-													break;
-												}
-											}
-										}
-										var charstart = [ matchar.groups.char === "\x5b" ? "\x5d" : "\x7d" ];
-											charstart.push( new RegExp( `^(?:[\\x20]{${matches[0].length}})?\\${charstart[0]}` ) );
-										console.log({
-											charstart: charstart,
-											endline: Fmt( "\"{}\"", endline ),
-											testing: charstart[1].test( endline )
-										});
-										this.models.textarea.editable+= "\x20".repeat( 4 );
-										if( charstart[1].test( endline ) === false ) {
-											this.models.textarea.editable+= "\x0a";
-											this.models.textarea.editable+= matches[0];
-											this.models.textarea.editable+= charstart[0];
-										}
-										else {
-											if( endline.length === 1 && endlines.indexOf( endline ) === 1 ) {
-												this.models.textarea.editable+= "\x0a";
-												this.models.textarea.editable+= matches[0];
-												this.models.textarea.editable+= charstart[0];
-											}
-											else {
-												this.models.textarea.editable+= "\x0a";
-												this.models.textarea.editable+= matches[0];
-											}
-										}
-										positionUpdated+= 4;
-									}
-								}
-								else {
-									positionUpdated = this.models.textarea.editable.length;
-								}
-								this.models.textarea.editable+= explodedEnd;
-							}
-							else if( Value.isNotEmpty( matchar ) ) {
-								if( Value.isNotEmpty( matchar.groups.char ) ) {
-									var endlines = explodedEnd.split( "\x0a" );
-										var endline = "";
-										if( Value.isNotEmpty( endlines ) ) {
-											for( let line of endlines ) {
-												if( Value.isNotEmpty( line ) ) {
-													endline = line;
-													break;
-												}
-											}
-										}
-									var charstart = [ matchar.groups.char === "\x5b" ? "\x5d" : "\x7d" ];
-										charstart.push( new RegExp( `^\\${charstart[0]}` ) );
-									if( charstart[1].test( endline ) === false ) {
-										this.models.textarea.editable = explodedStart;
-										this.models.textarea.editable+= "\x0a";
-										this.models.textarea.editable+= "\x20".repeat( 4 );
-										this.models.textarea.editable+= "\x0a";
-										this.models.textarea.editable+= charstart[0];
-									}
-									else {
-										this.models.textarea.editable = explodedStart;
-										this.models.textarea.editable+= "\x0a";
-										this.models.textarea.editable+= "\x20".repeat( 4 );
-										this.models.textarea.editable+= "\x0a";
-									}
-									this.models.textarea.editable+= explodedEnd;
-									positionUpdated+=4;
-								}
-								else {
-									alert( "No matchar" )
-								}
-							}
-							else {
-							}
-							break;
-						case 219:
-							if( textarea.selectionStart === textarea.selectionEnd ) {
-								var char = e.key === "\x5b" ? "\x5d" : ( e.key === "\x7b" ? "\x7d" : "" );
-								this.models.textarea.editable = explodedStart;
-								this.models.textarea.editable+= e.key;
-								this.models.textarea.editable+= explodedEnd[0] !== char ? char : "";
-								this.models.textarea.editable+= explodedEnd;
-								positionUpdated++;
-							}
-							break;
-						case 222:
-							if( e.key === "\x22" ) {
-								if( textarea.selectionStart === textarea.selectionEnd ) {
-									this.models.textarea.editable = explodedStart;
-									if( explodedStart[( explodedStart.length -1 )] === "\x22" ) {
-										if( explodedEnd[0] !== "\x22" ) {
-											this.models.textarea.editable+= "\x22";
-										}
-									}
-									else {
-										this.models.textarea.editable+= "\x22";
-										if( explodedEnd[0] !== "\x22" ) {
-											this.models.textarea.editable+= "\x22";
-										}
-									}
-									this.models.textarea.editable+= explodedEnd;
-									positionUpdated++;
-								}
-								else {
-									this.models.textarea.editable = explodedStart;
-									this.models.textarea.editable+= "\x22";
-									this.models.textarea.editable+= explodedMidle;
-									this.models.textarea.editable+= "\x22";
-									this.models.textarea.editable+= explodedEnd;
-									positionUpdated = [ explodedStart, explodedMidle ].join( "" ).length +2;
-								}
-							}
-							break;
-						default:
-							// console.log( e. );
-							break;
-					}
-					this.save();
-					this.validator();
-					this.$nextTick(() => {
-						if( position !== positionUpdated ) {
-							textarea.selectionStart = textarea.selectionEnd = positionUpdated;
-							e.preventDefault();
-						}
-					});
-				}
-			},
-			
-			/**
-			 * Handle create new file.
-			 *
+			 * Close opened file or draft file
+			 * 
 			 * @param {PointerEvent} e
-			 *
-			 * @return Void
+			 * 
+			 */
+			onclose: function( e ) {
+				if( this.models.fopen === this.models.draft ) {
+					this.newfile();
+				}
+				this.onsave( e );
+				this.remove( this.fileActive );
+				this.alerts.success.display = false;
+				this.alerts.success.message = null;
+				this.models.fopen = this.models.draft;
+			},
+			
+			/**
+			 * Close opened file or draft file and create new file.
+			 * 
+			 * @param {PointerEvent} e
+			 * 
 			 */
 			onnew: function( e ) {
-				this.models.filename = this.setting.default.filename;
-				this.models.textarea.editable = this.setting.default.contents;
-				this.setting.position = null;
-				localStorage.removeItem( this.setting.keysets.fileopen );
+				this.onclose( e );
 			},
 			
-			/**
-			 * Handle open existing file.
-			 *
-			 * @param {Object} file
-			 * @param {Number} index
-			 *
-			 * @return Void
-			 */
-			onopen: function( file, index ) {
-				this.save();
-				this.models.filename = file.filename;
-				this.models.textarea.editable = file.contents;
-				this.setting.position = index;
-				this.save();
-				this.validator();
-			},
-			
-			/**
-			 * Handle paste text from clipboard.
-			 *
-			 * @param {PointerEvent} e
-			 *
-			 * @return Void
-			 */
-			onpaste: function( e ) {
-				var self = this;
-				var contents = this.models.textarea.editable;
-				var textarea = null;
-				switch( this.setting.mode ) {
-					case this.setting.modes.editable:
-						textarea = this.$refs.editorEditableTextarea;
-						break;
-					case this.setting.modes.jsonpath:
-						textarea = this.$refs.editorJsonpathTextarea;
-						break;
+			onopen: function( filenode, keyset ) {
+				if( this.models.draft !== this.models.fopen ) {
+					this.onsave();
 				}
-				if( textarea !== null ) {
-					var selectedEnd = contents.substring( textarea.selectionEnd );
-					var selectedStart = contents.substring( 0, textarea.selectionStart );
-					window.navigator.clipboard.readText()
-						.then( function( text ) {
-							self.models.textarea.editable = contents = selectedStart;
-							self.models.textarea.editable+= text;
-							self.models.textarea.editable+= selectedEnd;
-						})
-						.catch( function( error ) {
-							self.alert.error = {
-								info: {
-									line: 0,
-									column: 0,
-									position: 0,
-									expected: null,
-									unexpected: null
-								},
-								display: true,
-								message: new String( error )
-							};
-						});
-				}
+				this.models.fopen = this.vfs.walk( this.concatContent( filenode.name ) );
+				this.write( this.fileActive, this.concatContent( filenode.name ) );
+				this.onsave();
 			},
 			
 			/**
 			 * Handle jsonpath scheme on change and input.
 			 *
-			 * @param {Event} e
+			 * @param {?Event} e
 			 *
 			 * @returns {Void}
+			 * 
 			 */
 			onpath: function( e ) {
-				if( Value.isEmpty( this.alert.error.message ) ) {
-					try {
-						var object = JSON.parse( this.models.textarea.editable );
-						var result = Jsonpath.query( object, this.models.jsonpath.schema );
-						this.models.jsonpath.preview = JSON.stringify( result, null, 4 );
-					}
-					catch( error ) {
-						this.models.jsonpath.preview = "[]";
-					}
-				}
-			},
-			
-			/**
-			 * Handle save file contents.
-			 *
-			 * @param {Event} e
-			 *
-			 * @return {Void}
-			 */
-			onsave: function( e ) {
-				if( Value.isNotEmpty( this.models.filename ) ) {
-					var message = "Successfully saved to localStorage";
-					if( Not( this.setting.position, Number ) ) {
-						if( this.filenames.some( file => file.filename === this.models.filename ) ) {
-							alert( "Filename Exists" );
-						}
-						else {
-							this.setting.position = this.filenames.push(
-								this.metadata(
-									this.models.filename,
-									this.models.textarea.editable
-								)
-							);
-							this.setting.position-= 1;
-							this.models.filename = this.filenames[this.setting.position].filename;
-							this.draft = null;
-							
-							localStorage.setItem( this.setting.keysets.fileopen, this.filenames[this.setting.position].filename );
-							localStorage.setItem( this.setting.keysets.filename, JSON.stringify( this.filenames ) );
-							localStorage.removeItem( this.setting.keysets.draft );
-						}
-					}
-					else {
-						this.save();
-						message = Fmt( "{}: updated content localStorage", this.filenames[this.setting.position].filename );
-					}
-					this.alert.info = {
-						display: true,
-						message: message
+				try {
+					var object = JSON.parse( this.models.fopen.contents );
+					var result = Jsonpath.query( object, this.jsonpath.schema );
+					this.alerts.error = {
+						info: {
+							line: 0,
+							column: 0,
+							position: 0,
+							expected: null,
+							unexpected: null
+						},
+						display: false,
+						message: null
 					};
+					this.jsonpath.preview = JSON.stringify( result, null, 4 );
 				}
-				else {
-					this.alert.error = {
+				catch( error ) {
+					this.alerts.error = {
 						info: {
 							line: 0,
 							column: 0,
@@ -781,9 +879,89 @@
 							unexpected: null
 						},
 						display: true,
-						message: "Filename can't be empty"
+						message: new String( error )
+					};
+					this.jsonpath.preview = "[]";
+				}
+				finally {
+					this.onsetting();
+				}
+			},
+			
+			onremove: function( filenode, keyset ) {
+				if( this.models.fopen === filenode ) {
+					if( this.models.draft === null ) {
+						this.newfile();
+					}
+					this.models.fopen = this.models.draft;
+				}
+				this.remove( this.fileActive );
+				this.remove( this.concatContent().concat( "/".concat( keyset ) ) );
+			},
+			
+			onsave: function( e ) {
+				try {
+					if( isEmpty( this.models.fopen.name ) ) {
+						throw new TypeError( "filename can't be empty" );
+					}
+					var keyset = this.bin2hex( this.models.fopen.name );
+					var filename = this.models.fopen.name;
+					var pathname = this.concatContent( this.models.fopen.name );
+					if( this.models.draft === this.models.fopen ) {
+						if( this.vnode.contents.has( keyset ) === false ) {
+							this.vnode.contents.set( keyset, this.models.draft );
+							this.models.draft = null;
+						}
+						else {
+							throw new TypeError( Fmt( "{}: filename exists", filename ) );
+						}
+					}
+					else {
+						for( let [ keyfile, filenode ] of this.vnode.contents.entries() ) {
+							if( filenode === this.models.fopen ) {
+								if( keyfile !== keyset ) {
+									if( this.vnode.contents.has( keyfile ) && this.vnode.contents.get( keyfile ) !== this.models.fopen ) {
+										throw new TypeError( Fmt( "{}: xfilename exists", filename ) );
+									}
+									this.vnode.contents.delete( keyfile );
+									this.vnode.contents.set( keyset, this.models.fopen );
+								}
+								break;
+							}
+						}
+						this.write( pathname, this.models.fopen.contents );
+					}
+					this.write( this.fileActive, pathname );
+					this.models.fopen = this.vfs.walk( pathname );
+					this.models.fopen.name = filename;
+					this.alerts.success = { display: true, message: "Successfully saved to localStorage" };
+					this.vfs.persist();
+				}
+				catch( e ) {
+					this.alerts.error = {
+						info: {
+							line: 0,
+							column: 0,
+							position: 0,
+							expected: null,
+							unexpected: null
+						},
+						display: true,
+						message: new String( e )
 					};
 				}
+			},
+			
+			onsetting: function() {
+				this.write( this.fileSetting, JSON.stringify({ 
+					header: this.settings.header,
+					jsonpath: { 
+						schema: this.jsonpath.schema 
+					}, 
+					mode: this.settings.mode,
+					previously: this.settings.previously 
+					}) 
+				);
 			},
 			
 			/**
@@ -792,18 +970,104 @@
 			 * @param {Event|FocusEvent} e
 			 *
 			 * @return {Void}
+			 * 
 			 */
 			onscroll: function( e ) {
-				switch( this.setting.mode ) {
-					case this.setting.modes.editable:
+				switch( this.settings.mode ) {
+					case this.settings.modes.editable:
 						this.$refs.editorEditablePre.scrollTop = e.target.scrollTop;
 						this.$refs.editorEditablePre.scrollLeft = e.target.scrollLeft;
 						break;
-					case this.setting.modes.jsonpath:
+					case this.settings.modes.jsonpath:
 						this.$refs.editorJsonpathPre.scrollTop = e.target.scrollTop;
 						this.$refs.editorJsonpathPre.scrollLeft = e.target.scrollLeft;
 						break;
 				}
+			},
+			
+			/** Prettify Json string */
+			prettify: function() {
+				if( this.isEditableOrJsonpathMode ) {
+					if( isEmpty( this.alerts.error.message ) ) {
+						this.models.fopen.contents = JSON.stringify( JSON.parse( this.models.fopen.contents ), null, 4 );
+					}
+				}
+			},
+			
+			remove: function( pathname ) {
+				this.vfs.remove( pathname, { user: this.user } );
+			},
+			
+			/**
+			 * Shorttext filename.
+			 *
+			 * @param {String} filename
+			 *
+			 * @returns {String}
+			 * 
+			 */
+			shorttext: function( filename ) {
+				if( isMobileUserAgent() ) {
+					return shorttext( filename, 23 );
+				}
+				return shorttext( filename, 48 );
+			},
+			
+			/**
+			 * Show hide file detail info
+			 * 
+			 * @param {String} keyset
+			 * 
+			 * @returns {void}
+			 * 
+			 */
+			showFileDetail: function( keyset ) {
+				var element = document.getElementById( Fmt( "editor-filename-item-{}", keyset ) );
+				if( Typed( element, HTMLDivElement ) ) {
+					element.classList.toggle( "active" );
+				}
+			},
+			
+			/**
+			 * Split content as lines.
+			 * 
+			 * @param {String} contents 
+			 * 
+			 * @returns {Array<String>}
+			 * 
+			 */
+			splitline: function( contents ) {
+				var lines = [];
+				var contentLength = contents.length;
+				var contentLineLength = new String( contentLength ).length;
+				for( let line=0; line<contentLength; line++ ) {
+					var lineno = new String( line+1 );
+					var lineLength = lineno.length;
+					if( lineLength < contentLineLength ) {
+						lineno = "\x30".repeat( contentLineLength - lineLength ) + lineno;
+					}
+					lines.push( lineno );
+				}
+				return lines;
+			},
+			
+			/**
+			 * Returns formatted UnixTime instance
+			 * 
+			 * @param {UnixTime} unixtime 
+			 * 
+			 * @returns {String}
+			 * 
+			 */
+			strftime: function( unixtime ) {
+				if( isMobile() ) {
+					return unixtime.format( "%d, %m %Y %H:%M:%S" );
+				}
+				return unixtime.format( "%d, %B %Y %H:%M:%S" );
+			},
+			
+			touch: function( filename ) {
+				this.vfs.touch( filename, { user: this.user } );
 			},
 			
 			/**
@@ -812,8 +1076,9 @@
 			 * @param {Error} error
 			 *
 			 * @return {Object}
+			 * 
 			 */
-			parserr: function( error ) {
+			traceback: function( error ) {
 				var message = new String( error );
 				var pattern = /(?:Expected\x20+(?<expected>(?:\'[^\']+\'(?:\x20+or\x20\'[^\']+\')?)).*)?at\x20+position\x20+(?<position>[0-9]+)\x20+\(\x20?line\x20+(?<line>[0-9]+)\x20+column\x20(?<column>[0-9]+)\x20?\)|(?:Unexpected\x20+token\x20+\'(?<token>.*)\'\,\x20?\.{3}\"(?<unexpected>.*)\"\x20?\.{3}\x20+is\x20+not\x20+valid\x20+JSON)/igms;
 				var matches = pattern.exec( message );
@@ -825,10 +1090,10 @@
 						expected: matches.groups.expected ?? null,
 						unexpected: matches.groups.unexpected ?? null
 					};
-					if( Value.isNotEmpty( matches.groups.expected ) ) {
+					if( isNotEmpty( matches.groups.expected ) ) {
 					}
-					if( Value.isNotEmpty( matches.groups.unexpected ) && 
-						Value.isNotEmpty( matches.groups.token ) ) {
+					if( isNotEmpty( matches.groups.unexpected ) && 
+						isNotEmpty( matches.groups.token ) ) {
 						var token = matches.groups.token;
 						var tokenLength = token.length;
 						var textarea = this.models.textarea.editable;
@@ -856,113 +1121,16 @@
 				};
 			},
 			
-			/**
-			 * Prettify Json string.
-			 *
-			 * @return Void
-			 */
-			prettify: function() {
-				if( this.isEditableOrJsonpathMode ) {
-					if( Value.isEmpty( this.alert.error.message ) ) {
-						this.models.textarea.editable = JSON.stringify( JSON.parse( this.models.textarea.editable ), null, 4 );
-					}
-				}
-			},
-			
-			/**
-			 * Shorttext filename.
-			 *
-			 * @param {String} filename
-			 *
-			 * @return String
-			 */
-			shorttext: function( filename ) {
-				if( Common.isMobileUserAgent() ) {
-					return Shorttext( filename, 23 );
-				}
-				return Shorttext( filename, 48 );
-			},
-			
-			showFileDetail: function( index ) {
-				var element = document.getElementById( Fmt( "editor-filename-item-{}", index ) );
-				if( Type( element, HTMLDivElement ) ) {
-					element.classList.toggle( "active" );
-				}
-			},
-			
-			/**
-			 * Save current file.
-			 *
-			 * @return Void
-			 */
-			save: function() {
-				var textarea = this.models.textarea.editable;
-				var filename = this.models.filename;
-				var position = this.setting.position;
-				if( Type( position, Number ) ) {
-					if( Value.isEmpty( filename ) ) {
-						filename = this.filenames[position].filename;
-					}
-					this.filenames[position] = this.metadata( filename, textarea, this.filenames[position].metadata.created );
-					localStorage.setItem( this.setting.keysets.fileopen, filename );
-					localStorage.setItem( this.setting.keysets.filename, JSON.stringify( this.filenames ) );
-				}
-				else {
-					var created = 0;
-					if( Value.isEmpty( filename ) ) {
-						filename = this.setting.default.filename;
-					}
-					if( Type( this.draft, Object ) ) {
-						created = this.draft.metadata.created;
-					}
-					this.draft = this.metadata( filename, textarea, created );
-					localStorage.setItem( this.setting.keysets.draft, JSON.stringify( this.draft ) );
-				}
-			},
-			
-			/**
-			 * Split content as lines.
-			 * 
-			 * @param {String} contents 
-			 * 
-			 * @returns {Array<String>}
-			 */
-			splitline: function( contents ) {
-				var lines = [];
-				var contentLength = contents.length;
-				var contentLineLength = new String( contentLength ).length;
-				for( let line=0; line<contentLength; line++ ) {
-					var lineno = new String( line+1 );
-					var lineLength = lineno.length;
-					if( lineLength < contentLineLength ) {
-						lineno = "\x30".repeat( contentLineLength - lineLength ) + lineno;
-					}
-					lines.push( lineno );
-				}
-				return lines;
-			},
-			
-			strftime: function( timestamp ) {
-				if( Common.isMobile() ) {
-					return new UnixTime( timestamp ).format( "%d, %m %Y %H:%M:%S" );
-				}
-				return new UnixTime( timestamp ).format( "%d, %B %Y %H:%M:%S" );
-			},
-			
-			/**
-			 * Validate JSON string.
-			 *
-			 * @return Void
-			 */
+			/** Validate JSON string */
 			validator: function() {
 				
 				var language = "json";
-				var contents = this.models.textarea.editable;
+				var contents = this.models.fopen.contents;
 				var explodes = contents.split( "\x0a" );
 				var heading = explodes[0];
 				var matches = null;
 				
-				if( ( matches = /\.(?<language>[a-zA-Z]+)$/.exec( this.models.filename ) ) !== null ) {
+				if( ( matches = /\.(?<language>[a-zA-Z]+)$/.exec( this.models.fopen.name ) ) !== null ) {
 					language = matches.groups.language;
 				}
 				else if( ( matches = /^#\!\/usr\/bin\/env\x20+(?<language>[a-zA-Z]+)[\x20\t]?$/i.exec( heading ) ) !== null ) {
@@ -970,10 +1138,10 @@
 				}
 				
 				try {
-					if( Value.isNotEmpty( contents ) && language === "json" ) {
+					if( isNotEmpty( contents ) && language === "json" ) {
 						JSON.parse( contents );
 					}
-					this.alert.error = {
+					this.alerts.error = {
 						info: {
 							line: 0,
 							column: 0,
@@ -986,130 +1154,66 @@
 					};
 				}
 				catch( e ) {
-					this.alert.error = {
-						info: this.parserr( e ),
+					this.alerts.error = {
+						info: this.traceback( e ),
 						display: true,
 						message: new String( e )
 					};
 				}
+			},
+			
+			write: function( filename, contents ) {
+				this.vfs.write( filename, { contents: contents, user: this.user } );
 			}
 			
 		},
 		created: function() {
-			var draft = localStorage.getItem( this.setting.keysets.draft );
-			if( Type( draft, String ) ) {
-				try {
-					this.draft = JSON.parse( draft );
-					this.models.filename = this.draft.filename;
-					this.models.textarea.editable = this.draft.contents;
+			this.configs = this.$store.state.configs;
+			this.terminal = this.$store.state.terminal;
+			this.user = this.terminal.hxari;
+			this.vfs = this.terminal.kernel.vfs;
+			if( this.isdir( this.concatContent() ) === false ) {
+				this.mkdir( this.concatContent() );
+			}
+			this.x = this.vfs.walk( this.concat() );
+			this.vnode = this.vfs.walk( this.concatContent() );
+			if( this.isfile( this.fileSetting ) ) {
+				var fileSetting = this.vfs.walk( this.fileSetting );
+				var fileSettingContents = JSON.parse( fileSetting.contents );
+				this.settings.header = fileSettingContents?.header ?? this.settings.header;
+				this.settings.mode = fileSettingContents?.mode ?? this.settings.mode;
+				this.settings.previously = fileSettingContents?.previously ?? this.settings.previously;
+				this.jsonpath.schema = fileSettingContents?.jsonpath?.schema ?? this.jsonpath.schema;
+			}
+			else {
+				this.onsetting();
+			}
+			if( this.isfile( this.fileTemporary ) ) {
+				this.models.draft = this.vfs.walk( this.fileTemporary );
+			}
+			else {
+				this.newfile();
+			}
+			if( this.isfile( this.fileActive ) ) {
+				var filename = this.vfs.read( this.fileActive, { user: this.user } );
+				if( this.isfile( filename ) ) {
+					this.models.fopen = this.vfs.walk( filename );
 				}
-				catch( e ) {
-					this.draft = null;
-					this.models.filename = this.setting.default.filename;
-					this.models.textarea.editable = this.setting.default.contents;
+				else {
+					this.remove( this.fileActive );
+					this.models.fopen = this.models.draft;
 				}
 			}
 			else {
-				this.models.filename = this.setting.default.filename;
-				this.models.textarea.editable = this.setting.default.contents;
+				this.models.fopen = this.models.draft;
 			}
-			var filenames = localStorage.getItem( this.setting.keysets.filename );
-			if( Type( filenames, String ) ) {
-				try {
-					this.filenames = JSON.parse( filenames );
-					this.filenames = this.filenames.filter( file => Value.isNotEmpty( file ) );
-				}
-				catch( e ) {
-					this.filenames = [];
-				}
-				localStorage.setItem( this.setting.keysets.filename, JSON.stringify( this.filenames ) );
-			}
-			var fileopen = localStorage.getItem( this.setting.keysets.fileopen );
-			if( Type( fileopen, String ) ) {
-				if( Value.isNotEmpty( this.filenames ) ) {
-					for( let i in this.filenames ) {
-						var file = this.filenames[i];
-						if( file.filename === fileopen ) {
-							this.models.filename = file.filename;
-							this.models.textarea.editable = file.contents;
-							this.setting.position = parseInt( i ); // seriuosly Number from iteration is String? Fuck JavaScript!
-							break;
-						}
-					}
-				}
-				if( Not( this.setting.position, Number ) ) {
-					this.alert.error = {
-						info: {
-							line: 0,
-							column: 0,
-							position: 0,
-							expected: null,
-							unexpected: null
-						},
-						display: true,
-						message: Fmt( "{}: No such file or directory", fileopen )
-					};
-				}
-			}
-			var home = null;
-			// try {
-			// 	home = this.terminal.ls( Fmt( "/home/{}/.editor", this.terminal.user ) );
-			// 	home.child = [];
-			// }
-			// catch( e ) {
-			// 	home = this.terminal.ls( Fmt( "/home/{}", this.terminal.user ) );
-			// 	home.push({
-			// 		name: ".editor",
-			// 		type: "path",
-			// 		meta: {
-			// 			mode: 755,
-			// 			group: this.terminal.user,
-			// 			owner: this.terminal.user
-			// 		},
-			// 		child: [
-			// 		]
-			// 	});
-			// }
-			// home.child = [
-			// 	{
-			// 		name: this.setting.keysets.draft,
-			// 		type: "file",
-			// 		meta: {
-			// 			mode: 755,
-			// 			group: this.terminal.user,
-			// 			owner: this.terminal.user
-			// 		},
-			// 		read: this.draft
-			// 	},
-			// 	{
-			// 		name: this.setting.keysets.filename,
-			// 		type: "path",
-			// 		meta: {
-			// 			mode: 755,
-			// 			group: this.terminal.user,
-			// 			owner: this.terminal.user
-			// 		},
-			// 		child: this.filenames
-			// 			.filter( file => Value.isNotEmpty( file ) )
-			// 			.map( file => ({
-			// 			name: file.filename,
-			// 			type: "file",
-			// 			meta: {
-			// 				mode: 755,
-			// 				group: this.terminal.user,
-			// 				owner: this.terminal.user
-			// 			},
-			// 			read: file.contents
-			// 		}))
-			// 	}
-			// ];
 		},
 		mounted: function() {
 			this.validator();
 		},
 		components: {
 			Swiper,
-      		SwiperSlide
+			SwiperSlide
 		}
 	};
 	
@@ -1121,40 +1225,54 @@
 			<SwiperSlide class="editor-swiper-slide editor-swiper-menu">
 				<div class="editor-menu-header">
 					<div class="editor-menu-header-wrapper flex flex-left pd-14">
-						Local Storage
+						{{ user.home.concat( "/".concat( keysets.prefix.concat( "/".concat( keysets.content ) ) ) ) }}
 					</div>
 				</div>
 				<div class="editor-menu-filenames scroll-x scroll-hidden">
-					<div class="editor-filename-item" :id="( 'editor-filename-item-' + index )" v-for="file, index in this.filenames">
+					<div class="editor-filename-item" :id="fmt( 'editor-filename-item-{}', keyset )" v-for="filenode, keyset in Object.fromEntries( vnode.contents )">
 						<div class="editor-filename-column flex flex-left pd-14">
-							<p class="editor-filename-title text" @click="onopen( file, index )">{{ shorttext( file.filename ) }}</p>
+							<p class="editor-filename-title text" @click="onopen( filenode, keyset )">{{ shorttext( filenode.name ) }}</p>
 							<div class="editor-filename-options flex flex-center">
-								<i class="bx bx-trash fs-22" @click="" title="Remove File"></i>
-								<i class="bx bx-info-circle fs-22" @click="showFileDetail( index )" title="File Options"></i>
+								<i class="bx bx-cloud-download fs-22" @click="download( filenode )" title="Remove File"></i>
+								<i class="bx bx-trash fs-22" @click="onremove( filenode, keyset )" title="Remove File"></i>
+								<i class="bx bx-info-circle fs-22" @click="showFileDetail( keyset )" title="File Options"></i>
 							</div>
 						</div>
-						<div class="editor-filename-detail" :id="( 'editor-filename-detail-' + index )">
+						<div class="editor-filename-detail" :id="fmt( 'editor-filename-detail-{}', keyset )">
 							<div class="editor-filename-detail-container flex flex-center">
 								<div class="editor-filename-detail-wrapper">
 									<div class="editor-filename-detail-info pd-14">
+										<p class="editor-filename-detail-info fb-45 subtitle">
+											Ownership
+										</p>
 										<p class="editor-filename-detail-info text">
-											- Owner <span class="fb-45">{{ file.owner }}</span>
+											- Group <span class="fb-45">0o{{ filenode.gid.toString( 8 ) }}</span>
+										</p>
+										<p class="editor-filename-detail-info text">
+											- Modes <span class="fb-45">0o{{ filenode.mode.toString( 8 ) }}</span>
+										</p>
+										<p class="editor-filename-detail-info text">
+											- Owner <span class="fb-45">0o{{ filenode.uid.toString( 8 ) }}</span>
 										</p>
 										<hr class="editor-filename-detail-hr mg-bottom-14 mg-top-14" />
 										<p class="editor-filename-detail-info text">
-											- Sizes <span class="fb-45">{{ fsize( file ) }}</span>
+											- Sizes <span class="fb-45">{{ fsize( filenode ) }}</span>
 										</p>
 										<hr class="editor-filename-detail-hr mg-bottom-14 mg-top-14" />
 										<p class="editor-filename-detail-info text">
-											- Created <span class="fb-45">{{ strftime( file.metadata.created ) }}</span>
+											- Keyset <span class="fb-45">{{ keyset }}</span>
 										</p>
 										<hr class="editor-filename-detail-hr mg-bottom-14 mg-top-14" />
 										<p class="editor-filename-detail-info text">
-											- Updated <span class="fb-45">{{ strftime( file.metadata.updated ) }}</span>
+											- Created <span class="fb-45">{{ strftime( filenode.ctime ) }}</span>
+										</p>
+										<hr class="editor-filename-detail-hr mg-bottom-14 mg-top-14" />
+										<p class="editor-filename-detail-info text">
+											- Updated <span class="fb-45">{{ strftime( filenode.utime ) }}</span>
 										</p>
 									</div>
 									<hr class="editor-filename-detail-hr-end" />
-									<div class="editor-filename-detail-closeable flex flex-center pd-14" @click="showFileDetail( index )">
+									<div class="editor-filename-detail-closeable flex flex-center pd-14" @click="showFileDetail( keyset )">
 										<i class="bx bx-chevrons-up fs-20"></i>
 									</div>
 								</div>
@@ -1170,7 +1288,7 @@
 							<div class="editor-main-header-form flex">
 								<div class="editor-main-header-form-group flex">
 									<label class="editor-main-header-form-label" for="filename">Filename</label>
-									<input class="editor-main-header-form-input" ref="filename" type="text" autocomplete="off" autocorrect="off" :spellcheck="false" @change="onsave" v-model="models.filename" />
+									<input class="editor-main-header-form-input" ref="filename" type="text" autocomplete="off" autocorrect="off" :spellcheck="false" v-model="models.fopen.name" />
 									<div class="editor-main-header-form-icon flex flex-center">
 										<i class="bx bx-x fs-22" @click="onclose" title="Close File"></i>
 									</div>
@@ -1178,17 +1296,19 @@
 							</div>
 						</div>
 						<div class="editor-main-header-tools flex flex-center">
+							<i class="bx bx-arrow-back fs-22" @click="onbacktoprev()" title="Back" v-if="settings.previously.length"></i>
 							<i class="bx bx-plus fs-22" @click="onnew" title="New File"></i>
-							<i class="bx bx-file fs-22" @click="" title="Open File"></i>
 							<i class="bx bx-align-right fs-22" @click="minify" title="Minify"></i>
 							<i class="bx bx-align-middle fs-22" @click="prettify" title="Prettify"></i>
-							<i class="bx bx-cloud-download fs-22" @click="onsave" title="Save to localStorage"></i>
+							<i class="bx bx-file fs-22" @click="" title="Open File"></i>
+							<i class="bx bx-server fs-22" @click="onsave" title="Save to localStorage"></i>
+							<i class="bx bx-cloud-download fs-22" @click="ondownload" title="Download File"></i>
 							<i class="bx bx-copy fs-22" @click="oncopy" title="Copy to Clipboard"></i>
 							<i class="bx bx-paste fs-22" @click="onpaste" title="Paste from Clipboard"></i>
-							<i class="bx bx-search fs-22" @click="onchange( null, setting.headers.searching )" title="Search"></i>
-							<i class="bx bx-vector fs-22" @click="onchange( setting.modes.jsonpath, setting.modes.jsonpath )" title="Jsonpath"></i>
-							<i class="bx bxs-extension fs-22" @click="onchange( setting.modes.editable, setting.headers.editable )" title="Close Tree Mode" v-if="isStructureMode"></i>
-							<i class="bx bx-extension fs-22" @click="onchange( setting.modes.structure, setting.headers.editable )" title="Tree Mode" v-else></i>
+							<i class="bx bx-search fs-22" @click="onchange( settings.headers.searching, null )" title="Search"></i>
+							<!-- <i class="bx bx-vector fs-22" @click="[ onchange( settings.headers.jsonpath, settings.modes.jsonpath ), onpath() ]" title="Jsonpath"></i> -->
+							<i class="bx bxs-extension fs-22" @click="onchange( settings.headers.editable, settings.modes.editable )" title="Close Tree Mode" v-if="isStructureMode"></i>
+							<i class="bx bx-extension fs-22" @click="onchange( settings.headers.editable, settings.modes.structure )" title="Tree Mode" v-else></i>
 						</div>
 					</div>
 					<div class="editor-main-header-wrapper jsonpath flex flex-left pd-14" v-else-if="( isJsonpathMode && isJsonpathHeader )">
@@ -1196,7 +1316,7 @@
 							<div class="editor-main-header-form flex">
 								<div class="editor-main-header-form-group flex">
 									<label class="editor-main-header-form-label" for="schema">Schema</label>
-									<input class="editor-main-header-form-input" ref="schema" type="text" autocomplete="off" autocorrect="off" placeholder="$." :spellcheck="false" @change="onpath" @input="onpath" v-model="models.jsonpath.schema" />
+									<input class="editor-main-header-form-input" ref="schema" type="text" autocomplete="off" autocorrect="off" placeholder="$." :spellcheck="false" @change="onpath" @input="onpath" v-model="jsonpath.schema" />
 									<div class="editor-main-header-form-icon flex flex-center">
 										<i class="bx bx-hash fs-22"></i>
 									</div>
@@ -1204,13 +1324,16 @@
 							</div>
 						</div>
 						<div class="editor-main-header-tools flex flex-center">
-							<i class="bx bx-arrow-back fs-22" @click="onchange( setting.previous.mode, setting.previous.header )" title="Back"></i>
+							<i class="bx bx-arrow-back fs-22" @click="onbacktoprev()" title="Back" v-if="settings.previously.length"></i>
+							<i class="bx bx-plus fs-22" @click="onnew" title="New File"></i>
 							<i class="bx bx-align-right fs-22" @click="minify" title="Minify"></i>
 							<i class="bx bx-align-middle fs-22" @click="prettify" title="Prettify"></i>
-							<i class="bx bx-cloud-download fs-22" @click="onsave" title="Save to localStorage"></i>
+							<i class="bx bx-file fs-22" @click="" title="Open File"></i>
+							<i class="bx bx-server fs-22" @click="onsave" title="Save to localStorage"></i>
+							<i class="bx bx-cloud-download fs-22" @click="ondownload" title="Download File"></i>
 							<i class="bx bx-copy fs-22" @click="oncopy" title="Copy to Clipboard"></i>
 							<i class="bx bx-paste fs-22" @click="onpaste" title="Paste from Clipboard"></i>
-							<i class="bx bx-extension fs-22" @click="onchange( setting.modes.structure, setting.headers.editable )" title="Tree Mode"></i>
+							<i class="bx bx-extension fs-22" @click="onchange( settings.headers.editable, settings.modes.structure )" title="Tree Mode"></i>
 						</div>
 					</div>
 					<div class="editor-main-header-wrapper searching flex flex-left pd-14" v-else-if="( isEditableOrStructureMode && isSearchingHeader )">
@@ -1241,15 +1364,18 @@
 							</div>
 						</div>
 						<div class="editor-main-header-tools flex flex-center">
-							<i class="bx bx-arrow-back fs-22" @click="onchange( null, setting.previous.header )" title="Back"></i>
+							<i class="bx bx-arrow-back fs-22" @click="onbacktoprev()" title="Back" v-if="settings.previously.length"></i>
+							<i class="bx bx-plus fs-22" @click="onnew" title="New File"></i>
 							<i class="bx bx-align-right fs-22" @click="minify" title="Minify"></i>
 							<i class="bx bx-align-middle fs-22" @click="prettify" title="Prettify"></i>
-							<i class="bx bx-cloud-download fs-22" @click="onsave" title="Save to localStorage"></i>
+							<i class="bx bx-file fs-22" @click="" title="Open File"></i>
+							<i class="bx bx-server fs-22" @click="onsave" title="Save to localStorage"></i>
+							<i class="bx bx-cloud-download fs-22" @click="ondownload" title="Download File"></i>
 							<i class="bx bx-copy fs-22" @click="oncopy" title="Copy to Clipboard"></i>
 							<i class="bx bx-paste fs-22" @click="onpaste" title="Paste from Clipboard"></i>
-							<i class="bx bx-vector fs-22" @click="onchange( setting.modes.jsonpath, setting.modes.jsonpath )" title="Path"></i>
-							<i class="bx bxs-extension fs-22" @click="onchange( setting.modes.editable, setting.modes.editable )" title="Close Tree Mode" v-if="isStructureMode"></i>
-							<i class="bx bx-extension fs-22" @click="onchange( setting.modes.structure, setting.modes.editable )" title="Tree Mode" v-else></i>
+							<!-- <i class="bx bx-vector fs-22" @click="[ onchange( settings.headers.jsonpath, settings.modes.jsonpath ), onpath() ]" title="Path"></i> -->
+							<i class="bx bxs-extension fs-22" @click="onchange( settings.headers.editable, settings.modes.editable )" title="Close Tree Mode" v-if="isStructureMode"></i>
+							<i class="bx bx-extension fs-22" @click="onchange( settings.headers.editable, settings.modes.structure )" title="Tree Mode" v-else></i>
 						</div>
 					</div>
 					<div class="" v-else>
@@ -1260,16 +1386,16 @@
 					<div class="editor-main-editable pd-14 scroll-hidden" v-if="isEditableMode">
 						<div class="editor-editable-wrapper flex scroll-hidden" ref="editorEditableWrapper">
 							<div class="editor-main-line">
-								<p class="editor-main-line-number" :style="{ color: alert.error.info.line === parseInt( line ) ? 'var(--hljs-red)' : 'var(--text-2)' }" v-for="line in lines">{{ line }}</p>
+								<p class="editor-main-line-number" :style="{ color: alerts.error.info.line === parseInt( line ) ? 'var(--hljs-red)' : 'var(--text-2)' }" v-for="line in lines">{{ line }}</p>
 							</div>
 							<div class="editor-editable-container">
 								<pre class="editor-editable-preview-pre" 
 									 ref="editorEditablePre"><code 
 									 class="editor-editable-preview-code" 
 									 ref="editorEditableCode" 
-									 :data-error="JSON.stringify( alert.error.info )" 
-									 :data-filename="models.filename" 
-									 v-highlighter="models.textarea.editable"></code></pre>
+									 :data-error="JSON.stringify( alerts.error.info )" 
+									 :data-filename="models.fopen.name" 
+									 v-highlighter="models.fopen.contents"></code></pre>
 								<textarea 
 									class="editor-editable-textarea scroll-hidden" 
 									autocapitalize="off" 
@@ -1278,8 +1404,8 @@
 									id="editable" 
 									spellcheck="false" 
 									ref="editorEditableTextarea" 
-									v-model="models.textarea.editable" 
-									:data-mode="setting.modes.editable" 
+									v-model="models.fopen.contents" 
+									:data-mode="settings.modes.editable" 
 									:rows="lines.length" 
 									@input="oninput" 
 									@keydown="onkeydown" 
@@ -1294,7 +1420,7 @@
 						<div class="editor-jsonpath-wrapper flex scroll-hidden" data-section="editable">
 							<!-- lineno -->
 							<div class="editor-main-line">
-								<p class="editor-main-line-number" :style="{ color: alert.error.info.line === parseInt( line ) ? 'var(--hljs-red)' : 'var(--text-2)' }" v-for="line in lines">{{ line }}</p>
+								<p class="editor-main-line-number" :style="{ color: alerts.error.info.line === parseInt( line ) ? 'var(--hljs-red)' : 'var(--text-2)' }" v-for="line in lines">{{ line }}</p>
 							</div>
 							<!-- container -->
 							<div class="editor-jsonpath-container">
@@ -1303,9 +1429,9 @@
 									 ref="editorJsonpathPre"><code 
 									 class="editor-jsonpath-preview-code" 
 									 ref="editorJsonpathCode" 
-									 :data-error="JSON.stringify( alert.error.info )" 
-									 :data-filename="models.filename" 
-									 v-highlighter="models.textarea.editable"></code></pre>
+									 :data-error="JSON.stringify( alerts.error.info )" 
+									 :data-filename="models.fopen.name" 
+									 v-highlighter="models.fopen.contents"></code></pre>
 								<!-- textarea -->
 								<textarea 
 									class="editor-jsonpath-textarea scroll-hidden" 
@@ -1315,8 +1441,8 @@
 									id="editable" 
 									spellcheck="false" 
 									ref="editorJsonpathTextarea" 
-									v-model="models.textarea.editable" 
-									:data-mode="setting.modes.jsonpath" 
+									v-model="models.fopen.contents" 
+									:data-mode="settings.modes.jsonpath" 
 									:rows="lines.length" 
 									@input="oninput" 
 									@keydown="onkeydown" 
@@ -1338,8 +1464,8 @@
 									 class="editor-jsonpath-preview-code" 
 									 ref="editorJsonpathPreviewCode" 
 									 data-error="" 
-									 :data-filename="models.filename" 
-									 v-highlighter="models.jsonpath.preview"></code></pre>
+									 :data-filename="models.fopen.name" 
+									 v-highlighter="jsonpath.preview"></code></pre>
 							</div>
 						</div>
 					</div>
@@ -1351,36 +1477,36 @@
 					</div>
 				</div>
 				<div class="alert">
-					<div class="alert-group">
-						<div class="alert-single flex flex-left error" v-if="alert.error.display">
+					<div class="alert-group" v-if="Object.values( alerts ).filter( element => Boolean( element.message ) ).length >= 1">
+						<div class="alert-single flex flex-left error" v-if="alerts.error.display">
 							<div class="alert-slot">
-								{{ alert.error.message }}
+								{{ alerts.error.message }}
 							</div>
-							<button class="alert-close flex flex-center" @click="[ alert.error.display = false ]">
+							<button class="alert-close flex flex-center" @click="[ alerts.error.display = false, alerts.error.message = null ]">
 								<i class="bx bx-x"></i>
 							</button>
 						</div>
-						<div class="alert-single flex flex-left info" v-if="alert.info.display">
+						<div class="alert-single flex flex-left info" v-if="alerts.info.display">
 							<div class="alert-slot">
-								{{ alert.info.message }}
+								{{ alerts.info.message }}
 							</div>
-							<button class="alert-close flex flex-center" @click="[ alert.info.display = false ]">
+							<button class="alert-close flex flex-center" @click="[ alerts.info.display = false, alerts.info.message = null ]">
 								<i class="bx bx-x"></i>
 							</button>
 						</div>
-						<div class="alert-single flex flex-left success" v-if="alert.success.display">
+						<div class="alert-single flex flex-left success" v-if="alerts.success.display">
 							<div class="alert-slot">
-								{{ alert.success.message }}
+								{{ alerts.success.message }}
 							</div>
-							<button class="alert-close flex flex-center" @click="[ alert.success.display = false ]">
+							<button class="alert-close flex flex-center" @click="[ alerts.success.display = false, alerts.success.message = null ]">
 								<i class="bx bx-x"></i>
 							</button>
 						</div>
-						<div class="alert-single flex flex-left warning" v-if="alert.warning.display">
+						<div class="alert-single flex flex-left warning" v-if="alerts.warning.display">
 							<div class="alert-slot">
-								{{ alert.warning.message }}
+								{{ alerts.warning.message }}
 							</div>
-							<button class="alert-close flex flex-center" @click="[ alert.warning.display = false ]">
+							<button class="alert-close flex flex-center" @click="[ alerts.warning.display = false, alerts.warning.message = null ]">
 								<i class="bx bx-x"></i>
 							</button>
 						</div>
@@ -1399,7 +1525,7 @@
 	 * -------------------------------------------------------------------------------------------------------------------------------------------
 	 *
 	 */
-	.editor {
+	 .editor {
 	}
 	
 	/*
@@ -1417,7 +1543,7 @@
 		}
 		@media( max-width: 750px ) {
 			.editor-swiper-slide {
-				height: 640px;
+				height: 660px;
 			}
 		}
 		.editor-swiper-menu {
@@ -1452,7 +1578,7 @@
 					}
 					.editor-filename-item.active {
 						background: var(--background-4);
-						height: 42.6%;
+						height: 60%;
 					}
 						.editor-filename-column {
 							overflow: hidden;
@@ -1617,10 +1743,25 @@
 							.jsonpath .editor-main-header-form-icon .bx,
 							.searching .editor-main-header-form-icon .bx {
 							}
+			/* .editable .editor-main-header-fszie,
+			.jsonpath .editor-main-header-fszie */
+			.searching .editor-main-header-fszie {
+				left: 424px;
+				position: absolute;
+				background: red;
+				top: 27px;
+			}
+			/* @media( max-width: 750px ) {
+				.editable .editor-main-header-fszie,
+				.jsonpath .editor-main-header-fszie,
+				.searching .editor-main-header-fszie {
+					display: none;
+				}
+			} */
 			.editable .editor-main-header-tools,
 			.jsonpath .editor-main-header-tools,
 			.searching .editor-main-header-tools {
-				/** background: teal; */
+				/* background: teal; */
 				gap: 14px;
 				padding: 10px;
 				position: absolute;
@@ -1777,6 +1918,11 @@
 					position: relative;
 					width: 92%;
 				}
+					@media( max-width: 1080px ) and ( max-width: 1080px ) {
+						.editor-editable-container {
+							width: 94%;
+						}
+					}
 					@media( max-width: 360px ) {
 						.editor-editable-container {
 							width: 84%;
