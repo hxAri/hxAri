@@ -1,38 +1,66 @@
 
+/**
+ * 
+ * hxAri | requests.js
+ * 
+ * @author hxAri
+ * @github https://github.com/hxAri/hxAri
+ * @license MIT
+ * 
+ * Copyright (c) 2022 Ari Setiawan | hxAri
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ * 
+ */
+
 // Import Scripts
-import Fmt from "/src/scripts/Fmt.js";
+import { Fmt } from "/src/scripts/formatter";
 import Mapper from "/src/scripts/Mapper.js";
 import Request from "/src/scripts/Request.js";
-import Type from "/src/scripts/Type.js";
+import { Typed } from "/src/scripts/types";
 
 /**
  * Send multiple requests.
  *
- * @params Array requests
+ * @param {Array<Object>} requests
  *
- * @return Promise
+ * @returns {Array<Promise<XMLHttpRequest>>}
  *
- * @throws TypeError
+ * @throws {TypeError}
+ * 
  */
 export default async function MultiRequest( requests ) {
-	if( Type( requests, Array ) ) {
-		
-		// Mapping all requests.
-		requests = Mapper( requests,
+	if( Typed( requests, Array ) ) {
+		return await Promise.all( Mapper( requests,
 			
 			/**
 			 * Handle mapping.
 			 *
-			 * @params Number i
-			 * @params Object request
+			 * @param {Number} i
+			 * @param {Object} request
 			 *
-			 * @return Void
 			 */
 			async function( i, request ) {
-				if( Type( request, Object ) ) {
-					var url = Type( request.url, String, () => request.url, () => "" );
-					var method = Type( request.method, String, () => request.method, () => "GET" );
-					var options = Type( request.options, Object, () => request.options, () => Object.create({}) );
+				if( Typed( request, Object ) ) {
+					var url = Typed( request.url, String, () => request.url, () => "" );
+					var method = Typed( request.method, String, () => request.method, () => "GET" );
+					var options = Typed( request.options, Object, () => request.options, () => Object.create({}) );
 				}
 				else {
 					var url = request;
@@ -41,10 +69,9 @@ export default async function MultiRequest( requests ) {
 				}
 				return await Request( method, url, options );
 			}
-		);
-		return await Promise.all( requests );
+		));
 	}
 	else {
-		throw new TypeError( Fmt( "Parameter $requests must be type Array, {} given", Type( requests ) ) );
+		throw new TypeError( Fmt( "Parameter $requests must be type Array, {} given", Typed( requests ) ) );
 	}
 };
