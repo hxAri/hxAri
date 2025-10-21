@@ -3,10 +3,9 @@
 	
 	import { RouterLink } from "vue-router";
 	
-	// Import scripts.
-	import { Callable, Typed } from "/src/scripts/types";
-	import { Fmt } from "/src/scripts/formatter";
-	import Mapper from "/src/scripts/Mapper.js";
+	import { Fmt } from "../scripts/formatter";
+	import { Callable, Typed } from "../scripts/types";
+	import { Mapper } from "../scripts/mapper";
 	
 	export default {
 		data: () => ({
