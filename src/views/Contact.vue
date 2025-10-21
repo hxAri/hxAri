@@ -7,8 +7,8 @@
 	import { Fmt } from "/src/scripts/formatter";
 	import { isNotEmpty } from "../scripts/logics";
 	import Image from "/src/scripts/image";
-	import Mapper from "/src/scripts/Mapper.js";
-	import Request from "/src/scripts/Request.js";
+	import { Mapper } from "../scripts/mapper";
+	import { Request } from "../scripts/request";
 	import { Typed } from "/src/scripts/types";
 	
 	export default {
