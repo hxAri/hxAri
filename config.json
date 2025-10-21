@@ -26,24 +26,27 @@
         },
         "headline": "MuLTi-3nD DEvC0d3r",
         "name": "Ari Setiawan",
-        "social": {
-            "facebook": "https://facebook.com/hekisari",
+        "socmed": {
+            "facebook": "https://web.facebook.com/hekisari",
+            "gitlab": "https://gitlab.com/hxari",
             "github": "https://github.com/hxAri",
-            "instagram": "https://instagram.com/hx.ari",
-            "linkedin": "https://linkedin.com/in/hxAri",
-            "telegram": "https://t.me/hxare",
-            "tiktok": "https://tiktok.com/@hxare"
+            "instagram": "https://www.instagram.com/hx.are",
+            "linkedin": "https://www.linkedin.com/in/hxAri",
+            "telegram": "https://www.telegram.me/hxAre",
+            "tiktok": "https://www.tiktok.com/@hxare",
+            "youtube": "https://www.youtube.com/@hxari"
         },
         "status": {}
     },
     "certificate": {
-        "certificates": [
+        "items": [
             {
                 "description": [
                     "For actively participating in the \"**Career Preparation Fair**\" at Career Support Festival 2023"
                 ],
+                "filename": "1688786479;faMyU4T43P.pdf",
                 "galery": [],
-                "source": "1688786479;faMyU4T43P.pdf",
+                "source": {},
                 "thumbnail": "1701255136;beAihHKmkk6hk.png",
                 "timestamp": 1684083600,
                 "title": "Career Preparation Fair"
@@ -53,19 +56,15 @@
                     "Has attended Mobile Game and Programming Training",
                     "Organized by the Computer Laboratory of the Darmajaya Institute of Informatics and Business Bandar Lampung"
                 ],
-                "galery": [
-                    {
-                        "description": [],
-                        "image": ""
-                    }
-                ],
-                "source": "1688786593;cc27c8Nw69.pdf",
+                "filename": "1688786593;cc27c8Nw69.pdf",
+                "galery": [],
+                "source": {},
                 "thumbnail": "1701255136;f4RCWey6AJ15E.png",
                 "timestamp": 1686330000,
                 "title": "Mobile Game and Programming Training"
             }
         ],
-        "source": {
+        "sources": {
             "origin": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/certs",
             "thumbnail": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/certificate"
         }
@@ -97,6 +96,7 @@
             "projects": [
                 {
                     "description": [],
+                    "galery": [],
                     "name": "PLN | Dasboard KPI",
                     "skills": [
                         "API Development",
@@ -122,6 +122,7 @@
                     "description": [
                         "NiFi flow includes processing of Crawling results from various Social Media such as Twitter, Facebook, TikTok, Instagram, YouTube, Threads, and Online News such as Dark Web. Each Flow Process is designed to parse, group, and transform data according to Realtime Analytic needs. Utilizing Flow File-based architecture on NiFi, large-scale data flow management is carried out efficiently with the support of features such as back-pressure, data priority, and parallel processing to maintain optimal performance."
                     ],
+                    "galery": [],
                     "name": "RTA | NiFi Process",
                     "skills": [
                         "Apache Kafka",
@@ -147,6 +148,7 @@
                     "description": [
                         "This Twitter crawler is a dedicated engine for collecting tweets, replies, quotes, and retweets in real-time. Built using Python3, this crawler efficiently fetches data directly from Twitter, allowing instant access to the latest information ready for further processing for analytics purposes. With support for private and multiple third-party APIs, this tool offers flexibility in integrating data from various external sources. Focusing on efficiency and accuracy in data retrieval, this crawler ensures seamless integration into data systems and is capable of handling high data volumes without any issues."
                     ],
+                    "galery": [],
                     "name": "RTA | Crawler Twitter",
                     "skills": [
                         "Apache Kafka",
@@ -168,6 +170,7 @@
                     "description": [
                         "This YouTube crawler is a dedicated engine for collecting video data, comments, and metadata in real-time. Built using Python3, this crawler ensures smooth and efficient data retrieval. With the ability to handle large volumes of data, this tool is designed to be easily integrated into analytics systems without any hassle."
                     ],
+                    "galery": [],
                     "name": "RTA | Crawler YouTube",
                     "skills": [
                         "Apache Kafka",
@@ -188,6 +191,7 @@
                     "description": [
                         "This TikTok crawler is a dedicated engine for collecting video data, comments, and metadata in real-time. Built using Python3, this crawler comes with TOR support and the ability to change IP addresses to bypass access restrictions, ensuring smooth data retrieval. With high flexibility to handle large data volumes and support for customizing data collection parameters, this tool is designed to be easily integrated into analytics systems without any hassle."
                     ],
+                    "galery": [],
                     "name": "RTA | Crawler TikTok",
                     "skills": [
                         "Apache Kafka",
@@ -209,6 +213,7 @@
                     "description": [
                         "This Facebook crawler is a dedicated engine for collecting real-time post and comment data. Built using Python3, this crawler effectively pulls post and comment data directly from Facebook, allowing instant access to the latest data ready for further processing as per the analytical needs. Focusing on efficiency and accuracy in data retrieval, this tool ensures seamless integration into data systems with the flexibility to handle high data volumes without any constraints."
                     ],
+                    "galery": [],
                     "name": "RTA | Crawler Facebook",
                     "skills": [
                         "Apache Kafka",
@@ -308,12 +313,13 @@
         "about": true,
         "certificate": false,
         "experience": false,
+        "organization": true,
         "project": true,
         "programming": true,
         "technology": true
     },
     "image": {
-        "images": {
+        "items": {
             "anime": {
                 "anya": "1701255136;f1vv6Fgb.f3Cg.png",
                 "chitoge": "1701255136;60GHO8USkVyC2.png",
@@ -451,12 +457,13 @@
         "contact": false,
         "editor": false,
         "home": false,
+        "issues": true,
         "none": false,
         "preview": true,
         "privacy": false,
         "project": false,
         "projects": false,
-        "service": false,
+        "service": true,
         "sitemap": false,
         "terminal": false
     },
@@ -464,24 +471,215 @@
         "octancle",
         "yfure"
     ],
+    "project": {
+        "description": [
+            "Some personal projects I built for programming practice, or even just my free time."
+        ],
+        "items": [
+            {
+                "document": {
+                    "url": "public/globals/docs/aether.json"
+                },
+                "endpoint": "hxAri/AETHER",
+                "homepage": "https://github.com/hxAri/",
+                "include": true,
+                "language": "cpp",
+                "name": "AETHER",
+                "previews": [],
+                "readme": {
+                    "url": "https://raw.githubusercontent.com/hxAri/AETHER/prod/README.md"
+                },
+                "thumbnail": "project/1759570092;9famMV6JArAow.png"
+            },
+            {
+                "document": {
+                    "url": "public/globals/docs/android.json"
+                },
+                "endpoint": "hxAri/Android",
+                "homepage": "https://github.com/hxAri/",
+                "include": false,
+                "language": "java",
+                "name": "Android",
+                "previews": [],
+                "readme": {
+                    "url": "https://raw.githubusercontent.com/hxAri/Android/main/README.md"
+                },
+                "thumbnail": "project/1701255136;da5bQ1MYJ0Ojg.png"
+            },
+            {
+                "document": {
+                    "url": "public/globals/docs/atarashi.json"
+                },
+                "endpoint": "hxAri/Atarashi",
+                "homepage": "https://github.com/hxAri/Atarashi",
+                "include": false,
+                "language": "ruby",
+                "name": "Atarashī",
+                "previews": [],
+                "readme": {
+                    "url": "https://raw.githubusercontent.com/hxAri/Atarashi/main/README.md"
+                },
+                "thumbnail": "project/1701255136;aela1LCKsEh0g.png"
+            },
+            {
+                "document": {
+                    "url": "public/globals/docs/eremento.json"
+                },
+                "endpoint": "hxAri/Eremento",
+                "homepage": "https://github.com/hxAri/Eremento",
+                "include": false,
+                "language": "javascript",
+                "name": "Eremento",
+                "previews": [],
+                "readme": {
+                    "url": "https://raw.githubusercontent.com/hxAri/Eremento/main/README.md"
+                },
+                "thumbnail": "project/1701255136;870xbghIllhKM.png"
+            },
+            {
+                "document": {
+                    "url": "public/globals/docs/kanashi.json"
+                },
+                "endpoint": "hxAri/Kanashi",
+                "homepage": "https://github.com/hxAri/Kanashi",
+                "include": false,
+                "language": "python",
+                "name": "Kanashī",
+                "previews": [],
+                "readme": {
+                    "url": "https://raw.githubusercontent.com/hxAri/Kanashi/main/README.md"
+                },
+                "thumbnail": "project/1701255136;e3chzfnp8o5Kc.png"
+            },
+            {
+                "document": {
+                    "url": "public/globals/docs/kaniafi.json"
+                },
+                "endpoint": "hxAri/KaNiaFi",
+                "homepage": "https://github.com/hxAri/KaNiaFi",
+                "include": false,
+                "language": "java",
+                "name": "KaNiaFi",
+                "previews": [],
+                "readme": {
+                    "url": "https://raw.githubusercontent.com/hxAri/KaNiaFi/main/README.md"
+                },
+                "thumbnail": "project/1701255136;5bSmS1AAUHmDw.png"
+            },
+            {
+                "document": {
+                    "url": "public/globals/docs/niara.json"
+                },
+                "endpoint": "hxAri/Niara",
+                "homepage": "https://github.com/hxAri/Niara",
+                "include": false,
+                "language": "python",
+                "name": "Niara",
+                "previews": [],
+                "readme": {
+                    "url": "https://raw.githubusercontent.com/hxAri/Niara/main/README.md"
+                },
+                "thumbnail": "project/1701255136;a3BCTNUdIjghs.png"
+            },
+            {
+                "document": {
+                    "url": "public/globals/docs/penguin.json"
+                },
+                "endpoint": "hxAri/Penguin",
+                "homepage": "https://github.com/hxAri/Penguin",
+                "include": true,
+                "language": "shell",
+                "name": "Penguin",
+                "previews": [],
+                "readme": {
+                    "url": "https://raw.githubusercontent.com/hxAri/Penguin/main/README.md"
+                },
+                "thumbnail": "project/1701255136;4byi3oSoEEAjE.png"
+            },
+            {
+                "document": {
+                    "url": "public/globals/docs/portofolio.json"
+                },
+                "endpoint": "hxAri/hxAri",
+                "homepage": "https://github.com/hxAri/hxAri",
+                "include": true,
+                "language": "javascript",
+                "name": "Portofolio",
+                "previews": [],
+                "readme": {
+                    "url": "https://raw.githubusercontent.com/hxAri/hxAri/main/README.md"
+                },
+                "thumbnail": "1701255136;6duiesguuJBCQ.png"
+            },
+            {
+                "document": {
+                    "url": "public/globals/docs/rinkutoin.json"
+                },
+                "endpoint": "hxAri/Rinkutoin",
+                "homepage": "https://github.com/hxAri/Rinkutoin",
+                "include": false,
+                "language": "python",
+                "name": "Rinkutoin",
+                "previews": [],
+                "readme": {
+                    "url": "https://raw.githubusercontent.com/hxAri/Rinkutoin/main/README.md"
+                },
+                "thumbnail": "project/"
+            },
+            {
+                "document": {
+                    "url": "public/globals/docs/society.json"
+                },
+                "endpoint": "hxAri/Society",
+                "homepage": "https://github.com/hxAri/Society",
+                "include": false,
+                "language": "python",
+                "name": "Society",
+                "previews": [],
+                "readme": {
+                    "url": "https://raw.githubusercontent.com/hxAri/Society/main/README.md"
+                },
+                "thumbnail": "project/"
+            },
+            {
+                "document": {
+                    "url": "public/globals/docs/tree.json"
+                },
+                "endpoint": "hxAri/Tree",
+                "homepage": "https://github.com/hxAri/Tree",
+                "include": false,
+                "language": "php",
+                "name": "Tree",
+                "previews": [],
+                "readme": {
+                    "url": "https://raw.githubusercontent.com/hxAri/Tree/main/README.md"
+                },
+                "thumbnail": "project/1701255136;50ZTfD57Cfg9Y.png"
+            },
+            {
+                "document": {
+                    "url": "public/globals/docs/yume.json"
+                },
+                "endpoint": "yfure/Yume",
+                "homepage": "https://github.com/yfure/Yume",
+                "include": false,
+                "language": "php",
+                "name": "Yume",
+                "previews": [],
+                "readme": {
+                    "url": "https://raw.githubusercontent.com/hxAri/Yume/main/README.md"
+                },
+                "thumbnail": "project/1701255136;dda59nWb0O4gE.png"
+            }
+        ]
+    },
     "programming": {
         "description": [
             "Some programming languages that I can use at the moment."
         ],
-        "expertises": [
+        "expertices": [
             {
-                "certificates": [
-                    {
-                        "expires": 0,
-                        "name": null,
-                        "original": null,
-                        "preview": null,
-                        "source": {
-                            "name": null,
-                            "url": null
-                        }
-                    }
-                ],
+                "certificates": [],
                 "descriptions": [],
                 "logo": "cpp",
                 "name": "C++"
@@ -524,166 +722,6 @@
             }
         ],
         "percentage": 100
-    },
-    "project": {
-        "description": [
-            "Some personal projects I built for programming practice, or even just my free time."
-        ],
-        "includes": [
-            {
-                "document_url": "public/globals/docs/aether.json",
-                "endpoint": "hxAri/AETHER",
-                "homepage": "https://github.com/hxAri/",
-                "include": true,
-                "language": "cpp",
-                "name": "AETHER",
-                "previews": [
-                    {
-                        "descriptions": [],
-                        "image": ""
-                    }
-                ],
-                "readme_url": "https://raw.githubusercontent.com/hxAri/AETHER/prod/README.md",
-                "thumbnail": "project/1759570092;9famMV6JArAow.png"
-            },
-            {
-                "document_url": "public/globals/docs/android.json",
-                "endpoint": "hxAri/Android",
-                "homepage": "https://github.com/hxAri/",
-                "include": false,
-                "language": "java",
-                "name": "Android",
-                "previews": [
-                    {
-                        "descriptions": [],
-                        "image": ""
-                    }
-                ],
-                "readme_url": "https://raw.githubusercontent.com/hxAri/Android/main/README.md",
-                "thumbnail": "project/1701255136;da5bQ1MYJ0Ojg.png"
-            },
-            {
-                "document_url": "public/globals/docs/atarashi.json",
-                "endpoint": "hxAri/Atarashi",
-                "homepage": "https://github.com/hxAri/Atarashi",
-                "include": false,
-                "language": "ruby",
-                "name": "Atarash\u012b",
-                "previews": [],
-                "readme_url": "https://raw.githubusercontent.com/hxAri/Atarashi/main/README.md",
-                "thumbnail": "project/1701255136;aela1LCKsEh0g.png"
-            },
-            {
-                "document_url": "public/globals/docs/eremento.json",
-                "endpoint": "hxAri/Eremento",
-                "homepage": "https://github.com/hxAri/Eremento",
-                "include": false,
-                "language": "javascript",
-                "name": "Eremento",
-                "previews": [],
-                "readme_url": "https://raw.githubusercontent.com/hxAri/Eremento/main/README.md",
-                "thumbnail": "project/1701255136;870xbghIllhKM.png"
-            },
-            {
-                "document_url": "public/globals/docs/kanashi.json",
-                "endpoint": "hxAri/Kanashi",
-                "homepage": "https://github.com/hxAri/Kanashi",
-                "include": false,
-                "language": "python",
-                "name": "Kanash\u012b",
-                "previews": [],
-                "readme_url": "https://raw.githubusercontent.com/hxAri/Kanashi/main/README.md",
-                "thumbnail": "project/1701255136;e3chzfnp8o5Kc.png"
-            },
-            {
-                "document_url": "public/globals/docs/kaniafi.json",
-                "endpoint": "hxAri/KaNiaFi",
-                "homepage": "https://github.com/hxAri/KaNiaFi",
-                "include": false,
-                "language": "java",
-                "name": "KaNiaFi",
-                "previews": [],
-                "readme_url": "https://raw.githubusercontent.com/hxAri/KaNiaFi/main/README.md",
-                "thumbnail": "project/1701255136;5bSmS1AAUHmDw.png"
-            },
-            {
-                "document_url": "public/globals/docs/niara.json",
-                "endpoint": "hxAri/Niara",
-                "homepage": "https://github.com/hxAri/Niara",
-                "include": false,
-                "language": "python",
-                "name": "Niara",
-                "previews": [],
-                "readme_url": "https://raw.githubusercontent.com/hxAri/Niara/main/README.md",
-                "thumbnail": "project/1701255136;a3BCTNUdIjghs.png"
-            },
-            {
-                "document_url": "public/globals/docs/penguin.json",
-                "endpoint": "hxAri/Penguin",
-                "homepage": "https://github.com/hxAri/Penguin",
-                "include": true,
-                "language": "shell",
-                "name": "Penguin",
-                "previews": [],
-                "readme_url": "https://raw.githubusercontent.com/hxAri/Penguin/main/README.md",
-                "thumbnail": "project/1701255136;4byi3oSoEEAjE.png"
-            },
-            {
-                "document_url": "public/globals/docs/portofolio.json",
-                "endpoint": "hxAri/hxAri",
-                "homepage": "https://github.com/hxAri/hxAri",
-                "include": true,
-                "language": "javascript",
-                "name": "Portofolio",
-                "previews": [],
-                "readme_url": "https://raw.githubusercontent.com/hxAri/hxAri/main/README.md",
-                "thumbnail": "1701255136;6duiesguuJBCQ.png"
-            },
-            {
-                "document_url": "public/globals/docs/rinkutoin.json",
-                "endpoint": "hxAri/Rinkutoin",
-                "homepage": "https://github.com/hxAri/Rinkutoin",
-                "include": false,
-                "language": "python",
-                "name": "Rinkutoin",
-                "previews": [],
-                "readme_url": "https://raw.githubusercontent.com/hxAri/Rinkutoin/main/README.md",
-                "thumbnail": "project/"
-            },
-            {
-                "document_url": "public/globals/docs/society.json",
-                "endpoint": "hxAri/Society",
-                "homepage": "https://github.com/hxAri/Society",
-                "include": false,
-                "language": "python",
-                "name": "Society",
-                "previews": [],
-                "readme_url": "https://raw.githubusercontent.com/hxAri/Society/main/README.md",
-                "thumbnail": "project/"
-            },
-            {
-                "document_url": "public/globals/docs/tree.json",
-                "endpoint": "hxAri/Tree",
-                "homepage": "https://github.com/hxAri/Tree",
-                "include": false,
-                "language": "php",
-                "name": "Tree",
-                "previews": [],
-                "readme_url": "https://raw.githubusercontent.com/hxAri/Tree/main/README.md",
-                "thumbnail": "project/1701255136;50ZTfD57Cfg9Y.png"
-            },
-            {
-                "document_url": "public/globals/docs/yume.json",
-                "endpoint": "yfure/Yume",
-                "homepage": "https://github.com/yfure/Yume",
-                "include": false,
-                "language": "php",
-                "name": "Yume",
-                "previews": [],
-                "readme_url": "https://raw.githubusercontent.com/hxAri/Yume/main/README.md",
-                "thumbnail": "project/1701255136;dda59nWb0O4gE.png"
-            }
-        ]
     },
     "resume": {
         "pdf": "https://raw.githubusercontent.com/hxAri/hxAri/main/public/resume/1758269100;25DBwOF7VdMT2.pdf",
@@ -763,53 +801,12 @@
             }
         ]
     },
-    "service": {
-        "description": [
-            []
-        ]
-    },
-    "thirdparty": [
-        {
-            "github": "https://github.com/liriliri/eruda",
-            "name": "Eruda"
-        },
-        {
-            "github": "https://github.com/highlightjs/highlight.js",
-            "name": "Highlight.js"
-        },
-        {
-            "github": "https://github.com/dchester/jsonpath",
-            "name": "jsonpath"
-        },
-        {
-            "github": "https://github.com/markdown-it/markdown-it",
-            "name": "markdown-it"
-        },
-        {
-            "github": "https://github.com/jlmakes/scrollreveal",
-            "name": "ScrollReveal"
-        },
-        {
-            "github": "https://github.com/rgov/node-shlex",
-            "name": "node-shlex"
-        },
-        {
-            "github": "https://github.com/nolimits4web/swiper",
-            "name": "Swiper"
-        },
-        {
-            "github": "https://github.com/vuejs/core",
-            "name": "Vue"
-        }
-    ],
+    "service": {},
     "technology": {
         "description": [
             "Some technologies that I have used or even still use."
         ],
-        "skill": {
-            "percentage": 100
-        },
-        "uses": [
+        "expertices": [
             {
                 "certificates": [],
                 "descriptions": [],
@@ -838,28 +835,12 @@
                 "type": "technology"
             },
             {
-                "certificates": [
-                    {
-                        "expires": 0,
-                        "name": null,
-                        "original": null,
-                        "preview": null,
-                        "source": {
-                            "name": null,
-                            "url": null
-                        }
-                    }
-                ],
+                "certificates": [],
                 "descriptions": [
                     "Performing raw data processing from social media crawler engines for use by the Analyst Team and the Real Time Analytic Team.",
                     "The reason for using NiFi itself is because of its processing capabilities which use easy-to-understand flows and its concurrency capabilities which are strong enough to process large amounts of data in real time."
                 ],
-                "images": [
-                    {
-                        "info": [],
-                        "url": ""
-                    }
-                ],
+                "images": [],
                 "include": true,
                 "logo": "nifi",
                 "name": "Apache NiFi",
@@ -1063,9 +1044,46 @@
                 "name": "Visual Studio Code",
                 "type": "technology"
             }
-        ]
+        ],
+        "percentage": 100
     },
-    "terminal": {
-        "issues": "https://hxari.github.io/issues"
-    }
+    "terminal": {},
+    "thirdparty": [
+        {
+            "github": "https://github.com/feross/buffer",
+            "name": "buffer"
+        },
+        {
+            "github": "https://github.com/liriliri/eruda",
+            "name": "Eruda"
+        },
+        {
+            "github": "https://github.com/highlightjs/highlight.js",
+            "name": "Highlight.js"
+        },
+        {
+            "github": "https://github.com/dchester/jsonpath",
+            "name": "jsonpath"
+        },
+        {
+            "github": "https://github.com/markdown-it/markdown-it",
+            "name": "markdown-it"
+        },
+        {
+            "github": "https://github.com/jlmakes/scrollreveal",
+            "name": "ScrollReveal"
+        },
+        {
+            "github": "https://github.com/rgov/node-shlex",
+            "name": "node-shlex"
+        },
+        {
+            "github": "https://github.com/nolimits4web/swiper",
+            "name": "Swiper"
+        },
+        {
+            "github": "https://github.com/vuejs/core",
+            "name": "Vue"
+        }
+    ]
 }
