@@ -1,14 +1,44 @@
 
+/**
+ * 
+ * hxAri | index.js
+ * 
+ * @author hxAri
+ * @github https://github.com/hxAri/hxAri
+ * @license MIT
+ * 
+ * Copyright (c) 2022 Ari Setiawan | hxAri
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ * 
+ */
+
 "use strict";
 
 import { Buffer  } from "buffer";
 
 // Import Scripts
-import Author from "/src/scripts/Author.js";
+// import Author from "/src/scripts/Author.js";
 // import Banner from "/src/scripts/shells/Banner.js";
-import Common from "/src/scripts/Common.js";
+import { bin2hex } from "/src/scripts/common";
 import { Fmt } from "/src/scripts/formatter";
-import UnixTime from "/src/scripts/UnixTime.js";
+import { UnixTime } from "../unixtime";
 // import Directory from "/src/scripts/shells/Directory.js";
 // import Helper from "/src/scripts/shells/Helper.js"
 import Mapper from "/src/scripts/Mapper.js";
@@ -630,10 +660,11 @@ class Kernel {
 				var passwd = this.vfs.read( "/etc/passwd", { user: this.root } );
 				for( let line of passwd.split( "\x0a" ) ) {
 					var parts = line.split( "\x3a" );
+					console.debug( parts );
 					var gid = parseInt( parts[2] );
 					var uid = parseInt( parts[3] );
 					if( gid !== 0 && uid !== 0 ) {
-						this.users.set( gid, new User( {}, parts[4], gid, parts[0], parts[5] || null, null, "user", parts[6], uid ) );
+						this.users.set( uid, new User( {}, parts[4], gid, parts[0], parts[5] || null, null, "user", parts[6], uid, parts[0] ) );
 					}
 				}
 				this.passwd.refresh();
@@ -662,11 +693,8 @@ class Kernel {
 		else {
 			this.vfs.mkdir( "/etc", { mode: 0o755, user: this.root });
 		}
-		try {
+		if( this.groups.has( this.groupres( "sudo" ) ) === false ) {
 			this.groupadd( "sudo", { user: this.root } );
-		}
-		catch( e ) {
-			console.debug( e );
 		}
 		this.vfs.walk( "/etc" ).contents.set( "group", this.group );
 		this.vfs.walk( "/etc" ).contents.set( "passwd", this.passwd );
@@ -812,6 +840,22 @@ class Kernel {
 	}
 	
 	/**
+	 * Return groupid by groupname
+	 * 
+	 * @param {String} groupname 
+	 * 
+	 * @returns {?Number}
+	 * 
+	 */
+	groupres( groupname ) {
+		for( let [ gid, group ] of this.groups.entries() ) {
+			if( group.username === groupname ) {
+				return gid;
+			}
+		}
+	}
+	
+	/**
 	 * Kill specific program by process id
 	 * 
 	 * @param {Number} pid
@@ -911,6 +955,7 @@ class Kernel {
 	 */
 	switch( username ) {
 		for( const user of this.users.values() ) {
+			console.debug( user )
 			if( user.username.match( username ) ) {
 				this.uid = user.uid;
 				this.vfs.cwd = user.home;
@@ -949,6 +994,7 @@ class Kernel {
 	 * 
 	 */
 	user() {
+		console.debug( this.uid );
 		return this.users.get( this.uid );
 	}
 	
@@ -2679,12 +2725,14 @@ class Terminal {
 		this.input = input;
 		this.kernel = new Kernel( router );
 		if( this.kernel.vfs.isdir( "/home/hxari" ) ) {
+			this.kernel.switch( "hxari" );
+			this.hxari = this.kernel.user();
 		}
 		else {
 			this.kernel.useradd( "hxari", {
 				fullname: "hxAri",
 				home: "/home/hxari",
-				password: "", // <<< gues what?
+				password: "hxari",
 				shell: "/usr/bin/bash",
 				user: this.kernel.root
 			});
@@ -2692,7 +2740,7 @@ class Terminal {
 			this.hxari = this.kernel.user();
 			for( const aliased of this.aliases ) {
 				this.kernel.vfs.append( "/home/hxari/.bash_aliases", { contents: Fmt( "\nalias -d 0 -o 0 $'{}'=\"{}\"", ...aliased.map( ( alias, index ) => index === 0 ? alias : alias.replaceAll( /\"/g, "\\\"" ) ) ), user: this.hxari } );
-			}
+			}	
 		}
 		this.router = router;
 		this.shell = new Shell( this.kernel );
@@ -3655,6 +3703,7 @@ class VirtualFileSystem {
 				file = new VirtualNode( null, user.gid, options.mode ?? parent.mode ?? 0o666, basename, "file", user.uid, null, { contents: contents } );
 				parent.contents.set( basename, file );
 			}
+			this.persist();
 		}
 		else {
 			throw new TypeError( Fmt( "{}: permission denied", basepath ) );
@@ -3776,17 +3825,17 @@ class VirtualFileSystem {
 		else {
 			user = options.group;
 		}
-		if( options.user.root() ||
+		if( options.user.root() === false ||
 			options.user.gid === user.gid ) {
-			path.gid = user.gid;
-			if( path.type !== "file" && options?.recursive ) {
-				for( let element of path.contents.values() ) {
-					this.chgrp( pathname.concat( "/".concat( element.name ) ), options );
-				}
-			}
-			return;
+			throw new TypeError( Fmt( "{}: user is not member of group {}", pathname, options.group ) );
 		}
-		throw new TypeError( Fmt( "{}: user is not member of group {}", pathname, options.group ) );
+		path.gid = user.gid;
+		if( path.type !== "file" && options?.recursive ) {
+			for( let element of path.contents.values() ) {
+				this.chgrp( pathname.concat( "/".concat( element.name ) ), options );
+			}
+		}
+		this.persist();
 	}
 	
 	/**
@@ -3803,17 +3852,17 @@ class VirtualFileSystem {
 	chmod( pathname, options={ modes: null, recursive: false, user: null } ) {
 		var path = this.walk( pathname );
 		var mode = this.mode( options.modes, path.mode );
-		if( options.user.root() ||
-			options.user.uid === path.uid ) {
-			path.mode = mode;
-			if( path.type !== "file" && options?.recursive ) {
-				for( let element of path.contents.values() ) {
-					this.chmod( pathname.concat( "/".concat( element.name ) ), options );
-				}
-			}
-			return;
+		if( options.user.root() === false ||
+			options.user.uid !== path.uid ) {
+			throw new TypeError( Fmt( "{}: permission denied", pathname ) );
 		}
-		throw new TypeError( Fmt( "{}: permission denied", pathname ) );
+		path.mode = mode;
+		if( path.type !== "file" && options?.recursive ) {
+			for( let element of path.contents.values() ) {
+				this.chmod( pathname.concat( "/".concat( element.name ) ), options );
+			}
+		}
+		this.persist();
 	}
 	
 	/**
@@ -3845,16 +3894,16 @@ class VirtualFileSystem {
 		else {
 			user = options.owner;
 		}
-		if( options.user.root() ) {
-			path.uid = user.uid;
-			if( path.type !== "file" && options?.recursive ) {
-				for( let element of path.contents.values() ) {
-					this.chown( pathname.concat( "/".concat( element.name ) ), options );
-				}
-			}
-			return;
+		if( options.user.root() === false ) {
+			throw new TypeError( Fmt( "{}: permission denied", pathname ) );
 		}
-		throw new TypeError( Fmt( "{}: permission denied", pathname ) );
+		path.uid = user.uid;
+		if( path.type !== "file" && options?.recursive ) {
+			for( let element of path.contents.values() ) {
+				this.chown( pathname.concat( "/".concat( element.name ) ), options );
+			}
+		}
+		this.persist();
 	}
 	
 	/**
@@ -4004,6 +4053,7 @@ class VirtualFileSystem {
 				}
 			}
 		}
+		this.persist();
 	}
 	
 	/**
@@ -4166,7 +4216,7 @@ class VirtualFileSystem {
 	
 	persist() {
 		if( this.pk ) {
-			localStorage.setItem( Common.bin2hex( this.pk ), JSON.stringify( this.root.object(), null , 4 ) );
+			localStorage.setItem( bin2hex( this.pk ), JSON.stringify( this.root.object(), null , 4 ) );
 		}
 	}
 	
@@ -4256,6 +4306,7 @@ class VirtualFileSystem {
 				}
 			}
 			basepath.contents.delete( this.basename( normalize ) );
+			this.persist();
 		}
 		else {
 			throw new TypeError( Fmt( "{}: permission denied", normalize ) );
@@ -4265,7 +4316,7 @@ class VirtualFileSystem {
 	revive() {
 		if( this.pk ) {
 			try {
-				var item = localStorage.getItem( Common.bin2hex( this.pk ) );
+				var item = localStorage.getItem( bin2hex( this.pk ) );
 				if( item ) {
 					return this.builder( JSON.parse( item ) );
 				}
@@ -4333,9 +4384,10 @@ class VirtualFileSystem {
 				// Nothing happed here!
 			}
 			else {
-				file = new VirtualNode( null, user.gid, options.mode ?? parent.mode ?? 0o666, basename, "file", user.uid, null, { contents: "" } );
+				file = new VirtualNode( null, user.gid, options.mode ?? 0o666, basename, "file", user.uid, null, { contents: "" } );
 				parent.contents.set( basename, file );
 			}
+			this.persist();
 		}
 		else {
 			throw new TypeError( Fmt( "{}: permission denied", basepath ) );
@@ -4428,6 +4480,7 @@ class VirtualFileSystem {
 				file = new VirtualNode( null, user.gid, options.mode ?? parent.mode ?? 0o666, basename, "file", user.uid, null, { contents: contents } );
 				parent.contents.set( basename, file );
 			}
+			this.persist();
 		}
 		else {
 			throw new TypeError( Fmt( "{}: permission denied", basepath ) );
