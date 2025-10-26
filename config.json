@@ -1047,7 +1047,9 @@
         ],
         "percentage": 100
     },
-    "terminal": {},
+    "terminal": {
+        "issues": "https://hxari.github.io/issues"
+    },
     "thirdparty": [
         {
             "github": "https://github.com/feross/buffer",
