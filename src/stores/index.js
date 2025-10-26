@@ -330,11 +330,11 @@ const Store = createStore({
 			for( let keyset of Object.keys( state.signature ) ) {
 				var element = document.querySelector( Fmt( "head>meta[name=\"signature:{}\"]", keyset ) );
 				if( Typed( element, HTMLMetaElement ) ) {
+					state.signature[keyset] = element.getAttribute( "content" );
 					element.parentElement.removeChild( element );
 					element = null;
 				}
 			}
-			console.debug( state.signature );
 			for( let i in state.keysets ) {
 				var keyset = Fmt( "\x78\x7b\x7d", bin2hex( state.keysets[i] ) );
 				var value = state.cookie.get( keyset );
@@ -662,7 +662,7 @@ const Store = createStore({
 	state: () => {
 		var action = new Action();
 		var cookie = new Cookie();
-		var terminal = new Terminal( null, Router, null );
+		var terminal = new Terminal( null, Router, document.createElement( "div" ) );
 		var theme = new Theme();
 		return new Property({
 			action: action,
