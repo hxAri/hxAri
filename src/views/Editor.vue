@@ -11,7 +11,9 @@
 	import { Configs } from "../scripts/configs";
 	import { Fmt } from "../scripts/formatter";
 	import { isEmpty, isNotEmpty, Not } from "../scripts/logics";
-	import { Terminal, User, VirtualFileSystem, VirtualNode } from "../scripts/terminal";
+	import { Terminal } from "../scripts/terminal";
+	import { User } from "../scripts/terminal/kernel/index.js";
+	import { VirtualFileSystem, VirtualNode } from "../scripts/terminal/kernel/index.js";
 	import { Typed } from "../scripts/types";
 	import { UnixTime } from "../scripts/unixtime.js";
 	
