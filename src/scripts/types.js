@@ -91,7 +91,7 @@ function Mixed( value = false ) {
 	
 	// Return value.
 	return value;
-};
+}
 
 /**
  * Returns whether value is null
