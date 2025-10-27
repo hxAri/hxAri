@@ -33,6 +33,22 @@ import { Typed } from "./types";
 
 
 /**
+ * Returns whether function is asyncronous function
+ * 
+ * @param {Function} func 
+ * @param {?Boolean} optional
+ * 
+ * @returns {Boolean}
+ * 
+ */
+function isAsyncronous( func, optional ) {
+	if( Typed( optional, Boolean ) ) {
+		return isAsyncronous( func ) === optional;
+	}
+	return func?.constructor?.name === "AsyncFunction";
+}
+
+/**
  * Check if value given is empty.
  *
  * @param {T} value
@@ -85,6 +101,7 @@ function Not( argv, type, handler = () => true, catcher = () => false ) {
 
 
 export {
+	isAsyncronous,
 	isEmpty,
 	isNotEmpty,
 	Not,
