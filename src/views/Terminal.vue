@@ -8,7 +8,7 @@
 	import { Fmt } from "../scripts/formatter";
 	import { isEmpty, isNotEmpty } from "../scripts/logics";
 	import { Banner, Terminal } from "../scripts/terminal";
-	import { ANSI, History } from "../scripts/terminal/shell";
+	import { ANSI } from "../scripts/terminal/shell";
 	import { Typed } from "../scripts/types";
 	
 	export default {
@@ -25,6 +25,7 @@
 				before: "",
 				splited: ""
 			},
+			loading: false,
 			model: "",
 			shortcuts: [
 				{
@@ -165,9 +166,6 @@
 				this.terminal.shell.stdout.write( Fmt( Banner.join( "\x0a" ), ...params ) );
 			}
 		},
-		mounted: function() {
-			this.onkeydown();
-		},
 		methods: {
 			
 			/**
@@ -177,17 +175,18 @@
 			 * 
 			 */
 			execute: async function( e ) {
-				this.ontrigger( e );
+				var command = this.model;
 				switch( e.key ) {
 					case "Enter":
-						await this.terminal.exec( this.model );
 						this.model = "";
+						await this.terminal.exec( command );
 						break;
 					case "Tab":
 						this.model+= "\x20";
 						e.preventDefault();	
 						break;
 				}
+				this.ontrigger( e );
 			},
 			
 			/**
@@ -233,7 +232,7 @@
 								this.labels.after = this.ansi.colorize( model.substring( index+1 ) );
 							}
 						}
-						this.ontrigger();
+						this.ontrigger( e );
 					}
 				}
 				else {
@@ -256,6 +255,7 @@
 					this.$refs.input.focus();
 				}
 				catch( e ) {
+					console.error( e );
 				}
 			},
 			
@@ -293,6 +293,12 @@
 			}
 			
 		},
+		mounted: function() {
+			if( isNotEmpty( this.$route.query?.command ) ) {
+				this.model = this.$route.query.command;
+			}
+			this.ontrigger();
+		},
 		beforeRouteLeave: function( to, from ) {
 			return true;
 		}
@@ -303,21 +309,28 @@
 <template>
 	<div class="terminal">
 		<div class="terminal-screen">
-			<div class="terminal-output">
+			<div class="terminal-output" @click="ontrigger">
+				<div>
+					<h1 class="title">Table Process</h1>
+					<p class="subtitle">{{ terminal.kernel.table.size }}</p>
+					<p class="subtitle" v-for="process, pid in Object.fromEntries( terminal.kernel.table )">
+						{{ pid }} {{ process.state }}
+					</p>
+				</div>
 				<div class="terminal-line" v-html="terminal.window.innerHTML"></div>
 				<div class="terminal-form">
 					<label class="terminal-prompt" data-label="$PS1" v-html="terminal.ps1()"></label>
 					<label class="terminal-label" data-label="before" v-html="labels.before"></label>
-				<label class="terminal-label blinking-1x" data-blink data-label="split" v-html="labels.splited" :style="{ backgroundColor: 'white', width: '9px', color: 'black' }"></label>
-				<label class="terminal-label" data-label="after" v-html="labels.after"></label>
-				<input class="terminal-input blinking-1x" data-blink data-label="input" :style="{ borderRight: labels.splited === '' && model !== '' || model === '' ? '9px solid white' : 'none', transition: 'none' }" autocapitalize="off" ref="input" type="text" v-model="model"
-					@click="onkeydown"
-					@keyup="onkeydown"
-					@focus="onkeydown"
-					@input="onkeydown"
-					@change="onkeydown"
-					@keypress="onkeydown"
-					@keydown="execute" />
+					<label class="terminal-label blinking-1x" data-blink data-label="split" v-html="labels.splited" :style="{ backgroundColor: 'white', width: '9px', color: 'black' }"></label>
+					<label class="terminal-label" data-label="after" v-html="labels.after"></label>
+					<input class="terminal-input blinking-1x" data-label="input" :style="{ borderRight: labels.splited === '' && model !== '' || model === '' ? '9px solid white' : 'none', transition: 'none' }" autocapitalize="off" ref="input" type="text" v-model="model"
+						@click="onkeydown"
+						@keyup="onkeydown"
+						@focus="onkeydown"
+						@input="onkeydown"
+						@change="onkeydown"
+						@keypress="onkeydown"
+						@keydown="execute" />
 				</div>
 			</div>
 			<div class="terminal-shortcut mg-top-10" v-if="isMobile()">
