@@ -34,7 +34,7 @@
 import { Fmt } from "../formatter";
 import { Kernel, User } from "./kernel";
 import { Router } from "../../routing";
-import { ANSI, Shell } from "./shell";
+import { ANSI, Shell, sleep } from "./shell";
 import { Typed } from "../types";
 import { UnixTime } from "../unixtime";
 
@@ -121,7 +121,6 @@ class Terminal {
 		this.input = input;
 		this.kernel = new Kernel( router );
 		if( this.kernel.vfs.isdir( "/home/hxari" ) ) {
-			this.kernel.switch( "hxari" );
 			this.hxari = this.kernel.user();
 		}
 		else {
@@ -132,25 +131,15 @@ class Terminal {
 				shell: "/usr/bin/bash",
 				user: this.kernel.root
 			});
-			this.kernel.switch( "hxari" );
 			this.hxari = this.kernel.user();
 			for( const aliased of this.aliases ) {
 				this.kernel.vfs.append( "/home/hxari/.bash_aliases", { contents: Fmt( "\nalias -d 0 -o 0 $'{}'=\"{}\"", ...aliased.map( ( alias, index ) => index === 0 ? alias : alias.replaceAll( /\"/g, "\\\"" ) ) ), user: this.hxari } );
 			}	
 		}
 		this.router = router;
-		this.shell = new Shell( this.kernel );
-		this.shell.stdout.register( "clear", function() {
-			if( Typed( window, HTMLDivElement ) || Typed( window?.innerHTML, String ) ) {
-				window.innerHTML = "";
-			}
-		});
-		this.shell.stdout.register( "write", function( /** @type {String} */ contents ) {
-			if( Typed( window, HTMLDivElement ) || Typed( window?.innerHTML, String ) ) {
-				window.innerHTML+= contents.split( /\n/gm ).map( e => Fmt( "<label class=\"terminal-line-output dp-block\">{}</label>", new ANSI().render( e ) ) ).join( "" );
-			}
-		})
+		this.shell = new Shell( this.kernel, { user: this.hxari } );
 		this.window = window;
+		this.kernel.spawn( shellspawn( this.shell, window ) );
 	}
 	
 	/**
@@ -170,6 +159,26 @@ class Terminal {
 		return this.shell.ansi.render( this.shell.ps1() );
 	}
 	
+}
+
+/**
+ * Shell spawner
+ * 
+ * @param {Shell} shell 
+ * @param {?HTMLDivElement} window
+ * 
+ * @returns {Function}
+ * 
+ */
+function shellspawn( shell, window ) {
+	var ansi = new ANSI();
+	return async function( args=[] ) {
+		if( Typed( window, HTMLDivElement ) ) {
+			shell.stdout.register( "clear", () => window.innerHTML = "" );
+			shell.stdout.register( "write", contents => window.innerHTML+= contents.split( /\n/gm ).map( e => Fmt( "<label class=\"terminal-line-output dp-block\">{}</label>", ansi.render( e ) ) ).join( "" ) );
+		}
+		await sleep( 1000 );
+	};
 }
 
 export {
