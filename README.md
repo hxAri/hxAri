@@ -1,6 +1,4 @@
 
-# hxAri
-
 ![hxAri](https://raw.githubusercontent.com/hxAri/hxAri/main/public/images/1701255136;6duiesguuJBCQ.png)
 <!--![Profile Views](https://gpvc.arturio.dev/hxAri)-->
 
