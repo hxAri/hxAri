@@ -1,27 +1,57 @@
 
+/**
+ * 
+ * hxAri | cookie.js
+ * 
+ * @author hxAri
+ * @github https://github.com/hxAri/hxAri
+ * @license MIT
+ * 
+ * Copyright (c) 2022 Ari Setiawan | hxAri
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ * 
+ */
+
 // Import Scripts.
-import Fmt from "/src/scripts/Fmt.js";
-import Not from "/src/scripts/logics/Not.js";
-import Type from "/src/scripts/Type.js";
-import Value from "/src/scripts/logics/Value.js";
+import { Fmt } from "/src/scripts/formatter";
+import { Not, isEmpty, isNotEmpty } from "/src/scripts/logics";
+import { Typed } from "/src/scripts/types";
 
 /**
  * Cookie utility
  *
  * A utility that provides various APIs for managing cookies.
  *
- * @params Array set
- * @params String del
+ * @param {Array<Array<String>>} set
+ * @param {String} del
+ * 
  */
 const Cookie = function( set, del ) {
 	var self = this;
-	if( Type( document, "Undefined" ) ) {
+	if( Typed( document, "Undefined" ) ) {
 		throw new TypeError( "Object Document is not defined." );
 	}
-	if( Type( set, Array ) ) {
+	if( Typed( set, Array ) ) {
 		self.set.apply( self, set );
 	}
-	Type( del, Array, () => {
+	Typed( del, Array, () => {
 		del.forEach( cookie => {
 			self.del( cookie );
 		})
@@ -32,13 +62,14 @@ const Cookie = function( set, del ) {
 /**
  * Get cookie value.
  *
- * @params String name
+ * @param {String} name
  *
- * @return String|False
+ * @returns {Boolean|String}
+ * 
  */
 Cookie.prototype.get = function( name ) {
-	if( Type( name, String ) ) {
-		if( Value.isNotEmpty( document.cookie ) ) {
+	if( Typed( name, String ) ) {
+		if( isNotEmpty( document.cookie ) ) {
 			
 			// Reload cookies.
 			this.load();
@@ -62,7 +93,8 @@ Cookie.prototype.get = function( name ) {
 /**
  * Load all the cookies that have been set.
  *
- * @return Object
+ * @returns {Object}
+ * 
  */
 Cookie.prototype.load = function() {
 	
@@ -87,11 +119,12 @@ Cookie.prototype.loaded = {};
 /**
  * Set one or more than one cookie.
  *
- * @params String name
- * @params String value
- * @params Object options
+ * @param {String} name
+ * @param {String} value
+ * @param {Object} options
  *
- * @return String
+ * @returns {String}
+ * 
  */
 Cookie.prototype.set = function( name, value, { comment, domain, expires, maxage, httponly, path = "/", samesite, secure, version = "4.1.6" } = {} ) {
 	
@@ -100,14 +133,14 @@ Cookie.prototype.set = function( name, value, { comment, domain, expires, maxage
 	
 	// If cookies are multiple, all
 	// arguments will be ignored except name.
-	if( Type( name, Array ) ) {
+	if( Typed( name, Array ) ) {
 		
 		// Set cookies by order.
 		name.forEach( group => {
 			
 			// If the group values do not match.
-			if( Type( group ) !== "Array" ) {
-				throw new TypeError( Fmt( "Multiple cookie group value must be type Object, \"{}\" given.", Type( group ) ) );
+			if( Typed( group ) !== "Array" ) {
+				throw new TypeError( Fmt( "Multiple cookie group value must be Typed Object, \"{}\" given.", Typed( group ) ) );
 			}
 			self.set.apply( self, group );
 		});
@@ -116,14 +149,14 @@ Cookie.prototype.set = function( name, value, { comment, domain, expires, maxage
 	else {
 		
 		// If name is String type.
-		if( Type( name, String ) ) {
+		if( Typed( name, String ) ) {
 			
 			// Raw Cookie Header.
 			var header = "";
 			
 			// Check if the cookie name is valid.
 			if( /^(?:([a-z\_])([a-z0-9\_]*))$/i.test( name ) ) {
-				if( Type( value, String ) ) {
+				if( Typed( value, String ) ) {
 					header = Fmt( "{}={}", encodeURIComponent( name ), encodeURIComponent( value ) );
 				}
 				else {
@@ -136,32 +169,32 @@ Cookie.prototype.set = function( name, value, { comment, domain, expires, maxage
 			}
 			
 			// If the cookie has a comment.
-			if( Type( comment, String ) ) {
+			if( Typed( comment, String ) ) {
 				header += Fmt( "; Comment=\"{}\"", comment );
 			}
 			
 			// If the cookie has a domain name.
-			if( Type( domain, String ) ) {
+			if( Typed( domain, String ) ) {
 				header += Fmt( "; Domain={}", domain );
 			}
 			
 			// If the cookie has an expiration date.
-			if( Type( expires, Number ) ) {
+			if( Typed( expires, Number ) ) {
 				header += Fmt( "; expires={}", new Date( Date.now() + expires * 864e5 ).toUTCString() );
 			}
 			
 			// If the cookie is read only the server.
-			if( Type( httponly, Boolean ) ) {
+			if( Typed( httponly, Boolean ) ) {
 				header += httponly ? "; HttpOnly" : "";
 			}
 			
 			// ....
-			if( Type( maxage, Number ) ) {
+			if( Typed( maxage, Number ) ) {
 				header += Fmt( "; Max-Age={}", maxage );
 			}
 			
 			// If cookies are only set in certain locations.
-			if( Type( path, String ) ) {
+			if( Typed( path, String ) ) {
 				
 				// If the location path name is valid.
 				if( /(?:^(\/\w+){0,}\/?)$/g.test( path ) ) {
@@ -172,7 +205,7 @@ Cookie.prototype.set = function( name, value, { comment, domain, expires, maxage
 				}
 			}
 			
-			if( Type( samesite, String ) ) {
+			if( Typed( samesite, String ) ) {
 				switch( samesite ) {
 					case "Lax":
 						header += "; SameSite=Lax"; break;
@@ -187,12 +220,12 @@ Cookie.prototype.set = function( name, value, { comment, domain, expires, maxage
 			
 			// Otherwise the cookie is only sent
 			// to the server when a request is made.
-			if( Type( secure, Boolean ) ) {
+			if( Typed( secure, Boolean ) ) {
 				header += secure ? "; Secure" : "";
 			}
 			
 			// If cookie has a version.
-			if( Type( version, String ) ) {
+			if( Typed( version, String ) ) {
 				header += Fmt( "; Version={}", version );
 			}
 			
@@ -211,4 +244,4 @@ Cookie.prototype.set = function( name, value, { comment, domain, expires, maxage
 	}
 };
 
-export default Cookie;
+export {Cookie};

@@ -3,16 +3,12 @@
 	
 	import { mapState } from "vuex";
 	
-	// Import Routes
-	import Routes from "/src/routing/routes.js";
-	
-	// Import Scripts
-	import Eremento from "/src/scripts/Eremento.js";
-	import Fmt from "/src/scripts/Fmt.js";
-	import Mapper from "/src/scripts/Mapper.js";
-	import Not from "/src/scripts/logics/Not.js";
-	import Type from "/src/scripts/Type.js";
-	import Value from "/src/scripts/logics/Value.js";
+	import { Routes } from "../routing";
+	import Eremento from "../scripts/eremento";
+	import { Fmt } from "../scripts/formatter";
+	import { Not, isEmpty, isNotEmpty } from "../scripts/logics";
+	import { Mapper } from "../scripts/mapper";
+	import { Typed } from "../scripts/types";
 	
 	export default {
 		data: () => ({
@@ -141,13 +137,13 @@
 				// Find projects name.
 				for( let i in routes ) {
 					if( routes[i].name.toLowerCase() === "projects" ) {
-						if( Value.isEmpty( routes[i].children ) ) {
+						if( isEmpty( routes[i].children ) ) {
 							routes[i].children = [];
-							for( let u in this.configs.project.includes ) {
-								if( this.configs.project.includes[u]?.include ) {
+							for( let u in this.configs.project.items ) {
+								if( this.configs.project.items[u]?.include ) {
 									routes[i].children.push({
-										path: this.configs.project.includes[u].endpoint.split( "/" ).pop(),
-										name: this.configs.project.includes[u].name
+										path: this.configs.project.items[u].endpoint.split( "/" ).pop(),
+										name: this.configs.project.items[u].name
 									});
 								};
 							}
@@ -242,17 +238,17 @@
 					template: "<div class=\"sidebar-group scroll-y scroll-hidden\">s</div>"
 				};
 				
-				for( let i in this.configs.project.includes ) {
+				for( let i in this.configs.project.items ) {
 					
 					// Get project info.
-					project = this.configs.project.includes[i];
+					project = this.configs.project.items[i];
 					
 					// Check if project name is equal,
 					// And if project has documentation.
 					if( project.include && ( project.name.toLowerCase() === this.$route.params.project.toLowerCase() || project.endpoint.split( "/" ).pop().toLowerCase() === this.$route.params.project.toLowerCase() ) ) {
 						
 						// Check if project documentation is available.
-						if( Type( this.document, Object ) ) {
+						if( Typed( this.document, Object ) ) {
 							component.template = Fmt( component.template, this.iterator( this.document.routes ) );
 							component.data = () => ({
 								actives: {},
@@ -296,7 +292,7 @@
 			 * @return String
 			 */
 			icon: function( list ) {
-				if( Type( list.icon, Object ) ) {
+				if( Typed( list.icon, Object ) ) {
 					return Fmt( "[ 'sidebar-icon', $route.path === '{}' ? '{}' : '{}' ]", ...[
 						list.path,
 						list.icon.active.join( "\x20" ),
@@ -312,7 +308,7 @@
 			 * @return Boolean
 			 */
 			isDocument: function() {
-				return Value.isNotEmpty( this.$route.params.project );
+				return isNotEmpty( this.$route.params.project );
 			},
 			
 			/**
@@ -331,11 +327,11 @@
 				Mapper( lists, function( i, list ) {
 					
 					// Check if route is not visible.
-					if( Type( list.visible, Boolean ) && list.visible === false ) return;
+					if( Typed( list.visible, Boolean ) && list.visible === false ) return;
 					
 					// Check if route has children paths.
 					// And if path is readable.
-					if( Type( list.children, Array ) && list.readable === true ) {
+					if( Typed( list.children, Array ) && list.readable === true ) {
 						
 						// Create unique id.
 						var uniq = btoa( list.path ).replaceAll( /\=|\-|\/|\+/g, "" );
@@ -384,9 +380,9 @@
 			request: async function() {
 				var name = this.$route.params.project.toLowerCase();
 				var project = null;
-				for( let i in this.configs.project.includes ) {
+				for( let i in this.configs.project.items ) {
 					
-					project = this.configs.project.includes[i];
+					project = this.configs.project.items[i];
 					
 					// Skip if project is not include.
 					if( project.include === false ) continue;

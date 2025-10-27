@@ -1,7 +1,7 @@
 
 /**
  * 
- * hxAri | router.js
+ * hxAri | requests.js
  * 
  * @author hxAri
  * @github https://github.com/hxAri/hxAri
@@ -29,53 +29,50 @@
  * 
  */
 
-import { createRouter, createWebHistory } from "vue-router";
+import { Fmt } from "./formatter";
+import { Mapper } from "./mapper";
+import { Request } from "./request";
+import { Typed } from "./types";
 
-import { Routes } from "./routes";
-
-// The router instance.
-const router = createRouter({
-	
-	// Router history mode.
-	history: createWebHistory(import.meta.env.BASE_URL),
-	
-	// Define some routes.
-	// Each route should map to a component.
-	routes: Routes,
-	
-	/**
-	 * Scroll Behavior
-	 *
-	 * @param {8} to
-	 * @param {*} from
-	 * @param {*} save
-	 *
-	 * @returns {Object}
-	 * 
-	 */
-	scrollBehavior: function( to, from, save ) {
-		if( to.hash ) {
-			return {
-				el: to.hash,
-				behavior: "smooth"
-			};
-		}
-		else if( to.query.tab ) {
-			return {
-				el: to.query.tab,
-				behavior: "smooth"
-			};
-		}
-		else {
-			if( save ) {
-				return save;
+/**
+ * Send multiple requests.
+ *
+ * @param {Array<Object>} requests
+ *
+ * @returns {Array<Promise<XMLHttpRequest>>}
+ *
+ * @throws {TypeError}
+ * 
+ */
+async function Requests( requests ) {
+	if( Typed( requests, Array ) ) {
+		return await Promise.all( Mapper( requests,
+			
+			/**
+			 * Handle mapping.
+			 *
+			 * @param {Number} i
+			 * @param {Object} request
+			 *
+			 */
+			async function( i, request ) {
+				if( Typed( request, Object ) ) {
+					var url = Typed( request.url, String, () => request.url, () => "" );
+					var method = Typed( request.method, String, () => request.method, () => "GET" );
+					var options = Typed( request.options, Object, () => request.options, () => Object.create({}) );
+				}
+				else {
+					var url = request;
+					var method = "GET";
+					var options = {};
+				}
+				return await Request( method, url, options );
 			}
-		}
-		return {
-			top: 0,
-			behavior: "smooth"
-		};
+		));
 	}
-});
+	else {
+		throw new TypeError( Fmt( "Parameter $requests must be type Array, {} given", Typed( requests ) ) );
+	}
+}
 
-export { router as Router };
+export { Requests };

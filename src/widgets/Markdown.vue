@@ -3,9 +3,8 @@
 	
 	import hljs from "highlight.js";
 	import MarkdownIt from "markdown-it";
-
-	// Import Scripts
-	import Fmt from "/src/scripts/Fmt.js";
+	
+	import { Fmt } from "/src/scripts/formatter";
 
 	export default {
 		data: () => ({

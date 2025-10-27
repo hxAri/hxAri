@@ -4,7 +4,7 @@
 	import { mapState } from "vuex";
 	
 	// Import Scripts.
-	import Image from "/src/scripts/Image.js";
+	import Image from "/src/scripts/image";
 	
 	export default {
 		data: () => ({
@@ -33,7 +33,7 @@
 <template>
 	<div class="skill">
 		<div class="skill-wrapper flex flex-left flex-wrap">
-			<div class="skill-single" :title="expertise.name" v-for="expertise in programming.expertises">
+			<div class="skill-single" :title="expertise.name" v-for="expertise in programming.expertices">
 				<div class="skill-avatar avatar flex flex-center rd-square">
 					<div class="skill-avatar-wrapper avatar-wrapper flex flex-center">
 						<img class="avatar-image lazy" :alt="expertise.name" :data-src="resolver( expertise.logo )" v-lazyload />

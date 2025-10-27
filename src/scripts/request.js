@@ -1,19 +1,48 @@
 
-// Import Scripts.
-import Value from "/src/scripts/logics/Value.js";
-import Not from "/src/scripts/logics/Not.js"
-import Type from "/src/scripts/Type.js";
+/**
+ * 
+ * hxAri | request.js
+ * 
+ * @author hxAri
+ * @github https://github.com/hxAri/hxAri
+ * @license MIT
+ * 
+ * Copyright (c) 2022 Ari Setiawan | hxAri
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ * 
+ */
+
+import { isNotEmpty, Not } from "/src/scripts/logics";
+import { Typed } from "/src/scripts/types";
 
 /**
  * Request
  *
  * Send asynchronous requests using XMLHttpRequest.
  *
- * @params String method
- * @params String url
- * @params Object options
+ * @param {String} method
+ * @param {String} url
+ * @param {Object} options
  *
- * @return Promise
+ * @returns {Promise<XMLHttpRequest>}
+ * 
  */
 const Request = async function( method, url, options = {} ) {
 	return new Promise( await function( resolve, reject ) {
@@ -25,21 +54,21 @@ const Request = async function( method, url, options = {} ) {
 		xhr.open( method, url );
 		
 		// If headers is Object type.
-		if( Type( options.headers, Object ) ) {
+		if( Typed( options.headers, Object ) ) {
 			for( let header in options.headers ) {
 				xhr.setRequestHeader( header, options.headers[header] );
 			}
 		}
 		
 		// If data is Object type.
-		if( Type( options.data, Object ) ) {
+		if( Typed( options.data, Object ) ) {
 			var data = [];
 			for( let key in options.data ) {
 				data.push( encodeURIComponent( key ) + "=" + encodeURIComponent( options.data[key] ) );
 			}
 			xhr.send( data.join( "&" ) );
 		}
-		else if( Type( options.data, FormData ) ) {
+		else if( Typed( options.data, FormData ) ) {
 			xhr.send( options.data );
 		}
 		else {
@@ -47,7 +76,7 @@ const Request = async function( method, url, options = {} ) {
 		}
 		
 		// If request has events.
-		if( Type( options.events, Object ) ) {
+		if( Typed( options.events, Object ) ) {
 			for( let i in options.events ) {
 				
 				// Allow set events except loaded & error.
@@ -75,7 +104,7 @@ const Request = async function( method, url, options = {} ) {
 						resp = Json.decode( resp );
 					
 					// Check if response has message.
-					if( Type( resp.message, String ) && Value.isNotEmpty( resp.message ) ) {
+					if( Typed( resp.message, String ) && isNotEmpty( resp.message ) ) {
 						message = resp.message;
 					}
 				}
@@ -94,11 +123,12 @@ const Request = async function( method, url, options = {} ) {
 /**
  * Returns the status text for a given HTTP status code.
  *
- * @params Number statusCode
+ * @param {Number} statusCode
  *  The HTTP status code to get the text for.
  *
- * @return String
+ * @returns {String}
  *  The corresponding status text for the given status code.
+ * 
  */
 Request.StatusText = function( statusCode ) {
 	switch( statusCode ) {
@@ -146,7 +176,8 @@ Request.StatusText = function( statusCode ) {
 /**
  * Header normalization.
  *
- * @params Array|String raw
+ * @param {Array<String>|String} raw
+ * 
  */
 Request.Header = function( raw ) {
 	
@@ -156,7 +187,7 @@ Request.Header = function( raw ) {
 		self.value = null;
 	
 	// Check if the raw header has not been split.
-	if( Type( raw, String ) ) {
+	if( Typed( raw, String ) ) {
 		raw = raw.split( ":\x20" );
 	}
 	
@@ -173,7 +204,8 @@ Request.Header = function( raw ) {
 /**
  * Response Content Type.
  *
- * @params Array|String content
+ * @param {Array<String>|String} content
+ * 
  */
 Request.ContentType = function( content ) {
 	
@@ -181,14 +213,16 @@ Request.ContentType = function( content ) {
 	if( Not( content, "Undefined" ) ) {
 		
 		// Check if the raw type has not been split.
-		if( Type( content, String ) ) {
+		if( Typed( content, String ) ) {
 			
 			// Separate content type with charset.
 			content = content.split( "; " );
 		}
 		
 		// If response content type has charset.
-		if( Type( content[1], String ) ) this.charset = content[1].split( "=" )[1];
+		if( Typed( content[1], String ) ) {
+			this.charset = content[1].split( "=" )[1];
+		}
 		
 		// Mapping content types.
 		switch( content[0] ) {
@@ -202,4 +236,6 @@ Request.ContentType = function( content ) {
 	}
 };
 
-export default Request;
+export {
+	Request
+};

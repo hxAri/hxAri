@@ -1,7 +1,7 @@
 
 /**
  * 
- * hxAri | router.js
+ * hxAri | store-actions.test.js
  * 
  * @author hxAri
  * @github https://github.com/hxAri/hxAri
@@ -29,53 +29,16 @@
  * 
  */
 
-import { createRouter, createWebHistory } from "vue-router";
 
-import { Routes } from "./routes";
+import { test } from "vitest";
 
-// The router instance.
-const router = createRouter({
-	
-	// Router history mode.
-	history: createWebHistory(import.meta.env.BASE_URL),
-	
-	// Define some routes.
-	// Each route should map to a component.
-	routes: Routes,
-	
-	/**
-	 * Scroll Behavior
-	 *
-	 * @param {8} to
-	 * @param {*} from
-	 * @param {*} save
-	 *
-	 * @returns {Object}
-	 * 
-	 */
-	scrollBehavior: function( to, from, save ) {
-		if( to.hash ) {
-			return {
-				el: to.hash,
-				behavior: "smooth"
-			};
-		}
-		else if( to.query.tab ) {
-			return {
-				el: to.query.tab,
-				behavior: "smooth"
-			};
-		}
-		else {
-			if( save ) {
-				return save;
-			}
-		}
-		return {
-			top: 0,
-			behavior: "smooth"
-		};
-	}
+import { Store } from "../src/stores";
+
+
+test( "Store.actions.initialize", function() {
+	Store.dispatch( "initialize" );
 });
 
-export { router as Router };
+test( "Store.state", function() {
+	console.debug( Store._state.data.configs );
+});

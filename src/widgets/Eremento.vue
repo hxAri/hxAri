@@ -2,7 +2,7 @@
 <script>
 	
 	// Import Scripts
-	import Eremento from "/src/scripts/Eremento.js";
+	import Eremento from "/src/scripts/eremento";
 	
 	// Import Widgets
 	import Error from "/src/widgets/Error.vue";

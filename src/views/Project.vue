@@ -48,11 +48,11 @@
 						<i class="bx bxs-flag mg-right-14"></i>Projects
 					</h2>
 					<hr class="hr mg-top-14 mg-bottom-14" />
-					<p class="text mg-0">
+					<div class="text mg-0">
 						<p class="text mg-0">Here are some of the projects I've created and are still developing.</p>
 						<p class="text mg-0">Every project is open source anyone can use it or contribute if interesting,</p>
 						<p class="text mg-bottom-14">don't forget to let others know if it's useful.</p>
-					</p>
+					</div>
 					<Project />
 				</div>
 			</div>
