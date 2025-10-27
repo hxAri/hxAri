@@ -47,5 +47,5 @@
     },
     "type": "module",
     "unpkg": "dist/js/hxari.js",
-    "version": "4.2.4"
+    "version": "4.2.5"
 }
