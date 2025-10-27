@@ -612,13 +612,21 @@
 			 *
 			 * @return String
 			 */
-			 mode: function() {
+			mode: function() {
 				for( let keyset of Object.keys( this.settings.modes ) ) {
 					if( this.settings.modes[keyset] === this.settings.mode ) {
 						return keyset;
 					}
 				}
-			 }
+			},
+			
+			pathsaved: function() {
+				return this.user.home.concat( "/".concat( this.keysets.prefix.concat( "/".concat( this.keysets.content ) ) ) );
+			},
+			
+			pathtoterminal: function() {
+				return Fmt( "/terminal?command=ls -l {}", this.pathsaved );
+			}
 			
 		},
 		directives: {
@@ -1227,7 +1235,9 @@
 			<SwiperSlide class="editor-swiper-slide editor-swiper-menu">
 				<div class="editor-menu-header">
 					<div class="editor-menu-header-wrapper flex flex-left pd-14">
-						{{ user.home.concat( "/".concat( keysets.prefix.concat( "/".concat( keysets.content ) ) ) ) }}
+						<RouterLink :to="pathtoterminal">
+							{{ pathsaved }}
+						</RouterLink>
 					</div>
 				</div>
 				<div class="editor-menu-filenames scroll-x scroll-hidden">
