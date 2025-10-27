@@ -1,7 +1,7 @@
 
 /**
  * 
- * hxAri | router.js
+ * hxAri | ansi.js
  * 
  * @author hxAri
  * @github https://github.com/hxAri/hxAri
@@ -29,53 +29,45 @@
  * 
  */
 
-import { createRouter, createWebHistory } from "vue-router";
+import { Stderr, Stdin, Stdout } from "../kernel";
 
-import { Routes } from "./routes";
-
-// The router instance.
-const router = createRouter({
+class History {
 	
-	// Router history mode.
-	history: createWebHistory(import.meta.env.BASE_URL),
+	/** @type {?HTMLInputElement|HTMLTextAreaElement} */
+	binding;
 	
-	// Define some routes.
-	// Each route should map to a component.
-	routes: Routes,
+	/** @type {?Number} */
+	exit;
+	
+	/** @type {Stderr} */
+	stderr;
+	
+	/** @type {Stdin} */
+	stdin;
+	
+	/** @type {Stdout} */
+	stdout;
 	
 	/**
-	 * Scroll Behavior
-	 *
-	 * @param {8} to
-	 * @param {*} from
-	 * @param {*} save
-	 *
-	 * @returns {Object}
+	 * Construct method of class History
+	 * 
+	 * @param {?HTMLInputElement|HTMLTextAreaElement} binding
+	 * @param {?Number} exit
+	 * @param {Stderr} stderr
+	 * @param {Stdin} stdin
+	 * @param {Stdout} stdout
 	 * 
 	 */
-	scrollBehavior: function( to, from, save ) {
-		if( to.hash ) {
-			return {
-				el: to.hash,
-				behavior: "smooth"
-			};
-		}
-		else if( to.query.tab ) {
-			return {
-				el: to.query.tab,
-				behavior: "smooth"
-			};
-		}
-		else {
-			if( save ) {
-				return save;
-			}
-		}
-		return {
-			top: 0,
-			behavior: "smooth"
-		};
+	constructor( binding, exit, stderr, stdin, stdout ) {
+		this.binding = binding;
+		this.exit = exit;
+		this.stderr = stderr;
+		this.stdin = stdin;
+		this.stdout = stdout;
 	}
-});
+	
+}
 
-export { router as Router };
+export {
+	History
+};

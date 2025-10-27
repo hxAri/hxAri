@@ -1,7 +1,7 @@
 
 /**
  * 
- * hxAri | router.js
+ * hxAri | image.js
  * 
  * @author hxAri
  * @github https://github.com/hxAri/hxAri
@@ -29,53 +29,47 @@
  * 
  */
 
-import { createRouter, createWebHistory } from "vue-router";
+import { Image } from "./configs";
+import { Fmt } from "./formatter";
+import { Typed } from "./types";
 
-import { Routes } from "./routes";
-
-// The router instance.
-const router = createRouter({
-	
-	// Router history mode.
-	history: createWebHistory(import.meta.env.BASE_URL),
-	
-	// Define some routes.
-	// Each route should map to a component.
-	routes: Routes,
+export default {
 	
 	/**
-	 * Scroll Behavior
+	 * Image resolver.
 	 *
-	 * @param {8} to
-	 * @param {*} from
-	 * @param {*} save
+	 * @param {Image} $config
+	 *  The image configuration
+	 * @param {String} image
+	 *  The image pathname
 	 *
-	 * @returns {Object}
+	 * @returns {String}
 	 * 
 	 */
-	scrollBehavior: function( to, from, save ) {
-		if( to.hash ) {
-			return {
-				el: to.hash,
-				behavior: "smooth"
-			};
-		}
-		else if( to.query.tab ) {
-			return {
-				el: to.query.tab,
-				behavior: "smooth"
-			};
-		}
-		else {
-			if( save ) {
-				return save;
+	resolver( $config, image ) {
+		return Fmt( "{}/{}", process.env.NODE_ENV === "production" ? $config.source : "/public/images/", image );
+	},
+	
+	/**
+	 * The image searcher.
+	 *
+	 * @param {Image} $config
+	 *  The image configuration
+	 * @param {String} type
+	 *  The image category typename
+	 * @param {String} keyset
+	 *  The image name
+	 * 
+	 * @returns {String}
+	 * 
+	 */
+	search( $config, type, keyset ) {
+		if( Typed( $config.items[type], Object ) ) {
+			if( Typed( $config.items[type][keyset], String ) ) {
+				return this.resolver( $config, Fmt( "{}/{}", type, $config.items[type][keyset] ) );
 			}
 		}
-		return {
-			top: 0,
-			behavior: "smooth"
-		};
 	}
-});
+	
+};
 
-export { router as Router };

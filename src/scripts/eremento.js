@@ -1,4 +1,34 @@
 
+/**
+ * 
+ * hxAri | eremento.js
+ * 
+ * @author hxAri
+ * @github https://github.com/hxAri/hxAri
+ * @license MIT
+ * 
+ * Copyright (c) 2022 Ari Setiawan | hxAri
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ * 
+ */
+
 // Import Highlight.js
 import hljs from "highlight.js/lib/core";
 import bash from "highlight.js/lib/languages/bash";
@@ -20,8 +50,8 @@ import sql from "highlight.js/lib/languages/sql";
 import xml from "highlight.js/lib/languages/xml";
 
 // Import Scripts
-import Type from "/src/scripts/Type.js";
-import Value from "/src/scripts/logics/Value.js";
+import { Typed } from "/src/scripts/types";
+import { isEmpty, isNotEmpty } from "/src/scripts/logics";
 
 // Registering language.
 hljs.registerLanguage( "bash", bash );
@@ -45,29 +75,32 @@ hljs.registerLanguage( "xml", xml );
 /**
  * Return if tag name is paired.
  *
- * @params String tag
+ * @param {String} tag
  *  HTML tag name
  *
- * @return Boolean
+ * @returns {Boolean}
+ * 
  */
 const paired = tag => unpaired( tag ) === false;
 
 /**
  * Return if tag name is unpaired.
  *
- * @params String tag
+ * @param {String} tag
  *  HTML tag name
  *
- * @return Boolean
+ * @returns {Boolean}
+ * 
  */
 const unpaired = tag => /^(?:area|base|br|col|embed|hr|img|input|keygen|link|meta|param|source|track|wbr)$/i.exec( tag ) !== null;
 
 /**
  * Replace sensitive characters.
  *
- * @params String $string
+ * @param {String} $string
  *
- * @return String
+ * @returns {String}
+ * 
  */
 function replace( string ) {
 	return String( string )
@@ -81,28 +114,29 @@ function replace( string ) {
 /**
  * Arrange or create raw html syntax.
  *
- * @params Array<HTMLElement|Object>|HTMLElement|Object name
- * @params Object attributes
+ * @param {Array<HTMLElement|Object>|HTMLElement|Object} name
+ * @param {Object} attributes
  *
- * @return String
+ * @returns {String}
  *  Html raw string syntax
+ * 
  */
 function arrange( name, attributes = {} ) {
-	if( Type( name, Array ) ) {
+	if( Typed( name, Array ) ) {
 		var elements = [];
 		for( let i in name ) {
-			elements[i] = arrange( name[i].name, Type( name[i].attributes, Object ) ? name[i].attributes : {} );
+			elements[i] = arrange( name[i].name, Typed( name[i].attributes, Object ) ? name[i].attributes : {} );
 		}
 		return elements.join( "\x0a" );
 	}
 	
 	// If element is Object type.
-	else if( Type( name, Object ) ) {
-		return arrange( name.name, Type( name.attributes, Object ) ? name.attributes : {} );
+	else if( Typed( name, Object ) ) {
+		return arrange( name.name, Typed( name.attributes, Object ) ? name.attributes : {} );
 	}
 	
 	// If element is HTMLElement.
-	else if( Type( name ).match( /^HTML[a-zA-Z]+Element/ ) ) {
+	else if( Typed( name ).match( /^HTML[a-zA-Z]+Element/ ) ) {
 		
 		// Create dummy element.
 		var dummy = create( "div", {} );
@@ -120,7 +154,7 @@ function arrange( name, attributes = {} ) {
 			
 			// If attribute is style.
 			if( key.match( /^style$/i ) ) {
-				if( Type( attributes[key], Object ) ) {
+				if( Typed( attributes[key], Object ) ) {
 					
 					// Stack styles.
 					var styles = "";
@@ -141,10 +175,10 @@ function arrange( name, attributes = {} ) {
 			if( key.match( /^innerHTML$/i ) ) {
 				
 				// If inner is Single Element Object or HTMLElement.
-				if( Type( attributes[key] ).match( /^HTML[a-zA-Z]+Element|Object/ ) ) attributes[key] = [ attributes[key] ];
+				if( Typed( attributes[key] ).match( /^HTML[a-zA-Z]+Element|Object/ ) ) attributes[key] = [ attributes[key] ];
 				
 				// If inner is Multiple Element Object.
-				if( Type( attributes[key], Array ) ) {
+				if( Typed( attributes[key], Array ) ) {
 					for( let i in attributes[key] ) {
 						innerHTML += arrange( attributes[key][i] );
 					}
@@ -174,7 +208,7 @@ function arrange( name, attributes = {} ) {
 			if( key.match( /^(?:data|dataset)$/i ) ) {
 				
 				// Skip append if dataset is not Object.
-				if( Type( attributes[key], Object ) === false ) continue;
+				if( Typed( attributes[key], Object ) === false ) continue;
 				
 				// Append datasets.
 				for( let data in attributes[key] ) {
@@ -182,7 +216,7 @@ function arrange( name, attributes = {} ) {
 				}
 				continue;
 			}
-			if( Value.isNotEmpty( attributes[key] ) ) {
+			if( isNotEmpty( attributes[key] ) ) {
 				element += `\x20${key}="${attributes[key]}"`;
 			}
 			else {
@@ -197,19 +231,20 @@ function arrange( name, attributes = {} ) {
 /**
  * Create HTMLElement.
  *
- * @params String name
+ * @param {String} name
  *  HTML Element tag name
- * @params Object attributes
+ * @param {Object} attributes
  *  HTML Element attributes
  *
- * @return HTMLElement
+ * @returns {HTMLElement}
+ * 
  */
 function create( name, attributes = {} ) {
 	
 	var element = document.createElement( name );
 	
 	// Check if attribute is Object type.
-	if( Type( attributes, Object ) ) {
+	if( Typed( attributes, Object ) ) {
 		for( let key in attributes ) {
 			
 			var match = null;
@@ -218,7 +253,7 @@ function create( name, attributes = {} ) {
 			if( key.match( /^(?:data|dataset)$/i ) ) {
 				
 				// Skip append if dataset is not Object.
-				if( Type( attributes[key], Object ) === false ) continue;
+				if( Typed( attributes[key], Object ) === false ) continue;
 				
 				// Append datasets.
 				for( let data in attributes[key] ) {
@@ -239,7 +274,7 @@ function create( name, attributes = {} ) {
 			else if( key.match( /^style$/i ) ) {
 				
 				// Only object can be sets.
-				if( Type( attributes[key], Object ) ) {
+				if( Typed( attributes[key], Object ) ) {
 					
 					// Append style property.
 					for( let style in attributes[key] ) {
@@ -252,10 +287,10 @@ function create( name, attributes = {} ) {
 			else if( key.match( /^innerHTML$/i ) ) {
 				
 				// If inner is Single Element Object or HTMLElement.
-				if( Type( attributes[key] ).match( /^HTML[a-zA-Z]+Element|Object/ ) ) attributes[key] = [ attributes[key] ];
+				if( Typed( attributes[key] ).match( /^HTML[a-zA-Z]+Element|Object/ ) ) attributes[key] = [ attributes[key] ];
 				
 				// If inner is Multiple Element Object.
-				if( Type( attributes[key], Array ) ) {
+				if( Typed( attributes[key], Array ) ) {
 					
 					// Append multiple elements.
 					multiple( element, attributes[key] );
@@ -267,7 +302,7 @@ function create( name, attributes = {} ) {
 			}
 			
 			// If attribute is callable.
-			else if( Type( attributes[key], [ Function, key ] ) ) {
+			else if( Typed( attributes[key], [ Function, key ] ) ) {
 				
 				// Set event listener for element.
 				element.addEventListener( key, attributes[key] );
@@ -293,25 +328,26 @@ function create( name, attributes = {} ) {
 /**
  * Create multiple HTMLElement.
  *
- * @params HTMLElement append
+ * @param {HTMLElement} append
  *  Automatically append element into parent.
- * @params Array<Object> elements
+ * @param {Array<Object>} elements
  *  See `create` function
  *
- * @return Array<HTMLElement>
+ * @returns {Array<HTMLElement>}
+ * 
  */
 function multiple( append, elements ) {
-	if( Type( append, Array ) ) {
+	if( Typed( append, Array ) ) {
 		return multiple( null, append );
 	}
-	if( Type( elements, Array ) ) {
+	if( Typed( elements, Array ) ) {
 		for( let i in elements ) {
 			
 			// Create new element.
 			elements[i] = create( elements[i].name, elements[i].attributes ? elements[i].attributes : {} );
 			
 			// If root element is available.
-			if( Type( append ).match( /^HTML[a-zA-Z]+Element$/ ) ) {
+			if( Typed( append ).match( /^HTML[a-zA-Z]+Element$/ ) ) {
 				append.appendChild( elements[i] );
 			}
 		}

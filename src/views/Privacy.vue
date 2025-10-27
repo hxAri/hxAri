@@ -4,9 +4,9 @@
 	import { mapState } from "vuex";
 	
 	// Import Scripts
-	import Eremento from "/src/scripts/Eremento.js";
-	import Not from "/src/scripts/logics/Not.js";
-	import Type from "/src/scripts/Type.js";
+	import Eremento from "/src/scripts/eremento";
+	import { Not } from "/src/scripts/logics";
+	import { Typed } from "/src/scripts/types";
 	
 	export default {
 		watch: {
@@ -34,7 +34,7 @@
 				for( let content of contents ) {
 					
 					// If content has option.
-					if( Type( content, Object ) ) {
+					if( Typed( content, Object ) ) {
 						
 						/*
 						 * If content is subtitle.
@@ -93,7 +93,7 @@
 				while( ( match = regexp.exec( paragraph ) ) !== null ) {
 					
 					// Get regex group name.
-					var kind = Object.keys( match.groups ).find( group => Type( match.groups[group], String ) );
+					var kind = Object.keys( match.groups ).find( group => Typed( match.groups[group], String ) );
 						kind = kind === "bold" ? "fb-45" : `text-${kind}`;
 					
 					// Format captured character.

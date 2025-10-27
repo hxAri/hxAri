@@ -1,5 +1,5 @@
 
-import Fmt from "../src/scripts/Fmt";
+import { Fmt } from "../src/scripts/formatter";
 import { Lexer } from "../src/scripts/terminal";
 import { expect, test } from "vitest";
 

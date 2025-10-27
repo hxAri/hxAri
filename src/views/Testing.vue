@@ -13,7 +13,6 @@
 		methods: {
 			focus: function( e ) {
 				e.target.focus();
-				console.log( e );
 			},
 			highlight: function( e, c ) {
 				var highlighted = hljs.highlight( c, { language: "json" } ).value;

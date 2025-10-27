@@ -2,20 +2,16 @@
 <script>
 	
 	import { mapGetters, mapState } from "vuex";
-	import { RouterLink } from "vue-router";
 	
-	// Import Scripts.
-	import Type from "/src/scripts/Type.js";
-	import Value from "/src/scripts/logics/Value.js";
+	import { isNotEmpty } from "/src/scripts/logics";
+	import { Typed } from "/src/scripts/types";
 	
-	// Import Widgets.
 	import Avatar from "/src/widgets/Avatar.vue";
 	import Certificate from "/src/widgets/Certificate.vue";
 	import Experience from "/src/widgets/Experience.vue";
 	import Skill from "/src/widgets/Skill.vue";
 	import Project from "/src/widgets/Project.vue";
 	import Technology from "/src/widgets/Technology.vue";
-import { config } from "@vue/test-utils";
 	
 	export default {
 		data: () => ({
@@ -73,7 +69,12 @@ import { config } from "@vue/test-utils";
 						default: [ "bx", "bx-check-double" ]
 					}
 				}
-			]
+			],
+			typewrite: {
+				index: 0,
+				speed: 120,
+				writed: ""
+			}
 		}),
 		watch: {
 			title: {
@@ -82,6 +83,14 @@ import { config } from "@vue/test-utils";
 					document.title = "hxAri";
 				}
 			}
+		},
+		components: {
+			Avatar,
+			Certificate,
+			Experience,
+			Project,
+			Skill,
+			Technology
 		},
 		computed: {
 			...mapState([
@@ -116,7 +125,7 @@ import { config } from "@vue/test-utils";
 				// Dispatch for organization.
 				await this.$store.dispatch( "organization" );
 			}
-			// alert( window.screen.width )
+			this.typing();
 		},
 		methods: {
 			
@@ -128,7 +137,7 @@ import { config } from "@vue/test-utils";
 			 * @return Array|String
 			 */
 			active: function( hash ) {
-				if( Value.isNotEmpty( this.$route.hash ) ) {
+				if( isNotEmpty( this.$route.hash ) ) {
 					return this.$route.hash === hash ? [ "tab-single", "active" ] : "tab-single";
 				}
 				return hash === this.tabs[0].hash ? [ "tab-single", "active" ] : "tab-single";
@@ -142,19 +151,28 @@ import { config } from "@vue/test-utils";
 			 * @return Array
 			 */
 			iconic: function( tab ) {
-				if( Type( this.active( tab.hash ), Array ) ) {
-					return [ "tab-icon", "mg-right-14", ...Type( tab.icon.active, Array, () => tab.icon.active, () => tab.icon.default ) ];
+				if( Typed( this.active( tab.hash ), Array ) ) {
+					return [ "tab-icon", "mg-right-14", ...Typed( tab.icon.active, Array, () => tab.icon.active, () => tab.icon.default ) ];
 				}
 				return [ "tab-icon", "mg-right-14", ...tab.icon.default ];
+			},
+			
+			/** Typing text */
+			typing: function() {
+				var self = this;
+				if( this.typewrite.index <= this.configs.author.headline.length ) {
+					this.typewrite.writed = this.configs.author.headline.substring( 0, this.typewrite.index++ );
+					if( this.typewrite.speed >= 220 ) {
+						this.typewrite.speed-= 120;
+					}
+				}
+				else {
+					this.typewrite.index = 0;
+					this.typewrite.speed+= 120;
+					this.typewrite.writed = "";
+				}
+				setTimeout( () => self.typing(), self.typewrite.speed );
 			}
-		},
-		components: {
-			Avatar,
-			Certificate,
-			Experience,
-			Project,
-			Skill,
-			Technology
 		}
 	};
 	
@@ -165,7 +183,9 @@ import { config } from "@vue/test-utils";
 		<div class="banner-group">
 			<div class="banner-album"></div>
 			<div class="banner-cover flex flex-center flex-wrap">
-				<h6 class="banner-headline title center mg-0 pd-top-6 pd-bottom-6 pd-left-10 pd-right-10">{{ configs.author.headline }}</h6>
+				<h6 class="banner-headline title center mg-0 pd-top-6 pd-bottom-6 pd-left-10 pd-right-10">
+					{{ typewrite.writed }}
+				</h6>
 			</div>
 		</div>
 	</div>
@@ -176,7 +196,6 @@ import { config } from "@vue/test-utils";
 					<div class="profile-picture flex flex-center rd-circle">
 						<div class="profile-picture-border flex flex-center rd-circle">
 							<div class="profile-picture-spaces flex flex-center rd-circle">
-								<!--<Avatar :attrs="{ avatar: 'profile-avatar', wrapper: [ 'profile-avatar-wrapper', 'rd-circle' ] }" title="Ari Setiawan" alt="Ari Setiawan (hxAri)" src="https://avatars.githubusercontent.com/u/90847846?v=4" />-->
 								<div class="avatar flex flex-center profile-avatar">
 									<div class="avatar-wrapper flex flex-center profile-avatar-wrapper rd-circle">
 										<img class="avatar-image lazy" title="Ari Setiawan" alt="Ari Setiawan (hxAri)" :data-src="profile.avatar_url" v-lazyload />
@@ -212,13 +231,18 @@ import { config } from "@vue/test-utils";
 							</a>
 						</li>
 					</ul>
-					<a :href="configs.resume.png" target="_blank" rel="noopener noreferrer">
+					<a :href="configs.resume.pdf" target="_blank" rel="noopener noreferrer" v-if="configs.resume.pdf">
+						<button class="button button-resume mg-bottom-14 pd-14">
+							<span class="title fb-45">Download Resume</span>
+						</button>
+					</a>
+					<a :href="configs.resume.png" target="_blank" rel="noopener noreferrer" v-if="configs.resume.png">
 						<button class="button button-resume mg-bottom-14 pd-14">
 							<span class="title fb-45">View Resume</span>
 						</button>
 					</a>
 					<hr class="hr mg-bottom-14" />
-					<div class="organization" v-if="hasOrganization">
+					<div class="organization" v-if="hasOrganization && configs.home.organization">
 						<div class="mg-bottom-14 mg-lc-bottom flex flex-left" v-for="organization in organizations">
 							<a class="flex flex-left" :href="organization.html_url" target="_blank" rel="noopener noreferrer">
 								<div class="avatar mg-right-14">
@@ -227,7 +251,7 @@ import { config } from "@vue/test-utils";
 										<div class="avatar-cover"></div>
 									</div>
 								</div>
-								<p class="title">{{ organization.name }}</p>
+								<div class="organization-name flex flex-left title">{{ organization.name }}</div>
 							</a>
 						</div>
 					</div>
@@ -238,7 +262,7 @@ import { config } from "@vue/test-utils";
 									<div class="avatar-wrapper flex flex-center organization-avatar-wrapper rd-circle">
 									</div>
 								</div>
-								<p class="title"></p>
+								<div class="organization-name"></div>
 							</div>
 						</div>
 					</div>
@@ -378,16 +402,17 @@ import { config } from "@vue/test-utils";
 			[data-theme="dark"] .banner-cover {
 				background: rgba(0,0,0,.2);
 			}
-				.banner-headline {
-					background: rgba(255,255,255,.8);
-					letter-spacing: 6px;
-					opacity: .8;
-					text-shadow: 1px 1px 2px rgba(0,0,0,.8);
-				}
-				[data-theme="dark"] .banner-headline {
-					background: rgba(0,0,0,.6);
-					text-shadow: 1px 1px 2px rgba(255,255,255,.6);
-				} 
+		.banner-headline {
+			background: rgba(255,255,255,.8);
+			letter-spacing: 6px;
+			opacity: .8;
+			text-shadow: 1px 1px 2px rgba( 0,0,0,.8 );
+			transition: all 1s ease-in-out;
+		}
+			[data-theme="dark"] .banner-headline {
+				background: rgba(0,0,0,.6);
+				text-shadow: 1px 1px 2px rgba(255,255,255,.6);
+			}
 	@media( max-width: 1920px ) {
 		.banner {
 			height: 420px;
@@ -493,23 +518,20 @@ import { config } from "@vue/test-utils";
 					display: block;
 				}
 					.organization-loading > .flex.flex-left {
+						width: 100%;
 					}
 						.organization-loading > .flex.flex-left > .avatar {
+							width: 16%;
 						}
 							.organization-loading > .flex.flex-left > .avatar > .avatar-wrapper {
 								animation: blinking 2s linear infinite;
 							}
-							.organization-loading > .flex.flex-left > .title {
-								width: 199px;
+							.organization-loading > .flex.flex-left > .organization-name {
+								width: 84%;
 								height: 40px;
 								border-radius: 3px;
 								background: var(--background-2);
 								animation: blinking 2s linear infinite;
-							}
-							@media ( max-width: 750px ) {
-								.organization-loading > .flex.flex-left > .title {
-									width: 278px;
-								}
 							}
 					.organization-avatar-wrapper {
 						background: var(--background-2);

@@ -1,8 +1,36 @@
 
-// Import application scripts.
-import Cookie from "/src/scripts/Cookie.js";
-import Null from "/src/scripts/types/Null.js";
-import Type from "/src/scripts/Type.js";
+/**
+ * 
+ * hxAri | theme.js
+ * 
+ * @author hxAri
+ * @github https://github.com/hxAri/hxAri
+ * @license MIT
+ * 
+ * Copyright (c) 2022 Ari Setiawan | hxAri
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ * 
+ */
+
+import { Cookie } from "/src/scripts/cookie.js";
+import { Null, Typed } from "/src/scripts/types";
 
 /**
  * Theme utility
@@ -26,7 +54,7 @@ const Theme = function({ set } = {}) {
 	try {
 		var self = this;
 		var color = set;
-			color = Type( color, "Undefined", () => self.get(), () => color );
+			color = Typed( color, "Undefined", () => self.get(), () => color );
 		
 		self.set( color );
 	}
@@ -66,7 +94,8 @@ Theme.prototype.color = "\x6c\x69\x67\x68\x74";
 /**
  * Get current theme token.
  *
- * @return String
+ * @returns {String}
+ * 
  */
 Theme.prototype.get = function() {
 	try {
@@ -75,7 +104,7 @@ Theme.prototype.get = function() {
 		var token = Cookie.prototype.get( this.name );
 		
 		// If token value is String type.
-		if( Type( token, String ) ) {
+		if( Typed( token, String ) ) {
 			
 			// If token value equals with dark.
 			if( token === this.theme.dark.token ) {
@@ -103,9 +132,8 @@ Theme.prototype.get = function() {
 /**
  * Set theme color.
  *
- * @params String color
- *
- * @return Void
+ * @param {String} color
+ * 
  */
 Theme.prototype.set = function( color ) {
 	try {
@@ -115,7 +143,7 @@ Theme.prototype.set = function( color ) {
 		var defaultColor = this.default;
 		
 		// Normalize color.
-		color = Type( color, String, () => color, () => defaultColor );
+		color = Typed( color, String, () => color, () => defaultColor );
 		
 		// If current cookie value does not equals.
 		if( cookie !== this.theme[color].token ) {
@@ -142,25 +170,23 @@ Theme.prototype.set = function( color ) {
 /**
  * Set theme color to HTMLHeadElement.
  *
- * @params String color
+ * @param {String} color
  *
- * @return Void
  */
 Theme.prototype.setHtml = color => document.documentElement.dataset.theme = color;
 
 /**
  * Set theme color to HTMLMetaElement.
  *
- * @params String color
- *
- * @return Void
+ * @param {String} color
+ * 
  */
 Theme.prototype.setMeta = function( color ) {
 	
 	var meta = null;
 	
 	// Check if HTMLMetaElement has been created.
-	if( Type( meta = document.querySelector( "meta[name=\"theme-color\"]" ), Null ) ) {
+	if( Typed( meta = document.querySelector( "meta[name=\"theme-color\"]" ), Null ) ) {
 		
 		// Create new HTMLMetaElement.
 		meta = document.createElement( "meta" );
@@ -172,4 +198,6 @@ Theme.prototype.setMeta = function( color ) {
 	meta.setAttribute( "content", this.theme[color].color );
 };
 
-export default Theme;
+export {
+	Theme
+};

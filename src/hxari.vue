@@ -2,13 +2,10 @@
 <script>
 	
 	import { mapGetters, mapState } from "vuex";
-	import { RouterLink, RouterView } from "vue-router";
 	
-	// Import Scripts.
-	import UnixTime from "/src/scripts/UnixTime.js";
-	import Value from "/src/scripts/logics/Value.js";
+	import { isNotEmpty } from "./scripts/logics";
+	import { UnixTime } from "./scripts/unixtime";
 	
-	// Import Widgets.
 	import Avatar from "/src/widgets/Avatar.vue";
 	import Error from "/src/widgets/Error.vue";
 	import Sidebar from "/src/widgets/Sidebar.vue";
@@ -17,38 +14,77 @@
 		data: () => ({
 			date: new UnixTime(),
 			dateFormat: null,
-			themeColor: null,
-			footer: [
-				{
-					path: "/",
-					text: "Home"
-				},
-				{
-					path: "/about",
-					text: "About"
-				},
-				{
-					path: "/contact",
-					text: "Contact"
-				},
-				{
-					path: "/privacy",
-					text: "Privacy"
-				},
-				{
-					path: "/sitemap",
-					text: "Sitemap"
+			footer: {
+				pages: [
+					{
+						path: "/",
+						text: "Home"
+					},
+					{
+						path: "/about",
+						text: "About"
+					},
+					{
+						path: "/contact",
+						text: "Contact"
+					},
+					{
+						path: "/privacy",
+						text: "Privacy"
+					},
+					{
+						path: "/sitemap",
+						text: "Sitemap"
+					}
+				],
+				socmed: {
+					facebook: {
+						icon: "bx bxl-facebook",
+						url: null
+					},
+					github: {
+						icon: "bx bxl-github",
+						url: null
+					},
+					gitlab: {
+						icon: "bx bxl-gitlab",
+						url: null
+					},
+					instagram: {
+						icon: "bx bxl-instagram",
+						url: null
+					},
+					linkedin: {
+						icon: "bx bxl-linkedin",
+						url: null
+					},
+					telegram: {
+						icon: "bx bxl-telegram",
+						url: null
+					},
+					threads: {
+						icon: "bx bxl-threads",
+						url: null
+					},
+					tiktok: {
+						icon: "bx bxl-tiktok",
+						url: null
+					},
+					twitter: {
+						icon: "bx bxl-twitter",
+						url: null
+					},
+					x: {
+						icon: "bx bxl-x",
+						url: null
+					},
+					youtube: {
+						icon: "bx bxl-youtube",
+						url: null
+					}
 				}
-			],
-			icons: {
-				instagram: "bx bxl-instagram",
-				facebook: "bx bxl-facebook",
-				linkedin: "bx bxl-linkedin",
-				telegram: "bx bxl-telegram",
-				twitter: "bx bxl-twitter",
-				github: "bx bxl-github",
-				tiktok: "bx bxl-tiktok"
-			}
+			},
+			themeColor: null
 		}),
 		computed: {
 			...mapState([
@@ -67,42 +103,44 @@
 			}
 			this.dateFormat = this.date.format( "[ 2021, %Y ]" );
 			this.themeColor = this.theme.get();
+			for( let keyset of Object.keys( this.footer.socmed ) ) {
+				if( isNotEmpty( this.configs?.author?.socmed[keyset] ) ) {
+					this.footer.socmed[keyset].url = this.configs.author.socmed[keyset];
+				}
+				else {
+					delete this.footer.socmed[keyset];
+				}
+			}
 		},
 		methods: {
 			
-			/**
-			 * Show/ hidden sidebar menu.
-			 *
-			 * @return Void
-			 */
+			/** Show/ hidden sidebar menu */
 			buttonBurgerHandle: function() {
 				this.$refs.burger.classList.toggle( "burger-active" );
 				this.$refs.sidebar.classList.toggle( "sidebar-active" );
 				this.$refs.sidebarMain.classList.toggle( "sidebar-active" );
 			},
 			
-			/**
-			 * Switch theme color.
-			 *
-			 * @return Void
-			 */
+			/** Switch theme color */
 			buttonSwitchTheme: function() {
 				this.theme.set( this.themeColor = this.themeColor !== "dark" ? "dark" : "light" );
 			},
 			
 			/**
-			 * Return if current path is project documentation.
+			 * Return if current path is project documentation
 			 *
-			 * @return Boolean
+			 * @returns {Boolean}
+			 * 
 			 */
 			isDocument: function() {
-				return Value.isNotEmpty( this.$route.params.project );
+				return isNotEmpty( this.$route.params.project );
 			},
 			
 			/**
-			 * Return previous route path.
+			 * Return previous route path
 			 *
-			 * @return String
+			 * @returns {String}
+			 * 
 			 */
 			previous: function() {
 				return this.$router.options.history.state?.back ?? "/projects";
@@ -183,16 +221,16 @@
 				<div class="footer-group pd-14">
 					<h5 class="mg-bottom-8">Pages</h5>
 					<p class="fc-1m">Some important pages.</p>
-					<li class="li dp-inline-block mg-right-10" v-for="route in footer">
+					<li class="li dp-inline-block mg-right-10" v-for="route in footer.pages">
 						<RouterLink :to="{ path: route.path }" class="fs-14">{{ route.text }}</RouterLink>
 					</li>
 				</div>
 				<div class="footer-group pd-14">
 					<h5 class="mg-bottom-8">Social</h5>
 					<p class="fc-1m">Stay connected with me.</p>
-					<li class="li dp-inline-block mg-right-10" v-for="( link, social ) in configs.author.social" v-if="hasConfig">
-						<a :href="link" target="_blank" rel="noopener noreferrer">
-							<i :class="icons[social]"></i>
+					<li class="li dp-inline-block mg-right-10" v-for="( socmed, platform ) in footer.socmed" v-if="hasConfig">
+						<a :href="socmed.url" target="_blank" rel="noopener noreferrer">
+							<i :class="socmed.icon"></i>
 						</a>
 					</li>
 					<li class="li dp-inline-block mg-right-10" v-for="i in 4" v-else>

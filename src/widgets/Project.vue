@@ -3,27 +3,29 @@
 	
 	import { mapState } from "vuex";
 	
-	// Import Scripts
-	import UnixTime from "/src/scripts/UnixTime.js";
-	import Fmt from "/src/scripts/Fmt.js";
-	import Image from "/src/scripts/Image.js";
-	import Not from "/src/scripts/logics/Not.js";
-	import Type from "/src/scripts/Type.js"
+	import { UnixTime } from "../scripts/unixtime";
+	import { Fmt } from "/src/scripts/formatter";
+	import Image from "/src/scripts/image";
+	import { Not } from "/src/scripts/logics";
+	import { Typed } from "/src/scripts/types"
 
 	// Import Widgets
 	import Markdown from "/src/widgets/Markdown.vue";
+import { ProjectItem } from "../scripts/configs";
 
 	export default {
 		data: () => ({
+			
+			/** @type {?ProjectItem} */
 			active: null,
-			image: Image,
-			environment: process.env.NODE_ENV
+			
+			/** @type {*} */
+			image: Image
+			
 		}),
 		computed: {
 			...mapState([
-				"configs",
-				"projects",
-				"readmes"
+				"configs"
 			])
 		},
 		methods: {
@@ -31,50 +33,49 @@
 			/**
 			 * Return new UnixTime instance.
 			 *
-			 * @params Number|String datetime
+			 * @param {Number|String} datetime
 			 *
-			 * @return UnixTime
+			 * @returns {UnixTime}
 			 */
 			datetime: datetime => new UnixTime( datetime ),
 			
 			/**
 			 * Display more information of project.
 			 *
-			 * @params Object project
+			 * @param {ProjectItem} project
 			 *
-			 * @return Void
+			 * @returns {void}
+			 * 
 			 */
 			display: function( project ) {
-				
-				// Set project as active.
-				this.active = project;
-				
-				// Check if project does not have previous request.
-				if( Not( this.projects[project.endpoint], Object ) ) {
+				if( Not( project.readme.contents, Object ) ) {
 					this.$store.dispatch( "project", project );
 				}
+				this.active = project;
 			},
 			
 			/**
 			 * Return filtered projects.
 			 *
-			 * @return Array
+			 * @returns {Array<ProjectItem>}
+			 * 
 			 */
 			filter: function() {
-				return this.configs.project.includes.filter( project => project.include );
+				return this.configs.project.items.filter( project => project.include );
 			},
 			
 			/**
 			 * Return language logo based on language name.
 			 *
-			 * @params String language
+			 * @param {String} language
 			 *  Language name e.g java, js, etc
 			 *
-			 * @return String
+			 * @returns {String}
 			 *  Url of language logo
+			 * 
 			 */
 			language: function( language ) {
-				return Type( language, String, () => Fmt( "{}/{}", this.configs.image.source, this.configs.image.images.language[language.toLowerCase()] ), () => "" );
+				return Typed( language, String, () => Fmt( "{}/{}", this.configs.image.source, this.configs.image.items.language[language.toLowerCase()] ), () => "" );
 			},
 
 			/**
@@ -83,7 +84,7 @@
 			 * @return String
 			 */
 			readme: function() {
-				return this.readmes[( this.active.endpoint ? this.active.endpoint : this.active.name )];
+				return this.active.readme.contents || "";
 			}
 		},
 		components: {
@@ -99,7 +100,7 @@
 			<div class="modal-exit" @click="active = null"></div>
 			<div :class="[ 'modal-main', 'rd-square', active ? 'active' : '' ]">
 				<div class="project-modal scroll-x" v-if="active">
-					<div class="project-modal-groups flex" v-if="active.loading">
+					<div class="project-modal-groups flex" v-if="active.readme.loading">
 						<div class="project-modal-group overview scroll-y">
 							<div class="project-modal-single pd-14">
 								<div class="project-modal-avatar-fixed flex flex-center">
@@ -126,19 +127,19 @@
 							</div>
 						</div>
 					</div>
-					<div class="project-modal-single pd-14" v-else-if="( active.error && projects[active.endpoint] === undefined )">
+					<div class="project-modal-single pd-14" v-else-if="active.readme.onerror">
 						<div class="alert-single error">
 							<div class="alert-slot">
-								{{ active.error }}
+								{{ active.readme.onerror }}
 							</div>
-							<button class="alert-close" @click="[ active.error = false, display( active ) ]">
+							<button class="alert-close" @click="[ active.readme.onerror = false, display( active ) ]">
 								<i class="bx bx-reset"></i>
 							</button>
 						</div>
 					</div>
 					<div class="project-modal-groups flex" v-else>
 						<div class="project-modal-group overview scroll-y">
-							<div class="project-modal-single pd-14">
+							<div class="project-modal-single pd-14" v-if="active.api">
 								<div class="project-modal-avatar-fixed flex flex-center">
 									<div class="project-modal-avatar-wrapper avatar-wrapper">
 										<img class="avatar-image lazy" :title="active.name" :alt="active.name" :data-src="active.thumbnail ? image.resolver( configs.image, active.thumbnail ) : image.search( configs.image, 'project', active.endpoint.split( '/' )[1].toLowerCase() )" v-lazyload />
@@ -146,76 +147,76 @@
 									</div>
 									<div class="project-language">
 										<div class="project-language-avatar-wrapper avatar-wrapper rd-circle bg-3">
-											<img class="avatar-image lazy" :title="active.name" alt="Language" :data-src="image.search( configs.image, 'language', projects[active.endpoint] ? ( projects[active.endpoint].language ? projects[active.endpoint].language.toLowerCase() : active.language.toLowerCase() ) : active.language.toLowerCase() )" v-lazyload />
+											<img class="avatar-image lazy" :title="active.name" alt="Language" :data-src="image.search( configs.image, 'language', active.api ? ( active.api.language ? active.api.language.toLowerCase() : active.language.toLowerCase() ) : active.language.toLowerCase() )" v-lazyload />
 											<div class="avatar-cover"></div>
 										</div>
 									</div>
 								</div>
 								<h3 class="title center mg-bottom-24" data-title="name">{{ active.name }}</h3>
 								<p class="text mg-bottom-14">
-									{{ projects[active.endpoint].description }}
+									{{ active.api.description }}
 								</p>
 								<h6 class="title mg-0">License</h6>
 								<p class="sub-title mg-bottom-14">
-									<a class="text" :href="projects[active.endpoint].license.url" target="_blank" rel="noopener noreferrer" v-if="( projects[active.endpoint].license )">{{ projects[active.endpoint].license.name }}</a>
+									<a class="text" :href="active.api.license.url" target="_blank" rel="noopener noreferrer" v-if="( active.api.license )">{{ active.api.license.name }}</a>
 									<span v-else>Unavailable</span>
 								</p>
 								<p class="text mg-bottom-14">
 									<RouterLink class="dp-block" :to="{ path: '/projects/' + active.endpoint.split( '/' ).pop(), query: {} }">
-										{{ projects[active.endpoint].homepage }}
+										{{ active.api.homepage }}
 									</RouterLink>
-									<a class="dp-block" :href="projects[active.endpoint].html_url" target="_blank" rel="noopener noreferrer">{{ projects[active.endpoint].html_url }}</a>
+									<a class="dp-block" :href="active.api.html_url" target="_blank" rel="noopener noreferrer">{{ active.api.html_url }}</a>
 								</p>
 								<div class="text mg-bottom-14 datetime">
 									<p class="sub-title pd-14 rd-square bg-2 mg-bottom-14">
 										<i class="bx bx-time-five mg-right-12"></i>
-										Created {{ datetime( projects[active.endpoint].created_at ).format( "%A, %b %d %Y" ) }}
+										Created {{ datetime( active.api.created_at ).format( "%A, %b %d %Y" ) }}
 									</p>
 									<p class="sub-title pd-14 rd-square bg-3 mg-bottom-14">
 										<i class="bx bx-check-double mg-right-12"></i>
-										Updated {{ datetime( projects[active.endpoint].updated_at ).format( "%A, %b %d %Y" ) }}
+										Updated {{ datetime( active.api.updated_at ).format( "%A, %b %d %Y" ) }}
 									</p>
 									<p class="sub-title pd-14 rd-square bg-4 mg-bottom-14">
 										<i class="bx bx-git-commit mg-right-12"></i>
-										Pushed {{ datetime( projects[active.endpoint].pushed_at ).format( "%A, %b %d %Y" ) }}
+										Pushed {{ datetime( active.api.pushed_at ).format( "%A, %b %d %Y" ) }}
 									</p>
 								</div>
-								<div class="dp-block mg-bottom-14" v-if="( projects[active.endpoint].topics.length >= 1 )">
+								<div class="dp-block mg-bottom-14" v-if="( active.api.topics.length >= 1 )">
 									<h6 class="title mg-bottom-12" data-title="name">Topics</h6>
 									<div class="dp-flex flex-left flex-wrap" style="gap: 14px">
-										<button class="button fb-45 flex flex-center pd-top-4 pd-bottom-4 pd-left-10 pd-right-10 rd-square-v2 title" v-for="topic in projects[active.endpoint].topics">{{ topic }}</button>
+										<button class="button fb-45 flex flex-center pd-top-4 pd-bottom-4 pd-left-10 pd-right-10 rd-square-v2 title" v-for="topic in active.api.topics">{{ topic }}</button>
 									</div>
 								</div>
 								<p class="text">
 									<span class="sub-title mg-right-6">
-										<i class="bx bxs-star" v-if="( projects[active.endpoint].stargazers_count >= 1 )"></i>
+										<i class="bx bxs-star" v-if="( active.api.stargazers_count >= 1 )"></i>
 										<i class="bx bx-star" v-else></i>
-										{{ projects[active.endpoint].stargazers_count }}
+										{{ active.api.stargazers_count }}
 									</span>
 									<span class="sub-title mg-right-6">
 										<i class="bx bx-git-repo-forked"></i>
-										{{ projects[active.endpoint].forks_count }}
+										{{ active.api.forks_count }}
 									</span>
 									<span class="sub-title mg-right-6">
-										<i class="bx bxs-show" v-if="( projects[active.endpoint].watchers_count >= 1 )"></i>
+										<i class="bx bxs-show" v-if="( active.api.watchers_count >= 1 )"></i>
 										<i class="bx bx-show" v-else></i>
-										{{ projects[active.endpoint].watchers_count }}
+										{{ active.api.watchers_count }}
 									</span>
 									<span class="sub-totle mg-right-6">
-										<i class="bx bxs-bookmark-heart" v-if="( projects[active.endpoint].subscribers_count >= 1 )"></i>
+										<i class="bx bxs-bookmark-heart" v-if="( active.api.subscribers_count >= 1 )"></i>
 										<i class="bx bx-bookmark-heart" v-else></i>
-										{{ projects[active.endpoint].subscribers_count }}
+										{{ active.api.subscribers_count }}
 									</span>
 									<span class="sub-title">
-										<i class="bx bxs-bug" v-if="( projects[active.endpoint].open_issues_count >= 1 )"></i>
+										<i class="bx bxs-bug" v-if="( active.api.open_issues_count >= 1 )"></i>
 										<i class="bx bx-bug" v-else></i>
-										{{ projects[active.endpoint].open_issues_count }}
+										{{ active.api.open_issues_count }}
 									</span>
 								</p>
 							</div>
 						</div>
 						<div class="project-modal-group readme scroll-y">
-							<Markdown :content="readme()" v-if="( readmes[( active.endpoint ? active.endpoint : active.name )] !== undefined )" />
+							<Markdown :content="readme()" v-if="active.readme.contents" />
 						</div>
 					</div>
 				</div>
@@ -228,7 +229,7 @@
 						<img class="avatar-image lazy" :title="project.name" :alt="project.name" :data-src="project.thumbnail ? image.resolver( configs.image, project.thumbnail ) : image.search( configs.image, 'project', project.endpoint.split( '/' )[1].toLowerCase() )" v-lazyload />
 						<div class="avatar-cover"></div>
 					</div>
-					<div class="project-language" v-if="$store.state.projects[project.endpoint] !== null | project.language !== null">
+					<div class="project-language" v-if="project.language">
 						<div class="project-language-avatar-wrapper avatar-wrapper rd-circle bg-3">
 							<img class="avatar-image lazy" :title="project.name" alt="Language" :data-src="image.search( configs.image, 'language', project.language.toLowerCase() )" v-lazyload />
 							<div class="avatar-cover"></div>

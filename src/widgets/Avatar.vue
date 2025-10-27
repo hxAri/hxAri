@@ -3,11 +3,9 @@
 	
 	import { RouterLink } from "vue-router";
 	
-	// Import scripts.
-	import Callable from "/src/scripts/types/Callable.js";
-	import Fmt from "/src/scripts/Fmt.js";
-	import Mapper from "/src/scripts/Mapper.js";
-	import Type from "/src/scripts/Type.js";
+	import { Fmt } from "../scripts/formatter";
+	import { Callable, Typed } from "../scripts/types";
+	import { Mapper } from "../scripts/mapper";
 	
 	export default {
 		data: () => ({
@@ -138,18 +136,18 @@
 				};
 				
 				// Check if avatar has route.
-				if( Type( this.route, [ Object, String ] ) ) {
+				if( Typed( this.route, [ Object, String ] ) ) {
 					
 					// Push component template.
 					component.template.unshift( "<RouterLink class=\"{ route }\" to=\"{ path }\">" );
 					component.template.push( "</RouterLink>" );
 					
 					// If route is Object type.
-					if( Type( this.route, Object ) ) {
+					if( Typed( this.route, Object ) ) {
 						var path = this.route.path;
-							path = Type( path, String, () => path, () => "/" );
+							path = Typed( path, String, () => path, () => "/" );
 						var query = this.route.query;
-							query = Type( query, Object, () => new URLSearchParams( query ).toString(), () => "" );
+							query = Typed( query, Object, () => new URLSearchParams( query ).toString(), () => "" );
 						
 						values.path = Fmt( "{}?{}", path, query );
 					}
@@ -159,7 +157,7 @@
 				}
 				
 				// Check if avatar has link.
-				if( Type( this.link, [ Object, String ] ) ) {
+				if( Typed( this.link, [ Object, String ] ) ) {
 					var target = this.target;
 					
 					// Push component template.
@@ -167,31 +165,31 @@
 					component.template.push( "</a>" );
 					
 					// If link is Object type.
-					if( Type( this.link, Object ) ) {
+					if( Typed( this.link, Object ) ) {
 						var url = this.link.url;
-							url = Type( url, String, () => url, () => "" );
+							url = Typed( url, String, () => url, () => "" );
 						var query = this.link.query;
-							query = Type( query, Object, () => new URLSearchParams( query ).toString(), () => "" );
+							query = Typed( query, Object, () => new URLSearchParams( query ).toString(), () => "" );
 						
 						values.href = Fmt( "{}?{}", url, query );
 					}
 					else {
 						values.href = this.link;
 					}
-					values.target = Type( this.target, String, () => target, () => "" );
+					values.target = Typed( this.target, String, () => target, () => "" );
 				}
 				
 				// Check if avatar has injection attributes.
-				if( Type( this.attrs, Object ) ) {
+				if( Typed( this.attrs, Object ) ) {
 					
 					// Mapping avatar attributes.
 					Mapper( this.attrs, function( i, attr, value ) {
 						
 						// Check if class injection is available.
-						if( Type( values[attr], Array ) ) {
+						if( Typed( values[attr], Array ) ) {
 							
 							// If class has more than one additional class.
-							if( Type( value, Array ) ) {
+							if( Typed( value, Array ) ) {
 								values[attr] = [
 									...values[attr],
 									...value
@@ -205,7 +203,7 @@
 				}
 				
 				// Check if avatar has injection properties.
-				if( Type( this.inject, Object ) ) {
+				if( Typed( this.inject, Object ) ) {
 					
 					// Mapping injections.
 					Mapper( this.inject,
@@ -222,7 +220,7 @@
 						function( i, key, val ) {
 							if( key === "slot" || key === "template" ) {
 								values.slot = Callable( val );
-								values.slot = Type( values.slot, Array, () => values.slot.join( "" ), () => values.slot );
+								values.slot = Typed( values.slot, Array, () => values.slot.join( "" ), () => values.slot );
 							}
 							else {
 								components[key] = val;
@@ -244,7 +242,7 @@
 					 * @return Void
 					 */
 					function( i, key, value ) {
-						if( Type( value, Array ) ) {
+						if( Typed( value, Array ) ) {
 							values[key] = value.join( "\x20" );
 						}
 					}
@@ -255,9 +253,9 @@
 				var title = this.title;
 				
 				// Resolve image attributes.
-				values.alt = Type( alt, String, () => alt, () => "" );
-				values.src = Type( src, String, () => src, () => "" );
-				values.title = Type( title, String, () => title, () => "" );
+				values.alt = Typed( alt, String, () => alt, () => "" );
+				values.src = Typed( src, String, () => src, () => "" );
+				values.title = Typed( title, String, () => title, () => "" );
 				
 				// Formating component template.
 				component.template = Fmt( component.template.join( "" ), values );
