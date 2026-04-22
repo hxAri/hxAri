@@ -524,6 +524,7 @@ class Lexer {
 			// skip whitespace (non-newline)
 			if (this.isWhitespace(ch)) {
 				this.consume();
+				this.push(new Token(TokenGroup.WHITESPACE, ch, [], position, TokenType.WHITESPACE));
 				continue;
 			}
 
