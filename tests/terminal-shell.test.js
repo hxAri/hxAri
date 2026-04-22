@@ -1,14 +1,51 @@
 
+/**
+ * 
+ * hxAri | alias.js
+ * 
+ * @author hxAri
+ * @github https://github.com/hxAri/hxAri
+ * @license MIT
+ * 
+ * Copyright (c) 2022 Ari Setiawan | hxAri
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ * 
+ */
+
 "use strict";
 
-import Router from "../src/routing/router";
-import { Terminal } from "../src/scripts/terminal";
 import { test } from "vitest";
 
+import { Router } from "/src/routing/router";
+import { Kernel } from "/src/scripts/terminal/kernel";
+import { Shell } from "/src/scripts/terminal/shell";
 
-const terminal = new Terminal( null, Router, null );
-const shell = terminal.shell;
+
+const kernel = new Kernel( Router );
+const shell = new Shell( kernel, { user: kernel.root } );
+const root = kernel.root;
 
 
-test( "Shell.execute", () => {
+test.only( "Shell.complete", function() {
+});
+
+test.only( "Shell.execute", function() {
+	shell.execute( "echo -e \"Hello World!\"" );
 });
