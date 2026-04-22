@@ -47,7 +47,7 @@ export default {
 	 * 
 	 */
 	resolver( $config, image ) {
-		return Fmt( "{}/{}", process.env.NODE_ENV === "production" ? $config.source : "/public/images/", image );
+		return Fmt( "{}/{}", process.env.NODE_ENV === "production" ? $config.source : "/public/images", image );
 	},
 	
 	/**
@@ -65,8 +65,12 @@ export default {
 	 */
 	search( $config, type, keyset ) {
 		if( Typed( $config.items[type], Object ) ) {
-			if( Typed( $config.items[type][keyset], String ) ) {
-				return this.resolver( $config, Fmt( "{}/{}", type, $config.items[type][keyset] ) );
+			if( Typed( $config.items[type][keyset], [ Object, String ] ) ) {
+				var image = $config.items[type][keyset];
+				if( Typed( image, Object ) ) {
+					image = image.name;
+				}
+				return this.resolver( $config, Fmt( "{}/{}", type, image ) );
 			}
 		}
 	}
