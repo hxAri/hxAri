@@ -8,11 +8,11 @@
 	import Image from "/src/scripts/image";
 	import { Not } from "/src/scripts/logics";
 	import { Typed } from "/src/scripts/types"
-
+	
 	// Import Widgets
 	import Markdown from "/src/widgets/Markdown.vue";
-import { ProjectItem } from "../scripts/configs";
-
+	import { ProjectItem } from "../scripts/configs";
+	
 	export default {
 		data: () => ({
 			
@@ -77,7 +77,7 @@ import { ProjectItem } from "../scripts/configs";
 			language: function( language ) {
 				return Typed( language, String, () => Fmt( "{}/{}", this.configs.image.source, this.configs.image.items.language[language.toLowerCase()] ), () => "" );
 			},
-
+			
 			/**
 			 * Return current markedown of project.
 			 *
