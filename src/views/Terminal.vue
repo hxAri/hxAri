@@ -182,8 +182,18 @@
 						await this.terminal.exec( command );
 						break;
 					case "Tab":
-						this.model+= "\x20";
+						this.model = this.terminal.shell.complete( command );
 						e.preventDefault();	
+						break;
+					case "ArrowUp":
+						var prev = this.terminal.shell.historyPrev();
+						if( prev !== null ) this.model = prev;
+						e.preventDefault();
+						break;
+					case "ArrowDown":
+						var next = this.terminal.shell.historyNext();
+						if( next !== null ) this.model = next;
+						e.preventDefault();
 						break;
 				}
 				this.ontrigger( e );
@@ -212,19 +222,10 @@
 						var input = this.$refs.input;
 						var index = input.selectionStart;
 						if( Typed( e, KeyboardEvent ) ) {
-							if( e.keyCode in codes ) {
-								if( e.keyCode !== 38 ) {
-									if( e.keyCode === 40 ) {
-									}
-									else {
-										this.labels.before = this.ansi.colorize( model.substring( 0, index ) );
-										this.labels.splited = model.substring( index, index+1 );
-										this.labels.after = this.ansi.colorize( model.substring( index+1 ) );
-									}
-								}
-								else {
-									// Up
-								}
+							if( codes.includes( e.keyCode ) ) {
+								this.labels.before = this.ansi.colorize( model.substring( 0, index ) );
+								this.labels.splited = model.substring( index, index+1 );
+								this.labels.after = this.ansi.colorize( model.substring( index+1 ) );
 							}
 							else {
 								this.labels.before = this.ansi.colorize( model.substring( 0, index ) );
@@ -276,6 +277,10 @@
 			 * 
 			 */
 			keyhandler: function( name, text, code ) {
+				if( text ) {
+					this.model+= text;
+				}
+				this.execute({ key: name, preventDefault: () => {} });
 			},
 			
 			/**

@@ -136,8 +136,10 @@
 			 * 
 			 */
 			choice: function() {
+				var anime = choice( Object.keys( this.configs.image.items.anime ) );
+				var image = Image.search( this.configs.image, "anime", anime );
 				return {
-					backgroundImage: Fmt( "url({})", Image.search( this.configs.image, "anime", choice( Object.keys( this.configs.image.items.anime ) ) ) )
+					backgroundImage: Fmt( "url({})", image )
 				};
 			},
 			
