@@ -101,29 +101,14 @@
 				"organizations"
 			]),
 			...mapGetters([
-				"hasConfig",
+				"hasConfigs",
 				"hasProfile",
 				"hasOrganization"
 			])
 		},
 		created: async function() {
-			
-			// Send request if the request has not been sent,
-			// Or if something wrong when sending request.
-			if( this.hasConfig === false ||
-				this.hasProfile === false ||
-				this.error ) {
-				
-				// Dispatch for priority targets.
+			if( this.hasConfigs === false || this.hasProfile === false || this.error ) {
 				await this.$store.dispatch( "priority" );
-			}
-			
-			// Send request if the organization doest not available.
-			if( this.hasOrganization === false &&
-				this.error === false ) {
-				
-				// Dispatch for organization.
-				await this.$store.dispatch( "organization" );
 			}
 			this.typing();
 		},
@@ -198,7 +183,7 @@
 							<div class="profile-picture-spaces flex flex-center rd-circle">
 								<div class="avatar flex flex-center profile-avatar">
 									<div class="avatar-wrapper flex flex-center profile-avatar-wrapper rd-circle">
-										<img class="avatar-image lazy" title="Ari Setiawan" alt="Ari Setiawan (hxAri)" :data-src="profile.avatar_url" v-lazyload />
+										<img class="avatar-image lazy" title="Ari Setiawan" alt="Ari Setiawan (hxAri)" :data-src="profile.avatar_url" v-lazyload v-if="profile?.avatar_url" />
 										<div class="avatar-cover"></div>
 									</div>
 								</div>
@@ -247,7 +232,7 @@
 							<a class="flex flex-left" :href="organization.html_url" target="_blank" rel="noopener noreferrer">
 								<div class="avatar mg-right-14">
 									<div class="avatar-wrapper flex flex-center organization-avatar-wrapper rd-circle">
-										<img class="avatar-image lazy" :title="organization.name" :alt="organization.login" :data-src="organization.avatar_url" v-lazyload />
+										<img class="avatar-image lazy" :title="organization.name" :alt="organization.login" :data-src="organization.avatar_url" v-lazyload v-if="organization?.avatar_url" />
 										<div class="avatar-cover"></div>
 									</div>
 								</div>
@@ -402,6 +387,30 @@
 			[data-theme="dark"] .banner-cover {
 				background: rgba(0,0,0,.2);
 			}
+			[data-theme="turtles"] .banner-cover {
+				background: rgba(0,0,0,.3);
+			}
+			[data-theme="stromi"] .banner-cover {
+				background: rgba(0,0,0,.25);
+			}
+			[data-theme="adelia"] .banner-cover {
+				background: rgba(0,0,0,.3);
+			}
+			[data-theme="liana"] .banner-cover {
+				background: rgba(0,0,0,.3);
+			}
+			[data-theme="periwinkle"] .banner-cover {
+				background: rgba(0,0,0,.2);
+			}
+			[data-theme="peach"] .banner-cover {
+				background: rgba(0,0,0,.2);
+			}
+			[data-theme="navicoral"] .banner-cover {
+				background: rgba(0,0,0,.2);
+			}
+			[data-theme="greensage"] .banner-cover {
+				background: rgba(0,0,0,.2);
+			}
 		.banner-headline {
 			background: rgba(255,255,255,.8);
 			letter-spacing: 6px;
@@ -412,6 +421,38 @@
 			[data-theme="dark"] .banner-headline {
 				background: rgba(0,0,0,.6);
 				text-shadow: 1px 1px 2px rgba(255,255,255,.6);
+			}
+			[data-theme="turtles"] .banner-headline {
+				background: rgba(240, 250, 247, .8);
+				text-shadow: 1px 1px 2px rgba(10, 36, 29, .2);
+			}
+			[data-theme="stromi"] .banner-headline {
+				background: rgba(240, 247, 250, .8);
+				text-shadow: 1px 1px 2px rgba(10, 29, 36, .2);
+			}
+			[data-theme="adelia"] .banner-headline {
+				background: rgba(250, 240, 242, .8);
+				text-shadow: 1px 1px 2px rgba(36, 10, 14, .2);
+			}
+			[data-theme="liana"] .banner-headline {
+				background: rgba(247, 240, 250, .8);
+				text-shadow: 1px 1px 2px rgba(29, 10, 36, .2);
+			}
+			[data-theme="periwinkle"] .banner-headline {
+				background: rgba(240, 240, 255, .8);
+				text-shadow: 1px 1px 2px rgba(10, 10, 36, .2);
+			}
+			[data-theme="peach"] .banner-headline {
+				background: rgba(255, 245, 240, .8);
+				text-shadow: 1px 1px 2px rgba(36, 20, 10, .2);
+			}
+			[data-theme="navicoral"] .banner-headline {
+				background: rgba(242, 245, 248, .8);
+				text-shadow: 1px 1px 2px rgba(0, 0, 51, .2);
+			}
+			[data-theme="greensage"] .banner-headline {
+				background: rgba(242, 244, 242, .8);
+				text-shadow: 1px 1px 2px rgba(29, 30, 29, .2);
 			}
 	@media( max-width: 1920px ) {
 		.banner {

@@ -3,10 +3,10 @@
 	
 	import { mapState } from "vuex";
 	
-	import Eremento from "../scripts/eremento";
+	import Eremento from "/src/scripts/eremento";
 	import { Not } from "/src/scripts/logics";
 	import { Typed } from "/src/scripts/types";
-	import { Route } from "../scripts/configs";
+	import { Route } from "/src/scripts/configs";
 	
 	export default {
 		watch: {

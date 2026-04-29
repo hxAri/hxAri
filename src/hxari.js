@@ -35,6 +35,14 @@ import { createApp } from "vue/dist/vue.esm-bundler";
 import "/src/styles/hxari.shell.css";
 import "/src/styles/hxari.light.css";
 import "/src/styles/hxari.dark.css";
+import "/src/styles/hxari.turtles.css";
+import "/src/styles/hxari.stromi.css";
+import "/src/styles/hxari.adelia.css";
+import "/src/styles/hxari.liana.css";
+import "/src/styles/hxari.periwinkle.css";
+import "/src/styles/hxari.peach.css";
+import "/src/styles/hxari.navicoral.css";
+import "/src/styles/hxari.greensage.css";
 import "/src/styles/hxari.font.css";
 import "/src/styles/hxari.hljs.css";
 import "/src/styles/hxari.md.css";
@@ -42,6 +50,13 @@ import "/src/styles/hxari.css";
 
 // Import Application
 import hxAri from "/src/hxari.vue";
+
+// Import Highlightjs (Custom Languages)
+import hljs from "highlight.js";
+import { aether } from "/src/scripts/aether-hljs";
+
+hljs.registerLanguage( "aether", aether );
+hljs.highlightAll();
 
 // Import Directives
 import LazyLoad from "/src/directives/LazyLoad.js";

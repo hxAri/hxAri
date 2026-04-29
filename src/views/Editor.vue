@@ -7,15 +7,15 @@
 	import Jsonpath from "jsonpath";
 	import { Swiper, SwiperSlide } from "swiper/vue";
 	
-	import { bin2hex, isMobile, isMobileUserAgent, shorttext } from "../scripts/common";
-	import { Configs } from "../scripts/configs";
-	import { Fmt } from "../scripts/formatter";
-	import { isEmpty, isNotEmpty, Not } from "../scripts/logics";
-	import { Terminal } from "../scripts/terminal";
-	import { User } from "../scripts/terminal/kernel/index.js";
-	import { VirtualFileSystem, VirtualNode } from "../scripts/terminal/kernel/index.js";
-	import { Typed } from "../scripts/types";
-	import { UnixTime } from "../scripts/unixtime.js";
+	import { bin2hex, isMobile, isMobileUserAgent, shorttext } from "/src/scripts/common";
+	import { Configs } from "/src/scripts/configs";
+	import { Fmt } from "/src/scripts/formatter";
+	import { isEmpty, isNotEmpty } from "/src/scripts/logics";
+	import { Terminal } from "/src/scripts/terminal";
+	import { User } from "/src/scripts/terminal/kernel/index.js";
+	import { VirtualFileSystem, VirtualNode } from "/src/scripts/terminal/kernel/index.js";
+	import { Typed } from "/src/scripts/types";
+	import { UnixTime } from "/src/scripts/unixtime.js";
 	
 	export default {
 		data: () => ({
@@ -1318,7 +1318,7 @@
 							<i class="bx bx-copy fs-22" @click="oncopy" title="Copy to Clipboard"></i>
 							<i class="bx bx-paste fs-22" @click="onpaste" title="Paste from Clipboard"></i>
 							<i class="bx bx-search fs-22" @click="onchange( settings.headers.searching, null )" title="Search"></i>
-							<!-- <i class="bx bx-vector fs-22" @click="[ onchange( settings.headers.jsonpath, settings.modes.jsonpath ), onpath() ]" title="Jsonpath"></i> -->
+							<i class="bx bx-vector fs-22" @click="[ onchange( settings.headers.jsonpath, settings.modes.jsonpath ), onpath() ]" title="Jsonpath"></i>
 							<i class="bx bxs-extension fs-22" @click="onchange( settings.headers.editable, settings.modes.editable )" title="Close Tree Mode" v-if="isStructureMode"></i>
 							<i class="bx bx-extension fs-22" @click="onchange( settings.headers.editable, settings.modes.structure )" title="Tree Mode" v-else></i>
 						</div>
@@ -1574,65 +1574,65 @@
 				.editor-menu-header-wrapper {
 					height: 71px;
 				}
-				.editor-menu-filenames {
-					height: 94%;
+			.editor-menu-filenames {
+				height: 94%;
+			}
+				.editor-filename-item {
+					overflow: hidden;
+					height: 7.2%;
+					border-bottom: 1px solid var(--border-2);
+					background: var(--background-3);
+					position: relative;
+					transition: background .4s ease, height .3s ease-in-out;
 				}
-					.editor-filename-item {
+				.editor-filename-item:hover {
+					background: var(--background-4);
+				}
+				.editor-filename-item.active {
+					background: var(--background-4);
+					height: 60%;
+				}
+					.editor-filename-column {
 						overflow: hidden;
-						height: 7.2%;
-						border-bottom: 1px solid var(--border-2);
-						background: var(--background-3);
-						position: relative;
-						transition: background .4s ease, height .3s ease-in-out;
 					}
-					.editor-filename-item:hover {
-						background: var(--background-4);
-					}
-					.editor-filename-item.active {
-						background: var(--background-4);
-						height: 60%;
-					}
-						.editor-filename-column {
-							overflow: hidden;
+						.editor-filename-title {
+							width: 86%;
 						}
+						@media( max-width: 750px ) {
 							.editor-filename-title {
-								width: 86%;
+								width: 74%;
 							}
-							@media( max-width: 750px ) {
-								.editor-filename-title {
-									width: 74%;
-								}
-							}
-							.editor-filename-options {
-								border: 0;
-								background: inherit;
-								gap: 7px;
-								position: absolute;
-								right: 14px;
-							}
-						.editor-filename-detail {
-							border-top: 1px solid var(--border-4);
-							background: var(--background-4);
 						}
-							.editor-filename-detail-container {
+						.editor-filename-options {
+							border: 0;
+							background: inherit;
+							gap: 7px;
+							position: absolute;
+							right: 14px;
+						}
+					.editor-filename-detail {
+						border-top: 1px solid var(--border-4);
+						background: var(--background-4);
+					}
+						.editor-filename-detail-container {
+						}
+							.editor-filename-detail-wrapper {
+								overflow: hidden;
+								width: 100%;
 							}
-								.editor-filename-detail-wrapper {
-									width: 100%;
-									overflow: hidden;
+								.editor-filename-detail-info {
 								}
-									.editor-filename-detail-info {
+									.editor-filename-detail-hr,
+									.editor-filename-detail-hr-end {
+										width: 100%;
+										border-top: 1px solid var(--border-4);
 									}
-										.editor-filename-detail-hr,
-										.editor-filename-detail-hr-end {
-											width: 100%;
-											border-top: 1px solid var(--border-4);
-										}
-										.editor-filename-detail-hr-end {
-											width: 50%;
-										}
-									.editor-filename-detail-closeable {
-										background: var(--background-4);
+									.editor-filename-detail-hr-end {
+										width: 50%;
 									}
+								.editor-filename-detail-closeable {
+									background: var(--background-4);
+								}
 			/* .editor-menu-filenames {
 			}
 				.editor-filename-column {
@@ -2013,6 +2013,30 @@
 		}
 		[data-theme="dark"] .editor-main-jsonpath {
 			background: #2e2f38;
+		}
+		[data-theme="turtles"] .editor-main-jsonpath {
+			background: #f0faf7;
+		}
+		[data-theme="stromi"] .editor-main-jsonpath {
+			background: #f0f7fa;
+		}
+		[data-theme="adelia"] .editor-main-jsonpath {
+			background: #faf0f2;
+		}
+		[data-theme="liana"] .editor-main-jsonpath {
+			background: #f7f0fa;
+		}
+		[data-theme="periwinkle"] .editor-main-jsonpath {
+			background: #f0f0ff;
+		}
+		[data-theme="peach"] .editor-main-jsonpath {
+			background: #fff5f0;
+		}
+		[data-theme="navicoral"] .editor-main-jsonpath {
+			background: #f2f5f8;
+		}
+		[data-theme="greensage"] .editor-main-jsonpath {
+			background: #f2f4f2;
 		}
 		@media( max-width: 360px ) {
 			.editor-main-jsonpath {

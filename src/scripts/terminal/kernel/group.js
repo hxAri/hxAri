@@ -1,7 +1,7 @@
 
 /**
  * 
- * hxAri | alias.js
+ * hxAri | group.js
  * 
  * @author hxAri
  * @github https://github.com/hxAri/hxAri
@@ -29,24 +29,51 @@
  * 
  */
 
-"use strict";
-
-import { test } from "vitest";
-
-import { Router } from "/src/routing/router";
-import { Kernel } from "/src/scripts/terminal/kernel";
-import { Shell } from "/src/scripts/terminal/shell";
+import { Fmt } from "/src/scripts/formatter";
+import { User } from "/src/scripts/terminal/kernel/user";
+import { Typed } from "/src/scripts/types";
 
 
-const kernel = new Kernel( Router );
-const shell = new Shell( kernel, { user: kernel.root } );
-const root = kernel.root;
+class Group {
+	
+	/** @type {Number} */
+	gid;
+	
+	/** @type {Set<User>} */
+	members;
+	
+	/** @type {String} */
+	username;
+	
+	/**
+	 * Construct method of class Group
+	 * 
+	 * @param {Number} gid
+	 * @param {Array<User>|Set<User>} members
+	 * @param {String} username
+	 * 
+	 */
+	constructor( gid, members, username ) {
+		this.gid = gid;
+		this.members = members;
+		if( Typed( members, Array ) ) {
+			this.members = new Set( members );
+		}
+		this.username = username;
+	}
+	
+	/**
+	 * Returns a string representation of a Group
+	 * 
+	 * @returns {String}
+	 * 
+	 */
+	toString() {
+		return Fmt( "{}:x:{}:{}", ...[ this.username, this.gid, Array.from( this.members.entries() ).map( member => member[0].username ).join( "\x0a" ) ] );
+	}
+	
+}
 
-
-test.only( "Shell.complete", function() {
-});
-
-test.only( "Shell.execute", function() {
-	shell.execute( "echo -e \"Hello World!\"" );
-	console.log( shell.stdout.read() );
-});
+export {
+	Group
+};

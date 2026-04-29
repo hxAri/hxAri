@@ -319,40 +319,137 @@
         "technology": true
     },
     "image": {
+        "description": [],
         "items": {
             "anime": {
-                "anya": "1701255136;f1vv6Fgb.f3Cg.png",
-                "chitoge": "1701255136;60GHO8USkVyC2.png",
-                "daki": "1701255136;a9UmfTXqwNAhU.png",
-                "erna": "1718037978;1dH4ZmVi1ArEw.png",
-                "grete": "1718037990;88flxPnLyxNxA.png",
-                "hiyori": "1701255136;5d8gik4zKsQzs.png",
-                "ichigiyoururi": "1701255136;b31AQ740ce3vw.png",
-                "iwamura": "1701255136;0a0BkqneL95Jk.png",
-                "katagaki": "1718037520;ebPUXDxOXsUus.png",
-                "kohaku": "1701255136;85iH5CBTMK8NY.png",
-                "kosaki": "1701255136;ca35C5rftvAqE.png",
-                "kugisaki": "1701255136;c5UJDAexDIXBE.png",
-                "kuryama": "1718037881;d7j2.5P0Oi67M.png",
-                "lily": "1718037816;d3v34HVAghVKY.png",
-                "marika": "1701255136;b9iU8rMaxaABU.png",
-                "mitsuha": "1701255136;80rnQBo1sqY0M.png",
-                "miyamoto": "1701255136;2ehXrE7uQn3pQ.png",
-                "nakime": "1701255136;29h.3mdvcmjHc.png",
-                "nazuna": "1701255136;feqAaentzH14g.png",
-                "nezuko": "1701255136;ddrO0faRYdYtg.png",
-                "rikka": "1701255136;eaj3sKej5i80w.png",
-                "sawako": "1718037503;60dTHa07ao64o.png",
-                "saya": "1701255136;64JBHOqRCOolY.png",
-                "shinka": "1718037749;70xNj6uuY4ylE.png",
-                "susamaru": "1701255136;b9lJC2uS3PMjU.png",
-                "sybilla": "1718038136;cd28fV7hgtHuI.png",
-                "tamayo": "1701255136;31KxrA4Bf6z9U.png",
-                "thea": "1718038194;49svT1r1nADuE.png",
-                "touka": "1718037725;90Z84HgIreQF..png",
-                "tsugumi": "1701255136;50GJ1VzAfQBdQ.png",
-                "yusaki": "1701255136;0aX6cwdzRa5Dc.png",
-                "yuzuriha": "1701255136;c6esObjml7mgY.png"
+                "anya": {
+                    "name": "1701255136;f1vv6Fgb.f3Cg.png",
+                    "title": "Anya Forger"
+                },
+                "chitoge": {
+                    "name": "1701255136;60GHO8USkVyC2.png",
+                    "title": "Chitoge Kirisaki"
+                },
+                "daki": {
+                    "name": "1701255136;a9UmfTXqwNAhU.png",
+                    "title": "Daki (堕だ姫き)"
+                },
+                "erna": {
+                    "name": "1718037978;1dH4ZmVi1ArEw.png",
+                    "title": "Erna (愚人)"
+                },
+                "grete": {
+                    "name": "1718037990;88flxPnLyxNxA.png",
+                    "title": "Grete (愛娘)"
+                },
+                "hiyori": {
+                    "name": "1701255136;5d8gik4zKsQzs.png",
+                    "title": "Iki Hiyori"
+                },
+                "ichigiyoururi": {
+                    "name": "1701255136;b31AQ740ce3vw.png",
+                    "title": "Ichigyou Ruri"
+                },
+                "iwamura": {
+                    "name": "1701255136;0a0BkqneL95Jk.png",
+                    "title": "Ria Iwamura"
+                },
+                "katagaki": {
+                    "name": "1718037520;ebPUXDxOXsUus.png",
+                    "title": "Katagaki"
+                },
+                "kohaku": {
+                    "name": "1701255136;85iH5CBTMK8NY.png",
+                    "title": "Kohaku (コハク)"
+                },
+                "kosaki": {
+                    "name": "1701255136;ca35C5rftvAqE.png",
+                    "title": "Kosaki Onodera"
+                },
+                "kugisaki": {
+                    "name": "1701255136;c5UJDAexDIXBE.png",
+                    "title": "Nobara Kugisaki"
+                },
+                "kuryama": {
+                    "name": "1718037881;d7j2.5P0Oi67M.png",
+                    "title": "Mirai Kuriyama"
+                },
+                "lily": {
+                    "name": "1718037816;d3v34HVAghVKY.png",
+                    "title": "Flower Garden"
+                },
+                "marika": {
+                    "name": "1701255136;b9iU8rMaxaABU.png",
+                    "title": "Marika Tachibana"
+                },
+                "mitsuha": {
+                    "name": "1701255136;80rnQBo1sqY0M.png",
+                    "title": "Mitsuha Miyamizu"
+                },
+                "miyamoto": {
+                    "name": "1701255136;2ehXrE7uQn3pQ.png",
+                    "title": "Ruri Miyamoto"
+                },
+                "nakime": {
+                    "name": "1701255136;29h.3mdvcmjHc.png",
+                    "title": "Nakime (鳴女)"
+                },
+                "nazuna": {
+                    "name": "1701255136;feqAaentzH14g.png",
+                    "title": "Nazuna Oikawa"
+                },
+                "nezuko": {
+                    "name": "1701255136;ddrO0faRYdYtg.png",
+                    "title": "Nezuko (竈門 禰豆子)"
+                },
+                "rikka": {
+                    "name": "1701255136;eaj3sKej5i80w.png",
+                    "title": "Rikka Takanashi"
+                },
+                "sawako": {
+                    "name": "1718037503;60dTHa07ao64o.png",
+                    "title": "Sawako Kuronuma"
+                },
+                "saya": {
+                    "name": "1701255136;64JBHOqRCOolY.png",
+                    "title": "Saya Kisaragi"
+                },
+                "shinka": {
+                    "name": "1718037749;70xNj6uuY4ylE.png",
+                    "title": "Shinka Nibutani"
+                },
+                "susamaru": {
+                    "name": "1701255136;b9lJC2uS3PMjU.png",
+                    "title": "Susamaru (朱紗丸)"
+                },
+                "sybilla": {
+                    "name": "1718038136;cd28fV7hgtHuI.png",
+                    "title": "(Pandemonium)"
+                },
+                "tamayo": {
+                    "name": "1701255136;31KxrA4Bf6z9U.png",
+                    "title": "Tamayo (珠世)"
+                },
+                "thea": {
+                    "name": "1718038194;49svT1r1nADuE.png",
+                    "title": "Dreamspeaker"
+                },
+                "touka": {
+                    "name": "1718037725;90Z84HgIreQF..png",
+                    "title": "Tōka Takanashi"
+                },
+                "tsugumi": {
+                    "name": "1701255136;50GJ1VzAfQBdQ.png",
+                    "title": "Seishirō Tsugumi"
+                },
+                "yuzaki": {
+                    "name": "1701255136;0aX6cwdzRa5Dc.png",
+                    "title": "Yuzaki Tsukasa"
+                },
+                "yuzuriha": {
+                    "name": "1701255136;c6esObjml7mgY.png",
+                    "title": "Yuzuriha Ogawa"
+                }
             },
             "banner": {},
             "company": {
@@ -459,6 +556,7 @@
         "home": false,
         "issues": true,
         "none": false,
+        "paintart": false,
         "preview": true,
         "privacy": false,
         "project": false,
@@ -468,26 +566,35 @@
         "terminal": false
     },
     "organizations": [
+        "aetherlf",
         "octancle",
         "yfure"
     ],
+    "paintart": {
+        "description": [
+            "It's not uncommon that when I have free time I like to draw.",
+            "This was my first hobby before I jumped into the world of programming full time."
+        ]
+    },
     "project": {
         "description": [
-            "Some personal projects I built for programming practice, or even just my free time."
+            "Here are some of the projects I've created and are still developing.",
+            "Every project is open source anyone can use it or contribute if interesting.",
+            "Don't forget to let others know if it's useful."
         ],
         "items": [
             {
                 "document": {
                     "url": "public/globals/docs/aether.json"
                 },
-                "endpoint": "hxAri/AETHER",
-                "homepage": "https://github.com/hxAri/",
+                "endpoint": "aetherlf/AETHER",
+                "homepage": "https://github.com/aetherlf/AETHER",
                 "include": true,
                 "language": "cpp",
                 "name": "AETHER",
                 "previews": [],
                 "readme": {
-                    "url": "https://raw.githubusercontent.com/hxAri/AETHER/prod/README.md"
+                    "url": "https://raw.githubusercontent.com/aetherlf/AETHER/prod/README.md"
                 },
                 "thumbnail": "project/1759570092;9famMV6JArAow.png"
             },
@@ -1082,6 +1189,10 @@
         {
             "github": "https://github.com/nolimits4web/swiper",
             "name": "Swiper"
+        },
+        {
+            "github": "https://github.com/termux/termux-app",
+            "name": "Termux"
         },
         {
             "github": "https://github.com/vuejs/core",

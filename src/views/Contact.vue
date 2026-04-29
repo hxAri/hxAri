@@ -3,12 +3,12 @@
 	
 	import { mapState } from "vuex";
 	
-	import { choice } from "../scripts/common";
+	import { choice } from "/src/scripts/common";
 	import { Fmt } from "/src/scripts/formatter";
-	import { isNotEmpty } from "../scripts/logics";
+	import { isNotEmpty } from "/src/scripts/logics";
 	import Image from "/src/scripts/image";
-	import { Mapper } from "../scripts/mapper";
-	import { Request } from "../scripts/request";
+	import { Mapper } from "/src/scripts/mapper";
+	import { Request } from "/src/scripts/request";
 	import { Typed } from "/src/scripts/types";
 	
 	export default {
@@ -136,8 +136,10 @@
 			 * 
 			 */
 			choice: function() {
+				var anime = choice( Object.keys( this.configs.image.items.anime ) );
+				var image = Image.search( this.configs.image, "anime", anime );
 				return {
-					backgroundImage: Fmt( "url({})", Image.search( this.configs.image, "anime", choice( Object.keys( this.configs.image.items.anime ) ) ) )
+					backgroundImage: Fmt( "url({})", image )
 				};
 			},
 			

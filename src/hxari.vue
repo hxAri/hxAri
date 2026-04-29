@@ -3,8 +3,8 @@
 	
 	import { mapGetters, mapState } from "vuex";
 	
-	import { isNotEmpty } from "./scripts/logics";
-	import { UnixTime } from "./scripts/unixtime";
+	import { isNotEmpty } from "/src/scripts/logics";
+	import { UnixTime } from "/src/scripts/unixtime";
 	
 	import Avatar from "/src/widgets/Avatar.vue";
 	import Error from "/src/widgets/Error.vue";
@@ -94,11 +94,11 @@
 				"loading"
 			]),
 			...mapGetters([
-				"hasConfig"
+				"hasConfigs"
 			])
 		},
 		created: async function() {
-			if( this.hasConfig === false ) {
+			if( this.hasConfigs === false ) {
 				await this.$store.dispatch( "initialize" );
 			}
 			this.dateFormat = this.date.format( "[ 2021, %Y ]" );
@@ -119,6 +119,12 @@
 				this.$refs.burger.classList.toggle( "burger-active" );
 				this.$refs.sidebar.classList.toggle( "sidebar-active" );
 				this.$refs.sidebarMain.classList.toggle( "sidebar-active" );
+			},
+			
+			/** Switch palette color */
+			buttonSwitchPalette: function() {
+				this.theme.setPalette();
+				this.themeColor = this.theme.current;
 			},
 			
 			/** Switch theme color */
@@ -177,7 +183,16 @@
 						<RouterLink to="/" v-else>hxAri</RouterLink>
 					</h5>
 					<div class="sidebar-tools flex flex-center">
-						<RouterLink class="fb-55" :to="previous()" v-if="isDocument()">&lt;&lt;-</RouterLink>
+						<RouterLink class="fb-55" :to="previous()" v-if="isDocument()">
+							<i class="bx bx-chevrons-left fs-20" title="Back"></i>
+						</RouterLink>
+						<button class="button sidebar-switch" @click="buttonSwitchPalette" v-if="( themeColor !== 'dark') ">
+							<i class="bx bxs-palette fs-20" :title="themeColor" v-if="( [ 'dark', 'light' ].indexOf( themeColor ) <= -1 )"></i>
+							<i class="bx bx-palette fs-20" title="palettes" v-else></i>
+						</button>
+						<!-- <button class="button sidebar-switch">
+							<i class="bx bx-chevrons-left fs-20"></i>
+						</button> -->
 						<button class="button sidebar-switch" @click="buttonSwitchTheme">
 							<i :class="[ 'bx', 'fs-20', themeColor === 'dark' ? 'bx-sun' : 'bx-moon' ]"></i>
 						</button>
@@ -228,7 +243,7 @@
 				<div class="footer-group pd-14">
 					<h5 class="mg-bottom-8">Social</h5>
 					<p class="fc-1m">Stay connected with me.</p>
-					<li class="li dp-inline-block mg-right-10" v-for="( socmed, platform ) in footer.socmed" v-if="hasConfig">
+					<li class="li dp-inline-block mg-right-10" v-for="( socmed, platform ) in footer.socmed" v-if="hasConfigs">
 						<a :href="socmed.url" target="_blank" rel="noopener noreferrer">
 							<i :class="socmed.icon"></i>
 						</a>
@@ -242,7 +257,7 @@
 				<div class="footer-group pd-14">
 					<h5 class="mg-bottom-8">Thirdparty</h5>
 					<p class="fc-1m mg-bottom-8">Thankyou for open-source thirdparty.</p>
-					<li class="li dp-block mg-bottom-8 mg-lc-bottom" v-for="thirdparty in this.configs.thirdparty" v-if="hasConfig">
+					<li class="li dp-block mg-bottom-8 mg-lc-bottom" v-for="thirdparty in this.configs.thirdparty" v-if="hasConfigs">
 						<span class="fb-45 mg-right-12">·</span>
 						<a class="text-underline" :href="thirdparty.github" target="_blank" rel="noopener noreferrer">{{ thirdparty.name }} </a>
 					</li>
