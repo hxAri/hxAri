@@ -235,7 +235,7 @@
 							}
 						}
 					},
-					template: "<div class=\"sidebar-group scroll-y scroll-hidden\">s</div>"
+					template: "<div class=\"sidebar-group scroll-y scroll-hidden\">{}</div>"
 				};
 				
 				for( let i in this.configs.project.items ) {
@@ -257,7 +257,7 @@
 							});
 						}
 						else {
-							component.template = Fmt( component.template, "*" );//this.iterator([ ...Routes ]) );
+							component.template = Fmt( component.template, "*" );
 						}
 						break;
 					}
@@ -314,9 +314,10 @@
 			/**
 			 * Create sidebar lists.
 			 *
-			 * @params Array lists
+			 * @param {Array<Object>} lists
 			 *
-			 * @return String
+			 * @returns {String}
+			 * 
 			 */
 			iterator: function( lists ) {
 				
@@ -473,9 +474,15 @@
 			.sidebar-route:hover {
 				color: var(--color-2);
 				text-transform: capitalize;
+				transition: all .4s ease-in-out;
+			}
+			.sidebar-route:focus,
+			.sidebar-route:hover {
+				font-weight: 450;
 			}
 			.sidebar-route.router-link-active,
 			.sidebar-route.router-link-exact-active {
+				font-weight: 500;
 				color: var(--link-1);
 			}
 	

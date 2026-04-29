@@ -1,7 +1,7 @@
 
 /**
  * 
- * hxAri | alias.js
+ * hxAri | clear.js
  * 
  * @author hxAri
  * @github https://github.com/hxAri/hxAri
@@ -29,24 +29,21 @@
  * 
  */
 
-"use strict";
-
-import { test } from "vitest";
-
-import { Router } from "/src/routing/router";
-import { Kernel } from "/src/scripts/terminal/kernel";
-import { Shell } from "/src/scripts/terminal/shell";
+import { Program } from "/src/scripts/terminal/kernel/program";
 
 
-const kernel = new Kernel( Router );
-const shell = new Shell( kernel, { user: kernel.root } );
-const root = kernel.root;
+class Clear extends Program {
+	
+	async help() {
+	}
+	
+	async run() {
+		this.stdout.clear();
+	}
+	
+}
 
 
-test.only( "Shell.complete", function() {
-});
-
-test.only( "Shell.execute", function() {
-	shell.execute( "echo -e \"Hello World!\"" );
-	console.log( shell.stdout.read() );
-});
+export {
+	Clear
+};

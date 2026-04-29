@@ -121,9 +121,10 @@ class Program {
 		this.user = options.user;
 	}
 	
-	/**
-	 * 
-	 */
+	async help() {
+		throw new TypeError( "not implemented error" );
+	}
+	
 	async run() {
 		throw new TypeError( "not implemented error" );
 	}

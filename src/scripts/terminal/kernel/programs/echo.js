@@ -1,7 +1,7 @@
 
 /**
  * 
- * hxAri | alias.js
+ * hxAri | echo.js
  * 
  * @author hxAri
  * @github https://github.com/hxAri/hxAri
@@ -29,24 +29,25 @@
  * 
  */
 
-"use strict";
-
-import { test } from "vitest";
-
-import { Router } from "/src/routing/router";
-import { Kernel } from "/src/scripts/terminal/kernel";
-import { Shell } from "/src/scripts/terminal/shell";
+import { Program } from "/src/scripts/terminal/kernel/program";
 
 
-const kernel = new Kernel( Router );
-const shell = new Shell( kernel, { user: kernel.root } );
-const root = kernel.root;
+class Echo extends Program {
+	
+	async help() {
+	}
+	
+	async run() {
+		var buffer = [];
+		for( let arg of this.argv.slice( 1 ) ?? [] ) {
+			buffer.push( arg );
+		}
+		this.stdout.write( buffer.join( "" ) );
+	}
+	
+}
 
 
-test.only( "Shell.complete", function() {
-});
-
-test.only( "Shell.execute", function() {
-	shell.execute( "echo -e \"Hello World!\"" );
-	console.log( shell.stdout.read() );
-});
+export {
+	Echo
+};

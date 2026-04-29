@@ -6,6 +6,10 @@
 			"name": "home",
 			"readable": true,
 			"component": {
+				"data": {
+					"styles": {
+					}
+				},
 				"template": {
 					"name": "div",
 					"attributes": {

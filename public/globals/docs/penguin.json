@@ -6,10 +6,17 @@
 			"name": "home",
 			"readable": true,
 			"component": {
+				"data": {
+					"styles": {
+					}
+				},
 				"template": {
 					"name": "div",
 					"attributes": {
-						"innerHTML": "Penguin"
+						"dataset": {
+							"project": "Penguin"
+						},
+						"innerHTML": "<div>Penguin</div>"
 					}
 				}
 			}

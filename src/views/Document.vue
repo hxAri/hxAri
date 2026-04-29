@@ -3,10 +3,10 @@
 	
 	import { mapState } from "vuex";
 	
-	import Eremento from "../scripts/eremento";
-	import { Fmt } from "../scripts/formatter";
-	import { Typed } from "../scripts/types";
-	import { isNotEmpty, Not } from "../scripts/logics";
+	import Eremento from "/src/scripts/eremento";
+	import { Fmt } from "/src/scripts/formatter";
+	import { Typed } from "/src/scripts/types";
+	import { isNotEmpty, Not } from "/src/scripts/logics";
 	
 	import Error from "../widgets/Error.vue";
 	
@@ -54,15 +54,16 @@
 			 * 
 			 */
 			binding: function() {
+				var dataset = {
+					image: {},
+					images: {},
+					source: null,
+					project: this.project,
+					document: this.document,
+					component: this.component
+				}
 				return {
-					data: () => ({
-						image: {},
-						images: {},
-						source: null,
-						project: this.project,
-						document: this.document,
-						component: this.component
-					}),
+					data: () => dataset,
 					computed: mapState([
 						"configs",
 						"projects",
@@ -78,6 +79,9 @@
 					mounted: function() {
 					},
 					methods: {
+						click: function() {
+							alert()
+						}
 					},
 					template: Eremento.arrange(
 						this.component.template
@@ -150,27 +154,20 @@
 			request: async function() {
 				var name = this.$route.params.project.toLowerCase();
 				var project = null;
-				for( let i in this.configs.project.includes ) {
-					
-					project = this.configs.project.includes[i];
-					
-					// Skip if project is not include.
-					if( project.include === false ) continue;
-					
-					// If project name or project endpoint is equals with param.
+				for( let i in this.configs.project.items ) {
+					project = this.configs.project.items[i];
+					if( project.include === false ) {
+						continue;
+					}
 					if( name === project.name.toLowerCase() ||
 						name === project.endpoint.split( "/" ).pop().toLowerCase() ) {
-						
-						// Set current project.
 						this.project = project;
-						
-						// If current project is loading.
-						if( project.document_loading ) await project.document_loading;
-						
-						// Check if document is not requested.
-						if( Not( this.documents[project.endpoint], Object ) ) await this.$store.dispatch( "document", project );
-						
-						// If there are no error occured.
+						if( project.document_loading ) {
+							await project.document_loading;
+						}
+						if( Not( this.documents[project.endpoint], Object ) ) {
+							await this.$store.dispatch( "document", project );
+						}
 						if( project.document_error === false ) {
 							this.document = this.documents[project.endpoint];
 							this.component = this.finder( this.document.routes );
@@ -190,19 +187,19 @@
 
 <template>
 	<div class="document flex flex-center">
-		<div class="document-loading loading flex flex-center pd-24" v-if="project.document_loading">
+		<div class="document-loading loading flex flex-center pd-24" v-if="( project !== null && project.document_loading )">
 			<div class="animate">
 				<div class="spinner"></div>
 			</div>
 		</div>
-		<div class="document-error" v-else-if="project.document_error">
+		<div class="document-error" v-else-if="( project !== null && project.document_error )">
 			<Error>
 				<h3 class="title">Something Wrong</h3>
 				<p class="sub-title">{{ project.document_error }}</p>
 			</Error>
 		</div>
 		<div class="document-display" v-else>
-			<div class="document-content bg-2 pd-18" v-if="component">
+			<div class="document-content bg-2" v-if="component">
 				<keep-alive>
 					<component :is="binding"></component>
 				</keep-alive>

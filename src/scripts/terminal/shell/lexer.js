@@ -380,6 +380,8 @@ class Lexer {
 				return TokenType.REDIR_IN;
 			case "|":
 				return TokenType.PIPE;
+			case ";":
+				return TokenType.SEMICOLON;
 		}
 		return TokenType.UNKNOWN;
 	}

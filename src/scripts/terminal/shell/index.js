@@ -109,6 +109,10 @@ class Shell {
 		this.history = [];
 		this.historyIndex = -1;
 		this.kernel = kernel;
+		if( this.kernel.user() != user ) {
+			this.kernel.switch( user.username );
+		}
+		this.kernel.vfs.cd( object.HOME, { user: user } );
 		this.lexer = new Lexer( false );
 		this.stderr = new Stderr();
 		this.stdin = new Stdin();
@@ -130,31 +134,31 @@ class Shell {
 	 * @returns {String}
 	 */
 	complete( command ) {
-		const parts = command.split( /\s+/ );
-		const lastPart = parts[parts.length - 1];
-		if( parts.length <= 1 ) {
-			// Complete from programs and aliases
-			const candidates = [
-				...this.kernel.programs.keys(),
-				...this.aliases.keys()
-			];
-			const matches = candidates.filter( c => c.startsWith( lastPart ) );
-			if( matches.length === 1 ) {
-				return command.substring( 0, command.length - lastPart.length ) + matches[0] + " ";
-			}
-		} else {
-			// Complete from files in CWD
-			try {
-				const entries = this.kernel.vfs.ls( ".", { user: this.user } );
-				const names = Array.from( entries.contents.keys() );
-				const matches = names.filter( n => n.startsWith( lastPart ) );
-				if( matches.length === 1 ) {
-					const isDir = entries.contents.get( matches[0] ).type === "path";
-					return command.substring( 0, command.length - lastPart.length ) + matches[0] + ( isDir ? "/" : " " );
-				}
-			} catch( e ) {
-			}
-		}
+		// const parts = command.split( /\s+/ );
+		// const lastPart = parts[parts.length - 1];
+		// if( parts.length <= 1 ) {
+		// 	// Complete from programs and aliases
+		// 	const candidates = [
+		// 		...this.kernel.programs.keys(),
+		// 		...this.aliases.keys()
+		// 	];
+		// 	const matches = candidates.filter( c => c.startsWith( lastPart ) );
+		// 	if( matches.length === 1 ) {
+		// 		return command.substring( 0, command.length - lastPart.length ) + matches[0] + " ";
+		// 	}
+		// } else {
+		// 	// Complete from files in CWD
+		// 	try {
+		// 		const entries = this.kernel.vfs.ls( ".", { user: this.user } );
+		// 		const names = Array.from( entries.contents.keys() );
+		// 		const matches = names.filter( n => n.startsWith( lastPart ) );
+		// 		if( matches.length === 1 ) {
+		// 			const isDir = entries.contents.get( matches[0] ).type === "path";
+		// 			return command.substring( 0, command.length - lastPart.length ) + matches[0] + ( isDir ? "/" : " " );
+		// 		}
+		// 	} catch( e ) {
+		// 	}
+		// }
 		return command;
 	}
 	
@@ -168,30 +172,41 @@ class Shell {
 	 */
 	async execute( command ) {
 		this.stdout.write( this.ps1().concat( this.ansi.colorize( command ) ) );
-		this.stdout.write( "\x0a" );
-		this.stdout.write( this.ps1().concat( this.ansi.colorize( command ) ) );
 		if( this.history.length >= 40 ) {
 			this.history = [];
 		}
-		const iterator = this.tokenize( command );
+		const iterator = this.tokenize( command.trim() );
 		while( true ) {
 			const iterated = iterator.next();
 			if( iterated.done ) {
 				break;
 			}
-			console.clear();
-			console.debug( Fmt( "Shell.execute: {}", JSON.stringify( iterated.value, null, 4 ) ) );
 			const executables = await this.executables();
-			console.debug( "Executables: {}", executables );
-			if( executables.has( iterated.value[0].lexeme ) ) {
-				const executable = executables.get( iterated.value[0].lexeme );
-				if( this.user.executable( executable ) ) {
-					// Spawn here!
-					continue;
+			try {
+				if( iterated.value.length <= 0 ) continue;
+				if( executables.has( iterated.value[0].lexeme ) ) {
+					const argv = iterated.value.filter( argv => argv.grouped != "WHITESPACE" ).map( value => value.lexeme );
+					const executable = executables.get( iterated.value[0].lexeme );
+					if( this.user.executable( executable ) ) {
+						this.env.set( "?", await this.kernel.spawn( executable.contents, { 
+							argv: argv,
+							env: this.env,
+							stderr: this.stderr,
+							stdin: this.stdin,
+							stdout: this.stdout,
+							user: this.user 
+						}));
+						continue;
+					}
+					throw new TypeError( Fmt( "{}: permission denied", iterated.value[0].lexeme ) );
 				}
-				throw new Error( Fmt( "{}: permission denied", iterated.value[0].lexeme ) );
+				throw new TypeError( Fmt( "{}: command not found", iterated.value[0].lexeme ) );
 			}
-			throw new Error( Fmt( "{}: command not found", iterated.value[0].lexeme ) );
+			catch( e ) {
+				this.stderr.write( e );
+				this.env.set( "?", 1 );
+				break;
+			}
 		}
 	}
 	
@@ -291,10 +306,10 @@ class Shell {
 				case "s": value = this.user.shell; break;
 				
 				// Current working directory.
-				// case "w": value = this.pwd() !== this.exports.HOME ? this.pwd() : "~"; break;
+				case "w": value = this.kernel.vfs.cwd !== this.env.HOME ? this.kernel.vfs.cwd : "~"; break;
 				
 				// Basename current working directory.
-				// case "W": value = this.pwd( true ); break;
+				case "W": value = this.kernel.vfs.cwd; break;
 				
 				// The username of current user.
 				case "u": value = this.user.username; break;

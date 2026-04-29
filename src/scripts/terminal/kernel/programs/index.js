@@ -1,7 +1,7 @@
 
 /**
  * 
- * hxAri | alias.js
+ * hxAri | index.js
  * 
  * @author hxAri
  * @github https://github.com/hxAri/hxAri
@@ -29,24 +29,25 @@
  * 
  */
 
-"use strict";
-
-import { test } from "vitest";
-
-import { Router } from "/src/routing/router";
-import { Kernel } from "/src/scripts/terminal/kernel";
-import { Shell } from "/src/scripts/terminal/shell";
+import { Program } from "/src/scripts/terminal/kernel/program";
+import { Clear } from "/src/scripts/terminal/kernel/programs/clear";
+import { Echo } from "/src/scripts/terminal/kernel/programs/echo";
 
 
-const kernel = new Kernel( Router );
-const shell = new Shell( kernel, { user: kernel.root } );
-const root = kernel.root;
+/**
+ * Returns available programs
+ * 
+ * @returns {Map<String,Program>}
+ * 
+ */
+function programs() {
+	return new Map([
+		[ "/usr/bin/clear", Clear ],
+		[ "/usr/bin/echo", Echo ]
+	])
+}
 
 
-test.only( "Shell.complete", function() {
-});
-
-test.only( "Shell.execute", function() {
-	shell.execute( "echo -e \"Hello World!\"" );
-	console.log( shell.stdout.read() );
-});
+export {
+	programs
+}
