@@ -30,11 +30,12 @@
  */
 
 import { bin2hex } from "/src/scripts/common";
-import { isEmpty } from "/src/scripts/logics";
 import { Fmt } from "/src/scripts/formatter";
+import { isEmpty } from "/src/scripts/logics";
 import { Group } from "/src/scripts/terminal/kernel/group";
 import { Password } from "/src/scripts/terminal/kernel/password";
 import { Program, ProgramMetadata } from "/src/scripts/terminal/kernel/program";
+import { programs } from "/src/scripts/terminal/kernel/programs";
 import { Root, User } from "/src/scripts/terminal/kernel/user";
 import { Stderr, Stdin, Stdout, VirtualNode, VirtualNodeGroup, VirtualNodePasswd, VirtualNodeShadow, VirtualStream } from "/src/scripts/terminal/kernel/virtual";
 import { Typed } from "/src/scripts/types";
@@ -58,7 +59,7 @@ class Kernel {
 	/** @type {Number} */
 	pic; // pid /counter
 	
-	/** @type {Map<String,VirtualNode>} */
+	/** @type {Map<String,Program>} */
 	programs;
 	
 	/** @type {Root} */
@@ -103,7 +104,6 @@ class Kernel {
 	 * 
 	 */
 	allocateGID() {
-		console.debug( this.gic );
 		if( this.groups === null || typeof this.groups === "undefined" ) {
 			this.groups = new Map();
 		}
@@ -260,13 +260,7 @@ class Kernel {
 		this.root = new Root();
 		this.groups.set( 0, new Group( 0, new Set([ this.root ]), "root" ) );
 		this.group = new VirtualNodeGroup( this.groups );
-		this.programs = new Map([
-			[
-				"/usr/bin/echo", function() {
-					this.stdout.write( "Kontol" );
-				}
-			]
-		]);
+		this.programs = programs();
 		this.table = new Map();
 		this.users = new Map();
 		this.users.set( this.root.uid, this.root );
@@ -334,7 +328,6 @@ class Kernel {
 				mode: 0o755,
 				user: this.root
 			});
-			console.debug( filename, program );
 		}
 	}
 	
@@ -354,7 +347,7 @@ class Kernel {
 		if( this.table.has( pid ) ) {
 			var process = this.table.get( pid );
 			if( process.user.uid !== options.user.uid && options.user.root() === false ) {
-				throw TypeError( "{}: unallowed kill process", pid );
+				throw TypeError( Fmt( "{}: unallowed kill process", pid ) );
 			}
 			process.exit = 1;
 			process.state = "killed";
@@ -431,6 +424,23 @@ class Kernel {
 	 * 
 	 */
 	async spawn( program, options={} ) {
+		const user = options.user;
+		const pid = this.register( program, { user: user } );
+		const proc = new program( pid, {
+			argv: options.argv,
+			cwd: this.vfs.cwd,
+			env: options.env,
+			gid: user.gid,
+			ppid: null,
+			sid: null,
+			stderr: options.stderr,
+			stdin: options.stdin,
+			stdout: options.stdout,
+			uid: user.uid,
+			umask: null,
+			user: user
+		});
+		this.unregister( pid, await proc.run() ?? 0 );
 	}
 	
 	/**
@@ -605,13 +615,7 @@ class Kernel {
 		if( options.user.root() === false ) {
 			throw new TypeError( "operation not permitted: only root can delete user" );
 		}
-		var users = Array.from( this.users.values() ).filter( user => user.username === username );
-		if( users.length <= 0 ) {
-			throw new TypeError( Fmt( "{}: user not found", username ) );
-		}
-		for( let table of this.table.values() ) {
-			console.debug( table );
-		}
+		var user = this.userget( username );
 		var procs = Array.from( this.table.values() ).filter( table => table.state === "running" && table.user.username === username );
 		if( procs >= 1 ) {
 			if( options.force === false ) {
@@ -622,18 +626,35 @@ class Kernel {
 			}
 		}
 		for( let group of this.groups.values() ) {
-			if( group.members.has( users[0] ) ) {
-				group.members.delete( users[0] );
+			if( group.members.has( user ) ) {
+				group.members.delete( user );
 			}
 		}
-		if( users[0].home && options?.home ) {
-			this.vfs.remove( users[0].home );
+		if( user.home && options?.home ) {
+			this.vfs.remove( user.home );
 		}
-		this.users.delete( users[0].uid );
+		this.users.delete( user.uid );
 		this.group.refresh();
 		this.passwd.refresh();
 		this.shadow.refresh();
 		this.vfs.persist();
+	}
+	
+	/**
+	 * Return user instance by username
+	 * 
+	 * @param {String} username 
+	 * 
+	 * @returns {User}
+	 * 
+	 * @throws {TypeError} Throws whether user not found
+	 */
+	userget( username ) {
+		var users = Array.from( this.users.values() ).filter( user => user.username === username );
+		if( users.length <= 0 ) {
+			throw new TypeError( Fmt( "{}: user not found", username ) );
+		}
+		return users[0];
 	}
 	
 	/**
@@ -675,11 +696,7 @@ class Kernel {
 			( options.username === null || typeof options.username === "undefined" ) ) {
 			throw new TypeError( Fmt( "{}: nothing changed", username ) );
 		}
-		var users = Array.from( this.users.values() ).filter( user => user.username === username );
-		if( users.length <= 0 ) {
-			throw new TypeError( Fmt( "{}: user not found", username ) );
-		}
-		var user = users.pop();
+		var user = this.userget( username );
 		if( options?.fullname ) {
 			user.fullname = options.fullname;
 		}
@@ -921,8 +938,10 @@ class VirtualFileSystem {
 	 */
 	builder( object={} ) {
 		var contents = object.contents;
-		if( object.scripting ?? false ) {
-			console.warn( "unallowed to transform JavaScript contents into executable code" );
+		if( object?.mode === 493 &&
+			object?.type === "file" && 
+			object.scripting === false ) {
+			console.warn( Fmt( "{}: {}: unallowed to transform JavaScript contents into executable code", object.mode, object.name ) );
 		}
 		if( Typed( contents, Object ) ) {
 			if( contents?.type === "Buffer" && contents?.data ) {
