@@ -250,7 +250,7 @@ function create( name, attributes = {} ) {
 			var match = null;
 			
 			// If attribute is dataset.
-			if( key.match( /^(?:data|dataset)$/i ) ) {
+			if( key.match( /^(?:dataset)$/i ) ) {
 				
 				// Skip append if dataset is not Object.
 				if( Typed( attributes[key], Object ) === false ) continue;
