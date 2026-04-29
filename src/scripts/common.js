@@ -72,7 +72,7 @@ const choice = function( values ) {
 		}
 		throw new TypeError( "Cannot return value from an empty array" );
 	}
-	return Choice( Object.values( values ) );
+	return choice( Object.values( values ) );
 };
 
 /**
