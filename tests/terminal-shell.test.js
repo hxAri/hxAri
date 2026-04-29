@@ -48,4 +48,5 @@ test.only( "Shell.complete", function() {
 
 test.only( "Shell.execute", function() {
 	shell.execute( "echo -e \"Hello World!\"" );
+	console.log( shell.stdout.read() );
 });
