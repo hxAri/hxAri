@@ -115,7 +115,7 @@
 			render: function() {
 				return Eremento.arrange(
 					this.create(
-						this.configs.routes.privacy
+						this.configs.routes.get( "privacy" )
 					)
 				);
 			}

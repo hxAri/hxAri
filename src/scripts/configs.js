@@ -267,6 +267,9 @@ class Configs {
 	/** @type {Array<String>} */
 	organizations;
 	
+	/** @type {Paintart} */
+	paintart;
+	
 	/** @type {Project} */
 	project;
 	
@@ -303,6 +306,7 @@ class Configs {
 	 * @param {Image} kwargs.image
 	 * @param {Maintenance} kwargs.maintenance
 	 * @param {Array<String>} kwargs.organizations
+	 * @param {Paintart} kwargs.paintart
 	 * @param {Project} kwargs.project
 	 * @param {Programming} kwargs.programming
 	 * @param {Object} kwargs.resume
@@ -346,6 +350,10 @@ class Configs {
 			this.maintenance = new Maintenance( this.maintenance || {} );
 		}
 		this.organizations = kwargs?.organizations || [];
+		this.paintart = kwargs?.paintart;
+		if( this.paintart instanceof Paintart === false ) {
+			this.paintart = new Paintart( this.paintart || {} );
+		}
 		this.project = kwargs?.project;
 		if( this.project instanceof Project === false ) {
 			this.project = new Project( this.project || {} );
@@ -604,6 +612,9 @@ class HomeDisplay {
 	experience;
 	
 	/** @type {Boolean} */
+	organization;
+	
+	/** @type {Boolean} */
 	project;
 	
 	/** @type {Boolean} */
@@ -619,6 +630,7 @@ class HomeDisplay {
 	 * @param {Boolean} kwargs.about
 	 * @param {Boolean} kwargs.certificate
 	 * @param {Boolean} kwargs.experience
+	 * @param {Boolean} kwargs.organization
 	 * @param {Boolean} kwargs.project
 	 * @param {Boolean} kwargs.programming
 	 * @param {Boolean} kwargs.technology
@@ -628,6 +640,7 @@ class HomeDisplay {
 		this.about = kwargs?.about ?? false;
 		this.certificate = kwargs?.certificate ?? false;
 		this.experience = kwargs?.experience ?? false;
+		this.organization = kwargs?.organization ?? false;
 		this.project = kwargs?.project ?? false;
 		this.programming = kwargs?.programming ?? false;
 		this.technology = kwargs?.technology ?? false;
@@ -637,7 +650,7 @@ class HomeDisplay {
 
 class Image {
 	
-	/** @type {Array<Object>} */
+	/** @type {Object} */
 	items;
 	
 	/** @type {String} */
@@ -647,7 +660,7 @@ class Image {
 	 * Construct method of class Image
 	 * 
 	 * @param {Object} kwargs 
-	 * @param {Array<Object>} items
+	 * @param {Object} items
 	 * @param {String} source
 	 * 
 	 */
@@ -727,6 +740,24 @@ class Maintenance {
 		this.service = kwargs?.service ?? false;
 		this.sitemap = kwargs?.sitemap ?? false;
 		this.terminal = kwargs?.terminal ?? false;
+	}
+	
+}
+
+class Paintart {
+	
+	/** @type {Array<String>} */
+	description;
+	
+	/**
+	 * Construct method of class Paintart
+	 * 
+	 * @param {Object} kwargs 
+	 * @param {Array<String>} description
+	 * 
+	 */
+	constructor( kwargs={} ) {
+		this.description = kwargs?.description || [];
 	}
 	
 }

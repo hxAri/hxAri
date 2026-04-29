@@ -36,6 +36,7 @@ import Editor from "/src/views/Editor.vue";
 import Home from "/src/views/Home.vue";
 import Issues from "/src/views/Issues.vue";
 import None from "/src/views/None.vue";
+import Paintart from "/src/views/Paintart.vue"
 import Privacy from "/src/views/Privacy.vue";
 import Project from "/src/views/Project.vue";
 import Service from "/src/views/Service.vue";
@@ -91,6 +92,15 @@ const routes = [
 		component: Issues
 	},
 	{
+		path: "/paintart",
+		name: "paintart",
+		icon: {
+			active: [ "bx", "bxs-pencil" ],
+			default: [ "bx", "bx-pencil" ]
+		},
+		component: Paintart
+	},
+	{
 		path: "/privacy",
 		name: "privacy",
 		icon: {
@@ -98,24 +108,6 @@ const routes = [
 			default: [ "bx", "bx-lock" ]
 		},
 		component: Privacy
-	},
-	{
-		path: "/service",
-		name: "service",
-		icon: {
-			active: [ "bx", "bxs-wrench" ],
-			default: [ "bx", "bx-wrench" ]
-		},
-		component: Service
-	},
-	{
-		path: "/sitemap",
-		name: "sitemap",
-		icon: {
-			active: [ "bx", "bx-link-alt" ],
-			default: [ "bx", "bx-link" ]
-		},
-		component: Sitemap
 	},
 	{
 		path: "/projects",
@@ -134,6 +126,24 @@ const routes = [
 		visible: false,
 		sensitive: false,
 		component: Document
+	},
+	{
+		path: "/service",
+		name: "service",
+		icon: {
+			active: [ "bx", "bxs-wrench" ],
+			default: [ "bx", "bx-wrench" ]
+		},
+		component: Service
+	},
+	{
+		path: "/sitemap",
+		name: "sitemap",
+		icon: {
+			active: [ "bx", "bx-link-alt" ],
+			default: [ "bx", "bx-link" ]
+		},
+		component: Sitemap
 	},
 	{
 		path: "/terminal",

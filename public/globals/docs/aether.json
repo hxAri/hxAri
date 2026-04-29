@@ -1,8 +1,8 @@
 {
-	"title": "Society",
+	"title": "AETHER",
 	"routes": [
 		{
-			"path": "/projects/Society",
+			"path": "/projects/AETHER",
 			"name": "home",
 			"readable": true,
 			"component": {
@@ -13,7 +13,10 @@
 				"template": {
 					"name": "div",
 					"attributes": {
-						"innerHTML": "Society"
+						"dataset": {
+							"project": "AETHER"
+						},
+						"innerHTML": "<pre>{{ this.project }}</pre>"
 					}
 				}
 			}

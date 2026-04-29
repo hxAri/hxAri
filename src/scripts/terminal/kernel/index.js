@@ -29,53 +29,18 @@
  * 
  */
 
-import { Buffer } from "buffer";
-import { bin2hex } from "../../common";
-import { Fmt } from "../../formatter";
-import { isAsyncronous, isEmpty, isNotEmpty } from "../../logics";
-import { Router } from "../../../routing";
-import { Typed } from "../../types";
-import { UnixTime } from "../../unixtime";
+import { bin2hex } from "/src/scripts/common";
+import { Fmt } from "/src/scripts/formatter";
+import { isEmpty } from "/src/scripts/logics";
+import { Group } from "/src/scripts/terminal/kernel/group";
+import { Password } from "/src/scripts/terminal/kernel/password";
+import { Program, ProgramMetadata } from "/src/scripts/terminal/kernel/program";
+import { programs } from "/src/scripts/terminal/kernel/programs";
+import { Root, User } from "/src/scripts/terminal/kernel/user";
+import { Stderr, Stdin, Stdout, VirtualNode, VirtualNodeGroup, VirtualNodePasswd, VirtualNodeShadow, VirtualStream } from "/src/scripts/terminal/kernel/virtual";
+import { Typed } from "/src/scripts/types";
+import { UnixTime } from "/src/scripts/unixtime";
 
-class Group {
-	
-	/** @type {Number} */
-	gid;
-	
-	/** @type {Set<User>} */
-	members;
-	
-	/** @type {String} */
-	username;
-	
-	/**
-	 * Construct method of class Group
-	 * 
-	 * @param {Number} gid
-	 * @param {Array<User>|Set<User>} members
-	 * @param {String} username
-	 * 
-	 */
-	constructor( gid, members, username ) {
-		this.gid = gid;
-		this.members = members;
-		if( Typed( members, Array ) ) {
-			this.members = new Set( members );
-		}
-		this.username = username;
-	}
-	
-	/**
-	 * Returns a string representation of a Group
-	 * 
-	 * @returns {String}
-	 * 
-	 */
-	toString() {
-		return Fmt( "{}:x:{}:{}", ...[ this.username, this.gid, Array.from( this.members.entries() ).map( member => member[0].username ).join( "\x0a" ) ] );
-	}
-	
-}
 
 class Kernel {
 	
@@ -93,6 +58,9 @@ class Kernel {
 	
 	/** @type {Number} */
 	pic; // pid /counter
+	
+	/** @type {Map<String,Program>} */
+	programs;
 	
 	/** @type {Root} */
 	root;
@@ -125,75 +93,8 @@ class Kernel {
 	 * 
 	 */
 	constructor( router ) {
-		this.gic = 1000;
-		this.groups = new Map();
-		this.hostname = window?.location?.host?.split( "\x3a" )[0] ?? "hxari";
-		this.pic = 100;
-		this.root = new Root();
-		this.groups.set( 0, new Group( 0, new Set([ this.root ]), "root" ) );
-		this.group = new VirtualNodeGroup( this.groups );
 		this.router = router;
-		this.table = new Map();
-		this.users = new Map();
-		this.users.set( this.root.uid, this.root );
-		this.passwd = new VirtualNodePasswd( this.users );
-		this.shadow = new VirtualNodeShadow( this.users );
-		this.uic = 1000;
-		this.uid = this.root.uid;
-		this.vfs = new VirtualFileSystem( this, this.hostname, this.router );
-		this.vfs.mkdir( this.root.home, { mode: 0o700, user: this.root });
-		if( this.vfs.isdir( "/etc" ) ) {
-			if( this.vfs.isfile( "/etc/group" ) ) {
-				var group = this.vfs.read( "/etc/group", { user: this.root } );
-				for( let line of group.split( "\x0a" ) ) {
-					var parts = line.split( "\x3a" );
-					var gid = parseInt( parts[2] );
-					this.groups.set( gid, new Group( gid, parts[3].split( "\x2c" ).filter( Boolean ), parts[0] ) );
-				}
-				this.group.refresh();
-			}
-			if( this.vfs.isfile( "/etc/passwd" ) ) {
-				var passwd = this.vfs.read( "/etc/passwd", { user: this.root } );
-				for( let line of passwd.split( "\x0a" ) ) {
-					var parts = line.split( "\x3a" );
-					var gid = parseInt( parts[2] );
-					var uid = parseInt( parts[3] );
-					if( gid !== 0 && uid !== 0 ) {
-						this.users.set( uid, new User( {}, parts[4], gid, parts[0], parts[5] || null, null, "user", parts[6], uid, parts[0] ) );
-					}
-				}
-				this.passwd.refresh();
-			}
-			if( this.vfs.isfile( "/etc/shadow" ) ) {
-				var shadow = this.vfs.read( "/etc/shadow", { user: this.root } );
-				for( let line of shadow.split( "\x0a" ) ) {
-					var parts = line.split( "\x3a" );
-					for( let [ _, user ] of this.users.entries() ) {
-						if( user.username === parts[0] ) {
-							user.password = new Password( parts[0], {
-								chipertext: parts[1],
-								expired: parts[7] || null,
-								inactive: parts[6] || null,
-								maximum: parts[4] || 0,
-								minimum: parts[3] || 0,
-								updated: parts[2] || 19743,
-								warning: parts[5] || 7
-							});
-						}
-					}
-				}
-				this.shadow.refresh();
-			}
-		}
-		else {
-			this.vfs.mkdir( "/etc", { mode: 0o755, user: this.root });
-		}
-		if( this.groups.has( this.groupres( "sudo" ) ) === false ) {
-			this.groupadd( "sudo", { user: this.root } );
-		}
-		this.vfs.walk( "/etc" ).contents.set( "group", this.group );
-		this.vfs.walk( "/etc" ).contents.set( "passwd", this.passwd );
-		this.vfs.walk( "/etc" ).contents.set( "shadow", this.shadow );
+		this.init();
 	}
 	
 	/** 
@@ -279,7 +180,7 @@ class Kernel {
 	}
 	
 	/**
-	 * ...
+	 * Group delete
 	 * 
 	 * @param {String} groupname 
 	 * @param {Object} options 
@@ -315,7 +216,7 @@ class Kernel {
 	}
 	
 	/**
-	 * ...
+	 * Group modify
 	 * 
 	 * @param {String} groupname 
 	 * @param {Object} options 
@@ -350,6 +251,86 @@ class Kernel {
 		}
 	}
 	
+	/** Kernel booting or init process */
+	init() {
+		this.gic = 1000;
+		this.groups = new Map();
+		this.hostname = window?.location?.host?.split( "\x3a" )[0] ?? "hxari";
+		this.pic = 100;
+		this.root = new Root();
+		this.groups.set( 0, new Group( 0, new Set([ this.root ]), "root" ) );
+		this.group = new VirtualNodeGroup( this.groups );
+		this.programs = programs();
+		this.table = new Map();
+		this.users = new Map();
+		this.users.set( this.root.uid, this.root );
+		this.passwd = new VirtualNodePasswd( this.users );
+		this.shadow = new VirtualNodeShadow( this.users );
+		this.uic = 1000;
+		this.uid = this.root.uid;
+		this.vfs = new VirtualFileSystem( this, this.hostname, this.router );
+		this.vfs.mkdir( this.root.home, { mode: 0o700, user: this.root });
+		if( this.vfs.isdir( "/etc" ) ) {
+			if( this.vfs.isfile( "/etc/group" ) ) {
+				var group = this.vfs.read( "/etc/group", { user: this.root } );
+				for( let line of group.split( "\x0a" ) ) {
+					var parts = line.split( "\x3a" );
+					var gid = parseInt( parts[2] );
+					this.groups.set( gid, new Group( gid, parts[3].split( "\x2c" ).filter( Boolean ), parts[0] ) );
+				}
+				this.group.refresh();
+			}
+			if( this.vfs.isfile( "/etc/passwd" ) ) {
+				var passwd = this.vfs.read( "/etc/passwd", { user: this.root } );
+				for( let line of passwd.split( "\x0a" ) ) {
+					var parts = line.split( "\x3a" );
+					var gid = parseInt( parts[2] );
+					var uid = parseInt( parts[3] );
+					if( gid !== 0 && uid !== 0 ) {
+						this.users.set( uid, new User( {}, parts[4], gid, parts[0], parts[5] || null, null, "user", parts[6], uid, parts[0] ) );
+					}
+				}
+				this.passwd.refresh();
+			}
+			if( this.vfs.isfile( "/etc/shadow" ) ) {
+				var shadow = this.vfs.read( "/etc/shadow", { user: this.root } );
+				for( let line of shadow.split( "\x0a" ) ) {
+					var parts = line.split( "\x3a" );
+					for( let [ _, user ] of this.users.entries() ) {
+						if( user.username === parts[0] ) {
+							user.password = new Password( parts[0], {
+								chipertext: parts[1],
+								expired: parts[7] || null,
+								inactive: parts[6] || null,
+								maximum: parts[4] || 0,
+								minimum: parts[3] || 0,
+								updated: parts[2] || 19743,
+								warning: parts[5] || 7
+							});
+						}
+					}
+				}
+				this.shadow.refresh();
+			}
+		}
+		else {
+			this.vfs.mkdir( "/etc", { mode: 0o755, user: this.root });
+		}
+		if( this.groups.has( this.groupres( "sudo" ) ) === false ) {
+			this.groupadd( "sudo", { user: this.root } );
+		}
+		this.vfs.walk( "/etc" ).contents.set( "group", this.group );
+		this.vfs.walk( "/etc" ).contents.set( "passwd", this.passwd );
+		this.vfs.walk( "/etc" ).contents.set( "shadow", this.shadow );
+		for( let [ filename, program ] of this.programs.entries() ) {
+			this.vfs.write( filename, {
+				contents: program,
+				mode: 0o755,
+				user: this.root
+			});
+		}
+	}
+	
 	/**
 	 * Kill specific program by process id
 	 * 
@@ -366,7 +347,7 @@ class Kernel {
 		if( this.table.has( pid ) ) {
 			var process = this.table.get( pid );
 			if( process.user.uid !== options.user.uid && options.user.root() === false ) {
-				throw TypeError( "{}: unallowed kill process", pid );
+				throw TypeError( Fmt( "{}: unallowed kill process", pid ) );
 			}
 			process.exit = 1;
 			process.state = "killed";
@@ -407,6 +388,31 @@ class Kernel {
 		return pid;
 	}
 	
+	// /**
+	//  * Register program
+	//  * 
+	//  * @param {String} name
+	//  * @param {Function} program
+	//  * 
+	//  * @returns {void}
+	//  * 
+	//  */
+	// register( name, program ) {
+	// 	this.programs.set( name, program );
+	// 	if( this.vfs ) {
+	// 		try {
+	// 			const binDir = "/usr/bin";
+	// 			if( !this.vfs.exists( binDir ) ) {
+	// 				this.vfs.mkdir( binDir, { mode: 0o755, user: this.root } );
+	// 			}
+	// 			const node = new VirtualNode( new UnixTime(), 0, 0o755, name, "file", 0, new UnixTime(), { contents: program } );
+	// 			this.vfs.walk( binDir ).contents.set( name, node );
+	// 		} catch( e ) {
+	// 			console.error( "Failed to register program in VFS:", e );
+	// 		}
+	// 	}
+	// }
+	
 	/**
 	 * Spawn new program
 	 * 
@@ -418,6 +424,23 @@ class Kernel {
 	 * 
 	 */
 	async spawn( program, options={} ) {
+		const user = options.user;
+		const pid = this.register( program, { user: user } );
+		const proc = new program( pid, {
+			argv: options.argv,
+			cwd: this.vfs.cwd,
+			env: options.env,
+			gid: user.gid,
+			ppid: null,
+			sid: null,
+			stderr: options.stderr,
+			stdin: options.stdin,
+			stdout: options.stdout,
+			uid: user.uid,
+			umask: null,
+			user: user
+		});
+		this.unregister( pid, await proc.run() ?? 0 );
 	}
 	
 	/**
@@ -474,6 +497,7 @@ class Kernel {
 	}
 	
 	/**
+	 * Add new user
 	 * 
 	 * @param {String} username
 	 * @param {Object} options
@@ -591,10 +615,7 @@ class Kernel {
 		if( options.user.root() === false ) {
 			throw new TypeError( "operation not permitted: only root can delete user" );
 		}
-		var users = Array.from( this.users.values() ).filter( user => user.username === username );
-		if( users.length <= 0 ) {
-			throw new TypeError( Fmt( "{}: user not found", username ) );
-		}
+		var user = this.userget( username );
 		var procs = Array.from( this.table.values() ).filter( table => table.state === "running" && table.user.username === username );
 		if( procs >= 1 ) {
 			if( options.force === false ) {
@@ -605,18 +626,35 @@ class Kernel {
 			}
 		}
 		for( let group of this.groups.values() ) {
-			if( group.members.has( users[0] ) ) {
-				group.members.delete( users[0] );
+			if( group.members.has( user ) ) {
+				group.members.delete( user );
 			}
 		}
-		if( users[0].home && options?.home ) {
-			this.vfs.remove( users[0].home );
+		if( user.home && options?.home ) {
+			this.vfs.remove( user.home );
 		}
-		this.users.delete( users[0].uid );
+		this.users.delete( user.uid );
 		this.group.refresh();
 		this.passwd.refresh();
 		this.shadow.refresh();
 		this.vfs.persist();
+	}
+	
+	/**
+	 * Return user instance by username
+	 * 
+	 * @param {String} username 
+	 * 
+	 * @returns {User}
+	 * 
+	 * @throws {TypeError} Throws whether user not found
+	 */
+	userget( username ) {
+		var users = Array.from( this.users.values() ).filter( user => user.username === username );
+		if( users.length <= 0 ) {
+			throw new TypeError( Fmt( "{}: user not found", username ) );
+		}
+		return users[0];
 	}
 	
 	/**
@@ -658,11 +696,7 @@ class Kernel {
 			( options.username === null || typeof options.username === "undefined" ) ) {
 			throw new TypeError( Fmt( "{}: nothing changed", username ) );
 		}
-		var users = Array.from( this.users.values() ).filter( user => user.username === username );
-		if( users.length <= 0 ) {
-			throw new TypeError( Fmt( "{}: user not found", username ) );
-		}
-		var user = users.pop();
+		var user = this.userget( username );
 		if( options?.fullname ) {
 			user.fullname = options.fullname;
 		}
@@ -727,356 +761,6 @@ class Kernel {
 		this.passwd.refresh();
 		this.shadow.refresh();
 		this.vfs.persist();
-	}
-	
-}
-
-class Password {
-	
-	/** @type {String} */
-	chipertext;
-	
-	/** @type {Number} */
-	expired;
-	
-	/** @type {Number} */
-	inactive;
-	
-	/** @type {Number} */
-	maximum;
-	
-	/** @type {Number} */
-	minimum;
-	
-	/** @type {Number} */
-	updated;
-	
-	/** @type {String} */
-	username;
-	
-	/** @type {Number} */
-	warning;
-	
-	/**
-	 * Construct method of class Password
-	 * 
-	 * @param {String} username
-	 * @param {Object} options
-	 * @param {String} [options.chipertext]
-	 * @param {Number} [options.expired]
-	 * @param {Number} [options.inactive]
-	 * @param {Number} [options.maximum]
-	 * @param {Number} [options.minimum]
-	 * @param {Number} [options.updated]
-	 * @param {Number} [options.warning]
-	 * 
-	 */
-	constructor( username, options={ chipertext: "!", expired: null, inactive: null, maximum: 0, minimum: 0, updated: 19743, warning: 7 } ) {
-		this.chipertext = options.chipertext;
-		this.expired = options.expired;
-		this.inactive = options.inactive;
-		this.maximum = options.maximum;
-		this.minimum = options.minimum;
-		this.updated = options.updated;
-		this.username = username;
-		this.warning = options.warning;
-	}
-	
-	/**
-	 * Returns a string representation of a Password
-	 * 
-	 * @returns {String}
-	 * 
-	 */
-	toString() {
-		return Fmt( "{}:{}:{}:{}:{}:{}:{}:{}", ...[
-			this.username,
-			this.chipertext || "!",
-			this.updated ?? 19743,
-			this.minimum ?? 0,
-			this.maximum ?? 0,
-			this.warning ?? 7,
-			this.inactive ?? "",
-			this.expired ?? ""
-		]);
-	}
-	
-}
-
-class Program {
-	
-	/** @type {Array<String>} */
-	argv;
-	
-	/** @type {String} */
-	cwd;
-	
-	/** @type {Map<String,String>} */
-	env;
-	
-	/** @type {Number} */
-	gid;
-	
-	/** @type {Number} */
-	pid;
-	
-	/** @type {Number} */
-	ppid;
-	
-	/** @type {Number} */
-	sid;
-	
-	/** @type {Stderr} */
-	stderr;
-	
-	/** @type {Stdin} */
-	stdin;
-	
-	/** @type {Stdout} */
-	stdout;
-	
-	/** @type {Number} */
-	uid;
-	
-	/** @type {Number} */
-	umask;
-	
-	/** @type {User} */
-	user;
-	
-	/**
-	 * 
-	 * Construct method of class Program
-	 * 
-	 * @param {Number} pid
-	 * @param {Object} options
-	 * @param {Array<String>} options.argv
-	 * @param {String} options.cwd
-	 * @param {Map<String,String>} options.env
-	 * @param {Number} options.gid
-	 * @param {Number} options.ppid
-	 * @param {Number} options.sid
-	 * @param {Stderr} options.stderr
-	 * @param {Stdin} options.stdin
-	 * @param {Stdout} options.stdout
-	 * @param {Number} options.uid
-	 * @param {Number} options.umask
-	 * @param {User} options.user
-	 * 
-	 */
-	constructor( pid, options ) {
-		this.argv = options.argv;
-		this.cwd = options.cwd;
-		this.env = options.env;
-		this.gid = options.gid;
-		this.pid = pid;
-		this.ppid = options.ppid;
-		this.sid = options.sid;
-		this.stderr = options.stderr;
-		this.stdin = options.stdin;
-		this.stdout = options.stdout;
-		this.uid = options.uid;
-		this.umask = options.umask;
-		this.user = options.user;
-	}
-	
-	async run() {
-		throw new TypeError( "not implemented error" );
-	}
-	
-}
-
-class ProgramMetadata {
-	
-	/** @type {?UnixTime} */
-	end;
-	
-	/** @type {?Number} */
-	exit;
-	
-	/** @type {Number} */
-	pid;
-	
-	/** @type {Program} */
-	program;
-	
-	/** @type {UnixTime} */
-	start;
-	
-	/** @type {String} */
-	state; // exit|killed|running
-	
-	/** @type {User} */
-	user;
-	
-	/**
-	 * 
-	 * Construct method of class ProgramMetadata
-	 * 
-	 * @param {Program} program
-	 * @param {Number} pid
-	 * @param {Object} options
-	 * @param {UnixTime} options.start
-	 * @param {String} options.state
-	 * @param {User} options.user
-	 * 
-	 */
-	constructor( program, pid, options ) {
-		this.end = null;
-		this.exit = null;
-		this.pid = pid;
-		this.program = program;
-		this.start = options?.start ?? new UnixTime();
-		this.state = options?.state ?? "running";
-		this.user = options.user;
-	}
-	
-}
-
-class User {
-	
-	/** @type {Map<String,String>} */
-	env;
-	
-	/** @type {String} */
-	fullname;
-	
-	/** @type {Number} */
-	gid;
-	
-	/** @type {String} */
-	group;
-	
-	/** @type {String} */
-	home;
-	
-	/** @type {Password} */
-	password;
-	
-	/** @type {String} */
-	privilege; // superuser|user
-	
-	/** @type {String} */
-	shell;
-	
-	/** @type {Number} */
-	uid;
-	
-	/** @type {String} */
-	username;
-	
-	/**
-	 * Construct method of class User
-	 * 
-	 * @param {Map<String,String>} env
-	 * @param {String} fullname
-	 * @param {Number} gid
-	 * @param {String} group
-	 * @param {String} home
-	 * @param {?Password|String} password
-	 * @param {String} privilege
-	 * @param {String} shell
-	 * @param {Number} uid
-	 * @param {String} username
-	 * 
-	 */
-	constructor( env, fullname, gid, group, home, password, privilege, shell, uid, username ) {
-		this.env = Object.assign( new Map(), env || {}, {
-			HOME: home,
-			SHELL: shell,
-			PATH: "/bin:/usr/bin",
-			PWD: home,
-			USER: username
-		});
-		this.fullname = fullname;
-		this.gid = gid;
-		this.group = group;
-		this.home = home;
-		this.password = password;
-		if( Typed( password, [ "Null", "String", "Undefined" ] ) ) {
-			this.password = new Password( username, { chipertext: password } );
-		}
-		this.privilege = privilege;
-		this.shell = shell;
-		this.uid = uid;
-		this.username = username;
-	}
-	
-	/**
-	 * Return whether user is allowed to execute virtual node
-	 * 
-	 * @param {VirtualNode} vnode
-	 * 
-	 * @returns {Boolean}
-	 */
-	executable( vnode ) {
-		if (this.root()) return true;
-		if (vnode.uid === this.uid) return (vnode.mode & 0o100) !== 0;
-		if (vnode.gid === this.gid) return (vnode.mode & 0o010) !== 0;
-		return (vnode.mode & 0o001) !== 0;
-	}
-	
-	/**
-	 * Return whether user is allowed to read virtual node
-	 * 
-	 * @param {VirtualNode} vnode
-	 * 
-	 * @returns {Boolean}
-	 */
-	readable( vnode ) {
-		if( this.root()) return true;
-		if( vnode.uid === this.uid) return (vnode.mode & 0o400) !== 0;
-		if( vnode.gid === this.gid) return (vnode.mode & 0o040) !== 0;
-		return (vnode.mode & 0o004) !== 0;
-	}
-	
-	/**
-	 * Return whether current user is root
-	 * 
-	 * @returns {Boolean}
-	 * 
-	 */
-	root() {
-		return this.privilege.match( /^superuser$/ ) && this.uid === 0;
-	}
-	
-	/**
-	 * Returns a string representation of a User
-	 * 
-	 * @returns {String}
-	 * 
-	 */
-	toString() {
-		return Fmt( "{username}:x:{gid}:{uid}:{fullname}:{home}:{shell}", this );
-	}
-	
-	/**
-	 * Return whether user is allowed to write content into virtual node
-	 * 
-	 * @param {VirtualNode} vnode
-	 * 
-	 * @returns {Boolean}
-	 */
-	writeable( vnode ) {
-		if (this.root()) return true;
-		if (vnode.uid === this.uid) return (vnode.mode & 0o200) !== 0;
-		if (vnode.gid === this.gid) return (vnode.mode & 0o020) !== 0;
-		return (vnode.mode & 0o002) !== 0;
-	}
-	
-}
-
-class Root extends User {
-	
-	/**
-	 * Construct method of class User
-	 * 
-	 * @param {?String} home
-	 * @param {?String} shell
-	 * 
-	 */
-	constructor( home, shell ) {
-		super( {}, "Root", 0, "root", home || "/root", "root", "superuser", shell || "/usr/bin/bash", 0, "root" );
 	}
 	
 }
@@ -1254,8 +938,10 @@ class VirtualFileSystem {
 	 */
 	builder( object={} ) {
 		var contents = object.contents;
-		if( object.scripting ?? false ) {
-			console.warn( "unallowed to transform JavaScript contents into executable code" );
+		if( object?.mode === 493 &&
+			object?.type === "file" && 
+			object.scripting === false ) {
+			console.warn( Fmt( "{}: {}: unallowed to transform JavaScript contents into executable code", object.mode, object.name ) );
 		}
 		if( Typed( contents, Object ) ) {
 			if( contents?.type === "Buffer" && contents?.data ) {
@@ -1338,8 +1024,8 @@ class VirtualFileSystem {
 		else {
 			user = options.group;
 		}
-		if( options.user.root() === false ||
-			options.user.gid === user.gid ) {
+		if( options.user.root() === false &&
+			options.user.gid !== user.gid ) {
 			throw new TypeError( Fmt( "{}: user is not member of group {}", pathname, options.group ) );
 		}
 		path.gid = user.gid;
@@ -1365,7 +1051,7 @@ class VirtualFileSystem {
 	chmod( pathname, options={ modes: null, recursive: false, user: null } ) {
 		var path = this.walk( pathname );
 		var mode = this.mode( options.modes, path.mode );
-		if( options.user.root() === false ||
+		if( options.user.root() === false &&
 			options.user.uid !== path.uid ) {
 			throw new TypeError( Fmt( "{}: permission denied", pathname ) );
 		}
@@ -1503,8 +1189,7 @@ class VirtualFileSystem {
 		var path = this.walk( pathname );
 		var user = options.user;
 		if( user.readable( path ) ) {
-			if( path.type !== "file" &&
-				pathname.endsWith( "/" ) ) {
+			if( path.type !== "file" ) {
 				return Array.from( path.contents.values() ).map( entry => entry.copy() );
 			}
 			return path.copy();
@@ -2001,406 +1686,6 @@ class VirtualFileSystem {
 	
 }
 
-class VirtualNode {
-	
-	/** @type {Buffer|Function|Map<String,VirtualNode>|String} */
-	contents;
-	
-	/** @type {UnixTime} */
-	ctime;
-	
-	/** @type {Number} */
-	gid;
-	
-	/** @type {Number} */
-	mode;
-	
-	/** @type {String} */
-	name;
-	
-	/** @type {String} */
-	type; // file|link|path
-	
-	/** @type {Number} */
-	uid;
-	
-	/** @type {UnixTime} */
-	utime;
-	
-	/**
-	 * Construct method of class VirtualNode
-	 * 
-	 * @param {?UnixTime} ctime
-	 * @param {Number} gid
-	 * @param {Number} mode
-	 * @param {String} name
-	 * @param {String} type
-	 * @param {Number} uid
-	 * @param {?UnixTime} utime
-	 * @param {Object} options
-	 * @param {?Buffer|Function|Map<String,VirtualNode>|String} [options.contents]
-	 * 
-	 */
-	constructor( ctime, gid, mode, name, type, uid, utime, options={} ) {
-		this.contents = typeof options.contents !== "undefined" ? options.contents : ( type === "file" ? "" : ( type === "link" ? "" : {} ) );
-		this.ctime = ctime || new UnixTime();
-		this.gid = gid;
-		this.mode = mode;
-		this.name = name;
-		this.type = type;
-		this.uid = uid;
-		this.utime = utime || new UnixTime();
-	}
-	
-	/**
-	 * Returns copied instance
-	 * 
-	 * This will include all content that is under the parent
-	 * 
-	 * @returns {VirtualNode}
-	 * 
-	 */
-	copy() {
-		var contents = this.contents;
-		if( this.type === "path" ) {
-			contents = new Map();
-			for( let keyset of this.contents.keys() ) {
-				contents.set( keyset, this.contents.get( keyset ).copy() );
-			}
-		}
-		return new VirtualNode( this.ctime, this.gid, this.mode, this.name, this.type, this.uid, this.utime, { contents: contents } );
-	}
-	
-	/**
-	 * Returns object representation
-	 * 
-	 * @returns {Object}
-	 * 
-	 */
-	object() {
-		var contents = this.contents;
-		var scripting = false;
-		if( this.type === "file" ) {
-			if( contents instanceof Buffer ) {
-			}
-			if( contents instanceof Function ) {
-				contents = contents.toString();
-				scripting = true;
-			}
-		}
-		if( this.type === "path" ) {
-			contents = {};
-			for( let keyset of this.contents.keys() ) {
-				contents[keyset] = this.contents.get( keyset ).object();
-			}
-		}
-		return {
-			contents: contents,
-			ctime: this.ctime,
-			gid: this.gid,
-			mode: this.mode,
-			name: this.name,
-			scripting: scripting,
-			type: this.type,
-			uid: this.uid,
-			utime: this.utime
-		};
-	}
-	
-	/**
-	 * Returns pathname
-	 * 
-	 * @returns {String}
-	 * 
-	 */
-	qualified() {
-		return this.name === "/" ? "/" : this.name;
-	}
-	
-}
-
-class VirtualNodeGroup extends VirtualNode {
-	
-	/** @type {Map<Number,Group>} */
-	groups;
-	
-	/**
-	 * Construct method of class VirtualNodePasswd
-	 * 
-	 * @param {Map<Number,Group>} groups
-	 * 
-	 * @throws {TypeError} Throws whether root group not found
-	 * 
-	 */
-	constructor( groups ) {
-		if( groups.has( 0 ) ) {
-			super( null, 0, 0o644, "group", "file", 0, null, { contents: "" } );
-			this.groups = groups;
-			this.refresh();
-		}
-		else {
-			throw new TypeError( "unable to instantiate group" );
-		}
-	}
-	
-	/** Refresh saved group information */
-	refresh() {
-		this.contents = Array.from( this.groups.values() ).join( "\x0a" );
-		this.utime = new UnixTime();
-	}
-	
-}
-
-class VirtualNodePasswd extends VirtualNode {
-	
-	/** @type {Map<Number,User>} */
-	users;
-	
-	/**
-	 * Construct method of class VirtualNodePasswd
-	 * 
-	 * @param {Map<Number,User>} users
-	 * 
-	 * @throws {TypeError} Throws whether root user not found
-	 * 
-	 */
-	constructor( users ) {
-		if( users.has( 0 ) ) {
-			var user = users.get( 0 );
-			super( null, user.gid, 0o644, "passwd", "file", user.uid, null, { contents: "" } );
-			this.users = users;
-			this.refresh();
-		}
-		else {
-			throw new TypeError( "unable to instantiate passwd" );
-		}
-	}
-	
-	/** Refresh saved user account information */
-	refresh() {
-		this.contents = Array.from( this.users.values() ).join( "\x0a" );
-		this.utime = new UnixTime();
-	}
-	
-}
-
-class VirtualNodeShadow extends VirtualNode {
-	
-	/** @type {Map<Number,User>} */
-	users;
-	
-	/**
-	 * Construct method of class VirtualNodeShadow
-	 * 
-	 * @param {Map<Number,User>} users
-	 * 
-	 * @throws {TypeError} Throws whether root user not found
-	 * 
-	 */
-	constructor( users ) {
-		if( users.has( 0 ) ) {
-			var user = users.get( 0 );
-			super( null, user.gid, 0o640, "shadow", "file", user.uid, null, { contents: "" } );
-			this.users = users;
-			this.refresh();
-		}
-		else {
-			throw new TypeError( "unable to instantiate shadow" );
-		}
-	}
-	
-	/** Refresh saved sensitive user account information */
-	refresh() {
-		this.contents = Array.from( this.users.values() ).map( user => user.password ).join( "\x0a" );
-		this.utime = new UnixTime();
-	}
-	
-}
-
-class VirtualStream {
-	
-	/** @type {Array<String>} */
-	buffer;
-	
-	/** @type {Boolean} */
-	closed;
-	
-	/** @type {Map<String,Set<Function>>} */
-	listeners;
-	
-	/** @type {String} */
-	name;
-	
-	/**
-	 * Construct method of class VirtualStream
-	 * 
-	 * @param {String} name
-	 * @param {String} contents
-	 * 
-	 */
-	constructor( name, contents ) {
-		this.buffer = [];
-		this.closed = false;
-		this.listeners = new Map();
-		this.listeners.set( "clear", new Set() );
-		this.listeners.set( "read", new Set() );
-		this.listeners.set( "write", new Set() );
-		this.name = name;
-		if( isNotEmpty( contents ) ) {
-			this.buffer.push( contents );
-		}
-	}
-	
-	/**
-	 * Close virtual stream
-	 * 
-	 * @throws {TypeError} Throws whether stream has been closed
-	 * 
-	 */
-	close() {
-		if( this.closed ) {
-			throw new TypeError( Fmt( "{}: stream has been closed", this.name ) );
-		}
-		this.clear();
-		this.closed = true;
-		delete this.buffer;
-	}
-	
-	/**
-	 * Clear virtual stream buffer
-	 * 
-	 * @throws {TypeError} Throws whether stream has been closed
-	 * 
-	 */
-	clear() {
-		if( this.closed ) {
-			throw new TypeError( Fmt( "{}: unable to clear buffer on closed stream", this.name ) );
-		}
-		this.buffer = [];
-		for( const listener of this.listeners.get( "clear" ) ) {
-			try {
-				listener();
-			}
-			catch( e ) {
-				console.error( e );
-			}
-		}
-	}
-	
-	/**
-	 * Read virtual stream buffer
-	 * 
-	 * @param {Number} max
-	 * 
-	 * @returns {String}
-	 * 
-	 * @throws {TypeError} Throws whether stream has been closed
-	 * 
-	 */
-	read( max=-1 ) {
-		if( this.closed ) {
-			throw new TypeError( Fmt( "{}: unable to read buffer on closed stream", this.name ) );
-		}
-		let contents = this.buffer.slice( 0, max ).join( "" );
-		this.buffer = this.buffer.slice( max, -1 );
-		for( const listener of this.listeners.get( "read" ) ) {
-			try {
-				listener( contents );
-			}
-			catch( e ) {
-				console.error( e );
-			}
-		}
-		return contents;
-	}
-	
-	/**
-	 * Register stream listener
-	 * 
-	 * @param {String} event
-	 * @param {Function} listener
-	 * 
-	 * @returns {never}
-	 * 
-	 * @throws {TypeError} Throws whether invalid event passed or stream has been closed
-	 * 
-	 */
-	register( event, listener ) {
-		if( this.closed ) {
-			throw new TypeError( Fmt( "{}: unable to add listener on closed stream", this.name ) );
-		}
-		if( this.listeners.has( event ) ) {
-			this.listeners.get( event ).add( listener );
-			return;
-		}
-		throw new TypeError( Fmt( "{}: unsupported event listener", event ) );
-	}
-	
-	/**
-	 * Write virtual stream buffer
-	 * 
-	 * @param {String} content
-	 * 
-	 * @throws {TypeError} Throws whether stream has been closed
-	 * 
-	 */
-	write( content ) {
-		if( this.closed ) {
-			throw new TypeError( Fmt( "{}: unable to write buffer on closed stream", this.name ) );
-		}
-		this.buffer.push( new String( content ) );
-		for( const listener of this.listeners.get( "write" ) ) {
-			try {
-				listener( this.buffer.at( -1 ) );
-			}
-			catch( e ) {
-				console.error( e );
-			}
-		}
-	}
-	
-}
-
-class Stderr extends VirtualStream {
-	
-	/**
-	 * Construct method of class Stderr
-	 * 
-	 * @param {?String} contents
-	 * 
-	 */
-	constructor( contents ) {
-		super( "stderr", contents );
-	}
-	
-}
-
-class Stdin extends VirtualStream {
-	
-	/**
-	 * Construct method of class Stdin
-	 * 
-	 * @param {?String} contents
-	 * 
-	 */
-	constructor( contents ) {
-		super( "stdin", contents );
-	}
-	
-}
-
-class Stdout extends VirtualStream {
-	
-	/**
-	 * Construct method of class Stdout
-	 * 
-	 * @param {?String} contents
-	 */
-	constructor( contents ) {
-		super( "stdout", contents );
-	}
-	
-}
 
 export {
 	Group,

@@ -10,3 +10,9 @@ node_modules/**
 
 # Backup codes
 **-backup**
+
+# Disabled ai setting
+.claude
+CLAUDE.md
+.gemini
+GEMINI.md

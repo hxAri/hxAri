@@ -29,7 +29,9 @@
  * 
  */
 
-import { Cookie } from "/src/scripts/cookie.js";
+import { choice } from "/src/scripts/common";
+import { Cookie } from "/src/scripts/cookie";
+import { Fmt } from "/src/scripts/formatter";
 import { Null, Typed } from "/src/scripts/types";
 
 /**
@@ -38,165 +40,216 @@ import { Null, Typed } from "/src/scripts/types";
  * Preference themes that support
  * detection of theme colors on the device.
  *
- * @version 1.0.8
  */
-const Theme = function({ set } = {}) {
-	this.theme = {
-		dark: {
-			color: "#202521",
-			token: "\x37\x61\x35\x31\x64\x61\x38\x37\x30\x63\x63\x63\x32\x34\x63\x32\x32\x35\x31\x38\x37\x31\x37\x64\x33\x63\x66\x35\x36\x64\x32\x39"
-		},
-		light: {
-			color: "#eeeeee",
-			token: "\x37\x33\x66\x65\x38\x61\x35\x35\x66\x65\x65\x35\x30\x62\x31\x65\x34\x62\x38\x31\x61\x66\x32\x65\x32\x34\x34\x36\x65\x61\x30\x34"
-		}
-	};
-	try {
-		var self = this;
-		var color = set;
-			color = Typed( color, "Undefined", () => self.get(), () => color );
-		
-		self.set( color );
+
+class Palette {
+	
+	/**
+	 * HTML Meta color code
+	 * 
+	 * @type {String}
+	 * 
+	 */
+	color;
+	
+	/**
+	 * Color palete name
+	 * 
+	 * @type {String}
+	 * 
+	 */
+	name;
+	
+	/**
+	 * Cookie token value
+	 * 
+	 * @type {String}
+	 * 
+	 */
+	token;
+	
+	/**
+	 * Construct method of class Palette
+	 * 
+	 * @param {String} color 
+	 * @param {String} name 
+	 * @param {String} token 
+	 * 
+	 */
+	constructor( color,name, token ) {
+		this.color = color;
+		this.name = name;
+		this.token = token;
 	}
-	catch( error ) {
-		console.warn( `Theme:\x20${error}` );
+	
+}
+
+class Theme {
+	
+	/** @type {Cookie} */
+	cookie;
+	
+	/**
+	 * Theme current color
+	 * 
+	 * @type {String}
+	 * 
+	 */
+	current;
+	
+	/**
+	 * Theme default color
+	 * 
+	 * @type {String}
+	 * 
+	 */
+	default;
+	
+	/** @type {String} */
+	keyset;
+	
+	/** @type {Map<String,Palette>} */
+	palettes;
+	
+	/**
+	 * Themes default color only dark and light
+	 * 
+	 * @type {Map<String,Palette>}
+	 * 
+	 */
+	themes;
+	
+	/**
+	 * Construct method of class Theme
+	 * 
+	 * @param cookie {Cookie}
+	 * 
+	 */
+	constructor( cookie ) {
+		this.cookie = cookie;
+		this.current = "\x6c\x69\x67\x68\x74";
+		this.default = "\x6c\x69\x67\x68\x74";
+		this.keyset = "\x64\x47\x68\x6c\x62\x57\x55";
+		this.palettes = new Map([
+			[ "adelia", new Palette( "#db7093", "adelia", "ad3Lia1Pnk927W" ) ],
+			[ "liana", new Palette( "#ba55d3", "liana", "li4NaPurp818X" ) ],
+			[ "periwinkle", new Palette( "#ccccff", "periwinkle", "pe4RiWnk1e818X" ) ],
+			[ "peach", new Palette( "#ffdab9", "peach", "pe4ChPnk927W" ) ],
+			[ "navicoral", new Palette( "#f08080", "navicoral", "na4ViCor1818X" ) ],
+			[ "greensage", new Palette( "#b2ac88", "greensage", "gr4EEnSge927W" ) ],
+			[ "stromi", new Palette( "#4a8db7", "stromi", "ab7ErM0B7Cgfdy9F" ) ],
+			[ "turtles", new Palette( "#6bbd99", "turtles", "a7B7b9041FIPg27W" ) ]
+		]);
+		this.themes = new Map([
+			[ "dark", new Palette( "#202521", "dark", "f5eoTwvPngzrw5ax"  ) ],
+			[ "light", new Palette( "#eeeeee", "light", "dfI4Afn2sGMcMaeh" ) ]
+		])
+		this.set( this.get() );
 	}
-};
-
-/**
- * Theme alias name.
- *
- * @values String
- */
-Theme.prototype.name = "\x64\x47\x68\x6c\x62\x57\x55";
-
-/**
- * Theme contructor results.
- *
- * @value Mixed
- */
-Theme.prototype.result = null;
-
-/**
- * Theme default color.
- *
- * @values String
- */
-Theme.prototype.default = "\x6c\x69\x67\x68\x74";
-
-/**
- * Current theme color.
- *
- * @values String
- */
-Theme.prototype.color = "\x6c\x69\x67\x68\x74";
-
-/**
- * Get current theme token.
- *
- * @returns {String}
- * 
- */
-Theme.prototype.get = function() {
-	try {
-		
-		// Get current theme color from cookie.
-		var token = Cookie.prototype.get( this.name );
-		
-		// If token value is String type.
-		if( Typed( token, String ) ) {
-			
-			// If token value equals with dark.
-			if( token === this.theme.dark.token ) {
-				return "\x64\x61\x72\x6b";
+	
+	/**
+	 * Get current theme token.
+	 *
+	 * @returns {String}
+	 * 
+	 */
+	get() {
+		try {
+			var token = this.cookie.get( this.keyset );
+			if( Typed( token, String ) ) {
+				for( let [ keyset, palete ] of this.palettes.entries() ) {
+					if( palete.token === token ) {
+						return keyset;
+					}
+				}
+				for( let [ keyset, palete ] of this.themes.entries() ) {
+					if( palete.token === token ) {
+						return keyset;
+					}
+				}
 			}
-		}
-		else {
-			
-			// If device supported dark mode.
 			if( window.matchMedia ) {
-				
-				// Check if dark.mode is activated.
 				if( window.matchMedia( "(prefers-color-scheme:dark)" ).matches ) {
 					return "\x64\x61\x72\x6b";
 				}
 			}
 		}
-	}
-	catch( error ) {
-		console.warn( `Theme.prototype.get:\x20${error}` );
-	}
-	return "\x6c\x69\x67\x68\x74";
-};
-
-/**
- * Set theme color.
- *
- * @param {String} color
- * 
- */
-Theme.prototype.set = function( color ) {
-	try {
-		
-		// Get token value from cookie.
-		var cookie = Cookie.prototype.get( this.name );
-		var defaultColor = this.default;
-		
-		// Normalize color.
-		color = Typed( color, String, () => color, () => defaultColor );
-		
-		// If current cookie value does not equals.
-		if( cookie !== this.theme[color].token ) {
-			
-			// Set current color.
-			this.color = color;
-			
-			Cookie.prototype.set( ...[
-				this.name,
-				this.theme[color].token, {
-					path: "/",
-					expires: 30
-				}
-			]);
+		catch( error ) {
+			console.warn( `Theme.prototype.get:\x20${error}` );
 		}
-		this.setHtml( color );
-		this.setMeta( color );
-	}
-	catch( error ) {
-		console.warn( `Theme.prototype.set:\x20${error}` );
-	}
-};
-
-/**
- * Set theme color to HTMLHeadElement.
- *
- * @param {String} color
- *
- */
-Theme.prototype.setHtml = color => document.documentElement.dataset.theme = color;
-
-/**
- * Set theme color to HTMLMetaElement.
- *
- * @param {String} color
- * 
- */
-Theme.prototype.setMeta = function( color ) {
+		return this.default;
+	};
 	
-	var meta = null;
-	
-	// Check if HTMLMetaElement has been created.
-	if( Typed( meta = document.querySelector( "meta[name=\"theme-color\"]" ), Null ) ) {
-		
-		// Create new HTMLMetaElement.
-		meta = document.createElement( "meta" );
-		meta.setAttribute( "name", "theme-color" );
-		
-		// Append HTMLMetaElement to HTMLHeadElement.
-		document.head.appendChild( meta );
+	/**
+	 * Set theme color.
+	 *
+	 * @param {String} color
+	 * 
+	 * @throws {TypeError} Throws when invalid color passed
+	 * 
+	 */
+	set( color ) {
+		var color = Typed( color, String ) ? color : this.default;
+		var palete = null;
+		if( this.palettes.has( color ) ) {
+			palete = this.palettes.get( color );
+		}
+		else if( this.themes.has( color ) ) {
+			palete = this.themes.get( color );
+		}
+		else {
+			throw new TypeError( Fmt( "{}: Unsupported theme color or palette", color ) );
+		}
+		this.current = color;
+		this.cookie.set( this.keyset, palete.token, { path: "/", expires: 30 } );
+		this.setHTML( color );
+		this.setHTMLMeta( palete );
 	}
-	meta.setAttribute( "content", this.theme[color].color );
-};
+	
+	/**
+	 * Set theme color to HTMLHeadElement.
+	 *
+	 * @param {String} color
+	 *
+	 */
+	setHTML( color ) {
+		if( Typed( color, String ) &&
+			Typed( document, HTMLDocument ) &&
+			Typed( document.documentElement, HTMLHtmlElement ) ) {
+			document.documentElement.dataset.theme = color;
+		}
+	}
+	
+	/**
+	 * Set theme color to HTMLMetaElement.
+	 *
+	 * @param {Palette} palete
+	 * 
+	 */
+	setHTMLMeta( palete ) {
+		if( Typed( document, HTMLDocument ) ) {
+			var meta = document.querySelector( "meta[name=\"theme-color\"]" );
+			if( Typed( meta, Null ) ) {
+				meta = document.createElement( "meta" );
+				document.head.appendChild( meta );
+			}
+			meta.setAttribute( "name", "theme-color" );
+			meta.setAttribute( "content", palete.color );
+		}
+	}
+	
+	setPalette( color ) {
+		var palettes = [ ...this.palettes.keys() ];
+		if( Typed( color, [ "Null", "Undefined" ] ) ) {
+			color = this.get();
+		}
+		while( color === this.current && palettes.length >= 2 ) {
+			color = choice( palettes );
+		}
+		this.set( color );
+	}
+	
+}
 
 export {
 	Theme

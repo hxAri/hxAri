@@ -29,16 +29,16 @@
  * 
  */
 
-import { Alias } from "./alias";
-import { ANSI, ANSIColors, ANSIFormats, ANSIProperties } from "./ansi";
-import { History } from "./history";
-import { Stderr, Stdin, Stdout } from "../kernel";
-import { Lexer } from "./lexer";
-import { Router } from "../../../routing";
-import { sleep } from "./sleep";
-import { Token, TokenGroup, TokenGrouped, TokenProcessSubtitution, TokenType } from "./token";
-import { UnixTime } from "../../unixtime";
-import { User } from "../kernel";
+import { Fmt } from "/src/scripts/formatter";
+import { Router } from "/src/routing";
+import { Alias } from "/src/scripts/terminal/shell/alias";
+import { ANSI, ANSIColors, ANSIFormats, ANSIProperties } from "/src/scripts/terminal/shell/ansi";
+import { History } from "/src/scripts/terminal/shell/history";
+import { Kernel, Program, Stderr, Stdin, Stdout, User, VirtualNode } from "/src/scripts/terminal/kernel";
+import { Lexer } from "/src/scripts/terminal/shell/lexer";
+import { sleep } from "/src/scripts/terminal/shell/sleep";
+import { Token, TokenGroup, TokenGrouped, TokenProcessSubtitution, TokenType } from "/src/scripts/terminal/shell/token";
+import { UnixTime } from "/src/scripts/unixtime";
 
 
 class Shell {
@@ -63,6 +63,12 @@ class Shell {
 	
 	/** @type {Lexer} */
 	lexer;
+	
+	/** @type {Stderr} */
+	stderr;
+	
+	/** @type {Stdin} */
+	stdin;
 	
 	/** @type {Stdout} */
 	stdout;
@@ -101,13 +107,59 @@ class Shell {
 		this.env = new Map();
 		this.exports = new Map();
 		this.history = [];
+		this.historyIndex = -1;
 		this.kernel = kernel;
+		if( this.kernel.user() != user ) {
+			this.kernel.switch( user.username );
+		}
+		this.kernel.vfs.cd( object.HOME, { user: user } );
 		this.lexer = new Lexer( false );
+		this.stderr = new Stderr();
+		this.stdin = new Stdin();
 		this.stdout = new Stdout();
 		this.user = user;
+		if( this.user ) {
+			this.env = this.user.env;
+		}
 		for( let [ keyset, value ] of Object.entries( object ) ) {
 			this.env.set( keyset, value );
 		}
+	}
+	
+	/**
+	 * Completion for given command
+	 * 
+	 * @param {String} command
+	 * 
+	 * @returns {String}
+	 */
+	complete( command ) {
+		// const parts = command.split( /\s+/ );
+		// const lastPart = parts[parts.length - 1];
+		// if( parts.length <= 1 ) {
+		// 	// Complete from programs and aliases
+		// 	const candidates = [
+		// 		...this.kernel.programs.keys(),
+		// 		...this.aliases.keys()
+		// 	];
+		// 	const matches = candidates.filter( c => c.startsWith( lastPart ) );
+		// 	if( matches.length === 1 ) {
+		// 		return command.substring( 0, command.length - lastPart.length ) + matches[0] + " ";
+		// 	}
+		// } else {
+		// 	// Complete from files in CWD
+		// 	try {
+		// 		const entries = this.kernel.vfs.ls( ".", { user: this.user } );
+		// 		const names = Array.from( entries.contents.keys() );
+		// 		const matches = names.filter( n => n.startsWith( lastPart ) );
+		// 		if( matches.length === 1 ) {
+		// 			const isDir = entries.contents.get( matches[0] ).type === "path";
+		// 			return command.substring( 0, command.length - lastPart.length ) + matches[0] + ( isDir ? "/" : " " );
+		// 		}
+		// 	} catch( e ) {
+		// 	}
+		// }
+		return command;
 	}
 	
 	/**
@@ -123,15 +175,109 @@ class Shell {
 		if( this.history.length >= 40 ) {
 			this.history = [];
 		}
-		const iterator = this.tokenize( command );
+		const iterator = this.tokenize( command.trim() );
 		while( true ) {
 			const iterated = iterator.next();
 			if( iterated.done ) {
 				break;
 			}
-			console.clear();
-			console.debug( JSON.stringify( iterated.value, null, 4 ) );
-			// do something with command...
+			const executables = await this.executables();
+			try {
+				if( iterated.value.length <= 0 ) continue;
+				if( executables.has( iterated.value[0].lexeme ) ) {
+					const argv = iterated.value.filter( argv => argv.grouped != "WHITESPACE" ).map( value => value.lexeme );
+					const executable = executables.get( iterated.value[0].lexeme );
+					if( this.user.executable( executable ) ) {
+						this.env.set( "?", await this.kernel.spawn( executable.contents, { 
+							argv: argv,
+							env: this.env,
+							stderr: this.stderr,
+							stdin: this.stdin,
+							stdout: this.stdout,
+							user: this.user 
+						}));
+						continue;
+					}
+					throw new TypeError( Fmt( "{}: permission denied", iterated.value[0].lexeme ) );
+				}
+				throw new TypeError( Fmt( "{}: command not found", iterated.value[0].lexeme ) );
+			}
+			catch( e ) {
+				this.stderr.write( e );
+				this.env.set( "?", 1 );
+				break;
+			}
+		}
+	}
+	
+	/**
+	 * Returns executable files (based on environment `PATH`)
+	 * 
+	 * @returns {Map<String,VirtualNode>}
+	 * 
+	 */
+	async executables() {
+		const pathnames = this.env.get( "PATH" ).split( ":" );
+		const executables = new Map();
+		for( const pathname of pathnames ) {
+			if( this.kernel.vfs.isdir( pathname ) ) {
+				for( const vnode of this.kernel.vfs.ls( pathname, { user: this.user } ) ) {
+					if( vnode.mode && 0o100 !== 0 ) {
+						executables.set( vnode.name, vnode );
+					}
+				}
+			}
+		}
+		return executables;
+	}
+
+	/**
+	 * Expand environment variables in a string
+	 * 
+	 * @param {String} text
+	 * 
+	 * @returns {String}
+	 */
+	expand( text ) {
+		return text.replace( /\$(\{)?([A-Za-z0-9_@*!#?$-]+)(\})?/g, ( match, brace, name, braceEnd ) => {
+			if( this.exports.has( name ) ) {
+				return this.exports.get( name );
+			}
+			if( this.env.has( name ) ) {
+				return this.env.get( name );
+			}
+			return "";
+		});
+	}
+	
+	/**
+	 * Get previous command from history
+	 * 
+	 * @returns {?String}
+	 */
+	historyPrev() {
+		if( this.history.length === 0 ) return null;
+		if( this.historyIndex === -1 ) {
+			this.historyIndex = this.history.length - 1;
+		} else if( this.historyIndex > 0 ) {
+			this.historyIndex--;
+		}
+		return this.history[this.historyIndex];
+	}
+	
+	/**
+	 * Get next command from history
+	 * 
+	 * @returns {?String}
+	 */
+	historyNext() {
+		if( this.history.length === 0 || this.historyIndex === -1 ) return null;
+		if( this.historyIndex < this.history.length - 1 ) {
+			this.historyIndex++;
+			return this.history[this.historyIndex];
+		} else {
+			this.historyIndex = -1;
+			return "";
 		}
 	}
 	
@@ -160,10 +306,10 @@ class Shell {
 				case "s": value = this.user.shell; break;
 				
 				// Current working directory.
-				// case "w": value = this.pwd() !== this.exports.HOME ? this.pwd() : "~"; break;
+				case "w": value = this.kernel.vfs.cwd !== this.env.HOME ? this.kernel.vfs.cwd : "~"; break;
 				
 				// Basename current working directory.
-				// case "W": value = this.pwd( true ); break;
+				case "W": value = this.kernel.vfs.cwd; break;
 				
 				// The username of current user.
 				case "u": value = this.user.username; break;

@@ -43,6 +43,7 @@ import { Requests } from "../scripts/requests";
 import { Terminal } from "../scripts/terminal";
 import { Theme } from "../scripts/theme";
 import { Typed } from "../scripts/types";
+import { sleep } from "../scripts/terminal/shell";
 
 // import { Store } from "/src/store/store.js";
 
@@ -285,7 +286,7 @@ const Store = createStore({
 			
 			// Enable loading request.
 			// And trying get project info.
-			project.document_loading = Request( "GET", Fmt( "{}/{}", process.env.NODE_ENV === "production" ? "https://raw.githubusercontent.com/hxAri/hxAri/main/public/globals/docs" : "", project.document_url ) );
+			project.document_loading = Request( "GET", Fmt( "{}/{}", process.env.NODE_ENV === "production" ? "https://raw.githubusercontent.com/hxAri/hxAri/main/public/globals/docs" : "", project.document.url ) );
 			
 			// Awaiting request.
 			await project.document_loading 
@@ -326,7 +327,6 @@ const Store = createStore({
 				element.parentElement.removeChild( element );
 				element = null;
 			}
-			{};
 			for( let keyset of Object.keys( state.signature ) ) {
 				var element = document.querySelector( Fmt( "head>meta[name=\"signature:{}\"]", keyset ) );
 				if( Typed( element, HTMLMetaElement ) ) {
@@ -337,11 +337,13 @@ const Store = createStore({
 			}
 			for( let i in state.keysets ) {
 				var keyset = Fmt( "\x78\x7b\x7d", bin2hex( state.keysets[i] ) );
-				var value = state.cookie.get( keyset );
-				if( isNotEmpty( value ) ) {
+				var values = state.cookie.get( keyset );
+				if( isNotEmpty( values ) ) {
 					try {
-						var decoded = atob( value );
-						value = decoded;
+						if( values.startsWith( "\x7b" ) === false &&
+							values.startsWith( "\x5d" ) === false ) {
+							values = atob( values );
+						}
 					}
 					catch( e ) {
 					}
@@ -349,14 +351,15 @@ const Store = createStore({
 						var target = state.targets.get( state.keysets[i] );
 						switch( state.keysets[i] ) {
 							case "profile":
-								state.profile = JSON.parse( value );
-								target.response = value;
+								state.profile = JSON.parse( values );
+								target.response = values;
 								break;
 						}
 					}
 				}
 			}
 			await dispatch( "priority" );
+			await dispatch( "organization" );
 		},
 		
 		/**
@@ -372,92 +375,87 @@ const Store = createStore({
 		 * 
 		 */
 		organization: async function({ state, dispatch, getters, commit }) {
-			
-			var url = process.env.NODE_ENV === "production" ? "https://api.github.com/orgs/{}" : "/github/{}.json";
-			var cookie = Fmt( "\x78\x7b\x7d", bin2hex( "organizations" ) );
-			var values = state.cookie.get( cookie );
-			var organizations = [];
-			
-			// Check if priority requests does not made.
+			while( state.loading ) {
+				sleep( 1 );
+			}
 			if( getters.hasConfig === false && state.loading === false ) {
 				await dispatch( "priority" );
 			}
-			
-			// Check if something wrongs.
-			if( state.error || state.loading ) {
+			if( state.error ) {
 				return;
 			}
-			
-			if( isNotEmpty( values ) ) {
-				try {
+			state.error = false;
+			state.loading = true;
+			if( Typed( state.configs, [ Configs, Object ] ) &&
+				Typed( state.configs.organizations, Array ) ) {
+				var url = process.env.NODE_ENV === "production" ? "https://api.github.com/orgs/{}" : "/github/{}.json";
+				var keyset = Fmt( "\x78\x7b\x7d", bin2hex( "organizations" ) );
+				var values = state.cookie.get( keyset );
+				var organizations = [];
+				if( isNotEmpty( values ) ) {
 					try {
-						var decoded = atob( values );
-							values = decoded;
-					}
-					catch( e ) {
-					}
-					values = JSON.parse( values );
-					if( Typed( values, Array ) && isNotEmpty( values ) ) {
-						for( let organization of values ) {
-							if( state.configs.organizations.indexOf( organization.login ) >= 0 ) {
-								commit( "organization", organization );
-								organizations.push( organization.login );
+						try {
+							if( values.startsWith( "\x7b" ) === false &&
+								values.startsWith( "\x5d" ) === false ) {
+								values = atob( values );
+							}
+						}
+						catch( e ) {
+						}
+						finally {
+							values = JSON.parse( values );
+							if( Typed( values, Array ) && isNotEmpty( values ) ) {
+								for( let organization of values ) {
+									if( state.configs.organizations.indexOf( organization.login ) >= 0 ) {
+										commit( "organization", organization );
+										organizations.push( organization.login );
+									}
+								}
 							}
 						}
 					}
-				}
-				catch( e ) {
-				}
-			}
-			
-			for( let u in state.configs.organizations ) {
-				if( organizations.indexOf( state.configs.organizations[u] ) >= 0 ) {
-					continue;
-				}
-				await Request( "GET", Fmt( url, state.configs.organizations[u] ) )
-					
-					// Handle request response.
-					.then( request => commit( "organization", request.response ) )
-					
-					// Stop the next request execution.
-					.catch( e => { state.configs.organizations[u] = e; } );
-				
-				// If request succesfull created.
-				if( Typed( state.configs.organizations[u], String ) ) {
-					try {
-						state.cookie.set( cookie, btoa( JSON.stringify( state.organizations ) ), { expires: 1, path: "/" } );
-					}
 					catch( e ) {
 					}
-					continue;
 				}
-				break;
+				for( let u in state.configs.organizations ) {
+					if( organizations.indexOf( state.configs.organizations[u] ) >= 0 ) {
+						continue;
+					}
+					await Request( "GET", Fmt( url, state.configs.organizations[u] ) )
+						
+						// Handle request response.
+						.then( request => commit( "organization", request.response ) )
+						
+						// Stop the next request execution.
+						.catch( e => { state.configs.organizations[u] = e; } );
+					
+					// If request succesfull created.
+					if( Typed( state.configs.organizations[u], String ) ) {
+						state.cookie.set( keyset, btoa( JSON.stringify( state.organizations ) ), { expires: 1, path: "/" } );
+					}
+				}
 			}
+			state.loading = false;
 		},
 		
 		/**
 		 * Get profile and configuration application.
 		 *
-		 * @param {Object} kwargs
-		 * @param {Property} kwargs.state
-		 * @param {Object} kwargs.getters
+		 * @param {Object} param0
+		 * @param {Property} param0.state
+		 * @param {Function} param0.dispatch
+		 * @param {Object} param0.getters
+		 * @param {Function} param0.commit
 		 *
-		 * @returns {Promise}
+		 * @returns {Promise<void>}
+		 * 
 		 */
-		priority: async function( kwargs={}) {
-			var getters = kwargs.getters;
-			var state = kwargs.state;
+		priority: async function({ state, dispatch, getters, commit }) {
+			state.error = false;
+			state.loading = true;
 			try {
-				
-				// Remove previous error.
-				state.error = false;
-				
-				// Enable loading request.
-				state.loading = true;
-				
 				var keysets = [];
 				var targets = [];
-				
 				for( let [ keyset, target ] of state.targets.entries() ) {
 					var getter = Fmt( "has{}{}", keyset.charAt( 0 ).toUpperCase(), keyset.slice( 1 ) );
 					if( getters[getter] ) {
@@ -479,6 +477,8 @@ const Store = createStore({
 					 * @param {Number} i
 					 * @param {XMLHttpRequest} request
 					 *
+					 * @returns {void}
+					 * 
 					 */
 					function( i, request ) {
 						
@@ -498,19 +498,13 @@ const Store = createStore({
 							state[keysets[i]] = target.handler( state[keysets[i]] );
 						}
 						
-						// Save request response into cookies.
-						if( state.keysets.indexOf( keysets[i] ) >= 0 ) {
-							try {
-								state.cookie.set( Fmt( "x{}", bin2hex( keysets[i] ) ), btoa( JSON.stringify( state[keysets[i]] ) ), { expires: 1, path: "/" } );
-							}
-							catch( e ) {
-								try {
-									state.cookie.set( Fmt( "x{}", bin2hex( keysets[i] ) ), JSON.stringify( state[keysets[i]] ), { expires: 1, path: "/" } );
-								}
-								catch( e ) {
-								}
-							}
+						var content = JSON.stringify( state[keysets[i]] );
+						try {
+							content = btoa( content );
 						}
+						catch( e ) {
+						}
+						state.cookie.set( Fmt( "x{}", bin2hex( keysets[i] ) ), content, { expires: 1, path: "/" } );
 					}
 				))
 				
@@ -586,14 +580,17 @@ const Store = createStore({
 		 *
 		 * @returns {Boolean}
 		 */
-		hasConfig: state => {
+		hasConfigs: state => {
 			if( state.targets.has( "configs" ) ) {
 				var target = state.targets.get( "configs" );
-				if( target.request instanceof XMLHttpRequest && 
-					state.configs instanceof Configs ) {
-					return target.error === false;
-				}
-				return state.configs instanceof Configs && target.error === false;
+				return (
+					( 
+						target.request instanceof XMLHttpRequest || 
+						target.request === null 
+					) && 
+				    target.error === false && 
+					state.configs instanceof Object
+				);
 			}
 			return false;
 		},
@@ -609,11 +606,14 @@ const Store = createStore({
 		hasProfile: state => {
 			if( state.targets.has( "profile" ) ) {
 				var target = state.targets.get( "profile" );
-				if( target.request instanceof XMLHttpRequest && 
-					state.configs instanceof Object ) {
-					return target.error === false;
-				}
-				return state.profile instanceof Configs && target.error === false;
+				return (
+					( 
+						target.request instanceof XMLHttpRequest || 
+						target.request === null 
+					) && 
+				    target.error === false && 
+					state.profile instanceof Object
+				);
 			}
 			return false;
 		},
@@ -626,8 +626,13 @@ const Store = createStore({
 		 * @returns {Boolean}
 		 * 
 		 */
-		hasOrganization: state => Typed( state.organizations, Array ) && isNotEmpty( state.organizations )
-		
+		hasOrganization: state => {
+			if( Typed( state.configs, [ Configs, Object ] ) &&
+				Typed( state.configs.organizations, Array ) ) {
+				return Typed( state.organizations, Array ) && isNotEmpty( state.organizations );
+			}
+			return false;
+		}
 		
 	},
 	modules: {
@@ -645,13 +650,6 @@ const Store = createStore({
 		 * 
 		 */
 		organization: function( state, organization ) {
-			
-			// Change organizations as Array.
-			if( Typed( state.organizations, Array ) === false ) {
-				state.organizations = [];
-			}
-			
-			// Parse request response.
 			if( Typed( organization, String ) ) {
 				organization = JSON.parse( organization );
 			}
@@ -663,7 +661,7 @@ const Store = createStore({
 		var action = new Action();
 		var cookie = new Cookie();
 		var terminal = new Terminal( null, Router, document.createElement( "div" ) );
-		var theme = new Theme();
+		var theme = new Theme( cookie );
 		return new Property({
 			action: action,
 			configs: null, 
@@ -697,7 +695,7 @@ const Store = createStore({
 						handler: null,
 						method: "GET",
 						request: null,
-						url: "https://api.github.com/users/hxAri"
+						url: process.env.NODE_ENV === "production" ? "https://api.github.com/users/hxAri" : "/github/hxari.json"
 					})
 				]
 			]),

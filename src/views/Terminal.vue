@@ -1,18 +1,21 @@
 
 <script>
-
+	
+	import { Swiper, SwiperSlide } from "swiper/vue";
 	import { mapState } from "vuex";
 	
-	import { isMobile, isMobileUserAgent } from "../scripts/common";
-	import { Configs } from "../scripts/configs";
-	import { Fmt } from "../scripts/formatter";
-	import { isEmpty, isNotEmpty } from "../scripts/logics";
-	import { Banner, Terminal } from "../scripts/terminal";
-	import { ANSI } from "../scripts/terminal/shell";
-	import { Typed } from "../scripts/types";
+	import { isMobile, isMobileUserAgent } from "/src/scripts/common";
+	import { Configs } from "/src/scripts/configs";
+	import { Fmt } from "/src/scripts/formatter";
+	import { isEmpty, isNotEmpty } from "/src/scripts/logics";
+	import { Banner, Terminal } from "/src/scripts/terminal";
+	import { ANSI } from "/src/scripts/terminal/shell";
+	import { Typed } from "/src/scripts/types";
 	
 	export default {
 		data: () => ({
+			
+			actives: new Map(),
 			
 			/** @type {ANSI} */
 			ansi: new ANSI(),
@@ -121,6 +124,10 @@
 				}
 			}
 		},
+		components: {
+			Swiper,
+			SwiperSlide
+		},
 		computed: {
 			...mapState([
 				"profile"
@@ -180,14 +187,28 @@
 					case "Enter":
 						this.model = "";
 						await this.terminal.exec( command );
+						console.log( "Executed" );
 						break;
 					case "Tab":
-						this.model+= "\x20";
+						this.model = this.terminal.shell.complete( command );
 						e.preventDefault();	
+						break;
+					case "ArrowUp":
+						var prev = this.terminal.shell.historyPrev();
+						if( prev !== null ) this.model = prev;
+						e.preventDefault();
+						break;
+					case "ArrowDown":
+						var next = this.terminal.shell.historyNext();
+						if( next !== null ) this.model = next;
+						e.preventDefault();
 						break;
 				}
 				this.ontrigger( e );
 			},
+			
+			/** @inheritdoc */
+			fmt: Fmt,
 			
 			/**
 			 * Set input text selection to end.
@@ -212,19 +233,10 @@
 						var input = this.$refs.input;
 						var index = input.selectionStart;
 						if( Typed( e, KeyboardEvent ) ) {
-							if( e.keyCode in codes ) {
-								if( e.keyCode !== 38 ) {
-									if( e.keyCode === 40 ) {
-									}
-									else {
-										this.labels.before = this.ansi.colorize( model.substring( 0, index ) );
-										this.labels.splited = model.substring( index, index+1 );
-										this.labels.after = this.ansi.colorize( model.substring( index+1 ) );
-									}
-								}
-								else {
-									// Up
-								}
+							if( codes.includes( e.keyCode ) ) {
+								this.labels.before = this.ansi.colorize( model.substring( 0, index ) );
+								this.labels.splited = model.substring( index, index+1 );
+								this.labels.after = this.ansi.colorize( model.substring( index+1 ) );
 							}
 							else {
 								this.labels.before = this.ansi.colorize( model.substring( 0, index ) );
@@ -276,6 +288,10 @@
 			 * 
 			 */
 			keyhandler: function( name, text, code ) {
+				if( text ) {
+					this.model+= text;
+				}
+				this.execute({ key: name, preventDefault: () => {} });
 			},
 			
 			/**
@@ -290,7 +306,29 @@
 				if( Typed( shortcut, Object ) ) {
 					this.keyhandler( shortcut.name, shortcut.text, shortcut.code );
 				}
-			}
+			},
+			
+			/**
+			 * Show hide process detail info
+			 * 
+			 * @param {Number} pid
+			 * 
+			 * @returns {void}
+			 * 
+			 */
+			 showProcessDetail: function( pid ) {
+				var keyset = Fmt( "terminal-process-item-{}", pid );
+				var element = document.getElementById( keyset );
+				if( Typed( element, HTMLDivElement ) ) {
+					element.classList.toggle( "active" );
+				}
+				if( this.actives.has( keyset ) ) {
+					this.actives.delete( keyset );
+				}
+				else {
+					this.actives.set( keyset, true );
+				}
+			},
 			
 		},
 		mounted: function() {
@@ -308,44 +346,240 @@
 
 <template>
 	<div class="terminal">
-		<div class="terminal-screen">
-			<div class="terminal-output" @click="ontrigger">
-				<div>
-					<h1 class="title">Table Process</h1>
-					<p class="subtitle">{{ terminal.kernel.table.size }}</p>
-					<p class="subtitle" v-for="process, pid in Object.fromEntries( terminal.kernel.table )">
-						{{ pid }} {{ process.state }}
-					</p>
+		<Swiper class="terminal-swiper" slidesPerView="auto" :initialSlide="1" :resistanceRatio="0" :slideToClickedSlide="true">
+			<SwiperSlide class="terminal-swiper-slide terminal-swiper-menu">
+				<div class="terminal-menu-header">
+					<div class="terminal-menu-header-wrapper flex flex-left pd-14">
+						<span class="fb-55">TABLE PROCESSES</span>
+						<pre class="fb-45 mg-left-8">`{{ terminal.kernel.table.size }}`</pre>
+					</div>
 				</div>
-				<div class="terminal-line" v-html="terminal.window.innerHTML"></div>
-				<div class="terminal-form">
-					<label class="terminal-prompt" data-label="$PS1" v-html="terminal.ps1()"></label>
-					<label class="terminal-label" data-label="before" v-html="labels.before"></label>
-					<label class="terminal-label blinking-1x" data-blink data-label="split" v-html="labels.splited" :style="{ backgroundColor: 'white', width: '9px', color: 'black' }"></label>
-					<label class="terminal-label" data-label="after" v-html="labels.after"></label>
-					<input class="terminal-input blinking-1x" data-label="input" :style="{ borderRight: labels.splited === '' && model !== '' || model === '' ? '9px solid white' : 'none', transition: 'none' }" autocapitalize="off" ref="input" type="text" v-model="model"
-						@click="onkeydown"
-						@keyup="onkeydown"
-						@focus="onkeydown"
-						@input="onkeydown"
-						@change="onkeydown"
-						@keypress="onkeydown"
-						@keydown="execute" />
+				<div class="terminal-menu-processes scroll-x scroll-hidden">
+					<div class="terminal-process-header" v-if="( terminal.kernel.table.size >= 1 )">
+						<div class="terminal-process-column flex flex-left pd-14">
+							<div class="terminal-process-title flex">
+								<div class="terminal-process-title-uid fb-45">UID</div>
+								<div class="terminal-process-title-gid fb-45">GID</div>
+								<div class="terminal-process-title-pid fb-45">PID</div>
+								<div class="terminal-process-title-stat fb-45">STAT</div>
+								<div class="terminal-process-title-start fb-45">START</div>
+							</div>
+						</div>
+					</div>
+					<div class="terminal-process-item" :id="fmt( 'terminal-process-item-{}', pid )" :ref="fmt( 'terminal-process-item-{}', pid )" v-for="process, pid in Object.fromEntries( terminal.kernel.table )">
+						<div class="terminal-process-column flex flex-left pd-14">
+							<div class="terminal-process-title flex">
+								<div class="terminal-process-title-uid" title="UID">{{ process.user.username }}</div>
+								<div class="terminal-process-title-gid" title="GID">{{ process.user.gid }}</div>
+								<div class="terminal-process-title-pid" title="PID">{{ process.pid }}</div>
+								<div class="terminal-process-title-stat" title="STAT">{{ process.state.charAt( 0 ).toUpperCase() }}</div>
+								<div class="terminal-process-title-start" title="START">{{ process.start.format( "%Y-%m-%d %H:%M" ) }}</div>
+							</div>
+							<div class="terminal-process-options flex flex-center">
+								<i class="bx bx-chevrons-up fs-20" title="Process Details Hide" @click="showProcessDetail( pid )" v-if="actives.has( fmt( 'terminal-process-item-{}', pid ) )"></i>
+								<i class="bx bx-chevrons-down fs-20" title="Process Details" @click="showProcessDetail( pid )" v-else></i>
+							</div>
+						</div>
+						<div class="terminal-process-detail" :id="fmt( 'terminal-process-detail-{}', pid )">
+							<div class="terminal-process-detail-container flex flex-center">
+								<div class="terminal-process-detail-wrapper">
+									<div class="terminal-process-detail-info pd-14">
+										<div class="terminal-process-detail-single flex flex-left">
+											<div class="terminal-process-detail-info fb-45 subtitle">UID</div>
+											<div class="terminal-process-detail-info text">{{ process.user.uid }}</div>
+										</div>
+										<div class="terminal-process-detail-single flex flex-left">
+											<div class="terminal-process-detail-info fb-45 subtitle">PID</div>
+											<div class="terminal-process-detail-info text">{{ process.pid }}</div>
+										</div>
+										<div class="terminal-process-detail-single flex flex-left">
+											<div class="terminal-process-detail-info fb-45 subtitle">SPID</div>
+											<div class="terminal-process-detail-info text">{{ process.pid }}</div>
+										</div>
+										<div class="terminal-process-detail-single flex flex-left">
+											<div class="terminal-process-detail-info fb-45 subtitle">PPID</div>
+											<div class="terminal-process-detail-info text">{{ process.pid }}</div>
+										</div>
+										<div class="terminal-process-detail-single flex flex-left">
+											<div class="terminal-process-detail-info fb-45 subtitle">C</div>
+											<div class="terminal-process-detail-info text">?</div>
+										</div>
+										<div class="terminal-process-detail-single flex flex-left">
+											<div class="terminal-process-detail-info fb-45 subtitle">STIME</div>
+											<div class="terminal-process-detail-info text">{{ process.start.format( "%H:%M" ) }}</div>
+										</div>
+										<div class="terminal-process-detail-single flex flex-left">
+											<div class="terminal-process-detail-info fb-45 subtitle">TTY</div>
+											<div class="terminal-process-detail-info text">?</div>
+										</div>
+										<div class="terminal-process-detail-single flex flex-left">
+											<div class="terminal-process-detail-info fb-45 subtitle">STAT</div>
+											<div class="terminal-process-detail-info text">{{ process.state.charAt( 0 ).toUpperCase() }}</div>
+										</div>
+										<div class="terminal-process-detail-single flex flex-left">
+											<div class="terminal-process-detail-info fb-45 subtitle">TIME</div>
+											<div class="terminal-process-detail-info text">0:00</div>
+										</div>
+										<div class="terminal-process-detail-single flex flex-left">
+											<div class="terminal-process-detail-info fb-45 subtitle">CMD</div>
+											<div class="terminal-process-detail-info text"></div>
+										</div>
+									</div>
+									<hr class="terminal-process-detail-hr-end" />
+									<div class="terminal-process-detail-closeable flex flex-center pd-14" @click="showProcessDetail( pid )">
+										<i class="bx bx-chevrons-up fs-20"></i>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
 				</div>
-			</div>
-			<div class="terminal-shortcut mg-top-10" v-if="isMobile()">
-				<div class="terminal-shortcut-key flex flex-center" v-for="shortcut in shortcuts" @click="keyshort( shortcut )">
-					<p class="title flex flex-center" v-if="shortcut.text">{{ shortcut.text }}</p>
-					<p class="title flex flex-center" v-else>
-						<i :class="[ 'title', ...shortcut.icon ]"></i>
-					</p>
+			</SwiperSlide>
+			<SwiperSlide class="terminal-swiper-slide terminal-swiper-main">
+				<div class="terminal-screen scroll-y">
+					<div class="terminal-output" @click="ontrigger">
+						<div class="terminal-line" v-html="terminal.window.innerHTML"></div>
+						<div class="terminal-form">
+							<label class="terminal-prompt" data-label="$PS1" v-html="terminal.ps1()"></label>
+							<label class="terminal-label" data-label="before" v-html="labels.before"></label>
+							<label class="terminal-label blinking-1x" data-blink data-label="split" v-html="labels.splited" :style="{ backgroundColor: 'white', width: '9px', color: 'black' }"></label>
+							<label class="terminal-label" data-label="after" v-html="labels.after"></label>
+							<input class="terminal-input blinking-1x" data-label="input" :style="{ borderRight: labels.splited === '' && model !== '' || model === '' ? '9px solid white' : 'none', transition: 'none' }" autocapitalize="off" ref="input" type="text" v-model="model"
+								@click="onkeydown"
+								@keyup="onkeydown"
+								@focus="onkeydown"
+								@input="onkeydown"
+								@change="onkeydown"
+								@keypress="onkeydown"
+								@keydown="execute" />
+						</div>
+					</div>
+					<div class="terminal-shortcut mg-top-10" v-if="isMobile()">
+						<div class="terminal-shortcut-key flex flex-center" v-for="shortcut in shortcuts" @click="keyshort( shortcut )">
+							<p class="title flex flex-center" v-if="shortcut.text">{{ shortcut.text }}</p>
+							<p class="title flex flex-center" v-else>
+								<i :class="[ 'title', ...shortcut.icon ]"></i>
+							</p>
+						</div>
+					</div>
 				</div>
-			</div>
-		</div>
+			</SwiperSlide>
+		</Swiper>
 	</div>
 </template>
 
 <style scoped>
+	
+	/*
+	 * -------------------------------------------------------------------------------------------------------------------------------------------
+	 * Terminal SwiperJs Styling
+	 * -------------------------------------------------------------------------------------------------------------------------------------------
+	 *
+	 */
+	 .swiper {
+		width: 100%;
+		height: 100%;
+	}
+		.terminal-swiper-slide {
+			height: 800px;
+		}
+		@media( max-width: 750px ) {
+			.terminal-swiper-slide {
+				height: 660px;
+			}
+		}
+		.terminal-swiper-menu {
+			min-width: 100px;
+			width: 70%;
+			max-width: 460px;
+			background: var(--background-3);
+			border-right: 1px solid var(--border-3);
+		}
+			.terminal-main-header,
+			.terminal-menu-header {
+				width: 100%;
+				background: var(--background-2);
+				border-bottom: 1px solid var(--border-2);
+			}
+				.terminal-menu-header-wrapper {
+					height: 71px;
+				}
+			.terminal-menu-processes {
+				height: 91%;
+				overflow-y: scroll;
+			}
+				.terminal-process-header,
+				.terminal-process-item {
+					height: 7%;
+					border-bottom: 1px solid var(--border-2);
+					background: var(--background-3);
+					overflow: hidden;
+					position: relative;
+					transition: background .4s ease, height .3s ease-in-out;
+				}
+				.terminal-process-item:hover {
+					background: var(--background-4);
+				}
+				.terminal-process-item.active {
+					background: var(--background-4);
+					height: 86.1%;
+				}
+					.terminal-process-column {
+						overflow: hidden;
+					}
+						.terminal-process-title {
+							width: 100%;
+						}
+							.terminal-process-title-uid,
+							.terminal-process-title-gid,
+							.terminal-process-title-pid,
+							.terminal-process-title-stat,
+							.terminal-process-title-start {
+								overflow: hidden;
+								width: 16%;
+							}
+							.terminal-process-title-start {
+								width: 32%;
+							}
+						.terminal-process-options {
+							border: 0;
+							gap: 7px;
+							position: absolute;
+							right: 14px;
+						}
+					.terminal-process-detail {
+						border-top: 1px solid var(--border-4);
+						background: var(--background-4);
+						transition: all .6s ease;
+					}
+					.terminal-process-item.active .terminal-process-detail {
+						border-top: 0px;
+					}
+						.terminal-process-detail-container {
+						}
+							.terminal-process-detail-wrapper {
+								overflow: hidden;
+								width: 100%;
+							}
+								.terminal-process-detail-info {
+								}
+									.terminal-process-detail-single {
+										height: 50px;
+									}
+										.terminal-process-detail-info.subtitle,
+										.terminal-process-detail-info.text {
+											width: 50%;
+										}
+									.terminal-process-detail-hr-end,
+									.terminal-process-detail-single {
+										width: 100%;
+										border-top: 1px solid var(--border-4);
+									}
+									.terminal-process-detail-closeable {
+										background: var(--background-4);
+									}
+		.terminal-swiper-main {
+		}
 	
 	/*
 	 * -------------------------------------------------------------------------------------------------------------------------------------------
