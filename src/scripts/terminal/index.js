@@ -31,12 +31,11 @@
 
 "use strict";
 
-import { Fmt } from "../formatter";
-import { Kernel, Program, User, VirtualNode } from "./kernel";
-import { Alias, Lexer, ANSI, Shell, sleep } from "./shell";
-import { Router } from "../../routing";
-import { Typed } from "../types";
-import { UnixTime } from "../unixtime";
+import { Router } from "/src/routing";
+import { Fmt } from "/src/scripts/formatter";
+import { Kernel, Program, User, VirtualNode } from "/src/scripts/terminal/kernel";
+import { Alias, Lexer, ANSI, Shell, sleep } from "/src/scripts/terminal/shell";
+import { Typed } from "/src/scripts/types";
 
 /**
  * Terminal banner
@@ -121,10 +120,7 @@ class Terminal {
 		];
 		this.input = input;
 		this.kernel = new Kernel( router );
-		if( this.kernel.vfs.isdir( "/home/hxari" ) ) {
-			this.hxari = this.kernel.user();
-		}
-		else {
+		if( this.kernel.vfs.isdir( "/home/hxari" ) === false ) {
 			this.kernel.useradd( "hxari", {
 				fullname: "hxAri",
 				home: "/home/hxari",
@@ -135,10 +131,11 @@ class Terminal {
 			this.hxari = this.kernel.user();
 			for( const aliased of this.aliases ) {
 				this.kernel.vfs.append( "/home/hxari/.bash_aliases", { contents: Fmt( "\nalias -d 0 -o 0 $'{}'=\"{}\"", ...aliased.map( ( alias, index ) => index === 0 ? alias : alias.replaceAll( /\"/g, "\\\"" ) ) ), user: this.hxari } );
-			}	
+			}
 		}
+		this.shell = new Shell( this.kernel, { user: this.kernel.userget( "hxari" ) } );
+		this.hxari = this.kernel.user();
 		this.router = router;
-		this.shell = new Shell( this.kernel, { user: this.hxari } );
 		
 		const unescapeHex = str => str.replace( /\\x([0-9a-fA-F]{2})/g, ( match, p1 ) => String.fromCharCode( parseInt( p1, 16 ) ) );
 		for( const aliased of this.aliases ) {
@@ -146,9 +143,15 @@ class Terminal {
 			const aliasCmd = unescapeHex( aliased[1] );
 			this.shell.aliases.set( name, new Alias( aliasCmd, true, name ) );
 		}
-
 		this.window = window;
-		this.kernel.spawn( shellspawn( this.shell, window ) );
+		if( Typed( window, HTMLDivElement ) ) {
+			var ansi = new ANSI();
+			this.shell.stderr.register( "clear", () => window.innerHTML = "" );
+			this.shell.stderr.register( "write", contents => window.innerHTML+= contents.split( /\n/gm ).map( e => Fmt( "<label class=\"terminal-line-output dp-block\">{}</label>", ansi.render( e ) ) ).join( "" ) );
+			this.shell.stdout.register( "clear", () => window.innerHTML = "" );
+			this.shell.stdout.register( "write", contents => window.innerHTML+= contents.split( /\n/gm ).map( e => Fmt( "<label class=\"terminal-line-output dp-block\">{}</label>", ansi.render( e ) ) ).join( "" ) );
+		}
+		// this.kernel.spawn( shellspawn( this.shell, window ), {} );
 	}
 	
 	/**
@@ -183,6 +186,8 @@ function shellspawn( shell, window ) {
 	var ansi = new ANSI();
 	return async function( args=[] ) {
 		if( Typed( window, HTMLDivElement ) ) {
+			shell.stderr.register( "clear", () => window.innerHTML = "" );
+			shell.stderr.register( "write", contents => window.innerHTML+= contents.split( /\n/gm ).map( e => Fmt( "<label class=\"terminal-line-output dp-block\">{}</label>", ansi.render( e ) ) ).join( "" ) );
 			shell.stdout.register( "clear", () => window.innerHTML = "" );
 			shell.stdout.register( "write", contents => window.innerHTML+= contents.split( /\n/gm ).map( e => Fmt( "<label class=\"terminal-line-output dp-block\">{}</label>", ansi.render( e ) ) ).join( "" ) );
 		}
