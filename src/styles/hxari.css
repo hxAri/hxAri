@@ -451,7 +451,7 @@ a.tc-ac-4 {
 		height: 2px;
 		display: block;
 		border-radius: 9999px;
-		background-color: var(--color-1);
+		background-color: var(--color-4);
 	}
 	.burger > .burger-line:not(:last-child) {
 		margin-bottom: 7px;
