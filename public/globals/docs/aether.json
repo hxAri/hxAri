@@ -1,0 +1,25 @@
+{
+	"title": "AETHER",
+	"routes": [
+		{
+			"path": "/projects/AETHER",
+			"name": "home",
+			"readable": true,
+			"component": {
+				"data": {
+					"styles": {
+					}
+				},
+				"template": {
+					"name": "div",
+					"attributes": {
+						"dataset": {
+							"project": "AETHER"
+						},
+						"innerHTML": "<pre>{{ this.project }}</pre>"
+					}
+				}
+			}
+		}
+	]
+}
