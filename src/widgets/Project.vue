@@ -348,7 +348,7 @@
 			border: 1px solid var(--border-3);
 		}
 		.project:hover {
-			border-color: var(--border-3);
+			border-color: var(--border-2);
 		}
 			.project-body {
 				width: auto;
