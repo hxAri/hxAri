@@ -6,101 +6,16 @@
 			"name": "home",
 			"readable": true,
 			"component": {
+				"data": {
+					"styles": {
+					}
+				},
 				"template": {
 					"name": "div",
 					"attributes": {
 						"class": "avatar flex flex-center",
 						"innerHTML": [
-							{
-								"name": "div",
-								"attributes": {
-									"class": "avatar-wrapper flex flex-center",
-									"innerHTML": [
-										{
-											"name": "img",
-											"attributes": {
-												"class": "avatar-image",
-												":data-src": "source+'/project/'+images.project.kanashi",
-												"v-lazyload": ""
-											}
-										},
-										{
-											"name": "div",
-											"attributes": {
-												"class": "avatar-cover"
-											}
-										}
-									]
-								}
-							}
 						]
-					}
-				}
-			}
-		},
-		{
-			"path": "/projects/Kanashi/history",
-			"name": "history",
-			"readable": true,
-			"component": {
-				"template": {
-					"name": "div",
-					"attributes": {
-						"innerHTML": "History"
-					}
-				}
-			}
-		},
-		{
-			"path": "/projects/Kanashi/install",
-			"name": "install",
-			"readable": true,
-			"component": {
-				"template": {
-					"name": "div",
-					"attributes": {
-						"innerHTML": "Install"
-					}
-				}
-			}
-		},
-		{
-			"path": "/projects/Kanashi/usages",
-			"name": "usage",
-			"readable": true,
-			"component": {
-				"template": {
-					"name": "div",
-					"attributes": {
-						"innerHTML": "Usage"
-					}
-				}
-			}
-		},
-		{
-			"path": "/projects/Kanashi/api",
-			"name": "api",
-			"readable": true,
-			"children": [
-				{
-					"path": "client",
-					"name": "api-client",
-					"readable": true,
-					"component": {
-						"template": {
-							"name": "div",
-							"attributes": {
-								"innerHTML": "API Client"
-							}
-						}
-					}
-				}
-			],
-			"component": {
-				"template": {
-					"name": "div",
-					"attributes": {
-						"innerHTML": "API"
 					}
 				}
 			}
