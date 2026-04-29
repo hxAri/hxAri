@@ -612,6 +612,9 @@ class HomeDisplay {
 	experience;
 	
 	/** @type {Boolean} */
+	organization;
+	
+	/** @type {Boolean} */
 	project;
 	
 	/** @type {Boolean} */
@@ -627,6 +630,7 @@ class HomeDisplay {
 	 * @param {Boolean} kwargs.about
 	 * @param {Boolean} kwargs.certificate
 	 * @param {Boolean} kwargs.experience
+	 * @param {Boolean} kwargs.organization
 	 * @param {Boolean} kwargs.project
 	 * @param {Boolean} kwargs.programming
 	 * @param {Boolean} kwargs.technology
@@ -636,6 +640,7 @@ class HomeDisplay {
 		this.about = kwargs?.about ?? false;
 		this.certificate = kwargs?.certificate ?? false;
 		this.experience = kwargs?.experience ?? false;
+		this.organization = kwargs?.organization ?? false;
 		this.project = kwargs?.project ?? false;
 		this.programming = kwargs?.programming ?? false;
 		this.technology = kwargs?.technology ?? false;
