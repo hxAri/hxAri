@@ -26,7 +26,7 @@
 		created: function() {
 			this.markdown = new MarkdownIt({
 				highlight: function( code, lang ) {
-					if( lang, hljs.getLanguage( lang ) ) {
+					if( lang && hljs.getLanguage( lang ) ) {
 						try {
 							return hljs.highlight( code, { language: lang } ).value;
 						}
@@ -36,7 +36,9 @@
 					return "";
 				},
 				html: true,
-				langPrefix: "language-"
+				langPrefix: "language-",
+				linkify: true,
+				typographer: true
 			});
 			// this.markdown.use();
 		},
