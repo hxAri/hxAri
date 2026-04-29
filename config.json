@@ -566,6 +566,7 @@
         "terminal": false
     },
     "organizations": [
+        "aetherlf",
         "octancle",
         "yfure"
     ],
@@ -586,14 +587,14 @@
                 "document": {
                     "url": "public/globals/docs/aether.json"
                 },
-                "endpoint": "hxAri/AETHER",
-                "homepage": "https://github.com/hxAri/",
+                "endpoint": "aetherlf/AETHER",
+                "homepage": "https://github.com/aetherlf/AETHER",
                 "include": true,
                 "language": "cpp",
                 "name": "AETHER",
                 "previews": [],
                 "readme": {
-                    "url": "https://raw.githubusercontent.com/hxAri/AETHER/prod/README.md"
+                    "url": "https://raw.githubusercontent.com/aetherlf/AETHER/prod/README.md"
                 },
                 "thumbnail": "project/1759570092;9famMV6JArAow.png"
             },
