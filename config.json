@@ -788,6 +788,12 @@
             {
                 "certificates": [],
                 "descriptions": [],
+                "logo": "aether",
+                "name": "AETHER"
+            },
+            {
+                "certificates": [],
+                "descriptions": [],
                 "logo": "cpp",
                 "name": "C++"
             },
