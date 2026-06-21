@@ -479,7 +479,6 @@
                 "zend": "1720953190;71apJIRBGN662.png"
             },
             "language": {
-                "aether": "1759570092;9famMV6JArAow.png",
                 "c": "1720953483;07qSuudjtdfjg.png",
                 "c++": "1720953517;50IywUt9Ydyig.png",
                 "cpp": "1720953517;50IywUt9Ydyig.png",
@@ -499,8 +498,6 @@
                 "vue": "1720952972;07EUJ5iYHLEOk.png"
             },
             "project": {
-                "aether": "1759570092;9famMV6JArAow.png",
-                "aether-svg": "1759570092;cdNAShq2qX7eA.svg",
                 "android": "1701255136;da5bQ1MYJ0Ojg.png",
                 "atarashi": "1701255136;aela1LCKsEh0g.png",
                 "eremento": "1701255136;870xbghIllhKM.png",
@@ -567,9 +564,8 @@
         "terminal": false
     },
     "organizations": [
-        "aetherlf",
-        "octancle",
-        "yfure"
+        "lianairi",
+        "uranite-lang"
     ],
     "paintart": {
         "description": [
@@ -584,21 +580,6 @@
             "Don't forget to let others know if it's useful."
         ],
         "items": [
-            {
-                "document": {
-                    "url": "public/globals/docs/aether.json"
-                },
-                "endpoint": "aetherlf/AETHER",
-                "homepage": "https://github.com/aetherlf/AETHER",
-                "include": true,
-                "language": "cpp",
-                "name": "AETHER",
-                "previews": [],
-                "readme": {
-                    "url": "https://raw.githubusercontent.com/aetherlf/AETHER/prod/README.md"
-                },
-                "thumbnail": "project/1759570092;9famMV6JArAow.png"
-            },
             {
                 "document": {
                     "url": "public/globals/docs/android.json"
@@ -778,6 +759,21 @@
                     "url": "https://raw.githubusercontent.com/hxAri/Yume/main/README.md"
                 },
                 "thumbnail": "project/1701255136;dda59nWb0O4gE.png"
+            },
+            {
+                "document": {
+                    "url": "public/globals/docs/uranite.json"
+                },
+                "endpoint": "uranite-lang/uranite",
+                "homepage": "https://github.com/uranite-lang/uranite",
+                "include": true,
+                "language": "cpp",
+                "name": "Uranite",
+                "previews": [],
+                "readme": {
+                    "url": "https://raw.githubusercontent.com/uranite-lang/uranite/prod/README.md"
+                },
+                "thumbnail": "project/1759570092;9famMV6JArAow.png"
             }
         ]
     },
@@ -786,12 +782,6 @@
             "Some programming languages that I can use at the moment."
         ],
         "expertices": [
-            {
-                "certificates": [],
-                "descriptions": [],
-                "logo": "aether",
-                "name": "AETHER"
-            },
             {
                 "certificates": [],
                 "descriptions": [],
@@ -833,6 +823,12 @@
                 "descriptions": [],
                 "logo": "shell",
                 "name": "Shell"
+            },
+            {
+                "certificates": [],
+                "descriptions": [],
+                "logo": "uranite",
+                "name": "Uranite"
             }
         ],
         "percentage": 100
